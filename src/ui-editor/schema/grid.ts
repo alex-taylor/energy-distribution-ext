@@ -1,9 +1,9 @@
-import { EditorPages, EntitiesOptions, PowerOutageOptions, EnergyFlowCardExtConfig } from '@/config';
+import { EditorPages, PowerOutageOptions, EnergyFlowCardExtConfig, EntityOptions } from '@/config';
 import { dualValueNodeSchema, nodeConfigSchema } from '.';
 
 const powerOutageGridSchema: any[] = [
   {
-    name: EntitiesOptions.Single_Entity,
+    name: EntityOptions.Entity_Id,
     selector: { entity: {} },
   },
   {

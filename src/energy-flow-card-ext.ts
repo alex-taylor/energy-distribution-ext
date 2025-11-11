@@ -19,7 +19,7 @@ import { LowCarbonState } from "./states/low-carbon";
 import { ValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, DEVICE_CLASS_ENERGY } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, OverridesOptions, EntityOptions, EnergyUnitsConfig, SecondaryEntityConfig } from "@/config";
+import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, OverridesOptions, EntityOptions, EnergyUnitsConfig } from "@/config";
 import { renderDot, renderLine } from "@/ui-helpers";
 import { GasState } from "@/states/gas";
 

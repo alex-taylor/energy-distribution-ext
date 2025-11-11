@@ -152,9 +152,7 @@ export function getDefaultGridConfig(hass: HomeAssistant, requireEntity: boolean
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntitiesOptions.Entities]: {
-        [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
-      }
+      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
     }
   };
 
@@ -201,9 +199,7 @@ export function getDefaultBatteryConfig(hass: HomeAssistant, requireEntity: bool
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntitiesOptions.Entities]: {
-        [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
-      }
+      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
     }
   };
 
@@ -250,9 +246,7 @@ export function getDefaultSolarConfig(hass: HomeAssistant, requireEntity: boolea
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntitiesOptions.Entities]: {
-        [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
-      }
+      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
     }
   };
 
@@ -290,9 +284,7 @@ export function getDefaultGasConfig(hass: HomeAssistant, requireEntity: boolean)
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntitiesOptions.Entities]: {
-        [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
-      }
+      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
     }
   };
 
@@ -345,9 +337,7 @@ export function getDefaultLowCarbonConfig(): LowCarbonConfig {
       [EntitiesOptions.Low_Carbon_Mode]: LowCarbonType.Energy
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntitiesOptions.Entities]: {
-        [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
-      }
+      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
     }
   };
 }
@@ -365,9 +355,7 @@ export function getDefaultDeviceConfig(): DeviceConfig {
       [EntitiesOptions.Device_Type]: DeviceType.Consumption_Electric
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntitiesOptions.Entities]: {
-        [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
-      }
+      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
     },
     [OverridesOptions.Name]: localize("common.new_device"),
     [OverridesOptions.Icon]: "mdi:devices"

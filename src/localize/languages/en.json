@@ -11,7 +11,6 @@
     "name#helptext": "Overrides the built-in name",
     "icon": "Icon",
     "icon#helptext": "Overrides the built-in icon",
-    "entity": "Entity",
     "entities": "Entities",
     "overrides": "Overrides",
     "options": "Options",
@@ -54,6 +53,7 @@
     "kwh_display_precision": "kWh display precision",
     "mwh_display_precision": "MWh display precision",
 
+    "entity_id": "",
     "entity_ids": "",
     "entity_ids#errortext": "testing",
     "units_mode": "Show units",

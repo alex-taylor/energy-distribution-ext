@@ -1,6 +1,6 @@
-import { EntitiesOptions, EntityOptions, SecondaryInfoConfig, SecondaryInfoOptions } from "@/config";
+import { EntityOptions, SecondaryInfoConfig, SecondaryInfoOptions } from "@/config";
 import { HomeAssistant } from "custom-card-helpers";
-import { filterSecondaryEntities, State } from ".";
+import { filterSecondaryEntity, State } from ".";
 
 export class SecondaryInfoState extends State {
   config?: SecondaryInfoConfig;
@@ -10,7 +10,7 @@ export class SecondaryInfoState extends State {
   public constructor(hass: HomeAssistant, config: SecondaryInfoConfig | undefined) {
     super(hass,
       config,
-      filterSecondaryEntities(hass, config?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids]),
+      filterSecondaryEntity(hass, config?.[EntityOptions.Entity_Id]),
       config?.[SecondaryInfoOptions.Icon] || ""
     );
 

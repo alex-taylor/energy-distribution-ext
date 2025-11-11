@@ -1,6 +1,6 @@
 import { localize } from "@/localize/localize";
 import { html, TemplateResult } from "lit";
-import { EntitiesOptions, GridConfig, PowerOutageConfig, PowerOutageOptions } from "@/config";
+import { EntityOptions, GridConfig, PowerOutageConfig, PowerOutageOptions } from "@/config";
 import { DualValueState } from "./state";
 import { HomeAssistant } from "custom-card-helpers";
 
@@ -43,7 +43,7 @@ export class GridState extends DualValueState {
     const powerOutageConfig: PowerOutageConfig | undefined = config?.[PowerOutageOptions.Power_Outage];
 
     this.powerOutage = {
-      isPresent: powerOutageConfig?.[EntitiesOptions.Single_Entity] !== undefined,
+      isPresent: powerOutageConfig?.[EntityOptions.Entity_Id] !== undefined,
       // TODO
       isOutage: false,//powerOutageConfig?.[EntitiesOptions.Single_Entity] !== undefined && hass.states[powerOutageConfig?.[EntitiesOptions.Single_Entity]]?.state === (powerOutageConfig?.[PowerOutageOptions.State_Alert] ?? "on"),
       icon: powerOutageConfig?.[PowerOutageOptions.Icon_Alert] || "mdi:transmission-tower-off",

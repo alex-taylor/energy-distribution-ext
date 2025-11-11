@@ -42,14 +42,6 @@ const entitiesConfigStruct = object({
   [EntityOptions.Entity_Ids]: optional(array())
 });
 
-const secondaryEntitiesConfigStruct = object({
-  [EntityOptions.Entity_Ids]: optional(array()),
-  [EntityOptions.Units]: optional(string()),
-  [EntityOptions.Units_Mode]: optional(string()),
-  [EntityOptions.Zero_Threshold]: optional(number()),
-  [EntityOptions.Display_Precision]: optional(number())
-});
-
 const valueColoursConfig = {
   [ColourOptions.Icon]: optional(string()),
   [ColourOptions.Circle]: optional(string())
@@ -74,7 +66,11 @@ const overridesConfigStruct = object({
 });
 
 const secondaryInfoConfigStruct = object({
-  [EntitiesOptions.Entities]: optional(secondaryEntitiesConfigStruct),
+  [EntityOptions.Entity_Id]: optional(string()),
+  [EntityOptions.Units]: optional(string()),
+  [EntityOptions.Units_Mode]: optional(string()),
+  [EntityOptions.Zero_Threshold]: optional(number()),
+  [EntityOptions.Display_Precision]: optional(number()),
   [SecondaryInfoOptions.Icon]: optional(string()),
   [SecondaryInfoOptions.Template]: optional(string())
 });
@@ -109,7 +105,7 @@ const gasConfigStruct = object({
 });
 
 const powerOutageConfigStruct = object({
-  [EntitiesOptions.Single_Entity]: optional(string()),
+  [EntityOptions.Entity_Id]: optional(string()),
   [PowerOutageOptions.State_Alert]: optional(string()),
   [PowerOutageOptions.Label_Alert]: optional(string()),
   [PowerOutageOptions.Icon_Alert]: optional(string())
@@ -153,7 +149,7 @@ const deviceOptionsConfigStruct = object({
 const deviceConfigStruct = object({
   [OverridesOptions.Name]: optional(string()),
   [OverridesOptions.Icon]: optional(string()),
-  [EntitiesOptions.Entities]: optional(secondaryEntitiesConfigStruct),
+  [EntitiesOptions.Entities]: optional(entitiesConfigStruct),
   [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct),
   [GlobalOptions.Options]: optional(deviceOptionsConfigStruct)

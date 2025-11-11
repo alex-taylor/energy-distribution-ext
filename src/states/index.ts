@@ -48,5 +48,8 @@ export abstract class State {
   }
 }
 
-export const filterPrimaryEntities = (hass: HomeAssistant, entityIds: string[] = []): string[] => entityIds.filter(entityId => hass.states[entityId]?.attributes?.device_class === DEVICE_CLASS_ENERGY);
-export const filterSecondaryEntities = (hass: HomeAssistant, entityIds: string[] = []): string[] => entityIds.filter(entityId => ["measurement", "total", "total_increasing"].includes(hass.states[entityId]?.attributes?.state_class || ""));
+const PRIMARY_STATE_CLASSES: string[] = ["total", "total_increasing"];
+const SECONDARY_STATE_CLASSES: string[] = ["total", "total_increasing", "measurement"];
+
+export const filterPrimaryEntities = (hass: HomeAssistant, entityIds: string[] = []): string[] => entityIds.filter(entityId => PRIMARY_STATE_CLASSES.includes(hass.states[entityId]?.attributes?.state_class || "") && hass.states[entityId]?.attributes?.device_class === DEVICE_CLASS_ENERGY);
+export const filterSecondaryEntity = (hass: HomeAssistant, entityId: string = ""): string[] => SECONDARY_STATE_CLASSES.includes(hass.states[entityId]?.attributes?.state_class || "") ? [entityId] : [];

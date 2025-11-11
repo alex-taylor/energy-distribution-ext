@@ -725,13 +725,13 @@ export class EntityStates {
 
   private _toWattHours(units: string | undefined, value: number): number {
     if (units?.toUpperCase().startsWith("KWH")) {
-      return value * 1000;
+      return round(value * 1000, 0);
     }
 
     if (units?.toUpperCase().startsWith("MWH")) {
-      return value * 1000000;
+      return round(value * 1000000, 0);
     }
 
-    return value;
+    return round(value, 0);
   };
 }

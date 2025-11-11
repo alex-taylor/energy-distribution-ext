@@ -1,6 +1,6 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueColourConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, SecondaryEntityConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueColourConfig, SingleValueNodeConfig } from '@/config';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueColourConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueColourConfig, SingleValueNodeConfig } from '@/config';
 import { ColourMode, DisplayMode, DotsMode, InactiveLinesMode, UnitDisplayMode } from '@/enums';
-import { DEVICE_CLASS_ENERGY } from '../../const';
+import { DEVICE_CLASS_ENERGY } from '@/const';
 
 export function generalConfigSchema(config: EnergyFlowCardExtConfig | undefined) {
   return [
@@ -428,38 +428,32 @@ export function secondaryInfoSchema(config: EnergyFlowCardExtConfig | undefined,
     type: 'expandable',
     schema: [
       {
-        name: EntitiesOptions.Entities,
-        type: 'expandable',
+        name: EntityOptions.Entity_Id,
+        selector: { entity: {} }
+      },
+      {
+        type: 'grid',
+        column_min_width: '150px',
         schema: [
           {
-            name: EntityOptions.Entity_Ids,
-            selector: { entity: { multiple: true, reorder: true } }
+            name: EntityOptions.Units_Mode,
+            required: true,
+            selector: {
+              select: {
+                mode: 'dropdown',
+                options: [
+                  UnitDisplayMode.getItem(UnitDisplayMode.After_Space),
+                  UnitDisplayMode.getItem(UnitDisplayMode.Before_Space),
+                  UnitDisplayMode.getItem(UnitDisplayMode.After),
+                  UnitDisplayMode.getItem(UnitDisplayMode.Before),
+                  UnitDisplayMode.getItem(UnitDisplayMode.Hidden)
+                ]
+              }
+            }
           },
-          {
-            type: 'grid',
-            column_min_width: '150px',
-            schema: [
-              {
-                name: EntityOptions.Units_Mode,
-                required: true,
-                selector: {
-                  select: {
-                    mode: 'dropdown',
-                    options: [
-                      UnitDisplayMode.getItem(UnitDisplayMode.After_Space),
-                      UnitDisplayMode.getItem(UnitDisplayMode.Before_Space),
-                      UnitDisplayMode.getItem(UnitDisplayMode.After),
-                      UnitDisplayMode.getItem(UnitDisplayMode.Before),
-                      UnitDisplayMode.getItem(UnitDisplayMode.Hidden)
-                    ]
-                  }
-                }
-              },
-              { name: EntityOptions.Units, selector: { text: {} } },
-              { name: EntityOptions.Zero_Threshold, selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } } },
-              { name: EntityOptions.Display_Precision, selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } } }
-            ]
-          }
+          { name: EntityOptions.Units, selector: { text: {} } },
+          { name: EntityOptions.Zero_Threshold, selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } } },
+          { name: EntityOptions.Display_Precision, selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } } }
         ]
       },
       {

@@ -57,7 +57,6 @@ export enum FlowsOptions {
 };
 
 export enum EntitiesOptions {
-  Single_Entity = "entity",
   Entities = "entities",
   Import_Entities = "import_entities",
   Export_Entities = "export_entities",
@@ -73,6 +72,7 @@ export enum EntitiesOptions {
 };
 
 export enum EntityOptions {
+  Entity_Id = "entity_id",
   Entity_Ids = "entity_ids",
   Units = "units",
   Units_Mode = "units_mode",
@@ -235,23 +235,19 @@ export interface EntityConfig {
   [EntityOptions.Entity_Ids]?: string[];
 }
 
-export interface SecondaryEntityConfig {
-  [EntityOptions.Entity_Ids]?: string[];
-  [EntityOptions.Units]?: string;
-  [EntityOptions.Units_Mode]?: UnitDisplayMode;
-  [EntityOptions.Zero_Threshold]?: number;
-  [EntityOptions.Display_Precision]?: number;
-}
-
 export interface PowerOutageConfig {
-  [EntitiesOptions.Single_Entity]: string;
+  [EntityOptions.Entity_Id]: string;
   [PowerOutageOptions.State_Alert]?: string;
   [PowerOutageOptions.Label_Alert]?: string;
   [PowerOutageOptions.Icon_Alert]?: string;
 };
 
 export interface SecondaryInfoConfig {
-  [EntitiesOptions.Entities]?: SecondaryEntityConfig;
+  [EntityOptions.Entity_Id]?: string;
+  [EntityOptions.Units]?: string;
+  [EntityOptions.Units_Mode]?: UnitDisplayMode;
+  [EntityOptions.Zero_Threshold]?: number;
+  [EntityOptions.Display_Precision]?: number;
   [SecondaryInfoOptions.Icon]?: string;
   [SecondaryInfoOptions.Template]?: string;
 };
