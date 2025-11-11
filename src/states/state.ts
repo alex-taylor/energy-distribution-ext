@@ -1,6 +1,6 @@
-import { DualValueNodeConfig, EntitiesOptions, EntityOptions, NodeConfig, OverridesOptions, SingleValueNodeConfig } from "@/config";
+import { DualValueNodeConfig, EntitiesOptions, EntityOptions, filterPrimaryEntities, NodeConfig, OverridesOptions, SingleValueNodeConfig } from "@/config";
 import { HomeAssistant } from "custom-card-helpers";
-import { filterPrimaryEntities, State } from ".";
+import { State } from ".";
 import { SecondaryInfoState } from "./secondary-info";
 
 export abstract class ValueState extends State {

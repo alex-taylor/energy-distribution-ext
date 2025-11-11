@@ -2,7 +2,7 @@ import { LitElement, css, html, nothing, TemplateResult, CSSResultGroup } from '
 import { customElement, property, state } from 'lit/decorators.js';
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { assert } from 'superstruct';
-import { DeviceConfig, EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from '@/config';
+import { DeviceConfig, EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, isValidPrimaryEntity, isValidSecondaryEntity } from '@/config';
 import { appearanceSchema, generalConfigSchema } from './schema';
 import { localize } from '@/localize/localize';
 import { gridSchema } from './schema/grid';
@@ -115,7 +115,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
         config[currentPage] = CONFIG_PAGES.find(page => page.page === currentPage)?.createConfig(this.hass);
       }
 
-      const configForPage: DeviceConfig = config[currentPage];
+      const configForPage: any = config[currentPage];
 
       return html`
         <energy-flow-card-ext-page-header @go-back=${this._goBack} icon="${icon}" label=${localize(`editor.${currentPage}`)}></energy-flow-card-ext-page-header>
@@ -134,7 +134,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
               .schema=${schema(config, configForPage)}
               .computeLabel=${computeLabelCallback}
               .computeHelper=${computeHelperCallback}
-              .error=${{import_entities: "testing"}}
+              .error=${this._validateConfig(config)}
               @value-changed=${this._valueChanged}
             ></ha-form>
           `
@@ -201,6 +201,60 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
     }
 
     fireEvent(this, 'config-changed', { config: cleanupConfig(this.hass, config) });
+  }
+
+  private _validateConfig(config: EnergyFlowCardExtConfig): {} {
+    const errors: object = {};
+
+    if (this._currentConfigPage) {
+      switch (this._currentConfigPage) {
+        case EditorPages.Battery:
+        case EditorPages.Grid:
+          this._validatePrimaryEntities(EntitiesOptions.Import_Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids], errors);
+          this._validatePrimaryEntities(EntitiesOptions.Export_Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids], errors);
+          break;
+
+        case EditorPages.Gas:
+        case EditorPages.Solar:
+          this._validatePrimaryEntities(EntitiesOptions.Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids], errors);
+          break;
+
+        // TODO: devices
+
+      }
+
+      this._validateSecondaryEntity(EntitiesOptions.Entities, config?.[this._currentConfigPage]?.[EntityOptions.Entity_Id], errors);
+    }
+
+    return errors;
+  }
+
+  private _validatePrimaryEntities(label: string, entityIds: string[] = [], errors: object): void {
+    delete errors[label];
+
+    let error: string = "";
+
+    entityIds.forEach(entityId => {
+      if (!entityId || entityId === "") {
+        error += localize("editor.missing_entity") + "\n";
+      } else if (!isValidPrimaryEntity(this.hass, entityId)) {
+        error += "'" + entityId + "' " + localize("editor.invalid_primary_entity") + "\n";
+      }
+    });
+
+    if (error) {
+      errors[label] = error;
+    }
+  }
+
+  private _validateSecondaryEntity(label: string, entityId: string, errors: object): void {
+    delete errors[label];
+
+    if (!entityId || entityId === "") {
+      errors[label] = localize("editor.missing_entity");
+    } else if (!isValidSecondaryEntity(this.hass, entityId)) {
+      errors[label] = "'" + entityId + "' " + localize("editor.invalid_secondary_entity");
+    }
   }
 
   static get styles(): CSSResultGroup {

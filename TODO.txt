@@ -2,12 +2,6 @@ BUGS
 ----
 
 Entity-validation:
-  - in the UI, flag up when:
-    - a non-existent entity is specified
-    - a non-energy primary entity is specified
-    - a non-stats-compatible secondary entity is specified
-    - populate the 'error' object with the details
-
   - icon:
     - green: all entities are valid
     - yellow: at least one primary entity is valid and at least one other (primary/secondary) entity is invalid

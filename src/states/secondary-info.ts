@@ -1,6 +1,6 @@
-import { EntityOptions, SecondaryInfoConfig, SecondaryInfoOptions } from "@/config";
+import { EntityOptions, filterSecondaryEntity, SecondaryInfoConfig, SecondaryInfoOptions } from "@/config";
 import { HomeAssistant } from "custom-card-helpers";
-import { filterSecondaryEntity, State } from ".";
+import { State } from ".";
 
 export class SecondaryInfoState extends State {
   config?: SecondaryInfoConfig;
