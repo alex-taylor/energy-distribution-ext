@@ -33,11 +33,7 @@ export abstract class DualValueState extends ValueState {
     super(
       hass,
       config,
-      filterPrimaryEntities(hass, !config?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids]?.length
-        ? !config?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids]?.length
-          ? []
-          : config?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids]
-        : config?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids]),
+      filterPrimaryEntities(hass, config?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids]),
       defaultName,
       defaultIcon);
 

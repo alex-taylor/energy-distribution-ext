@@ -1,6 +1,6 @@
 import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveLinesMode, UnitDisplayMode, DeviceType, DefaultValues } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
-import { AppearanceConfig, BatteryConfig, DeviceConfig, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, LowCarbonConfig, OverridesOptions, SolarConfig } from ".";
+import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, LowCarbonConfig, OverridesOptions, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
 import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions } from "@/config";
 import { localize } from "@/localize/localize";
@@ -28,7 +28,7 @@ export function getDefaultConfig(hass: HomeAssistant): EnergyFlowCardExtConfig {
 //================================================================================================================================================================================//
 
 export function cleanupConfig(hass: HomeAssistant, config: EnergyFlowCardExtConfig): EnergyFlowCardExtConfig {
-  pruneConfig(config);
+  //pruneConfig(config);
   config = updateConfig(config, EditorPages.Battery, getDefaultBatteryConfig(hass, false));
   config = updateConfig(config, EditorPages.Gas, getDefaultGasConfig(hass, false));
   config = updateConfig(config, EditorPages.Grid, getDefaultGridConfig(hass, false));
@@ -146,6 +146,12 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
 
 export function getDefaultGridConfig(hass: HomeAssistant, requireEntity: boolean): GridConfig | undefined {
   const config: GridConfig = {
+    [EntitiesOptions.Import_Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
+    [EntitiesOptions.Export_Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
     [EntitiesOptions.Colours]: {
       [ColourOptions.Circle]: ColourMode.Largest_Value,
       [ColourOptions.Values]: ColourMode.Default,
@@ -193,6 +199,12 @@ export function getDefaultGridConfig(hass: HomeAssistant, requireEntity: boolean
 
 export function getDefaultBatteryConfig(hass: HomeAssistant, requireEntity: boolean): BatteryConfig | undefined {
   const config: BatteryConfig = {
+    [EntitiesOptions.Import_Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
+    [EntitiesOptions.Export_Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
     [EntitiesOptions.Colours]: {
       [ColourOptions.Circle]: ColourMode.Largest_Value,
       [ColourOptions.Values]: ColourMode.Default,
@@ -240,6 +252,9 @@ export function getDefaultBatteryConfig(hass: HomeAssistant, requireEntity: bool
 
 export function getDefaultSolarConfig(hass: HomeAssistant, requireEntity: boolean): SolarConfig | undefined {
   const config: SolarConfig = {
+    [EntitiesOptions.Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
     [EntitiesOptions.Colours]: {
       [ColourOptions.Circle]: ColourMode.Default,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
@@ -278,6 +293,9 @@ export function getDefaultSolarConfig(hass: HomeAssistant, requireEntity: boolea
 
 export function getDefaultGasConfig(hass: HomeAssistant, requireEntity: boolean): GasConfig | undefined {
   const config: GasConfig = {
+    [EntitiesOptions.Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
     [EntitiesOptions.Colours]: {
       [ColourOptions.Circle]: ColourMode.Default,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
@@ -346,6 +364,9 @@ export function getDefaultLowCarbonConfig(): LowCarbonConfig {
 
 export function getDefaultDeviceConfig(): DeviceConfig {
   return {
+    [EntitiesOptions.Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
     [EntitiesOptions.Colours]: {
       [ColourOptions.Circle]: ColourMode.Default,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
@@ -357,8 +378,8 @@ export function getDefaultDeviceConfig(): DeviceConfig {
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
     },
-    [OverridesOptions.Name]: localize("common.new_device"),
-    [OverridesOptions.Icon]: "mdi:devices"
+    [DeviceOptions.Name]: localize("common.new_device"),
+    [DeviceOptions.Icon]: "mdi:devices"
   };
 }
 

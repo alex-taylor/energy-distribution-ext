@@ -2,7 +2,7 @@ import { LitElement, css, html, nothing, TemplateResult, CSSResultGroup } from '
 import { customElement, property, state } from 'lit/decorators.js';
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { assert } from 'superstruct';
-import { EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, HomeConfig, isValidPrimaryEntity, isValidSecondaryEntity } from '@/config';
+import { EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, HomeConfig } from '@/config';
 import { appearanceSchema, generalConfigSchema } from './schema';
 import { localize } from '@/localize/localize';
 import { gridSchema } from './schema/grid';
@@ -15,139 +15,80 @@ import "./components/page-header";
 import "./components/devices-editor";
 import { CARD_NAME } from '@/const';
 import { cardConfigStruct } from '@/config/validation';
-import { computeHelperCallback, computeLabelCallback } from '.';
-import { mdiChevronRight, mdiCheckCircle, mdiAlert, mdiAlertOctagon } from '@mdi/js';
+import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from '.';
 import { getDefaultLowCarbonConfig, cleanupConfig, getDefaultAppearanceConfig, getDefaultGridConfig, getDefaultGasConfig, getDefaultSolarConfig, getDefaultBatteryConfig, getDefaultHomeConfig, getCo2SignalEntity } from '@/config/config';
 
 export const EDITOR_ELEMENT_NAME = CARD_NAME + "-editor";
-
-function getStatusIcon(hass: HomeAssistant, config: any): string | undefined {
-  let primaryEntityCount: number = 0;
-  let secondaryEntityCount: number = 0;
-  let validEntityCount: number = 0;
-  let invalidEntityCount: number = 0;
-
-  if (config?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids]) {
-    config?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids].forEach(entityId => {
-      primaryEntityCount++;
-
-      if (isValidPrimaryEntity(hass, entityId)) {
-        validEntityCount++;
-      } else {
-        invalidEntityCount++;
-      }
-    });
-  }
-
-  if (config?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids]) {
-    config?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids].forEach(entityId => {
-      primaryEntityCount++;
-
-      if (isValidPrimaryEntity(hass, entityId)) {
-        validEntityCount++;
-      } else {
-        invalidEntityCount++;
-      }
-    });
-  }
-
-  if (config?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids]) {
-    config?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids].forEach(entityId => {
-      primaryEntityCount++;
-
-      if (isValidPrimaryEntity(hass, entityId)) {
-        validEntityCount++;
-      } else {
-        invalidEntityCount++;
-      }
-    });
-  }
-
-  if (config?.[EntitiesOptions.Secondary_Info]?.[EntityOptions.Entity_Id]) {
-    secondaryEntityCount++;
-
-    if (isValidSecondaryEntity(hass, config?.[EntitiesOptions.Secondary_Info]?.[EntityOptions.Entity_Id])) {
-      validEntityCount++;
-    }
-  }
-
-  if (primaryEntityCount === 0 && secondaryEntityCount === 0) {
-    return undefined;
-  }
-
-  if (primaryEntityCount > 0 && invalidEntityCount === primaryEntityCount) {
-    return mdiAlertOctagon;
-  }
-
-  if (validEntityCount === primaryEntityCount + secondaryEntityCount) {
-    return mdiCheckCircle;
-  }
-
-  return mdiAlert;
-}
 
 const CONFIG_PAGES: {
   page: EditorPages;
   icon: string;
   schema?;
   createConfig?;
-  statusIcon?;
+  statusIcon: (config: any, hass: HomeAssistant) => Status;
 }[] = [
     {
       page: EditorPages.Appearance,
       icon: "mdi:cog",
       schema: appearanceSchema,
-      createConfig: getDefaultAppearanceConfig,
-      statusIcon: () => false
+    createConfig: getDefaultAppearanceConfig,
+    statusIcon: () => Status.Undefined
     },
     {
       page: EditorPages.Grid,
       icon: "mdi:transmission-tower",
       schema: gridSchema,
       createConfig: getDefaultGridConfig,
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant) => getStatusIcon(hass, config?.[EditorPages.Grid])
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, config?.[EditorPages.Grid])
     },
     {
       page: EditorPages.Gas,
       icon: "mdi:fire",
       schema: gasSchema,
       createConfig: getDefaultGasConfig,
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant) => getStatusIcon(hass, config?.[EditorPages.Gas])
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, config?.[EditorPages.Gas])
     },
     {
       page: EditorPages.Solar,
       icon: "mdi:solar-power",
       schema: solarSchema,
       createConfig: getDefaultSolarConfig,
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant) => getStatusIcon(hass, config?.[EditorPages.Solar])
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, config?.[EditorPages.Solar])
     },
     {
       page: EditorPages.Battery,
       icon: "mdi:battery-high",
       schema: batterySchema,
       createConfig: getDefaultBatteryConfig,
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant) => getStatusIcon(hass, config?.[EditorPages.Battery])
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, config?.[EditorPages.Battery])
     },
     {
       page: EditorPages.Low_Carbon,
       icon: "mdi:leaf",
       schema: lowCarbonSchema,
       createConfig: getDefaultLowCarbonConfig,
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant) => getStatusIcon(hass, config?.[EditorPages.Low_Carbon]) || (getCo2SignalEntity(hass) !== undefined ? mdiCheckCircle : undefined)
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => {
+        const status = getStatusIcon(hass, config?.[EditorPages.Low_Carbon]);
+
+        if (status !== Status.Undefined) {
+          return status;
+        }
+
+        return getCo2SignalEntity(hass) !== undefined ? Status.Valid : Status.Undefined;
+      }
     },
     {
       page: EditorPages.Home,
       icon: "mdi:home",
       schema: homeSchema,
       createConfig: getDefaultHomeConfig,
-      statusIcon: (config: HomeConfig, hass: HomeAssistant) => getStatusIcon(hass, config?.[EditorPages.Home])
+      statusIcon: (config: HomeConfig, hass: HomeAssistant): Status => getStatusIcon(hass, config?.[EditorPages.Home])
     },
     {
       page: EditorPages.Devices,
       icon: "mdi:devices",
       createConfig: () => { },
-      // TODO get the icon for each Device and take the worst-case for display
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant) => config?.[EditorPages.Devices]?.map(device => device[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids]?.length).find(length => length) ? mdiCheckCircle : undefined
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => config?.[EditorPages.Devices]?.map(device => getStatusIcon(hass, device)).reduce((previous, current) => current > previous ? current : previous) || Status.Undefined
     }
   ];
 
@@ -232,21 +173,19 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
     return CONFIG_PAGES.map(page => this._renderPageLink(page.page, page.icon, page.statusIcon(this._config, this.hass)));
   };
 
-  private _renderPageLink = (page: EditorPages, icon: string, statusIcon: string | undefined): TemplateResult => {
+  private _renderPageLink = (page: EditorPages, icon: string, statusIcon: Status): TemplateResult => {
     if (!page) {
       return html``;
     }
-
-    const statusIconClass: string = statusIcon === mdiCheckCircle ? "page-checkmark" : statusIcon === mdiAlert ? "page-alert" : "page-error";
 
     return html`
       <ha-control-button class="page-link" @click=${() => this._openPage(page)}>
         <ha-icon class="page-icon" .icon=${icon}></ha-icon>
         <div class="page-label">
           ${localize(`editor.${page}`)}
-          ${statusIcon ? html`<ha-svg-icon class="${statusIconClass}" .path=${statusIcon}></ha-svg-icon>` : ``}
+          ${statusIcon !== Status.Undefined ? html`<ha-icon class="${STATUS_CLASSES[statusIcon]}" .icon=${STATUS_ICONS[statusIcon]}></ha-icon>` : ``}
         </div>
-        <ha-svg-icon .path=${mdiChevronRight}></ha-svg-icon>
+        <ha-icon .icon=${"mdi:chevron-right"}></ha-icon>
       </ha-control-button>
     `;
   };
@@ -272,58 +211,27 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
     const errors: object = {};
 
     if (this._currentConfigPage) {
+      const secondaryEntityId: string | undefined = config?.[this._currentConfigPage]?.[EntitiesOptions.Secondary_Info]?.[EntityOptions.Entity_Id];
+
       switch (this._currentConfigPage) {
         case EditorPages.Battery:
         case EditorPages.Grid:
-          this._validatePrimaryEntities(EntitiesOptions.Import_Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids], errors);
-          this._validatePrimaryEntities(EntitiesOptions.Export_Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids], errors);
+          validatePrimaryEntities(this.hass, EntitiesOptions.Import_Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids], !!secondaryEntityId, errors);
+          validatePrimaryEntities(this.hass, EntitiesOptions.Export_Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids], false, errors);
           break;
 
         case EditorPages.Gas:
         case EditorPages.Solar:
-          this._validatePrimaryEntities(EntitiesOptions.Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids], errors);
+          validatePrimaryEntities(this.hass, EntitiesOptions.Entities, config?.[this._currentConfigPage]?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids], !!secondaryEntityId, errors);
           break;
-
-        // TODO: devices
-
       }
 
-      this._validateSecondaryEntity(EntitiesOptions.Secondary_Info, config?.[this._currentConfigPage]?.[EntitiesOptions.Secondary_Info]?.[EntityOptions.Entity_Id], errors);
+      if (secondaryEntityId) {
+        validateSecondaryEntity(this.hass, EntitiesOptions.Secondary_Info, secondaryEntityId, errors);
+      }
     }
 
     return errors;
-  }
-
-  private _validatePrimaryEntities(label: string, entityIds: string[] = [], errors: object): void {
-    delete errors[label];
-
-    let error: string = "";
-
-    entityIds.forEach(entityId => {
-      if (!entityId || entityId === "") {
-        error += localize("editor.missing_entity") + "\n";
-      } else if (!isValidPrimaryEntity(this.hass, entityId)) {
-        error += "'" + (this.hass.states[entityId]?.attributes?.friendly_name || entityId) + "' " + localize("editor.invalid_primary_entity") + "\n";
-      }
-    });
-
-    if (error) {
-      errors[label] = error;
-    }
-  }
-
-  private _validateSecondaryEntity(label: string, entityId: string, errors: object): void {
-    delete errors[label];
-
-    if (entityId === undefined) {
-      return;
-    }
-
-    if (!entityId || entityId === "") {
-      errors[label] = localize("editor.missing_entity");
-    } else if (!isValidSecondaryEntity(this.hass, entityId)) {
-      errors[label] = "'" + (this.hass.states[entityId]?.attributes?.friendly_name || entityId) + "' " + localize("editor.invalid_secondary_entity");
-    }
   }
 
   static get styles(): CSSResultGroup {
@@ -356,12 +264,12 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
           text-align: left;
         }
 
-        .page-checkmark {
+        .page-valid {
           padding-left: 1rem;
           color: green;
         }
 
-        .page-alert {
+        .page-warning {
           padding-left: 1rem;
           color: orange;
         }

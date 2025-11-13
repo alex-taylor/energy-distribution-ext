@@ -1,4 +1,4 @@
-import { DeviceConfig, EnergyFlowCardExtConfig, EntitiesOptions, GlobalOptions, OverridesOptions } from '@/config';
+import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, GlobalOptions } from '@/config';
 import { DeviceType } from '@/enums';
 import { secondaryInfoSchema, singleValueNodeSchema } from '.';
 
@@ -7,11 +7,11 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
     {
       type: 'grid',
       schema: [
-        { name: OverridesOptions.Name, required: true, selector: { text: {} } },
-        { name: OverridesOptions.Icon, selector: { icon: {} } }
+        { name: DeviceOptions.Name, required: true, selector: { text: {} } },
+        { name: DeviceOptions.Icon, selector: { icon: {} } }
       ]
     }
-  ].concat(singleValueNodeSchema(config, schemaConfig))
+  ].concat(singleValueNodeSchema(config, schemaConfig));
 
   result.push(secondaryInfoSchema(config, schemaConfig?.[EntitiesOptions.Secondary_Info]));
 

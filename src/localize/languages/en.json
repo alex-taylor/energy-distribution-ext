@@ -102,7 +102,10 @@
 
     "missing_entity": "Entity must be specified",
     "invalid_primary_entity": "is not an energy sensor of type Total or Total_Increasing",
-    "invalid_secondary_entity": "is not of type Total or Total_Increasing"
+    "invalid_secondary_entity": "is not of type Total or Total_Increasing",
+
+    "device_name": "Name",
+    "device_icon": "Icon"
   },
   "DisplayMode": {
     "today": "Today",

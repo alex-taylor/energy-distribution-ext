@@ -1,5 +1,5 @@
 import { any, assign, boolean, integer, number, object, optional, string, array } from 'superstruct';
-import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
+import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
 
 const baseLovelaceCardConfigStruct = object({
   type: string(),
@@ -147,8 +147,8 @@ const deviceOptionsConfigStruct = object({
 });
 
 const deviceConfigStruct = object({
-  [OverridesOptions.Name]: optional(string()),
-  [OverridesOptions.Icon]: optional(string()),
+  [DeviceOptions.Name]: optional(string()),
+  [DeviceOptions.Icon]: optional(string()),
   [EntitiesOptions.Entities]: optional(entitiesConfigStruct),
   [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct),

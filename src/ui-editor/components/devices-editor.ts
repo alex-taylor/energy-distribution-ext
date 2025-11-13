@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
-import { mdiArrowLeft, mdiArrowRight, mdiDelete, mdiDrag, mdiPlus, mdiChevronRight } from "@mdi/js";
+import { mdiArrowLeft, mdiArrowRight, mdiDelete, mdiDrag, mdiPlus } from "@mdi/js";
 import { HomeAssistant, fireEvent } from "custom-card-helpers";
 import { css, CSSResultGroup, html, LitElement, TemplateResult } from "lit";
 import { customElement, property, state } from "lit-element";
 import { CARD_NAME } from "@/const";
-import { DeviceConfig, EnergyFlowCardExtConfig, EntitiesOptions, OverridesOptions } from "@/config";
+import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from "@/config";
 import { deviceSchema } from "../schema/device";
-import { computeHelperCallback, computeLabelCallback } from "..";
+import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from "..";
 import { repeat } from "lit/directives/repeat.js";
 import { localize } from "@/localize/localize";
-import { getDefaultDeviceConfig } from '@/config/config';
+import { cleanupConfig, getDefaultDeviceConfig } from '@/config/config';
 
 const DEVICES_EDITOR_ELEMENT_NAME = CARD_NAME + "-devices-editor";
 
@@ -74,6 +74,7 @@ export class DevicesEditor extends LitElement {
           .schema=${deviceSchema(this.config, this._devices[this._indexBeingEdited])}
           .computeLabel=${computeLabelCallback}
           .computeHelper=${computeHelperCallback}
+          .error=${this._validateConfig(this._devices[this._indexBeingEdited])}
           @value-changed=${this._valueChanged}
         ></ha-form>
       `;
@@ -82,17 +83,24 @@ export class DevicesEditor extends LitElement {
     return html`
       <ha-sortable handle-selector=".handle" @item-moved=${this._moveDevice}>
       <div>
-        ${repeat(this._devices, (deviceConf) => this._getKey(deviceConf), (deviceConf, index) => html`
+        ${repeat(
+      this._devices,
+      deviceConf => this._getKey(deviceConf),
+      (deviceConf, index) => {
+        const statusIcon: Status = getStatusIcon(this.hass, deviceConf);
+
+        return html`
           <div class="devices">
             <div class="handle">
               <ha-svg-icon .path=${mdiDrag}></ha-svg-icon>
             </div>
             <ha-control-button class="device-button" @click=${() => this._editDevice(index)}>
               <div class="device-label">
-                <ha-icon class="device-icon" .icon=${deviceConf?.[EntitiesOptions.Overrides]?.[OverridesOptions.Icon] || 'blank'}></ha-icon>
-                ${deviceConf?.[OverridesOptions.Name]}
+                <ha-icon class="device-icon" .icon=${deviceConf?.[DeviceOptions.Icon] || 'blank'}></ha-icon>
+                ${deviceConf?.[DeviceOptions.Name]}
+                ${statusIcon !== Status.Undefined ? html`<ha-icon class="${STATUS_CLASSES[statusIcon]}" .icon=${STATUS_ICONS[statusIcon]}></ha-icon>` : ``}
               </div>
-              <ha-svg-icon .path=${mdiChevronRight}></ha-svg-icon>
+              <ha-icon .icon=${"mdi:chevron-right"}></ha-icon>
             </ha-control-button>
             <ha-icon-button
               class="remove-icon"
@@ -102,12 +110,25 @@ export class DevicesEditor extends LitElement {
               @click=${this._removeDevice}
             ></ha-icon-button>
           </div>
-        `
+        `}
     )}
       </div>
       </ha-sortable>
       <ha-control-button class="add-device" @click="${this._addDevice}">${localize("editor.add_device")}</ha-control-button>
     `;
+  }
+
+  private _validateConfig(config: DeviceConfig): {} {
+    const errors: object = {};
+    const secondaryEntityId: string | undefined = config?.[EntitiesOptions.Secondary_Info]?.[EntityOptions.Entity_Id];
+
+    validatePrimaryEntities(this.hass, EntitiesOptions.Entities, config?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids], !!secondaryEntityId, errors);
+
+    if (secondaryEntityId) {
+      validateSecondaryEntity(this.hass, EntitiesOptions.Secondary_Info, secondaryEntityId, errors);
+    }
+
+    return errors;
   }
 
   private _getKey(config: DeviceConfig) {
@@ -167,7 +188,7 @@ export class DevicesEditor extends LitElement {
 
   private _updateConfig(updatedDevices: DeviceConfig[]): void {
     const config: EnergyFlowCardExtConfig = { ...this.config, devices: updatedDevices.length === 0 ? undefined : updatedDevices };
-    fireEvent(this, "config-changed", { config });
+    fireEvent(this, 'config-changed', { config: cleanupConfig(this.hass, config) });
   }
 
   static get styles(): CSSResultGroup {
@@ -223,6 +244,21 @@ export class DevicesEditor extends LitElement {
         .remove-icon,
         .navigation-icon {
           --mdc-icon-button-size: 2rem;
+        }
+
+        .page-valid {
+          padding-left: 1rem;
+          color: green;
+        }
+
+        .page-warning {
+          padding-left: 1rem;
+          color: orange;
+        }
+
+        .page-error {
+          padding-left: 1rem;
+          color: red;
         }
       `
     ];

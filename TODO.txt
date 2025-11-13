@@ -87,3 +87,5 @@ Test localisation by disabling EN and EN-GB and checking that all strings revert
         - separate options for 'electric' and 'gas'?
             - 'electric' is probably just whether to include Devices
             - 'gas' would be 'hidden', 'displayed', 'include in total'...or something
+
+ May be able to remove pruneConfig() now

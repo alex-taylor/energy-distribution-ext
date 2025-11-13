@@ -105,6 +105,11 @@ export enum SecondaryInfoOptions {
   Template = "template"
 }
 
+export enum DeviceOptions {
+  Name = "device_name",
+  Icon = "device_icon"
+}
+
 //================================================================================================================================================================================//
 // Config structure                                                                                                                                                               //
 //================================================================================================================================================================================//
@@ -182,8 +187,8 @@ export interface HomeConfig extends NodeConfig {
 };
 
 export interface DeviceConfig {
-  [OverridesOptions.Name]?: string;
-  [OverridesOptions.Icon]?: string;
+  [DeviceOptions.Name]?: string;
+  [DeviceOptions.Icon]?: string;
   [EntitiesOptions.Entities]?: EntityConfig;
   [EntitiesOptions.Colours]?: SingleValueColourConfig;
   [EntitiesOptions.Secondary_Info]?: SecondaryInfoConfig;
@@ -206,7 +211,7 @@ export interface OverridesConfig {
 };
 
 export interface SingleValueNodeConfig extends NodeConfig {
-  [EntityOptions.Entity_Ids]?: EntityConfig;
+  [EntitiesOptions.Entities]?: EntityConfig;
   [EntitiesOptions.Colours]?: SingleValueColourConfig;
 };
 
@@ -237,7 +242,7 @@ export interface EntityConfig {
 }
 
 export interface PowerOutageConfig {
-  [EntityOptions.Entity_Id]: string;
+  [EntityOptions.Entity_Id]?: string;
   [PowerOutageOptions.State_Alert]?: string;
   [PowerOutageOptions.Label_Alert]?: string;
   [PowerOutageOptions.Icon_Alert]?: string;
