@@ -128,33 +128,41 @@ function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, s
               ]
             }
           }
-        },
-        {
-          name: EnergyUnitsOptions.Wh_Kwh_Threshold,
-          required: true,
-          selector: { number: { mode: 'box', min: 0, max: 1000000, step: 1 } }
-        },
-        {
-          name: EnergyUnitsOptions.Kwh_Mwh_Threshold,
-          required: true,
-          selector: { number: { mode: 'box', min: 0, max: 1000000, step: 1 } }
         }
       ]
     },
-    {
-      type: 'grid',
-      schema: [
-        {
-          name: EnergyUnitsOptions.Kwh_Display_Precision,
-          selector: { number: { mode: 'box', min: 0, max: 5, step: 1 } }
-        },
-        {
-          name: EnergyUnitsOptions.Mwh_Display_Precision,
-          selector: { number: { mode: 'box', min: 0, max: 5, step: 1 } }
-        }
-      ]
-    }
+    dynamicEnergyUnitsOptionsSchema(config, schemaConfig)
   ];
+}
+
+function dynamicEnergyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: EnergyUnitsConfig | undefined): {} {
+  if (schemaConfig?.[EnergyUnitsOptions.Unit_Prefixes] === UnitPrefixes.HASS) {
+    return {};
+  }
+
+  return {
+    type: 'grid',
+    schema: [
+      {
+        name: EnergyUnitsOptions.Wh_Kwh_Threshold,
+        required: true,
+        selector: { number: { mode: 'box', min: 0, max: 1000000, step: 1 } }
+      },
+      {
+        name: EnergyUnitsOptions.Kwh_Mwh_Threshold,
+        required: true,
+        selector: { number: { mode: 'box', min: 0, max: 1000000, step: 1 } }
+      },
+      {
+        name: EnergyUnitsOptions.Kwh_Display_Precision,
+        selector: { number: { mode: 'box', min: 0, max: 5, step: 1 } }
+      },
+      {
+        name: EnergyUnitsOptions.Mwh_Display_Precision,
+        selector: { number: { mode: 'box', min: 0, max: 5, step: 1 } }
+      }
+    ]
+  };
 }
 
 function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: FlowsConfig | undefined): any[] {
