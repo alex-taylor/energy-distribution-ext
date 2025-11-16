@@ -3,7 +3,7 @@ import { localize } from '@/localize/localize';
 export enum DefaultValues {
   // EnergyUnits
   KilowattHourDecimals = 2,
-  MegawattHourDecimals = 1,
+  MegawattHourDecimals = 2,
   WhkWhThreshold = 1000,
   KwhMwhThreshold = 1000,
 
@@ -141,7 +141,22 @@ function getEditorLabel(type: string, value: any): string {
   return localize(type + "." + value);
 }
 
-export enum UnitDisplayMode {
+export enum UnitPrefixes {
+  HASS = "hass",
+  Automatic = "automatic"
+}
+
+export namespace UnitPrefixes {
+  export function getName(value: UnitPrefixes): string {
+    return getEditorLabel("UnitPrefixes", value);
+  }
+
+  export function getItem(value: UnitPrefixes): { label: string, value: string } {
+    return { label: getName(value), value: value };
+  }
+}
+
+export enum UnitPosition {
   Hidden = "hidden",
   Before = "before",
   After = "after",
@@ -149,12 +164,12 @@ export enum UnitDisplayMode {
   After_Space = "after_space"
 }
 
-export namespace UnitDisplayMode {
-  export function getName(value: UnitDisplayMode): string {
-    return getEditorLabel("UnitDisplayType", value);
+export namespace UnitPosition {
+  export function getName(value: UnitPosition): string {
+    return getEditorLabel("UnitPosition", value);
   }
 
-  export function getItem(value: UnitDisplayMode): { label: string, value: string } {
+  export function getItem(value: UnitPosition): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
 }

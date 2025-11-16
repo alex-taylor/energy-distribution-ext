@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueColourConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueColourConfig, SingleValueNodeConfig } from '@/config';
-import { ColourMode, DisplayMode, DotsMode, InactiveLinesMode, UnitDisplayMode } from '@/enums';
+import { ColourMode, DisplayMode, DotsMode, InactiveLinesMode, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 export function generalConfigSchema(config: EnergyFlowCardExtConfig | undefined) {
@@ -101,26 +101,34 @@ function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, s
       type: 'grid',
       schema: [
         {
-          name: EnergyUnitsOptions.Units_Mode,
+          name: EnergyUnitsOptions.Unit_Prefixes,
           required: true,
           selector: {
             select: {
               mode: 'dropdown',
               options: [
-                UnitDisplayMode.getItem(UnitDisplayMode.After_Space),
-                UnitDisplayMode.getItem(UnitDisplayMode.Before_Space),
-                UnitDisplayMode.getItem(UnitDisplayMode.After),
-                UnitDisplayMode.getItem(UnitDisplayMode.Before),
-                UnitDisplayMode.getItem(UnitDisplayMode.Hidden)
+                UnitPrefixes.getItem(UnitPrefixes.HASS),
+                UnitPrefixes.getItem(UnitPrefixes.Automatic)
               ]
             }
           }
-        }
-      ]
-    },
-    {
-      type: 'grid',
-      schema: [
+        },
+        {
+          name: EnergyUnitsOptions.Unit_Position,
+          required: true,
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                UnitPosition.getItem(UnitPosition.After_Space),
+                UnitPosition.getItem(UnitPosition.Before_Space),
+                UnitPosition.getItem(UnitPosition.After),
+                UnitPosition.getItem(UnitPosition.Before),
+                UnitPosition.getItem(UnitPosition.Hidden)
+              ]
+            }
+          }
+        },
         {
           name: EnergyUnitsOptions.Wh_Kwh_Threshold,
           required: true,
@@ -436,17 +444,17 @@ export function secondaryInfoSchema(config: EnergyFlowCardExtConfig | undefined,
         column_min_width: '150px',
         schema: [
           {
-            name: EntityOptions.Units_Mode,
+            name: EntityOptions.Unit_Position,
             required: true,
             selector: {
               select: {
                 mode: 'dropdown',
                 options: [
-                  UnitDisplayMode.getItem(UnitDisplayMode.After_Space),
-                  UnitDisplayMode.getItem(UnitDisplayMode.Before_Space),
-                  UnitDisplayMode.getItem(UnitDisplayMode.After),
-                  UnitDisplayMode.getItem(UnitDisplayMode.Before),
-                  UnitDisplayMode.getItem(UnitDisplayMode.Hidden)
+                  UnitPosition.getItem(UnitPosition.After_Space),
+                  UnitPosition.getItem(UnitPosition.Before_Space),
+                  UnitPosition.getItem(UnitPosition.After),
+                  UnitPosition.getItem(UnitPosition.Before),
+                  UnitPosition.getItem(UnitPosition.Hidden)
                 ]
               }
             }

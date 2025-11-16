@@ -1,6 +1,10 @@
 BUGS
 ----
 
+OOTB behaviour/appearance should match the built-in card:
+  - check colour settings
+    - eg, the battery-grid line may be purple at all times in HASS
+
 Decimals:
   - add flag to 'always show dps' (per-entity)
     - or perhaps just auto-detect currencies?
@@ -46,6 +50,12 @@ Power-outage is calculating its state up-front, rather than live as-needed (see 
 
 FEATURES
 --------
+
+More modes:
+    - current month
+    - current year
+    - perhaps a user-supplied date-range?
+  - could display this as a title?
 
 If data is still loading when we render, go ahead and render the circles/lines anyway, just put 'loading' for the values
 

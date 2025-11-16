@@ -55,7 +55,8 @@
 
     "entity_id": "",
     "entity_ids": "",
-    "units_mode": "Show units",
+    "unit_prefixes": "Unit prefixes",
+    "unit_position": "Show units",
     "units": "Override units",
     "zero_threshold": "Threshold",
     "zero_threshold#helptext": "Values less than this will be shown as zero",
@@ -149,7 +150,11 @@
     "hass": "HASS",
     "off": "Off"
   },
-  "UnitDisplayType": {
+  "UnitPrefixes": {
+    "hass": "HASS",
+    "automatic": "Automatic"
+  },
+  "UnitPosition": {
     "after": "After value",
     "before": "Before value",
     "after_space": "After value (with space)",

@@ -1,6 +1,6 @@
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveLinesMode, UnitDisplayMode, DeviceType, DefaultValues } from "@/enums";
+import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveLinesMode, DeviceType, DefaultValues, UnitPrefixes, UnitPosition } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
-import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, LowCarbonConfig, OverridesOptions, SolarConfig } from ".";
+import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, LowCarbonConfig, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
 import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions } from "@/config";
 import { localize } from "@/localize/localize";
@@ -126,7 +126,8 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
       [AppearanceOptions.Unit_Whitespace]: true
     },
     [AppearanceOptions.Energy_Units]: {
-      [EnergyUnitsOptions.Units_Mode]: UnitDisplayMode.After_Space,
+      [EnergyUnitsOptions.Unit_Prefixes]: UnitPrefixes.HASS,
+      [EnergyUnitsOptions.Unit_Position]: UnitPosition.After_Space,
       [EnergyUnitsOptions.Kwh_Display_Precision]: DefaultValues.KilowattHourDecimals,
       [EnergyUnitsOptions.Mwh_Display_Precision]: DefaultValues.MegawattHourDecimals,
       [EnergyUnitsOptions.Wh_Kwh_Threshold]: DefaultValues.WhkWhThreshold,
@@ -158,7 +159,7 @@ export function getDefaultGridConfig(hass: HomeAssistant, requireEntity: boolean
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
+      [EntityOptions.Unit_Position]: UnitPosition.After_Space
     }
   };
 
@@ -211,7 +212,7 @@ export function getDefaultBatteryConfig(hass: HomeAssistant, requireEntity: bool
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
+      [EntityOptions.Unit_Position]: UnitPosition.After_Space
     }
   };
 
@@ -261,7 +262,7 @@ export function getDefaultSolarConfig(hass: HomeAssistant, requireEntity: boolea
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
+      [EntityOptions.Unit_Position]: UnitPosition.After_Space
     }
   };
 
@@ -302,7 +303,7 @@ export function getDefaultGasConfig(hass: HomeAssistant, requireEntity: boolean)
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
+      [EntityOptions.Unit_Position]: UnitPosition.After_Space
     }
   };
 
@@ -355,7 +356,7 @@ export function getDefaultLowCarbonConfig(): LowCarbonConfig {
       [EntitiesOptions.Low_Carbon_Mode]: LowCarbonType.Energy
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
+      [EntityOptions.Unit_Position]: UnitPosition.After_Space
     }
   };
 }
@@ -376,7 +377,7 @@ export function getDefaultDeviceConfig(): DeviceConfig {
       [EntitiesOptions.Device_Type]: DeviceType.Consumption_Electric
     },
     [EntitiesOptions.Secondary_Info]: {
-      [EntityOptions.Units_Mode]: UnitDisplayMode.After_Space
+      [EntityOptions.Unit_Position]: UnitPosition.After_Space
     },
     [DeviceOptions.Name]: localize("common.new_device"),
     [DeviceOptions.Icon]: "mdi:devices"

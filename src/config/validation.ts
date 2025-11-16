@@ -16,7 +16,8 @@ const appearanceOptionsConfigStruct = object({
 });
 
 const energyUnitsOptionsConfigStruct = object({
-  [EnergyUnitsOptions.Units_Mode]: optional(string()),
+  [EnergyUnitsOptions.Unit_Prefixes]: optional(string()),
+  [EnergyUnitsOptions.Unit_Position]: optional(string()),
   [EnergyUnitsOptions.Kwh_Display_Precision]: optional(integer()),
   [EnergyUnitsOptions.Mwh_Display_Precision]: optional(integer()),
   [EnergyUnitsOptions.Wh_Kwh_Threshold]: optional(number()),
@@ -68,7 +69,7 @@ const overridesConfigStruct = object({
 const secondaryInfoConfigStruct = object({
   [EntityOptions.Entity_Id]: optional(string()),
   [EntityOptions.Units]: optional(string()),
-  [EntityOptions.Units_Mode]: optional(string()),
+  [EntityOptions.Unit_Position]: optional(string()),
   [EntityOptions.Zero_Threshold]: optional(number()),
   [EntityOptions.Display_Precision]: optional(number()),
   [SecondaryInfoOptions.Icon]: optional(string()),

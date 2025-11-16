@@ -9,7 +9,7 @@ import { HomeState } from "./home";
 import { LowCarbonState } from "./low-carbon";
 import { SolarState } from "./solar";
 import { DeviceState } from "./device";
-import { addDays, addHours, differenceInDays, endOfDay, getHours, startOfDay } from "date-fns";
+import { addDays, addHours, differenceInDays, endOfDay, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfDay } from "date-fns";
 import { DisplayMode, EntityMode } from "@/enums";
 import { logDebug } from "@/logging";
 import { getEnergyDataCollection } from "@/energy";
@@ -67,6 +67,7 @@ export class EntityStates {
 
   public getStates(): States {
     const states: States = {
+      largestEnergyValue: 0,
       batteryImport: this.battery.state.import,
       batteryExport: this.battery.state.export,
       batterySecondary: this.battery.secondary.state,
@@ -122,6 +123,17 @@ export class EntityStates {
     scale = states.batteryExport / toBattery;
     states.flows.gridToBattery *= scale;
     states.flows.solarToBattery *= scale;
+
+    states.largestEnergyValue = Math.max(
+      states.batteryImport,
+      states.batteryExport,
+      states.gasImport,
+      states.gridImport,
+      states.gridExport,
+      states.home,
+      states.lowCarbon,
+      states.solarImport
+    );
 
     return states;
   }
@@ -260,7 +272,11 @@ export class EntityStates {
             periodEnd = data.end ?? new Date();
           }
 
-          const period = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_Hourly_Stats] || differenceInDays(periodEnd, periodStart) <= 2 ? 'hour' : 'day';
+          const dayDiff: number = differenceInDays(periodEnd, periodStart);
+
+          const period = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_Hourly_Stats] ? 'hour' :
+            isFirstDayOfMonth(periodStart) && isLastDayOfMonth(periodEnd) && dayDiff > 35 ? 'month' : dayDiff > 2 ? 'day' : 'hour';
+
           this._loadStatistics(periodStart, periodEnd, period);
         });
       });
@@ -521,7 +537,7 @@ export class EntityStates {
 
     // TODO: support multiple entries
     const entity: string = entityIds[0];
-    return entry.get(entity)!;
+    return entry.get(entity) ?? 0;
   }
 
   //================================================================================================================================================================================//

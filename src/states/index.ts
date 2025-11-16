@@ -1,6 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { EntitiesOptions, OverridesOptions } from "@/config";
-import { DEVICE_CLASS_ENERGY } from "@/const";
 
 export interface Flows {
   solarToHome: number;
@@ -13,6 +12,7 @@ export interface Flows {
 };
 
 export interface States {
+  largestEnergyValue: number;
   batteryImport: number;
   batteryExport: number;
   batterySecondary: number;

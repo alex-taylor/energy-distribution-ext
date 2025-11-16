@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DeviceType, DisplayMode, DotsMode, LowCarbonType, UnitDisplayMode, InactiveLinesMode } from '@/enums';
+import { ColourMode, DeviceType, DisplayMode, DotsMode, LowCarbonType, InactiveLinesMode, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 declare global {
@@ -41,7 +41,8 @@ export enum AppearanceOptions {
 };
 
 export enum EnergyUnitsOptions {
-  Units_Mode = "units_mode",
+  Unit_Prefixes = "unit_prefixes",
+  Unit_Position = "unit_position",
   Kwh_Display_Precision = "kwh_display_precision",
   Mwh_Display_Precision = "mwh_display_precision",
   Wh_Kwh_Threshold = "wh_kwh_threshold",
@@ -76,7 +77,7 @@ export enum EntityOptions {
   Entity_Id = "entity_id",
   Entity_Ids = "entity_ids",
   Units = "units",
-  Units_Mode = "units_mode",
+  Unit_Position = "units_mode",
   Zero_Threshold = "zero_threshold",
   Display_Precision = "display_precision"
 };
@@ -143,7 +144,8 @@ export interface AppearanceOptionsConfig {
 };
 
 export interface EnergyUnitsConfig {
-  [EnergyUnitsOptions.Units_Mode]?: UnitDisplayMode;
+  [EnergyUnitsOptions.Unit_Prefixes]?: UnitPrefixes;
+  [EnergyUnitsOptions.Unit_Position]?: UnitPosition;
   [EnergyUnitsOptions.Kwh_Display_Precision]?: number;
   [EnergyUnitsOptions.Mwh_Display_Precision]?: number;
   [EnergyUnitsOptions.Wh_Kwh_Threshold]?: number;
@@ -251,7 +253,7 @@ export interface PowerOutageConfig {
 export interface SecondaryInfoConfig {
   [EntityOptions.Entity_Id]?: string;
   [EntityOptions.Units]?: string;
-  [EntityOptions.Units_Mode]?: UnitDisplayMode;
+  [EntityOptions.Unit_Position]?: UnitPosition;
   [EntityOptions.Zero_Threshold]?: number;
   [EntityOptions.Display_Precision]?: number;
   [SecondaryInfoOptions.Icon]?: string;
