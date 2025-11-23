@@ -51,14 +51,14 @@ const valueColoursConfig = {
 const singleValueColoursConfigStruct = object({
   ...valueColoursConfig,
   [ColourOptions.Value]: optional(string()),
-  [EntitiesOptions.Custom_Colour]: optional(number())
+  [ColourOptions.Custom_Colour]: optional(array())
 });
 
 const dualValueColoursConfigStruct = object({
   ...valueColoursConfig,
   [ColourOptions.Values]: optional(string()),
-  [EntitiesOptions.Import_Colour]: optional(number()),
-  [EntitiesOptions.Export_Colour]: optional(number())
+  [ColourOptions.Import_Colour]: optional(array()),
+  [ColourOptions.Export_Colour]: optional(array())
 });
 
 const overridesConfigStruct = object({

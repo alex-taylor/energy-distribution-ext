@@ -219,8 +219,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             : "var(--energy-grid-consumption-color)"
     );
 
-    this.style.setProperty("--icon-solar-color", solar?.config?.colours?.colour_of_icon ? "var(--energy-solar-color)" : "var(--primary-text-color)");
-
     const states: States = this._entityStates.getStates();
     const flows: Flows = states.flows;
     let electricUnits: string | undefined = undefined;
@@ -322,7 +320,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     let iconHomeColor;
     let textHomeColor;
 
-    /* return source object with largest value property */
     const homeLargestSource: string = Object.keys(homeSources).reduce((a, b) => homeSources[a].value > homeSources[b].value ? a : b);
     const homeValueIsZero: boolean = homeSources[homeLargestSource].value == 0;
 
@@ -385,7 +382,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     this.style.setProperty("--icon-home-color", iconHomeColor);
     this.style.setProperty("--text-home-color", textHomeColor);
-    this.style.setProperty("--text-solar-color", this._config?.[EditorPages.Solar]?.[EntitiesOptions.Colours]?.[ColourOptions.Value] !== ColourMode.Do_Not_Colour ? "var(--energy-solar-color)" : "var(--primary-text-color)");
     this.style.setProperty("--text-non-fossil-color", this._config?.[EditorPages.Low_Carbon]?.[EntitiesOptions.Colours]?.[ColourOptions.Value] !== ColourMode.Do_Not_Colour ? "var(--non-fossil-color)" : "var(--primary-text-color)");
     //this.style.setProperty("--secondary-text-non-fossil-color", this._config.low_carbon?.secondary_info?.colour_of_value ? "var(--non-fossil-color)" : "var(--primary-text-color)");
     //this.style.setProperty("--text-individualone-color", this._config.individual1?.color_value ? "var(--individualone-color)" : "var(--primary-text-color)");
@@ -734,7 +730,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _convertColorListToHex = (colorList: number[]): string => "#".concat(colorList.map((x) => x.toString(16).padStart(2, "0")).join(""));
+  private _convertColourListToHex = (colourList: number[] | undefined = []): string | undefined => {
+    if (colourList.length !== 3) {
+      return undefined;
+    }
+
+    return "#".concat(colourList.map(x => x.toString(16).padStart(2, "0")).join(""));
+  };
 
   //================================================================================================================================================================================//
 
@@ -886,12 +888,59 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _renderSolarCircle(solarTotal: number, secondaryState: number, energyUnits: string | undefined): TemplateResult {
+    const solarConfig = this._config?.[EditorPages.Solar];
+
+    const customColour: string | undefined = this._convertColourListToHex(solarConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Custom_Colour]);
+    const circleColour: string = solarConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Circle] === ColourMode.Custom && customColour ? customColour : "var(--energy-solar-color)";
+    let textColour: string;
+    let iconColour: string;
+
+    switch (solarConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Value]) {
+      case ColourMode.Default:
+        textColour = "var(--energy-solar-color)";
+        break;
+
+      case ColourMode.Circle:
+        textColour = circleColour;
+        break;
+
+      case ColourMode.Custom:
+        textColour = customColour ?? "var(--primary-text-color)";
+        break;
+
+      default:
+        textColour = "var(--primary-text-color)";
+        break;
+    }
+
+    switch (solarConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Icon]) {
+      case ColourMode.Default:
+        iconColour = "var(--energy-solar-color)";
+        break;
+
+      case ColourMode.Circle:
+        iconColour = circleColour;
+        break;
+
+      case ColourMode.Custom:
+        iconColour = customColour ?? "var(--primary-text-color)";
+        break;
+
+      default:
+        iconColour = "var(--primary-text-color)";
+        break;
+    }
+
+    this.style.setProperty("--text-solar-color", textColour);
+    this.style.setProperty("--icon-solar-color", iconColour);
+    this.style.setProperty("--circle-solar-color", circleColour);
+
     return html`
       <div class="circle-container solar">
         <span class="label">${this._entityStates.solar.name}</span>
         <div class="circle" @click=${this._handleClick(this._entityStates.solar.firstMainEntity)} @keyDown=${this._handleKeyDown(this._entityStates.solar.firstMainEntity)}}>
           ${this._renderSecondarySpan(this._entityStates.solar.secondary, EntityType.Solar_Secondary, secondaryState)}
-          <ha-icon class="entity-icon" id="solar-icon" .icon=${this._entityStates.solar.icon}></ha-icon>
+          <ha-icon class="entity-icon" .icon=${this._entityStates.solar.icon}></ha-icon>
           ${this._showZeroStates || solarTotal != 0 ? html`<span class="solar">${this._displayEnergyState(solarTotal, energyUnits)}</span>` : ""}
         </div>
       </div>

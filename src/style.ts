@@ -178,9 +178,6 @@ export const styles = css`
   #individual2-icon {
     color: var(--icon-individualtwo-color);
   }
-  #solar-icon {
-    color: var(--icon-solar-color);
-  }
   circle.individual2 {
     stroke-width: 4;
     fill: var(--individualtwo-color);
@@ -217,23 +214,23 @@ export const styles = css`
     fill: var(--non-fossil-color);
     stroke: var(--non-fossil-color);
   }
+
   .solar {
     color: var(--primary-text-color);
   }
   .solar .circle {
-    border-color: var(--energy-solar-color);
+    border-color: var(--circle-solar-color);
+  }
+  span.solar {
+    color: var(--text-solar-color);
   }
   .solar ha-icon:not(.small) {
     color: var(--icon-solar-color);
   }
-  circle.solar,
   path.solar {
     stroke: var(--energy-solar-color);
   }
-  circle.solar {
-    stroke-width: 4;
-    fill: var(--energy-solar-color);
-  }
+
   .battery .circle {
     border-color: var(--circle-battery-color);
   }
@@ -323,9 +320,6 @@ export const styles = css`
     transition: stroke-dashoffset 0.4s, stroke-dasharray 0.4s;
     fill: none;
   }
-  span.solar {
-    color: var(--text-solar-color);
-  }
 
   span.low-carbon {
     color: var(--text-non-fossil-color);
@@ -391,9 +385,9 @@ export const styles = css`
     padding-bottom: 2px;
   }
 
-        ha-entity-picker {
-          flex-grow: 1;
-          min-width: 0;
-        }
+  ha-entity-picker {
+    flex-grow: 1;
+    min-width: 0;
+  }
 
 `;

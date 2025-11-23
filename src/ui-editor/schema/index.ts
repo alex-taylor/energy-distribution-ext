@@ -326,7 +326,7 @@ export function singleValueNodeSchema(config: EnergyFlowCardExtConfig | undefine
 export function singleValueColourPickerSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: SingleValueColourConfig | undefined): {} {
   if (schemaConfig?.[ColourOptions.Circle] === ColourMode.Custom || schemaConfig?.[ColourOptions.Value] === ColourMode.Custom || schemaConfig?.[ColourOptions.Icon] === ColourMode.Custom) {
     return {
-      name: EntitiesOptions.Custom_Colour,
+      name: ColourOptions.Custom_Colour,
       selector: { color_rgb: {} }
     };
   }
@@ -424,11 +424,11 @@ function dualValueColourPickerSchema(config: EnergyFlowCardExtConfig | undefined
       column_min_width: '100px',
       schema: [
         {
-          name: EntitiesOptions.Import_Colour,
+          name: ColourOptions.Import_Colour,
           selector: { color_rgb: {} }
         },
         {
-          name: EntitiesOptions.Export_Colour,
+          name: ColourOptions.Export_Colour,
           selector: { color_rgb: {} }
         }
       ]

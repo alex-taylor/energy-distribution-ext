@@ -67,9 +67,6 @@ export enum EntitiesOptions {
   Secondary_Info = "secondary_info",
   Include_In_Home = "include_in_home",
   Low_Carbon_Mode = "low_carbon_mode",
-  Custom_Colour = "custom_colour",
-  Import_Colour = "import_colour",
-  Export_Colour = "export_colour",
   Device_Type = "device_type"
 };
 
@@ -87,6 +84,9 @@ export enum ColourOptions {
   Icon = "colour_of_icon",
   Values = "colour_of_values",
   Value = "colour_of_value",
+  Custom_Colour = "custom_colour",
+  Import_Colour = "import_colour",
+  Export_Colour = "export_colour"
 };
 
 export enum PowerOutageOptions {
@@ -230,13 +230,13 @@ interface ValueColourConfig {
 
 export interface SingleValueColourConfig extends ValueColourConfig {
   [ColourOptions.Value]?: ColourMode;
-  [EntitiesOptions.Custom_Colour]?: number[];
+  [ColourOptions.Custom_Colour]?: number[];
 };
 
 export interface DualValueColourConfig extends ValueColourConfig {
   [ColourOptions.Values]?: ColourMode;
-  [EntitiesOptions.Import_Colour]?: number[];
-  [EntitiesOptions.Export_Colour]?: number[];
+  [ColourOptions.Import_Colour]?: number[];
+  [ColourOptions.Export_Colour]?: number[];
 };
 
 export interface EntityConfig {
