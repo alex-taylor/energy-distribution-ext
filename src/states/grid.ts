@@ -44,7 +44,7 @@ export class GridState extends DualValueState {
 
     this.powerOutage = {
       isPresent: powerOutageConfig?.[EntityOptions.Entity_Id] !== undefined,
-      // TODO
+      // TODO: power outage
       isOutage: false,//powerOutageConfig?.[EntitiesOptions.Single_Entity] !== undefined && hass.states[powerOutageConfig?.[EntitiesOptions.Single_Entity]]?.state === (powerOutageConfig?.[PowerOutageOptions.State_Alert] ?? "on"),
       icon: powerOutageConfig?.[PowerOutageOptions.Icon_Alert] || "mdi:transmission-tower-off",
       // TODO localize this

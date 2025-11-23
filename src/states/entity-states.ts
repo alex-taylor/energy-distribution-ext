@@ -47,9 +47,6 @@ export class EntityStates {
   public constructor(hass: HomeAssistant, config: EnergyFlowCardExtConfig) {
     this.hass = hass;
     this._displayMode = config?.[GlobalOptions.Display_Mode]!;
-
-    // TODO: filter out incompatible entities - probably done in each State object, and then use these to build the arrays
-
     this.battery = new BatteryState(hass, config?.[EditorPages.Battery]);
     this.gas = new GasState(hass, config?.[EditorPages.Gas]);
     this.grid = new GridState(hass, config?.[EditorPages.Grid]);
@@ -84,7 +81,7 @@ export class EntityStates {
       lowCarbonSecondary: this.lowCarbon.secondary.state,
       solarImport: this.solar.state.import,
       solarSecondary: this.solar.secondary.state,
-      // TODO
+      // TODO: devices
       devices: [],
       devicesSecondary: this.devices.map(device => device.secondary.state),
       flows: {
@@ -192,34 +189,32 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private _getStateDelta(periodStart: Date, periodEnd: Date, statistics: Statistics | undefined, entityIds: string[] | undefined): number {
-    if (!statistics || !entityIds?.length) {
+  private _getStateDelta(periodStart: Date, periodEnd: Date, statistics: Statistics | undefined, entityIds: string[] | undefined = []): number {
+    if (!statistics || !entityIds.length) {
       return 0;
     }
 
-    // TODO: support all entities
-    const entityId: string = entityIds[0];
-    const stateObj: HassEntity = this.hass.states[entityId];
+    let deltaSum: number = 0;
 
-    if (!stateObj) {
-      return 0;
-    }
+    entityIds.forEach(entityId => {
+      const stateObj: HassEntity = this.hass.states[entityId];
 
-    const lastChanged: number = Date.parse(stateObj.last_changed);
+      if (stateObj) {
+        const lastChanged: number = Date.parse(stateObj.last_changed);
 
-    if (lastChanged >= periodStart.getTime() && lastChanged <= periodEnd.getTime()) {
-      const entityStats: StatisticValue[] = statistics[entityId];
-      const state: number = Number(stateObj.state);
+        if (lastChanged >= periodStart.getTime() && lastChanged <= periodEnd.getTime()) {
+          const entityStats: StatisticValue[] = statistics[entityId];
+          const state: number = Number(stateObj.state);
 
-      if (!entityStats || entityStats.length == 0) {
-        return state;
+          if (entityStats && entityStats.length !== 0) {
+            const units = stateObj.attributes.unit_of_measurement;
+            deltaSum += this._toWattHours(units, state - (entityStats[entityStats.length - 1].state ?? 0));
+          }
+        }
       }
+    });
 
-      const units = stateObj.attributes.unit_of_measurement;
-      return this._toWattHours(units, state - (entityStats[entityStats.length - 1].state ?? 0));
-    }
-
-    return 0;
+    return deltaSum;
   }
 
   //================================================================================================================================================================================//
@@ -391,7 +386,7 @@ export class EntityStates {
     let batteryImport: number = 0;
     let batteryExport: number = 0;
 
-    combinedStats.forEach((entry, timestamp) => {
+    combinedStats.forEach(entry => {
       const sp: number = this._getStates(entry, this.solar.mainEntities);
       const bi: number = this._getStates(entry, this.battery.mainEntities);
       const be: number = this._getStates(entry, this.battery.returnEntities);
@@ -434,8 +429,7 @@ export class EntityStates {
         }
 
         if (this.lowCarbon.isPresent && this._co2data) {
-          const units: string | undefined = this._getUnits(this.grid.mainEntities);
-          this.grid.state.highCarbon = this._toWattHours(units, Object.values(this._co2data).reduce((sum, a) => sum + a, 0));
+          this.grid.state.highCarbon = this._toWattHours("kWh", Object.values(this._co2data).reduce((sum, a) => sum + a, 0));
         }
 
         this.home.state.fromGrid = gridToHome;
@@ -492,8 +486,7 @@ export class EntityStates {
       return;
     }
 
-    // TODO multiple entities
-    const entityId: string = state.secondary.mainEntities[0]!;
+    const entityId: string = state.secondary.firstMainEntity!;
     const entityStats: StatisticValue[] = this._secondaryStatistics![entityId];
 
     if (entityStats.length > 0) {
@@ -507,37 +500,41 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private _addFlowStats(statistics: Statistics, combinedStats: Map<number, Map<string, number>>, entityIds: string[] | undefined): void {
-    if (!entityIds?.length) {
+  private _addFlowStats(statistics: Statistics, combinedStats: Map<number, Map<string, number>>, entityIds: string[] | undefined = []): void {
+    if (!entityIds.length) {
       return;
     }
 
-    // TODO: support multiple entities
-    const entityStats: Map<number, number> = this._getEntityStatistics(this.hass, statistics, entityIds);
-    const entityId: string = entityIds[0];
+    entityIds.forEach(entityId => {
+      const entityStats: Map<number, number> = this._getEntityStatistics(this.hass, statistics, entityId);
 
-    entityStats.forEach((value, timestamp) => {
-      let entry: Map<string, number> | undefined = combinedStats.get(timestamp);
+      entityStats.forEach((value, timestamp) => {
+        let entry: Map<string, number> | undefined = combinedStats.get(timestamp);
 
-      if (!entry) {
-        entry = new Map();
-      }
+        if (!entry) {
+          entry = new Map();
+        }
 
-      entry.set(entityId, value);
-      combinedStats.set(timestamp, entry);
+        entry.set(entityId, value);
+        combinedStats.set(timestamp, entry);
+      });
     });
   }
 
   //================================================================================================================================================================================//
 
-  private _getStates(entry: Map<string, number>, entityIds: string[] | undefined): number {
-    if (!entityIds?.length) {
+  private _getStates(entry: Map<string, number>, entityIds: string[] | undefined = []): number {
+    if (!entityIds.length) {
       return 0;
     }
 
-    // TODO: support multiple entries
-    const entity: string = entityIds[0];
-    return entry.get(entity) ?? 0;
+    let stateSum: number = 0;
+
+    entityIds.forEach(entityId =>
+      stateSum += entry.get(entityId) ?? 0
+    );
+
+    return stateSum;
   }
 
   //================================================================================================================================================================================//
@@ -713,36 +710,25 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private _getEntityStatistics(hass: HomeAssistant, statistics: Statistics, entityIds: string[] | undefined): Map<number, number> {
-    if (!entityIds?.length) {
-      return new Map();
-    }
-
+  private _getEntityStatistics(hass: HomeAssistant, statistics: Statistics, entityId: string): Map<number, number> {
     const entityStats: Map<number, number> = new Map();
+    const stateObj: HassEntity = hass.states[entityId];
 
-    entityIds.forEach(entity => {
-      const stateObj: HassEntity = hass.states[entity];
+    if (stateObj) {
+      const statisticsForEntity: StatisticValue[] = statistics[entityId];
 
-      if (stateObj) {
-        const statisticsForEntity: StatisticValue[] = statistics[entity];
+      if (statisticsForEntity && statisticsForEntity.length != 0) {
+        const units: string | undefined = stateObj.attributes.unit_of_measurement;
 
-        if (statisticsForEntity && statisticsForEntity.length != 0) {
-          statisticsForEntity.map((entry) => {
-            const state = this._toWattHours(stateObj.attributes.unit_of_measurement, entry.change || 0);
-            entityStats.set(entry.start, (entityStats.get(entry.start) || 0) + state);
-          });
-        }
+        statisticsForEntity.map(entry => {
+          const state = this._toWattHours(units, entry.change || 0);
+          entityStats.set(entry.start, (entityStats.get(entry.start) || 0) + state);
+        });
       }
-    });
+    }
 
     return entityStats;
   };
-
-  //================================================================================================================================================================================//
-
-  private _getUnits(entityIds: string[]): string | undefined {
-    return this.hass.states[entityIds[0]].attributes.unit_of_measurement;
-  }
 
   //================================================================================================================================================================================//
 
