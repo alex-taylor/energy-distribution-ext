@@ -1,5 +1,5 @@
 import { HomeAssistant, round } from "custom-card-helpers";
-import { HassEntity } from "home-assistant-js-websocket";
+import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
 import { EnergyCollection, EnergyData, Statistics, StatisticValue } from "@/hass";
 import { AppearanceOptions, EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions } from "@/config";
 import { GridState } from "./grid";
@@ -57,14 +57,13 @@ export class EntityStates {
 
     this._populateEntityArrays();
     this._inferEntityModes();
-    this._subscribe(config);
   }
 
   //================================================================================================================================================================================//
 
   public getStates(): States {
     const states: States = {
-      largestEnergyValue: 0,
+      largestElectricValue: 0,
       batteryImport: this.battery.state.import,
       batteryExport: this.battery.state.export,
       batterySecondary: this.battery.secondary.state,
@@ -121,10 +120,9 @@ export class EntityStates {
     states.flows.gridToBattery *= scale;
     states.flows.solarToBattery *= scale;
 
-    states.largestEnergyValue = Math.max(
+    states.largestElectricValue = Math.max(
       states.batteryImport,
       states.batteryExport,
-      states.gasImport,
       states.gridImport,
       states.gridExport,
       states.home,
@@ -133,6 +131,62 @@ export class EntityStates {
     );
 
     return states;
+  }
+
+  //================================================================================================================================================================================//
+
+  public subscribe(config: EnergyFlowCardExtConfig): Promise<UnsubscribeFunc> {
+    const start: number = Date.now();
+
+    const getEnergyDataCollectionPoll = (
+      resolve: (value: EnergyCollection | PromiseLike<EnergyCollection>) => void,
+      reject: (reason?: any) => void
+    ) => {
+      const energyCollection = getEnergyDataCollection(this.hass);
+
+      if (energyCollection) {
+        resolve(energyCollection);
+      } else if (Date.now() - start > ENERGY_DATA_TIMEOUT) {
+        console.debug(getEnergyDataCollection(this.hass));
+        reject(new Error("No energy data received."));
+      } else {
+        setTimeout(() => getEnergyDataCollectionPoll(resolve, reject), 100);
+      }
+    };
+
+    setTimeout(
+      () => {
+        if (!this._error && !this._primaryStatistics && !this._secondaryStatistics) {
+          this._error = new Error("No energy data received.");
+        }
+      },
+      ENERGY_DATA_TIMEOUT * 2);
+
+    return new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
+      .catch(err => this._error = err)
+      .then(async (collection: EnergyCollection) => {
+        return collection.subscribe(async (data: EnergyData) => {
+          this._energyData = data;
+
+          let periodStart: Date;
+          let periodEnd: Date;
+
+          if (config?.[GlobalOptions.Display_Mode] === DisplayMode.Today) {
+            periodEnd = new Date();
+            periodStart = startOfDay(periodEnd);
+          } else {
+            periodStart = data.start;
+            periodEnd = data.end ?? new Date();
+          }
+
+          const dayDiff: number = differenceInDays(periodEnd, periodStart);
+
+          const period = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_Hourly_Stats] ? 'hour' :
+            isFirstDayOfMonth(periodStart) && isLastDayOfMonth(periodEnd) && dayDiff > 35 ? 'month' : dayDiff > 2 ? 'day' : 'hour';
+
+          this._loadStatistics(periodStart, periodEnd, period);
+        });
+      });
   }
 
   //================================================================================================================================================================================//
@@ -215,66 +269,6 @@ export class EntityStates {
     });
 
     return deltaSum;
-  }
-
-  //================================================================================================================================================================================//
-
-  private _subscribe(config: EnergyFlowCardExtConfig) {
-    const start: number = Date.now();
-
-    const getEnergyDataCollectionPoll = (
-      resolve: (value: EnergyCollection | PromiseLike<EnergyCollection>) => void,
-      reject: (reason?: any) => void
-    ) => {
-      const energyCollection = getEnergyDataCollection(this.hass);
-
-      if (energyCollection) {
-        console.log("Got EnergyCollection");
-        resolve(energyCollection);
-      } else if (Date.now() - start > ENERGY_DATA_TIMEOUT) {
-        console.debug(getEnergyDataCollection(this.hass));
-        reject(new Error("No energy data received."));
-      } else {
-        setTimeout(() => getEnergyDataCollectionPoll(resolve, reject), 100);
-      }
-    };
-
-    setTimeout(
-      () => {
-        if (!this._error && !this._primaryStatistics && !this._secondaryStatistics) {
-          this._error = new Error("No energy data received.");
-        }
-      },
-      ENERGY_DATA_TIMEOUT * 2);
-
-    new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
-      .catch(err => this._error = err)
-      .then(async (collection: EnergyCollection) => {
-        console.log("Thenable called");
-
-        return collection.subscribe(async (data: EnergyData) => {
-          console.log("subscribe callback");
-          this._energyData = data;
-
-          let periodStart: Date;
-          let periodEnd: Date;
-
-          if (config?.[GlobalOptions.Display_Mode] === DisplayMode.Today) {
-            periodEnd = new Date();
-            periodStart = startOfDay(periodEnd);
-          } else {
-            periodStart = data.start;
-            periodEnd = data.end ?? new Date();
-          }
-
-          const dayDiff: number = differenceInDays(periodEnd, periodStart);
-
-          const period = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_Hourly_Stats] ? 'hour' :
-            isFirstDayOfMonth(periodStart) && isLastDayOfMonth(periodEnd) && dayDiff > 35 ? 'month' : dayDiff > 2 ? 'day' : 'hour';
-
-          this._loadStatistics(periodStart, periodEnd, period);
-        });
-      });
   }
 
   //================================================================================================================================================================================//

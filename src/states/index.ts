@@ -12,7 +12,7 @@ export interface Flows {
 };
 
 export interface States {
-  largestEnergyValue: number;
+  largestElectricValue: number;
   batteryImport: number;
   batteryExport: number;
   batterySecondary: number;

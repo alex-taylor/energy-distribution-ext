@@ -74,7 +74,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  // https://lit.dev/docs/components/properties/
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config!: EnergyFlowCardExtConfig;
   @state() private _width = 0;
@@ -108,9 +107,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   public hassSubscribe(): Promise<UnsubscribeFunc>[] {
-    console.log("hassSubscribe()");
     this._entityStates = new EntityStates(this.hass, this._config);
-    return [];
+    return [this._entityStates.subscribe(this._config)];
   }
 
   //================================================================================================================================================================================//
@@ -225,10 +223,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const states: States = this._entityStates.getStates();
     const flows: Flows = states.flows;
-    let energyUnits: string | undefined = undefined;
+    let electricUnits: string | undefined = undefined;
 
     if (this._energyUnitPrefixes === UnitPrefixes.HASS) {
-      energyUnits = this._calculateEnergyUnits(new Decimal(states.largestEnergyValue));
+      electricUnits = this._calculateEnergyUnits(new Decimal(states.largestElectricValue));
     }
 
     let totalHomeConsumption: number = states.home;
@@ -402,7 +400,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     if (homeConsumptionError) {
       homeUsageToDisplay = localize("common.unknown");
     } else {
-      homeUsageToDisplay = (totalHomeConsumption !== 0 || this._showZeroStates) ? this._displayEnergyState(totalHomeConsumption, energyUnits) : "";
+      homeUsageToDisplay = (totalHomeConsumption !== 0 || this._showZeroStates) ? this._displayEnergyState(totalHomeConsumption, electricUnits) : "";
     }
 
     // Adjust Curved Lines
@@ -440,7 +438,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
             <!-- top middle -->
             ${solar.isPresent
-            ? html`${this._renderSolarCircle(states.solarImport, states.solarSecondary, energyUnits)}`
+            ? html`${this._renderSolarCircle(states.solarImport, states.solarSecondary, electricUnits)}`
             : ""}
 
             <!-- top right -->
@@ -454,7 +452,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         <div class="row">
 
           <!-- middle left -->
-          ${this._renderGridCircle(states.gridExport, states.gridImport, states.gridSecondary, energyUnits)}
+          ${this._renderGridCircle(states.gridExport, states.gridImport, states.gridSecondary, electricUnits)}
 
           <!-- middle right -->
           ${this._renderHomeCircle(
@@ -479,7 +477,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
             <!-- bottom middle -->
             ${battery.isPresent
-            ? html`${this._renderBatteryCircle(states.batteryExport, states.batteryImport, states.batterySecondary, energyUnits)}`
+            ? html`${this._renderBatteryCircle(states.batteryExport, states.batteryImport, states.batterySecondary, electricUnits)}`
             : html`<div class="spacer"></div>`}
 
             <!-- bottom right -->

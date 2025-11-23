@@ -6,7 +6,10 @@ OOTB behaviour/appearance should match the built-in card:
     - the grid circle should be blue
     - the battery circle should be red
     - the battery-grid line colour is unclear: Oct 19 shows blue here but purple in HASS
+      - might the colour be based on the flow values rather than the grid-import/export totals?
     - looks like the low-carbon line isn't animated in HASS (don't care, though!)
+  - units: only the electric nodes are compared to get the largest value - gas, for example, is independent of this
+    - so for here, the devices would also be done independently
 
 Decimals:
   - add flag to 'always show dps' (per-entity)
@@ -17,9 +20,6 @@ Low-carbon:
   - lock decimals to 1dp for percentage
 
 Investigate why two dot radii are needed - one for the main flows and one for the low-carbon/gas/etc!
-
-Intermittent problem where the stats are received multiple times
-  - may be related to a browser page reload after switching between tabs?
 
 The 'multi entity' picker is sizing itself to the full width of its entity's name, should be constrained
   - HASS bug
