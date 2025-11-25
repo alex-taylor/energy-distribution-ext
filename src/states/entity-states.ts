@@ -486,9 +486,8 @@ export class EntityStates {
     if (entityStats.length > 0) {
       const stateObj: HassEntity = this.hass.states[entityId];
       const units: string | undefined = state.secondary.config?.[EntitiesOptions.Entities]?.[EntityOptions.Units] || stateObj.attributes.unit_of_measurement;
-      const threshold: number = state.secondary.config?.[EntitiesOptions.Entities]?.[EntityOptions.Zero_Threshold] || 0;
       const secondaryState: number = entityStats.map(stat => stat.change || 0).reduce((result, change) => result + change, 0) || 0;
-      state.secondary.state = this._toWattHours(units, threshold >= secondaryState ? secondaryState : 0);
+      state.secondary.state = this._toWattHours(units, secondaryState);
     }
   }
 
@@ -735,6 +734,10 @@ export class EntityStates {
       return round(value * 1000000, 0);
     }
 
-    return round(value, 0);
+    if (units?.toUpperCase().startsWith("WH")) {
+      return round(value, 0);
+    }
+
+    return value;
   };
 }

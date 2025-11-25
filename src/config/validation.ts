@@ -11,8 +11,7 @@ const appearanceOptionsConfigStruct = object({
   [AppearanceOptions.Dashboard_Link_Label]: optional(string()),
   [AppearanceOptions.Inactive_Lines]: optional(string()),
   [AppearanceOptions.Show_Zero_States]: optional(boolean()),
-  [AppearanceOptions.Clickable_Entities]: optional(boolean()),
-  [AppearanceOptions.Unit_Whitespace]: optional(boolean()),
+  [AppearanceOptions.Clickable_Entities]: optional(boolean())
 });
 
 const energyUnitsOptionsConfigStruct = object({

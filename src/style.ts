@@ -227,8 +227,13 @@ export const styles = css`
   .solar ha-icon:not(.small) {
     color: var(--icon-solar-color);
   }
+  circle.solar,
   path.solar {
     stroke: var(--energy-solar-color);
+  }
+  circle.solar {
+    stroke-width: 4;
+    fill: var(--energy-solar-color);
   }
 
   .battery .circle {

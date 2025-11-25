@@ -18,8 +18,8 @@ import { HomeState } from "@/states/home";
 import { LowCarbonState } from "./states/low-carbon";
 import { ValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
-import { CARD_NAME, DEVICE_CLASS_ENERGY } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, OverridesOptions, EntityOptions, EnergyUnitsConfig } from "@/config";
+import { CARD_NAME, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY } from "@/const";
+import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, OverridesOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoOptions, SecondaryInfoConfig } from "@/config";
 import { renderDot, renderLine } from "@/ui-helpers";
 import { GasState } from "@/states/gas";
 
@@ -545,9 +545,33 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
+  private _formatState(state: string, units: string | undefined, unitPosition: UnitPosition | undefined = UnitPosition.After_Space): string {
+    switch (unitPosition) {
+      case UnitPosition.After_Space:
+        return `${state} ${units}`;
+
+      case UnitPosition.Before_Space:
+        return `${units} ${state}`;
+
+      case UnitPosition.After:
+        return `${state}${units}`;
+
+      case UnitPosition.Before:
+        return `${units}${state}`;
+    }
+
+    return `${state}`;
+  }
+
+  //================================================================================================================================================================================//
+
   private _displayEnergyState(state: number, units: string | undefined = undefined): string {
     if (state === null) {
       return localize("editor.unknown");
+    }
+
+    if (state === 0 && !this._showZeroStates) {
+      return '';
     }
 
     const getDisplayPrecisionForEnergyState = (state: Decimal): number => state.lessThan(10) ? 2 : state.lessThan(100) ? 1 : 0;
@@ -580,93 +604,34 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const formattedValue = formatNumber(stateAsDecimal.toDecimalPlaces(decimals).toString(), this.hass.locale);
-    const unitWhitespace: boolean = this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Unit_Whitespace]!;
-
-    switch (this._energyUnitPosition) {
-      case UnitPosition.After_Space:
-        return `${formattedValue}${units && unitWhitespace ? " " : ""}${units}`;
-
-      case UnitPosition.Before_Space:
-        return `${units}${units && unitWhitespace ? " " : ""}${formattedValue}`;
-
-      case UnitPosition.After:
-        return `${formattedValue}${units}`;
-
-      case UnitPosition.Before:
-        return `${units}${formattedValue}`;
-    }
-
-    return `${formattedValue}`;
+    return this._formatState(formattedValue, units, this._energyUnitPosition);
   }
 
   //================================================================================================================================================================================//
 
-  private _displayState(entityIds: string[] = [], state: number | string | null, deviceClass: string | undefined = undefined): string {
+  private _displayState(config: SecondaryInfoConfig, entityId: string, state: number, deviceClass: string | undefined = undefined): string {
     if (state === null) {
-      return "0";
+      return "Unknown";
     }
 
-    if (Number.isNaN(state)) {
-      return state.toString();
-    }
-
-    let isEnergyDevice: boolean = deviceClass === DEVICE_CLASS_ENERGY;
-    let units: string | undefined;
-
-    if (entityIds.length > 0) {
-      isEnergyDevice = (deviceClass ?? this.hass.states[entityIds[0]].attributes.device_class) === DEVICE_CLASS_ENERGY;
-      units = this.hass.states[entityIds[0]].attributes.unit_of_measurement;
-    }
-
-    let valueAsNumber = new Decimal(state);
-    let decimals: number | undefined;
+    const isEnergyDevice: boolean = (deviceClass ?? this.hass.states[entityId].attributes.device_class) === DEVICE_CLASS_ENERGY;
+    let units: string | undefined = config?.[EntityOptions.Units] ?? this.hass.states[entityId].attributes.unit_of_measurement;
 
     if (isEnergyDevice) {
-      const energyUnitsConfig: EnergyUnitsConfig | undefined = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Energy_Units];
-      const isMWh = (units && units.toUpperCase().startsWith("MWH")) || valueAsNumber.abs().dividedBy(1000).greaterThanOrEqualTo(new Decimal(energyUnitsConfig?.[EnergyUnitsOptions.Kwh_Mwh_Threshold]!));
-      const isKWh = (units && units.toUpperCase().startsWith("KWH")) || valueAsNumber.abs().greaterThanOrEqualTo(new Decimal(energyUnitsConfig?.[EnergyUnitsOptions.Wh_Kwh_Threshold]!));
+      return this._displayEnergyState(state, units);
+    }
 
-      decimals = decimals ?? isMWh
-        ? energyUnitsConfig?.[EnergyUnitsOptions.Mwh_Display_Precision]
-        : isKWh
-          ? energyUnitsConfig?.[EnergyUnitsOptions.Kwh_Display_Precision]
-          : 0;
+    const isCurrencyDevice: boolean = (deviceClass ?? this.hass.states[entityId].attributes.device_class) === DEVICE_CLASS_MONETARY;
+    const decimals: number = config?.[EntityOptions.Display_Precision] ?? this.hass["entities"][entityId].display_precision;
+    let formattedValue: string;
 
-      if (isMWh) {
-        valueAsNumber = valueAsNumber.dividedBy(1000000);
-
-        if (!units) {
-          units = "MWh";
-        }
-      } else if (isKWh) {
-        valueAsNumber = valueAsNumber.dividedBy(1000);
-
-        if (!units) {
-          units = "kWh";
-        }
-      } else if (!units) {
-        units = "Wh";
-      }
+    if (isCurrencyDevice) {
+      formattedValue = formatNumber(new Decimal(state).toFixed(decimals), this.hass.locale);
     } else {
-      // TODO handle multiple entities
-      decimals = decimals ?? entityIds.length > 0 ? this.hass["entities"][entityIds[0]].display_precision : undefined;
+      formattedValue = formatNumber(new Decimal(state).toDecimalPlaces(decimals).toString(), this.hass.locale);
     }
 
-    const formattedValue = formatNumber(valueAsNumber.toDecimalPlaces(decimals).toString(), this.hass.locale);
-    const unitWhitespace: boolean = this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Unit_Whitespace]!;
-    const unitPosition: UnitPosition = UnitPosition.After;
-
-    if (units) {
-      switch (unitPosition) {
-        case UnitPosition.After:
-          return `${formattedValue}${units && unitWhitespace ? " " : ""}${units}`;
-
-        //        case UnitPosition.Before:
-        //          return `${units}${units && unitWhitespace ? " " : ""}${formattedValue}`;
-      }
-    }
-
-    return `${formattedValue}`;
+    return this._formatState(formattedValue, units, config?.[EntityOptions.Unit_Position]);
   }
 
   //================================================================================================================================================================================//
@@ -741,21 +706,20 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _renderSecondarySpan(secondary: SecondaryInfoState, type: EntityType, state: number): TemplateResult {
-    if (!secondary.isPresent) {
+    if (!secondary.isPresent || (state === 0 && !this._showZeroStates)) {
       return html``;
     }
 
-    const entities: string[] = secondary.mainEntities;
-    const entity: string = entities[0];
+    const entityId: string = secondary.firstMainEntity!;
 
-    state = Math.abs(state) < (secondary.config?.[EntitiesOptions.Entities]?.[EntityOptions.Zero_Threshold] ?? 0)
+    state = Math.abs(state) < (secondary.config?.[EntityOptions.Zero_Threshold] ?? 0)
       ? 0
       : state;
 
     return html`
-        <span class="secondary-info ${type}" @click=${this._handleClick(entity)} @keyDown=${(this._handleKeyDown(entity))}>
+        <span class="secondary-info ${type}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
           ${secondary.icon ? html`<ha-icon class="secondary-info small" .icon=${secondary.icon}></ha-icon>` : ""}
-          ${secondary.config!.template ?? this._displayState(entities, state)}
+          ${secondary.config?.[SecondaryInfoOptions.Template] ?? this._displayState(secondary.config!, entityId, state)}
         </span>
       `;
   };
@@ -887,7 +851,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderSolarCircle(solarTotal: number, secondaryState: number, energyUnits: string | undefined): TemplateResult {
+  private _renderSolarCircle(primaryState: number, secondaryState: number, energyUnits: string | undefined): TemplateResult {
     const solarConfig = this._config?.[EditorPages.Solar];
 
     const customColour: string | undefined = this._convertColourListToHex(solarConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Custom_Colour]);
@@ -941,7 +905,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         <div class="circle" @click=${this._handleClick(this._entityStates.solar.firstMainEntity)} @keyDown=${this._handleKeyDown(this._entityStates.solar.firstMainEntity)}}>
           ${this._renderSecondarySpan(this._entityStates.solar.secondary, EntityType.Solar_Secondary, secondaryState)}
           <ha-icon class="entity-icon" .icon=${this._entityStates.solar.icon}></ha-icon>
-          ${this._showZeroStates || solarTotal != 0 ? html`<span class="solar">${this._displayEnergyState(solarTotal, energyUnits)}</span>` : ""}
+          <span class="solar">${this._displayEnergyState(primaryState, energyUnits)}</span>
         </div>
       </div>
     `;
@@ -994,7 +958,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         <div class="circle" @click=${this._handleClick(entity.firstMainEntity)} @keyDown=${this._handleKeyDown(entity.firstMainEntity)}>
           ${this._renderSecondarySpan(entity.secondary, type, secondaryState)}
           <ha-icon class="entity-icon" .icon=${entity.icon}></ha-icon>
-          ${this._showZeroStates || state != 0 ? html`<span class=" ${type}">${this._displayState(entity.mainEntities, state)}</span>` : ""}
+          ${this._showZeroStates || state != 0 ? html`<span class=" ${type}">${this._displayEnergyState(state)}</span>` : ""}
         </div>
         ${this._showLine(state)
         ? html`
@@ -1024,7 +988,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         <div class="circle" @click=${this._handleClick(entity.firstMainEntity)} @keyDown=${this._handleKeyDown(entity.firstMainEntity)}>
           ${this._renderSecondarySpan(entity.secondary, type, 0)}
           <ha-icon class="entity-icon" .icon=${entity.icon}></ha-icon>
-          ${this._showZeroStates || state != 0 ? html`<span class=" ${type}">${this._displayState(entity.mainEntities, state)}</span>` : ""}
+          ${this._showZeroStates || state != 0 ? html`<span class=" ${type}">${this._displayEnergyState(state)}</span>` : ""}
         </div>
         <span class="label">${entity.name}</span>
       </div>

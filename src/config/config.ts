@@ -122,8 +122,7 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
   return {
     [GlobalOptions.Options]: {
       [AppearanceOptions.Inactive_Lines]: InactiveLinesMode.Normal,
-      [AppearanceOptions.Show_Zero_States]: true,
-      [AppearanceOptions.Unit_Whitespace]: true
+      [AppearanceOptions.Show_Zero_States]: true
     },
     [AppearanceOptions.Energy_Units]: {
       [EnergyUnitsOptions.Unit_Prefixes]: UnitPrefixes.HASS,

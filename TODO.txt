@@ -11,10 +11,6 @@ OOTB behaviour/appearance should match the built-in card:
   - units: only the electric nodes are compared to get the largest value - gas, for example, is independent of this
     - so for here, the devices would also be done independently
 
-Decimals:
-  - add flag to 'always show dps' (per-entity)
-    - or perhaps just auto-detect currencies?
-
 Low-carbon:
   - needs its own rendering code
   - lock decimals to 1dp for percentage
@@ -31,6 +27,7 @@ Home value still getting the wrong colour - usually 'low-carbon'
   - the circle gets it wrong at midnight, too
 
 Low-carbon and Secondary values being mis-coloured, needs to take into account the relevant setting
+  - do we actually *want* to colour secondaries?  how would this be handled for the dual-value nodes?
 
 Power-outage is calculating its state up-front, rather than live as-needed (see GridState)
 
@@ -77,7 +74,6 @@ Test localisation by disabling EN and EN-GB and checking that all strings revert
   - also check that there aren't any redundant keys!
 
 
- - for energy secondaries, decide if their unit settings should override the global or vice versa
  - see how much of the render setup can be moved out to setConfig()
  - for the Home node, perhaps have the option to show Gas and Electric as separate figures?
     - this would allow the Gas to be added to the circle without it overpowering the value

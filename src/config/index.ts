@@ -35,7 +35,6 @@ export enum AppearanceOptions {
   Inactive_Lines = "inactive_lines",
   Show_Zero_States = "show_zero_states",
   Clickable_Entities = "clickable_entities",
-  Unit_Whitespace = "unit_whitespace",
   Energy_Units = "energy_units",
   Flows = "flows"
 };
@@ -74,7 +73,7 @@ export enum EntityOptions {
   Entity_Id = "entity_id",
   Entity_Ids = "entity_ids",
   Units = "units",
-  Unit_Position = "units_mode",
+  Unit_Position = "unit_position",
   Zero_Threshold = "zero_threshold",
   Display_Precision = "display_precision"
 };
@@ -140,7 +139,6 @@ export interface AppearanceOptionsConfig {
   [AppearanceOptions.Inactive_Lines]?: InactiveLinesMode;
   [AppearanceOptions.Show_Zero_States]?: boolean;
   [AppearanceOptions.Clickable_Entities]?: boolean;
-  [AppearanceOptions.Unit_Whitespace]?: boolean;
 };
 
 export interface EnergyUnitsConfig {
