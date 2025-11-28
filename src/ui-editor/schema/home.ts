@@ -19,8 +19,8 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
                 select: {
                   mode: 'dropdown',
                   options: [
-                    ColourMode.getItem(ColourMode.Consumption_Sources),
-                    ColourMode.getItem(ColourMode.Larger_Value),
+                    ColourMode.getItem(ColourMode.Dynamic),
+                    ColourMode.getItem(ColourMode.Largest_Value),
                     ColourMode.getItem(ColourMode.Solar),
                     ColourMode.getItem(ColourMode.High_Carbon),
                     ColourMode.getItem(ColourMode.Low_Carbon),
@@ -38,7 +38,7 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
                 select: {
                   options: [
                     ColourMode.getItem(ColourMode.Do_Not_Colour),
-                    ColourMode.getItem(ColourMode.Larger_Value),
+                    ColourMode.getItem(ColourMode.Largest_Value),
                     ColourMode.getItem(ColourMode.Solar),
                     ColourMode.getItem(ColourMode.High_Carbon),
                     ColourMode.getItem(ColourMode.Low_Carbon),
@@ -57,7 +57,7 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
                 select: {
                   options: [
                     ColourMode.getItem(ColourMode.Do_Not_Colour),
-                    ColourMode.getItem(ColourMode.Larger_Value),
+                    ColourMode.getItem(ColourMode.Largest_Value),
                     ColourMode.getItem(ColourMode.Solar),
                     ColourMode.getItem(ColourMode.High_Carbon),
                     ColourMode.getItem(ColourMode.Low_Carbon),

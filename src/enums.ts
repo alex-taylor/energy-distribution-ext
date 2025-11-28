@@ -1,10 +1,23 @@
 import { localize } from '@/localize/localize';
 
+export enum EnergyUnits {
+  MegaWattHours = "MWh",
+  KiloWattHours = "kWh",
+  WattHours = "Wh"
+}
+
 export enum CssClass {
+  Battery = "battery",
   Gas = "gas",
+  Grid = "grid",
   // for some reason HASS calls its css classes 'non-fossil'
   LowCarbon = "non-fossil",
   Solar = "solar"
+}
+
+export enum Orientation {
+  Horizontal,
+  Vertical
 }
 
 export enum DefaultValues {
@@ -42,10 +55,10 @@ export enum ColourMode {
   Default = "default",
   Circle = "circle",
   Larger_Value = "larger_value",
+  Largest_Value = "largest_value",
   Import = "import",
   Export = "export",
-  Export_Sources = "export_sources",
-  Consumption_Sources = "consumption_sources",
+  Dynamic = "dynamic",
   Solar = "solar",
   High_Carbon = "high_carbon",
   Low_Carbon = "low_carbon",

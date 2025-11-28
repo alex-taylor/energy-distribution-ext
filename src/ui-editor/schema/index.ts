@@ -397,7 +397,7 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
                     ColourMode.getItem(ColourMode.Larger_Value),
                     ColourMode.getItem(ColourMode.Import),
                     ColourMode.getItem(ColourMode.Export),
-                    ColourMode.getItem(ColourMode.Export_Sources),
+                    ColourMode.getItem(ColourMode.Dynamic),
                     ColourMode.getItem(ColourMode.Custom)
                   ]
                 }

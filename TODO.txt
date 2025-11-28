@@ -3,8 +3,6 @@ BUGS
 
 OOTB behaviour/appearance should match the built-in card:
   - check colour settings
-    - the grid circle should be blue
-    - the battery circle should be red
     - the battery-grid line colour is unclear: Oct 19 shows blue here but purple in HASS
       - might the colour be based on the flow values rather than the grid-import/export totals?
 
@@ -15,9 +13,6 @@ The 'multi entity' picker is sizing itself to the full width of its entity's nam
 
 Reinstate the -ve coords for the lines, they are required so that the dots don't just vanish!
   - and presumably they should extend at both ends?
-
-Home value still getting the wrong colour - usually 'low-carbon'
-  - the circle gets it wrong at midnight, too
 
 Power-outage is calculating its state up-front, rather than live as-needed (see GridState)
 

@@ -153,7 +153,7 @@ export function getDefaultGridConfig(hass: HomeAssistant, requireEntity: boolean
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Circle]: ColourMode.Larger_Value,
+      [ColourOptions.Circle]: ColourMode.Import,
       [ColourOptions.Values]: ColourMode.Default,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
@@ -206,7 +206,7 @@ export function getDefaultBatteryConfig(hass: HomeAssistant, requireEntity: bool
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Circle]: ColourMode.Larger_Value,
+      [ColourOptions.Circle]: ColourMode.Export,
       [ColourOptions.Values]: ColourMode.Default,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
@@ -335,7 +335,7 @@ export function getDefaultGasConfig(hass: HomeAssistant, requireEntity: boolean)
 export function getDefaultHomeConfig(): HomeConfig {
   return {
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Circle]: ColourMode.Consumption_Sources,
+      [ColourOptions.Circle]: ColourMode.Dynamic,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     }
