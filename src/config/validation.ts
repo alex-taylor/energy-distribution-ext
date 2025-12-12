@@ -10,7 +10,8 @@ const appearanceOptionsConfigStruct = object({
   [AppearanceOptions.Dashboard_Link]: optional(string()),
   [AppearanceOptions.Dashboard_Link_Label]: optional(string()),
   [AppearanceOptions.Show_Zero_States]: optional(boolean()),
-  [AppearanceOptions.Clickable_Entities]: optional(boolean())
+  [AppearanceOptions.Clickable_Entities]: optional(boolean()),
+  [AppearanceOptions.Segment_Gaps]: optional(boolean())
 });
 
 const energyUnitsOptionsConfigStruct = object({

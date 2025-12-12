@@ -34,6 +34,7 @@ export enum AppearanceOptions {
   Dashboard_Link_Label = "dashboard_link_label",
   Show_Zero_States = "show_zero_states",
   Clickable_Entities = "clickable_entities",
+  Segment_Gaps = "segment_gaps",
   Energy_Units = "energy_units",
   Flows = "flows"
 };
@@ -138,6 +139,7 @@ export interface AppearanceOptionsConfig {
   [AppearanceOptions.Dashboard_Link_Label]?: string;
   [AppearanceOptions.Show_Zero_States]?: boolean;
   [AppearanceOptions.Clickable_Entities]?: boolean;
+  [AppearanceOptions.Segment_Gaps]?: boolean;
 };
 
 export interface EnergyUnitsConfig {

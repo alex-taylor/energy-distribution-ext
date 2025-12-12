@@ -16,7 +16,18 @@ Reinstate the -ve coords for the lines, they are required so that the dots don't
   - and presumably they should extend at both ends?
 
 Power-outage is calculating its state up-front, rather than live as-needed (see GridState)
+  - also needs implementing in the new grid render method
 
+
+
+
+
+
+
+Linear/log scale flag in Appearance
+'Gas' option in Home: 'Do not show', 'Single ring', 'Dual ring', 'Split ring'
+'Electric devices' flag in Home
+For the dual-value nodes, add 'Dual' and 'Split' options
 
 
 

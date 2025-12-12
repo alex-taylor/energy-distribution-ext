@@ -121,7 +121,9 @@ function setDefaultsRecursively(config: any, defaultConfig: any): void {
 export function getDefaultAppearanceConfig(): AppearanceConfig {
   return {
     [GlobalOptions.Options]: {
-      [AppearanceOptions.Show_Zero_States]: true
+      [AppearanceOptions.Show_Zero_States]: true,
+      [AppearanceOptions.Clickable_Entities]: false,
+      [AppearanceOptions.Segment_Gaps]: false
     },
     [AppearanceOptions.Energy_Units]: {
       [EnergyUnitsOptions.Unit_Prefixes]: UnitPrefixes.HASS,

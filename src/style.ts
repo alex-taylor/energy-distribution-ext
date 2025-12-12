@@ -1,4 +1,5 @@
 import { css } from 'lit';
+import { CIRCLE_CIRCUMFERENCE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS } from './const';
 
 export const styles = css`
   :host {
@@ -70,7 +71,8 @@ export const styles = css`
     height: 80px;
     border-radius: 50%;
     box-sizing: border-box;
-    border: 2px solid;
+    border: ${CIRCLE_STROKE_WIDTH};
+    border-style: solid;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -111,7 +113,7 @@ export const styles = css`
   .circle svg {
     position: absolute;
     fill: none;
-    stroke-width: 4px;
+    stroke-width: ${CIRCLE_STROKE_WIDTH_SEGMENTS};
     width: 100%;
     height: 100%;
     top: 0;
@@ -227,7 +229,7 @@ export const styles = css`
   }
 
   path.unknown {
-    stroke: var(--primary-text-color);
+    stroke: var(--secondary-text-color);
   }
   path.solar {
     stroke: var(--circle-solar-color);
@@ -246,42 +248,35 @@ export const styles = css`
   }
 
   circle.unknown {
-    stroke: var(--primary-text-color);
+    stroke: var(--secondary-text-color);
   }
   circle.non-fossil {
     fill: var(--circle-non-fossil-color);
     stroke: var(--circle-non-fossil-color);
-    stroke-width: 4;
   }
   circle.solar {
     fill: var(--circle-solar-color);
     stroke: var(--circle-solar-color);
-    stroke-width: 4;
   }
   circle.gas {
     fill: var(--circle-gas-color);
     stroke: var(--circle-gas-color);
-    stroke-width: 4;
   }
   circle.grid-export {
     fill: var(--text-grid-export-color);
     stroke: var(--text-grid-export-color);
-    stroke-width: 4;
   }
   circle.grid-import {
     fill: var(--text-grid-import-color);
     stroke: var(--text-grid-import-color);
-    stroke-width: 4;
   }
   circle.battery-export {
     fill: var(--text-battery-export-color);
     stroke: var(--text-battery-export-color);
-    stroke-width: 4;
   }
   circle.battery-import {
     fill: var(--text-battery-import-color);
     stroke: var(--text-battery-import-color);
-    stroke-width: 4;
   }
 
   .circle svg circle {
@@ -292,8 +287,8 @@ export const styles = css`
 
   @keyframes rotate-in {
     from {
-      stroke-dashoffset: 238.76104;
-      stroke-dasharray: 238.76104;
+      stroke-dashoffset: ${CIRCLE_CIRCUMFERENCE};
+      stroke-dasharray: ${CIRCLE_CIRCUMFERENCE};
     }
   }
 

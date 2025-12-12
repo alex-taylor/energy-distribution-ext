@@ -71,6 +71,10 @@ function appearanceOptionsSchema(config: EnergyFlowCardExtConfig | undefined, sc
         {
           name: AppearanceOptions.Clickable_Entities,
           selector: { boolean: {} }
+        },
+        {
+          name: AppearanceOptions.Segment_Gaps,
+          selector: { boolean: {} }
         }
       ]
     }

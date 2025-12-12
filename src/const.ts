@@ -1,3 +1,8 @@
+export const CIRCLE_RADIUS: number = 38;
+export const CIRCLE_CIRCUMFERENCE: number = CIRCLE_RADIUS * 2 * Math.PI;
+export const CIRCLE_STROKE_WIDTH: number = 2;
+export const CIRCLE_STROKE_WIDTH_SEGMENTS: number = CIRCLE_STROKE_WIDTH * 2;
+
 export const CARD_NAME: string = "energy-flow-card-ext";
 export const DEVICE_CLASS_ENERGY = "energy";
 export const DEVICE_CLASS_MONETARY = "monetary";
