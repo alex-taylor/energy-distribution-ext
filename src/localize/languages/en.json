@@ -133,7 +133,8 @@
   },
   "LowCarbonType": {
     "energy": "Energy",
-    "percentage": "Percentage"
+    "percentage": "Percentage",
+    "hidden": "Hidden"
   },
   "DeviceType": {
     "consumption_electric": "Consumption (Electric)",

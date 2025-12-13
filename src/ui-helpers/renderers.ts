@@ -1,7 +1,8 @@
 import { html, TemplateResult, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { Segment, SegmentGroup } from ".";
-import { CssClass } from "../enums";
+import { CIRCLE_CENTRE } from "@/const";
+import { CssClass } from "@/enums";
 
 const INTER_GROUP_ARC: number = 7.5;
 const INTER_SEGMENT_ARC: number = INTER_GROUP_ARC / 2;
@@ -64,8 +65,8 @@ export function renderSegmentedCircle(segmentGroups: SegmentGroup[], radius: num
         return svg`
           <circle
             class="${CssClass.Unknown}"
-            cx = "40"
-            cy = "40"
+            cx = "${CIRCLE_CENTRE}"
+            cy = "${CIRCLE_CENTRE}"
             r = "${radius}"
             stroke-dasharray="${groupLength} ${circumference - groupLength}"
             stroke-dashoffset="${(groupIdx + 1) * (groupLength + interGroupLength) - circumference + startingOffset}"
@@ -99,8 +100,8 @@ export function renderSegmentedCircle(segmentGroups: SegmentGroup[], radius: num
           return svg`
           <circle
             class="${segment.cssClass}"
-            cx = "40"
-            cy = "40"
+            cx = "${CIRCLE_CENTRE}"
+            cy = "${CIRCLE_CENTRE}"
             r = "${radius}"
             stroke-dasharray="${length} ${circumference - length}"
             stroke-dashoffset="${offset - circumference}"

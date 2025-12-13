@@ -10,21 +10,20 @@ import { BatteryState } from "@/states/battery";
 import { GridState } from "@/states/grid";
 import { SolarState } from "@/states/solar";
 import { SecondaryInfoState } from "@/states/secondary-info";
-import { States, Flows, State } from "@/states";
+import { States, Flows } from "@/states";
 import { EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { ColourMode, DisplayMode, DotsMode, EntityType, LowCarbonType, InactiveLinesMode, DefaultValues, UnitPosition, UnitPrefixes, CssClass, Orientation, EnergyUnits } from "@/enums";
+import { ColourMode, DisplayMode, DotsMode, EntityType, LowCarbonType, InactiveLinesMode, DefaultValues, UnitPosition, UnitPrefixes, CssClass, EnergyUnits } from "@/enums";
 import { HomeState } from "@/states/home";
 import { LowCarbonState } from "@/states/low-carbon";
-import { DualValueState, SingleValueState, ValueState } from "@/states/state";
+import { SingleValueState, ValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
-import { CARD_NAME, CIRCLE_RADIUS, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, DualValueNodeConfig, BatteryConfig, GridConfig } from "@/config";
+import { CARD_NAME, CIRCLE_RADIUS, CIRCLE_SIZE, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, LINE_SCALE_HORIZONTAL } from "@/const";
+import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig } from "@/config";
 import { setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setSingleValueNodeStyles } from "@/ui-helpers/styles";
 import { GasState } from "@/states/gas";
-import { repeat } from "lit/directives/repeat.js";
 import { renderDot, renderLine, renderSegmentedCircle } from "@/ui-helpers/renderers";
-import { SegmentGroup } from "./ui-helpers";
+import { SegmentGroup } from "@/ui-helpers";
 
 interface RegisterCardParams {
   type: string;
@@ -52,7 +51,7 @@ registerCustomCard({
   description: "A custom card for displaying energy flow in Home Assistant. Inspired by the official Energy Distribution Card and Energy Flow Card Plus.",
 });
 
-const DOT_SIZE_STANDARD: number = 1;
+const DOT_SIZE_STANDARD: number = 1.5;
 const DOT_SIZE_INDIVIDUAL: number = 2.4;
 const DASH_LENGTH: number = 25;
 
@@ -177,7 +176,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     // show pointer if clickable entities is enabled
     this.style.setProperty("--clickable-cursor", this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Clickable_Entities] ? "pointer" : "default");
 
-    const grid: GridState = this._entityStates.grid;
     const solar: SolarState = this._entityStates.solar;
     const battery: BatteryState = this._entityStates.battery;
     const gas: GasState = this._entityStates.gas;
@@ -210,23 +208,25 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       this._previousDur[flowName] = newDur[flowName];
     });
 
-    // Adjust Curved Lines
-    const isCardWideEnough = this._width > 420;
+    let vertOffset: number;
 
     if (solar.isPresent) {
+      const isCardWideEnough = this._width > 420;
+
       if (battery.isPresent) {
-        // has solar, battery and grid
-        this.style.setProperty("--lines-svg-not-flat-line-height", isCardWideEnough ? "106%" : "102%");
-        this.style.setProperty("--lines-svg-not-flat-line-top", isCardWideEnough ? "-3%" : "-1%");
-        this.style.setProperty("--lines-svg-flat-width", isCardWideEnough ? "calc(100% - 160px)" : "calc(100% - 160px)");
+        vertOffset = isCardWideEnough ? 3 : 1;
       } else {
-        // has solar but no battery
-        this.style.setProperty("--lines-svg-not-flat-line-height", isCardWideEnough ? "104%" : "102%");
-        this.style.setProperty("--lines-svg-not-flat-line-top", isCardWideEnough ? "-2%" : "-1%");
-        this.style.setProperty("--lines-svg-flat-width", isCardWideEnough ? "calc(100% - 154px)" : "calc(100% - 157px)");
-        this.style.setProperty("--lines-svg-not-flat-width", isCardWideEnough ? "calc(103% - 172px)" : "calc(103% - 169px)");
+        vertOffset = isCardWideEnough ? 2 : 1;
+
+        //        this.style.setProperty("--lines-svg-curved-line-width", isCardWideEnough ? "calc(103% - 172px)" : "calc(103% - 169px)");
       }
+    } else {
+      vertOffset = 3;
     }
+
+    this.style.setProperty("--lines-svg-curved-line-height", `${100 + vertOffset * 2}%`);
+    this.style.setProperty("--lines-svg-curved-line-top", `-${vertOffset}%`);
+    this.style.setProperty("--lines-svg-curved-line-width", `calc(${LINE_SCALE_HORIZONTAL}% - ${2 * CIRCLE_SIZE * LINE_SCALE_HORIZONTAL / 100}px)`);
 
     return html`
       <ha-card .header=${this._config?.[GlobalOptions.Title]}>
@@ -273,13 +273,17 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
         </div>
 
-        <!-- connecting lines -->
-        ${this._renderSolarToHomeLine(flows.solarToHome, newDur.solarToHome)}
-        ${this._renderSolarToGridLine(flows.solarToGrid, newDur.solarToGrid)}
-        ${this._renderSolarToBatteryLine(flows.solarToBattery, newDur.solarToBattery)}
-        ${this._renderGridToHomeLine(flows.gridToHome, newDur.gridToHome)}
-        ${this._renderBatteryToHomeLine(flows.batteryToHome, newDur.batteryToHome)}
-        ${this._renderBatteryGridLine(flows.batteryToGrid, flows.gridToBattery, newDur.batteryToGrid, newDur.gridToBattery)}
+        <!-- flow lines -->
+        <div class=${this._getLineCssClasses()}>
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            ${this._renderSolarToHomeLine(flows.solarToHome, newDur.solarToHome)}
+            ${this._renderSolarToGridLine(flows.solarToGrid, newDur.solarToGrid)}
+            ${this._renderSolarToBatteryLine(flows.solarToBattery, newDur.solarToBattery)}
+            ${this._renderGridToHomeLine(flows.gridToHome, newDur.gridToHome)}
+            ${this._renderBatteryToHomeLine(flows.batteryToHome, newDur.batteryToHome)}
+            ${this._renderBatteryGridLine(flows.batteryToGrid, flows.gridToBattery, newDur.batteryToGrid, newDur.gridToBattery)}
+          </svg>
+        </div>
 
       </div>
 
@@ -369,7 +373,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const importArrow: string = "mdi:arrow-up";
 
     return html`
-      <div class="circle-container ${CssClass.Battery}">
+      <div class="circle-container bottom-row ${CssClass.Battery}">
         <div class="circle ${borderStyle}" @click=${this._handleClick(state.firstMainEntity)} @keyDown=${this._handleKeyDown(state.firstMainEntity)}>
           ${config?.[EntitiesOptions.Colours]?.[ColourOptions.Circle] === ColourMode.Dynamic ? renderSegmentedCircle(segmentGroups, CIRCLE_RADIUS, 180, this._showSegmentGaps) : ""}
           ${this._renderSecondarySpan(this._entityStates.battery.secondary, states.batterySecondary)}
@@ -499,7 +503,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         <span class="label">${state.name}</span>
       </div>
     `;
-};
+  };
 
   //================================================================================================================================================================================//
 
@@ -804,12 +808,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const path: string = `M${this._entityStates.battery.isPresent ? 55 : 53},0 v${this._entityStates.grid.isPresent ? 15 : 17} c0,${this._entityStates.battery.isPresent ? "30 10,30 30,30" : "35 10,35 30,35"} h25`;
 
     return html`
-      <div class=${this._getLineCssClasses()}>
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" id="solar-home-flow">
-          ${renderLine(CssClass.Solar, path)}
-          ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.Solar, animDuration)}` : ""}
-        </svg>
-      </div>
+      ${renderLine(CssClass.Solar, path)}
+      ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.Solar, animDuration)}` : ""}
     `;
   };
 
@@ -823,12 +823,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const path: string = `M${this._entityStates.battery.isPresent ? 45 : 47},0 v15 c0,${this._entityStates.battery.isPresent ? "30 -10,30 -30,30" : "35 -10,35 -30,35"} h-20`;
 
     return html`
-      <div class=${this._getLineCssClasses()}>
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" id="solar-grid-flow">
-          ${renderLine(CssClass.GridExport, path)}
-          ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.GridExport, animDuration)}` : ""}
-        </svg>
-      </div>
+      ${renderLine(CssClass.GridExport, path)}
+      ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.GridExport, animDuration)}` : ""}
     `;
   };
 
@@ -840,12 +836,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     return html`
-      <div class=${this._getLineCssClasses()}>
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" id="solar-battery-flow" class="flat-line">
-          ${renderLine(CssClass.BatteryExport, "M50,0 V100")}
-          ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.BatteryExport, animDuration)}` : ""}
-        </svg>
-      </div>
+      ${renderLine(CssClass.BatteryExport, "M50,25 v50")}
+      ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.BatteryExport, animDuration)}` : ""}
     `;
   };
 
@@ -856,15 +848,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       return html``;
     }
 
-    const path: string = `M0,${this._entityStates.battery.isPresent ? 50 : this._entityStates.solar.isPresent ? 56 : 53} H100`;
+    const path: string = `M0,50 H100`;
 
     return html`
-      <div class=${this._getLineCssClasses()}>
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" id="grid-home-flow" class="flat-line">
-          ${renderLine(CssClass.GridImport, path)}
-          ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.GridImport, animDuration)}` : ""}
-        </svg>
-      </div>
+      ${renderLine(CssClass.GridImport, path)}
+      ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.GridImport, animDuration)}` : ""}
     `;
   };
 
@@ -878,12 +866,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const path: string = `M55,100 v-${this._entityStates.grid.isPresent ? 15 : 17} c0,-30 10,-30 30,-30 h20`;
 
     return html`
-      <div class=${this._getLineCssClasses()}>
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" id="battery-home-flow">
-          ${renderLine(CssClass.BatteryImport, path)}
-          ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.BatteryImport, animDuration)}` : ""}
-        </svg>
-      </div>
+      ${renderLine(CssClass.BatteryImport, path)}
+      ${value !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, CssClass.BatteryImport, animDuration)}` : ""}
     `;
   };
 
@@ -914,16 +898,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       cssBatteryToGrid = CssClass.GridExport;
     }
 
-    return html`
-      <div class=${this._getLineCssClasses()}>
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" id="battery-grid-flow">
-          <path id="grid-battery" class="${cssGridToBattery}" d="${path}" vector-effect="non-scaling-stroke" stroke-dasharray="${DASH_LENGTH}"/>
-          <path id="battery-grid" class="${cssBatteryToGrid}" d="${path}" vector-effect="non-scaling-stroke" stroke-dasharray="0 ${DASH_LENGTH} 0"/>
-          ${gridToBattery !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, cssGridToBatteryDot, animDurationGridToBattery, true, "grid-battery")}` : ""}
-          ${batteryToGrid !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, cssBatteryToGridDot, animDurationBatteryToGrid, false, "grid-battery")}` : ""}
-        </svg>
-      </div>
-  `;
+    return svg`
+      <path id="grid-battery" class="${cssGridToBattery}" d="${path}" vector-effect="non-scaling-stroke" stroke-dasharray="${DASH_LENGTH}"></path>
+      <path id="battery-grid" class="${cssBatteryToGrid}" d="${path}" vector-effect="non-scaling-stroke" stroke-dasharray="0 ${DASH_LENGTH} 0"></path>
+      ${gridToBattery !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, cssGridToBatteryDot, animDurationGridToBattery, true, "grid-battery")}` : ""}
+      ${batteryToGrid !== 0 ? html`${renderDot(DOT_SIZE_STANDARD, cssBatteryToGridDot, animDurationBatteryToGrid, false, "grid-battery")}` : ""}
+    `;
   };
 
   //================================================================================================================================================================================//

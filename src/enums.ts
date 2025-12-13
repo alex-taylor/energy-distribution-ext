@@ -20,11 +20,6 @@ export enum CssClass {
   Unknown = "unknown"
 }
 
-export enum Orientation {
-  Horizontal,
-  Vertical
-}
-
 export enum DefaultValues {
   // EnergyUnits
   KilowattHourDecimals = 2,
@@ -99,7 +94,8 @@ export namespace ColourMode {
 
 export enum LowCarbonType {
   Energy = "energy",
-  Percentage = "percentage"
+  Percentage = "percentage",
+  Hidden = "hidden"
 }
 
 export namespace LowCarbonType {

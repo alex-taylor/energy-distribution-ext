@@ -1,26 +1,18 @@
-import { css } from 'lit';
-import { CIRCLE_CIRCUMFERENCE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS } from './const';
+import { css, CSSResult, unsafeCSS } from 'lit';
+import { CIRCLE_CIRCUMFERENCE, CIRCLE_SIZE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, COL_SPACING, ROW_SPACING, TEXT_LINE_HEIGHT } from '@/const';
 
-export const styles = css`
+const px = (value: number): CSSResult => { return css`${unsafeCSS(value + 'px')}`; };
+
+export const styles: CSSResult = css`
   :host {
-    --mdc-icon-size: 24px;
+    --mdc-icon-size: calc(2 * var(--ha-font-size-s));
     --clickable-cursor: pointer;
-
-    --lines-svg-not-flat-line-height: 106%;
-    --lines-svg-not-flat-line-top: -3%;
-    --lines-svg-flat-width: calc(100% - 160px);
-    --lines-svg-not-flat-width: calc(103% - 165px);
   }
   :root {
   }
   .card-content {
     position: relative;
-    margin: 0 auto;
-  }
-
-  .card-content,
-  .row {
-    max-width: 470px;
+    direction: ltr;
   }
 
   .lines {
@@ -28,36 +20,40 @@ export const styles = css`
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 146px;
+    height: ${px(ROW_SPACING * 2 + CIRCLE_SIZE)};
+    bottom: calc(var(--ha-space-4) - ${px(ROW_SPACING - TEXT_LINE_HEIGHT)});
     display: flex;
     justify-content: center;
-    padding: 0 16px 16px;
+    padding: 0 var(--ha-space-4);
     box-sizing: border-box;
   }
   .lines.high {
-    bottom: 100px;
-    height: 156px;
+    bottom: calc(${px(CIRCLE_SIZE + TEXT_LINE_HEIGHT)} + var(--ha-space-4));
   }
   .lines svg {
-    width: var(--lines-svg-flat-width);
-    height: 100%;
-    max-width: 340px;
-  }
-  .lines svg:not(.flat-line) {
-    width: var(--lines-svg-not-flat-width);
-    height: var(--lines-svg-not-flat-line-height);
-    top: var(--lines-svg-not-flat-line-top);
+    width: var(--lines-svg-curved-line-width);
+    height: var(--lines-svg-curved-line-height);
+    top: var(--lines-svg-curved-line-top);
+    max-width: ${px(CIRCLE_SIZE + COL_SPACING * 2)};
     position: relative;
   }
 
   .row {
     display: flex;
     justify-content: space-between;
-    max-width: 500px;
+    max-width: ${px(CIRCLE_SIZE * 3 + COL_SPACING * 2)};
     margin: 0 auto;
   }
   .top-row {
-    height: 130px;
+    height: ${px(CIRCLE_SIZE + TEXT_LINE_HEIGHT + ROW_SPACING)};
+  }
+  .bottom-row {
+    height: ${px(CIRCLE_SIZE + ROW_SPACING)};
+    justify-content: flex-end;
+  }
+
+  .spacer {
+    width: ${px(CIRCLE_SIZE)};
   }
 
   .circle-container {
@@ -67,19 +63,19 @@ export const styles = css`
     z-index: 2;
   }
   .circle {
-    width: 80px;
-    height: 80px;
+    width: ${px(CIRCLE_SIZE)};
+    height: ${px(CIRCLE_SIZE)};
     border-radius: 50%;
     box-sizing: border-box;
-    border: ${CIRCLE_STROKE_WIDTH};
+    border: ${px(CIRCLE_STROKE_WIDTH)};
     border-style: solid;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 12px;
-    line-height: 12px;
+    font-size: var(--ha-font-size-s);
+    line-height: var(--ha-font-size-s);
     position: relative;
     text-decoration: none;
     color: var(--primary-text-color);
@@ -94,12 +90,12 @@ export const styles = css`
     padding-bottom: 2px;
   }
   ha-icon.small {
-    --mdc-icon-size: 12px;
+    --mdc-icon-size: var(--ha-font-size-s);
   }
   .label {
     color: var(--secondary-text-color);
-    font-size: 12px;
-    max-width: 80px;
+    font-size: var(--ha-font-size-s);
+    max-width: ${px(CIRCLE_SIZE)};
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -122,7 +118,7 @@ export const styles = css`
   }
 
   span.secondary-info {
-    font-size: 12px;
+    font-size: var(--ha-font-size-s);
     max-width: 60px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -203,10 +199,6 @@ export const styles = css`
     color: var(--text-home-color);
   }
 
-  .circle-container.battery {
-    height: 110px;
-    justify-content: flex-end;
-  }
   .battery .circle {
     border-color: var(--circle-battery-color);
   }
@@ -294,10 +286,6 @@ export const styles = css`
 
   .card-actions a {
     text-decoration: none;
-  }
-
-  .home-circle-sections {
-    pointer-events: none;
   }
 
   .entity-icon {

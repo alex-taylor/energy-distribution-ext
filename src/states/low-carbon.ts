@@ -1,8 +1,9 @@
 import { localize } from "@/localize/localize";
-import { LowCarbonConfig } from "@/config";
+import { EntitiesOptions, GlobalOptions, LowCarbonConfig } from "@/config";
 import { ValueState } from "./state";
 import { HomeAssistant } from "custom-card-helpers";
 import { getCo2SignalEntity } from "@/config/config";
+import { LowCarbonType } from "@/enums";
 
 export class LowCarbonState extends ValueState {
   config?: LowCarbonConfig;
@@ -17,5 +18,6 @@ export class LowCarbonState extends ValueState {
     );
 
     this.config = config;
+    this.isPresent = this.isPresent && config?.[GlobalOptions.Options]?.[EntitiesOptions.Low_Carbon_Mode] !== LowCarbonType.Hidden;
   }
 }
