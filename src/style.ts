@@ -1,5 +1,5 @@
 import { css, CSSResult, unsafeCSS } from 'lit';
-import { CIRCLE_CIRCUMFERENCE, CIRCLE_SIZE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, COL_SPACING, ROW_SPACING, TEXT_LINE_HEIGHT } from '@/const';
+import { CIRCLE_CIRCUMFERENCE, CIRCLE_SIZE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, COL_SPACING, DOT_RADIUS, ROW_SPACING, TEXT_LINE_HEIGHT } from '@/const';
 
 const px = (value: number): CSSResult => { return css`${unsafeCSS(value + 'px')}`; };
 
@@ -17,24 +17,21 @@ export const styles: CSSResult = css`
 
   .lines {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: ${px(ROW_SPACING * 2 + CIRCLE_SIZE)};
-    bottom: calc(var(--ha-space-4) - ${px(ROW_SPACING - TEXT_LINE_HEIGHT)});
+    width: calc(100% - ${2 * CIRCLE_SIZE}px - 2 * var(--ha-space-4) + ${4 * DOT_RADIUS}px);
+    left: calc(${CIRCLE_SIZE}px + var(--ha-space-4) - ${2 * DOT_RADIUS}px);
+    height: ${px(ROW_SPACING * 2 + CIRCLE_SIZE + 4 * DOT_RADIUS)};
+    bottom: calc(var(--ha-space-4) - ${px(ROW_SPACING - TEXT_LINE_HEIGHT + 2 * DOT_RADIUS)});
     display: flex;
     justify-content: center;
-    padding: 0 var(--ha-space-4);
     box-sizing: border-box;
   }
   .lines.high {
-    bottom: calc(${px(CIRCLE_SIZE + TEXT_LINE_HEIGHT)} + var(--ha-space-4));
+    bottom: calc(${CIRCLE_SIZE + TEXT_LINE_HEIGHT - 2 * DOT_RADIUS}px + var(--ha-space-4));
   }
   .lines svg {
-    width: var(--lines-svg-width);
-    height: var(--lines-svg-height);
+    width: 100%;
+    height: 100%;
     max-width: ${px(CIRCLE_SIZE + COL_SPACING * 2)};
-    position: relative;
     align-self: center;
   }
 
@@ -225,7 +222,7 @@ export const styles: CSSResult = css`
   }
 
   path.unknown {
-    stroke: var(--secondary-text-color);
+    stroke: var(--disabled-text-color);
   }
   path.solar {
     stroke: var(--circle-solar-color);
@@ -244,7 +241,7 @@ export const styles: CSSResult = css`
   }
 
   circle.unknown {
-    stroke: var(--secondary-text-color);
+    stroke: var(--disabled-text-color);
   }
   circle.non-fossil {
     fill: var(--circle-non-fossil-color);

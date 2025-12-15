@@ -19,7 +19,7 @@ export const renderDot = (size: number, cssClass: string, duration: number, reve
   return svg`
       <circle r="${size}" class="${cssClass}" vector-effect="non-scaling-stroke">
         <animateMotion dur="${duration}s" repeatCount="indefinite" keyPoints="${reverseDirection ? "1; 0" : "0; 1"}" keyTimes="0; 1" calcMode="linear">
-          <mpath xlink: href="#${pathRef ?? cssClass}"/>
+          <mpath href="#${pathRef ?? cssClass}"/>
         </animateMotion>
       </circle>
       `;

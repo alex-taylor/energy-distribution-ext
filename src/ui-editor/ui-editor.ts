@@ -70,7 +70,7 @@ const CONFIG_PAGES: {
       schema: lowCarbonSchema,
       createConfig: getDefaultLowCarbonConfig,
       statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => {
-        const status = getStatusIcon(hass, config?.[EditorPages.Low_Carbon]);
+        const status = getStatusIcon(hass, config?.[EditorPages.Low_Carbon], false);
 
         if (status !== Status.Undefined) {
           return status;
@@ -84,7 +84,7 @@ const CONFIG_PAGES: {
       icon: "mdi:home",
       schema: homeSchema,
       createConfig: getDefaultHomeConfig,
-      statusIcon: (config: HomeConfig, hass: HomeAssistant): Status => getStatusIcon(hass, config?.[EditorPages.Home])
+      statusIcon: (config: HomeConfig, hass: HomeAssistant): Status => getStatusIcon(hass, config?.[EditorPages.Home], false)
     },
     {
       page: EditorPages.Devices,

@@ -2,6 +2,10 @@ export const CIRCLE_SIZE: number = 80;
 export const CIRCLE_STROKE_WIDTH: number = 2;
 export const CIRCLE_STROKE_WIDTH_SEGMENTS: number = CIRCLE_STROKE_WIDTH * 2;
 
+export const DOT_RADIUS: number = 4.5;
+export const FLOW_LINE_SPACING: number = DOT_RADIUS * 2 + 5;
+
+
 export const CIRCLE_RADIUS: number = (CIRCLE_SIZE - CIRCLE_STROKE_WIDTH_SEGMENTS) / 2;
 export const CIRCLE_CIRCUMFERENCE: number = CIRCLE_RADIUS * 2 * Math.PI;
 export const CIRCLE_CENTRE: number = CIRCLE_SIZE / 2;
@@ -20,6 +24,7 @@ export const DEVICE_CLASS_MONETARY = "monetary";
 export const ENERGY_DATA_TIMEOUT: number = 10000;
 
 export const STYLE_PRIMARY_TEXT_COLOR: string = "var(--primary-text-color)";
+export const STYLE_DISABLED_TEXT_COLOR: string = "var(--disabled-text-color)";
 export const STYLE_ENERGY_SOLAR_COLOR: string = "var(--energy-solar-color)";
 export const STYLE_ENERGY_GAS_COLOR: string = "var(--energy-gas-color)";
 export const STYLE_ENERGY_NON_FOSSIL_COLOR: string = "var(--energy-non-fossil-color)";

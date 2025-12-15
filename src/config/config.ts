@@ -342,6 +342,9 @@ export function getDefaultHomeConfig(): HomeConfig {
       [ColourOptions.Circle]: ColourMode.Dynamic,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
+    },
+    [EntitiesOptions.Secondary_Info]: {
+      [EntityOptions.Unit_Position]: UnitPosition.After_Space
     }
   };
 }

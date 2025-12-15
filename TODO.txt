@@ -17,7 +17,8 @@ If there are no exports to a Node, don't display its export state
 If there are no imports from a Node, don't display its import state
   - logically, the import should be excluded from the flow calcs, too
 
-
+If the circle size is set larger, we can spill off the side of the card - what is HASS using as the card's min-width here?
+  - should we resize the circles dynamically as the card shrinks?
 
 Linear/log scale flag in Appearance
 'Gas' option in Home: 'Do not show', 'Single ring', 'Dual ring', 'Split ring'

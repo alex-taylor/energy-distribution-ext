@@ -1,5 +1,5 @@
 import { ColourOptions, DualValueNodeConfig, EntitiesOptions, HomeConfig, SingleValueNodeConfig } from "@/config";
-import { STYLE_ENERGY_BATTERY_EXPORT_COLOR, STYLE_ENERGY_BATTERY_IMPORT_COLOR, STYLE_ENERGY_GAS_COLOR, STYLE_ENERGY_GRID_EXPORT_COLOR, STYLE_ENERGY_GRID_IMPORT_COLOR, STYLE_ENERGY_NON_FOSSIL_COLOR, STYLE_ENERGY_SOLAR_COLOR, STYLE_PRIMARY_TEXT_COLOR } from "@/const";
+import { STYLE_ENERGY_BATTERY_EXPORT_COLOR, STYLE_ENERGY_BATTERY_IMPORT_COLOR, STYLE_ENERGY_GAS_COLOR, STYLE_ENERGY_GRID_EXPORT_COLOR, STYLE_ENERGY_GRID_IMPORT_COLOR, STYLE_ENERGY_NON_FOSSIL_COLOR, STYLE_ENERGY_SOLAR_COLOR, STYLE_PRIMARY_TEXT_COLOR, STYLE_DISABLED_TEXT_COLOR } from "@/const";
 import { ColourMode, CssClass } from "@/enums";
 import { Flows, States } from "@/states";
 
@@ -37,7 +37,7 @@ export function setHomeNodeStaticStyles(config: HomeConfig, style: CSSStyleDecla
       break;
 
     default:
-      circleColour = STYLE_PRIMARY_TEXT_COLOR;
+      circleColour = STYLE_DISABLED_TEXT_COLOR;
       break;
   }
 

@@ -15,7 +15,7 @@ export enum Status {
 export const STATUS_ICONS: string[] = ["", "mdi:check-circle", "mdi:alert", "mdi:alert-octagon"];
 export const STATUS_CLASSES: string[] = ["", "page-valid", "page-warning", "page-error"];
 
-export function getStatusIcon(hass: HomeAssistant, config: any): Status {
+export function getStatusIcon(hass: HomeAssistant, config: any, supportsPrimaries: boolean = true): Status {
   let primaryEntityCount: number = 0;
   let secondaryEntityCount: number = 0;
   let validPrimaryEntityCount: number = 0;
@@ -70,7 +70,7 @@ export function getStatusIcon(hass: HomeAssistant, config: any): Status {
     return Status.Undefined;
   }
 
-  if ((primaryEntityCount > 0 || secondaryEntityCount > 0) && validPrimaryEntityCount === 0) {
+  if ((primaryEntityCount > 0 || secondaryEntityCount > 0) && validPrimaryEntityCount === 0 && supportsPrimaries) {
     return Status.Errors;
   }
 
