@@ -85,7 +85,6 @@ export const styles: CSSResult = css`
   }
 
   path {
-    stroke: var(--disabled-text-color);
     stroke-width: 1;
     fill: none;
     vector-effect: non-scaling-stroke;
@@ -208,8 +207,8 @@ export const styles: CSSResult = css`
     color: var(--text-battery-export-color);
   }
 
-  path.greyed-out {
-    stroke: var(--disabled-text-color);
+  path.inactive {
+    stroke: var(--inactive-path-color);
   }
   path.dimmed {
     opacity: 50%;
@@ -239,7 +238,7 @@ export const styles: CSSResult = css`
     stroke: var(--circle-non-fossil-color);
   }
 
-  circle.greyed-out {
+  circle.inactive {
     stroke: var(--disabled-text-color);
   }
   circle.non-fossil {

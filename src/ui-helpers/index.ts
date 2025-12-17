@@ -8,6 +8,7 @@ export interface Segment {
 
 export interface SegmentGroup {
   segments: Segment[];
+  inactiveCss: string;
 }
 
 export interface FlowLine {

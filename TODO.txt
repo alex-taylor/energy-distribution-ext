@@ -1,10 +1,6 @@
 BUGS
 ----
 
-HASS emulation:
-  - colours:
-    - the 'inactive' colour needs to match
-
 Layout:
   - find out about setting a min width
   - insert spacers between columns
@@ -18,8 +14,6 @@ The 'multi entity' picker is sizing itself to the full width of its entity's nam
 
 Power-outage is calculating its state up-front, rather than live as-needed (see GridState)
   - also needs implementing in the new grid render method
-
-If no grid import is present, low-carbon should be hidden regardless
 
 If there are no exports to a Node, don't display its export state
   - logically, the export should be excluded from the flow calcs, too
@@ -66,6 +60,7 @@ Linear/log scale flag in Appearance
 'Gas' option in Home: 'Do not show', 'Single ring', 'Dual ring', 'Split ring'
 'Electric devices' flag in Home
 For the dual-value nodes, add 'Dual' and 'Split' options
+
 README and CHANGELOG updates
 
 Add license

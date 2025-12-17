@@ -17,7 +17,8 @@ export enum CssClass {
   // for some reason HASS calls its css classes 'non-fossil'
   LowCarbon = "non-fossil",
   Solar = "solar",
-  GreyedOut = "greyed-out"
+  Inactive = "inactive",
+  PrimaryTextColor = "primary-text-color"
 }
 
 export enum DefaultValues {

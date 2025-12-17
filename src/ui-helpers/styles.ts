@@ -248,8 +248,8 @@ export function setDualValueNodeStaticStyles(config: DualValueNodeConfig, cssCla
       break;
 
     default:
-      textImportColour = STYLE_PRIMARY_TEXT_COLOR;
-      textExportColour = STYLE_PRIMARY_TEXT_COLOR;
+      textImportColour = energyImportColour;
+      textExportColour = energyExportColour;
       break;
   }
 

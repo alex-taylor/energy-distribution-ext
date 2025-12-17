@@ -94,7 +94,7 @@ export function renderSegmentedCircle(segmentGroups: SegmentGroup[], radius: num
       if (activeSegments === 0) {
         return svg`
           <circle
-            class="${CssClass.GreyedOut}"
+            class="${group.inactiveCss}"
             cx = "${CIRCLE_CENTRE}"
             cy = "${CIRCLE_CENTRE}"
             r = "${radius}"

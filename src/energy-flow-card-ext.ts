@@ -22,6 +22,7 @@ import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOption
 import { setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setSingleValueNodeStyles } from "@/ui-helpers/styles";
 import { renderFlowLines, renderSegmentedCircle } from "@/ui-helpers/renderers";
 import { AnimSpeeds, FlowLine, SegmentGroup } from "@/ui-helpers";
+import { LowCarbonState } from "./states/low-carbon";
 
 interface RegisterCardParams {
   type: string;
@@ -158,6 +159,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     setDualValueNodeStaticStyles(this._config?.[EditorPages.Battery]!, CssClass.Battery, this.style);
 
     this.style.setProperty("--clickable-cursor", this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Clickable_Entities] ? "pointer" : "default");
+    this.style.setProperty("--inactive-path-color", this._useHassColours ? "var(--primary-text-color)" : "var(--disabled-text-color)");
   }
 
   //================================================================================================================================================================================//
@@ -194,7 +196,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         <div class="row">
 
           <!-- top left -->
-          ${this._renderTopRowNode(this._entityStates.lowCarbon, CssClass.LowCarbon, this._lowCarbonAsPercentage ? states.lowCarbonPercentage : states.lowCarbon, states.lowCarbonSecondary, this._lowCarbonAsPercentage ? "%" : electricUnits)}
+          ${this._renderLowCarbonNode(this._entityStates.lowCarbon, this._lowCarbonAsPercentage ? states.lowCarbonPercentage : states.lowCarbon, states.lowCarbonSecondary, this._lowCarbonAsPercentage ? "%" : electricUnits)}
 
           <!-- top centre -->
           ${this._renderTopRowNode(this._entityStates.solar, CssClass.Solar, states.solarImport, states.solarSecondary, electricUnits)}
@@ -252,6 +254,16 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
+  private _renderLowCarbonNode(state: LowCarbonState, primaryState: number, secondaryState: number, energyUnits: string | undefined = undefined): TemplateResult {
+    if (!this._entityStates.grid.isPresent) {
+      return html`<div class="spacer"></div>`;
+    }
+
+    return this._renderTopRowNode(state, CssClass.LowCarbon, primaryState, secondaryState, energyUnits);
+  }
+
+  //================================================================================================================================================================================//
+
   private _renderTopRowNode(state: SingleValueState, cssClass: CssClass, primaryState: number, secondaryState: number, energyUnits: string | undefined = undefined): TemplateResult {
     if (!state.isPresent) {
       return html`<div class="spacer"></div>`;
@@ -283,6 +295,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const segmentGroups: SegmentGroup[] = [
       {
+        inactiveCss: this._useHassColours ? CssClass.BatteryExport : CssClass.Inactive,
         segments: [
           {
             state: flows.gridToBattery * highCarbon || 0,
@@ -299,6 +312,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         ]
       },
       {
+        inactiveCss: this._useHassColours ? CssClass.BatteryImport : CssClass.Inactive,
         segments: [
           {
             state: flows.batteryToHome || 0,
@@ -316,13 +330,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const circleMode: ColourMode = config?.[EntitiesOptions.Colours]?.[ColourOptions.Circle]!;
     setDualValueNodeDynamicStyles(config, CssClass.Battery, states.batteryExport, states.batteryImport, this.style);
 
-    const borderStyle: string = circleMode === ColourMode.Dynamic ? "hidden-circle" : "";
+    const borderCss: string = circleMode === ColourMode.Dynamic ? "hidden-circle" : "";
     const exportArrow: string = "mdi:arrow-down";
     const importArrow: string = "mdi:arrow-up";
 
     return html`
       <div class="circle-container bottom-row ${CssClass.Battery}">
-        <div class="circle ${borderStyle}" @click=${this._handleClick(state.firstImportEntity)} @keyDown=${this._handleKeyDown(state.firstImportEntity)}>
+        <div class="circle ${borderCss}" @click=${this._handleClick(state.firstImportEntity)} @keyDown=${this._handleKeyDown(state.firstImportEntity)}>
           ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(segmentGroups, CIRCLE_RADIUS, 180, this._showSegmentGaps) : ""}
           ${this._renderSecondarySpan(this._entityStates.battery.secondary, states.batterySecondary)}
           <ha-icon class="entity-icon" .icon=${state.icon}></ha-icon>
@@ -355,6 +369,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const segmentGroups: SegmentGroup[] = [
       {
+        inactiveCss: this._useHassColours ? CssClass.GridExport : CssClass.Inactive,
         segments: [
           {
             state: flows.solarToGrid || 0,
@@ -367,6 +382,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         ]
       },
       {
+        inactiveCss: this._useHassColours ? CssClass.GridImport : CssClass.Inactive,
         segments: [
           {
             state: flows.gridToBattery || 0,
@@ -421,6 +437,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const segmentGroups: SegmentGroup[] = [
       {
+        inactiveCss: this._useHassColours ? CssClass.GridImport : CssClass.Inactive,
         segments: [
           {
             state: flows.solarToHome || 0,
@@ -772,7 +789,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       let cssGridToBatteryDot: string = CssClass.BatteryExport;
 
       if (!gridToBatteryActive && !batteryToGridActive) {
-        cssGridToBattery = cssBatteryToGrid = CssClass.GreyedOut;
+        cssGridToBattery = cssBatteryToGrid = CssClass.Inactive;
       } else if (this._useHassColours) {
         cssGridToBattery = cssBatteryToGrid = batteryToGridActive ? CssClass.GridExport : CssClass.GridImport;
         cssGridToBatteryDot = CssClass.GridImport;
@@ -806,7 +823,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       }
     }
 
-    if (entityStates.lowCarbon.isPresent) {
+    if (entityStates.lowCarbon.isPresent && grid.isPresent) {
       lines.push({
         cssLine: CssClass.LowCarbon,
         cssDot: CssClass.LowCarbon,
@@ -840,7 +857,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       this._width = width;
 
       if (width > 0) {
-        const isTopRowPresent: boolean = this._entityStates.lowCarbon.isPresent || this._entityStates.solar.isPresent || this._entityStates.gas.isPresent;
+        const isTopRowPresent: boolean = (this._entityStates.lowCarbon.isPresent && this._entityStates.grid.isPresent) || this._entityStates.solar.isPresent || this._entityStates.gas.isPresent;
         const numColumns: number = this._getNumColumns();
         const colSpacing: number = (width - numColumns * CIRCLE_SIZE) / (numColumns - 1);
 
