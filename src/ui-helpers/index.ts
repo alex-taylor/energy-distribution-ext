@@ -18,7 +18,7 @@ export interface FlowLine {
   animDuration: number;
 }
 
-export interface AnimDurations {
+export interface AnimSpeeds {
   batteryToGrid: number;
   batteryToHome: number;
   gridToHome: number;

@@ -1,7 +1,7 @@
 import { html, TemplateResult, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { FlowLine, Segment, SegmentGroup } from ".";
-import { CIRCLE_CENTRE } from "@/const";
+import { CIRCLE_CENTRE, DOT_RADIUS } from "@/const";
 import { CssClass, DotsMode, InactiveLinesMode } from "@/enums";
 import { EditorPages, EnergyFlowCardExtConfig, FlowsOptions, AppearanceOptions } from "@/config";
 
@@ -10,12 +10,12 @@ const INTER_SEGMENT_ARC: number = INTER_GROUP_ARC / 3;
 
 //================================================================================================================================================================================//
 
-export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine[], dotRadius: number): TemplateResult => {
+export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine[]): TemplateResult => {
   const inactiveLinesMode: InactiveLinesMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Lines] || InactiveLinesMode.Normal;
   const animationEnabled: boolean = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Animation] !== DotsMode.Off;
 
   return html`
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <svg class="lines" xmlns="http://www.w3.org/2000/svg">
     ${repeat(
     lines,
     _ => undefined,
@@ -42,8 +42,8 @@ export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine
       return svg`
           <path class="${cssLine}" d="${line.path}"></path>
           ${animationEnabled && isActive ?
-          svg`
-            <circle r="${dotRadius}" class="${line.cssDot}">
+        svg`
+            <circle r="${DOT_RADIUS}" class="${line.cssDot}">
               <animateMotion path="${line.path}" dur="${line.animDuration}s" repeatCount="indefinite" keyPoints="0; 1" keyTimes="0; 1" calcMode="linear"/>
             </circle>
           `

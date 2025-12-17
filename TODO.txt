@@ -4,15 +4,12 @@ BUGS
 HASS emulation:
   - colours:
     - the 'inactive' colour needs to match
-  - dots:
-    - too large
-  - flows:
-    - line curvature too large
 
 Layout:
-  - eliminate empty columns as well as rows!
   - find out about setting a min width
   - insert spacers between columns
+
+Clicking on the low-carbon circle should do the same as the HASS card
 
 Battery: if either Import or Export is missing, this should be treated as a warning
 
@@ -33,10 +30,6 @@ If there are no imports from a Node, don't display its import state
 If the circle size is set larger, we can spill off the side of the card - what is HASS using as the card's min-width here?
   - should we resize the circles dynamically as the card shrinks?
 
-Linear/log scale flag in Appearance
-'Gas' option in Home: 'Do not show', 'Single ring', 'Dual ring', 'Split ring'
-'Electric devices' flag in Home
-For the dual-value nodes, add 'Dual' and 'Split' options
 
 
 
@@ -69,15 +62,15 @@ Might need to support a vertical layout
 GENERAL
 -------
 
+Linear/log scale flag in Appearance
+'Gas' option in Home: 'Do not show', 'Single ring', 'Dual ring', 'Split ring'
+'Electric devices' flag in Home
+For the dual-value nodes, add 'Dual' and 'Split' options
 README and CHANGELOG updates
 
 Add license
 
 Rename to 'Energy Distribution Extended' (energy-distribution-ext) for consistency with the built-in card
-
-Test localisation by disabling EN and EN-GB and checking that all strings revert to their keys
-  - also check that there aren't any redundant keys!
-
 
  - for the Home node, perhaps have the option to show Gas and Electric as separate figures?
     - this would allow the Gas to be added to the circle without it overpowering the value
@@ -92,3 +85,13 @@ Test localisation by disabling EN and EN-GB and checking that all strings revert
  May be able to remove pruneConfig() now
 
  See if the 'state' values in the State objects can be made internal/private - they should not be accessed outside the EntityStates object
+
+
+
+
+ TEST
+ ----
+  - dashboard link
+
+  - Test localisation by disabling EN and EN-GB and checking that all strings revert to their keys
+    - also check that there aren't any redundant keys!
