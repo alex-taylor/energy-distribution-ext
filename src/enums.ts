@@ -18,7 +18,8 @@ export enum CssClass {
   LowCarbon = "non-fossil",
   Solar = "solar",
   Inactive = "inactive",
-  PrimaryTextColor = "primary-text-color"
+  Dimmed = "dimmed",
+  HiddenCircle = "hidden-circle"
 }
 
 export enum DefaultValues {
@@ -80,8 +81,7 @@ export namespace ColourMode {
 
 export enum LowCarbonType {
   Energy = "energy",
-  Percentage = "percentage",
-  Hidden = "hidden"
+  Percentage = "percentage"
 }
 
 export namespace LowCarbonType {
@@ -111,19 +111,18 @@ export namespace DeviceType {
   }
 }
 
-export enum InactiveLinesMode {
+export enum InactiveFlowsMode {
   Normal = "normal",
-  Hidden = "hidden",
   Dimmed = "dimmed",
   Greyed = "greyed"
 }
 
-export namespace InactiveLinesMode {
-  export function getName(value: InactiveLinesMode): string {
+export namespace InactiveFlowsMode {
+  export function getName(value: InactiveFlowsMode): string {
     return getEditorLabel("InactiveLinesMode", value);
   }
 
-  export function getItem(value: InactiveLinesMode): { label: string, value: string } {
+  export function getItem(value: InactiveFlowsMode): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
 }

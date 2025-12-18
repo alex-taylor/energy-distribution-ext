@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueColourConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueColourConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
-import { ColourMode, DisplayMode, DotsMode, InactiveLinesMode, UnitPosition, UnitPrefixes } from '@/enums';
+import { ColourMode, DisplayMode, DotsMode, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 //================================================================================================================================================================================//
@@ -171,16 +171,15 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
           selector: { boolean: {} }
         },
         {
-          name: FlowsOptions.Inactive_Lines,
+          name: FlowsOptions.Inactive_Flows,
           required: true,
           selector: {
             select: {
               mode: 'dropdown',
               options: [
-                InactiveLinesMode.getItem(InactiveLinesMode.Normal),
-                InactiveLinesMode.getItem(InactiveLinesMode.Dimmed),
-                InactiveLinesMode.getItem(InactiveLinesMode.Greyed),
-                InactiveLinesMode.getItem(InactiveLinesMode.Hidden)
+                InactiveFlowsMode.getItem(InactiveFlowsMode.Normal),
+                InactiveFlowsMode.getItem(InactiveFlowsMode.Dimmed),
+                InactiveFlowsMode.getItem(InactiveFlowsMode.Greyed)
               ]
             }
           }

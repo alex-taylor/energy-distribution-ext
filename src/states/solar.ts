@@ -6,10 +6,6 @@ import { HomeAssistant } from "custom-card-helpers";
 export class SolarState extends SingleValueState {
   config?: SolarConfig;
 
-  state: {
-    import: number;
-  };
-
   public constructor(hass: HomeAssistant, config: SolarConfig | undefined) {
     super(
       hass,
@@ -19,9 +15,5 @@ export class SolarState extends SingleValueState {
     );
 
     this.config = config;
-
-    this.state = {
-      import: 0
-    };
   }
 }

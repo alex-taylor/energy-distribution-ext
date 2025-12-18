@@ -18,8 +18,7 @@ export function lowCarbonSchema(config: EnergyFlowCardExtConfig | undefined): an
                   mode: 'dropdown',
                   options: [
                     LowCarbonType.getItem(LowCarbonType.Energy),
-                    LowCarbonType.getItem(LowCarbonType.Percentage),
-                    LowCarbonType.getItem(LowCarbonType.Hidden)
+                    LowCarbonType.getItem(LowCarbonType.Percentage)
                   ]
                 }
               }

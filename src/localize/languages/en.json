@@ -34,12 +34,12 @@
     "show_zero_states": "Show zero states",
     "clickable_entities": "Clickable entities",
     "segment_gaps": "Show gaps between segments",
-    "use_hass_colours": "Use HASS colors",
+    "use_hass_colours": "Use HASS color mappings",
     "use_hourly_stats": "Use hourly statistics",
     "use_hourly_stats#helptext": "Hourly statistics are more precise, but may take longer to calculate",
     "unit_whitespace": "White-space between value and unit",
 
-    "inactive_lines": "Inactive lines",
+    "inactive_flows": "Inactive flows",
 
     "flows": "Flows",
     "animation": "Animation",
@@ -143,10 +143,9 @@
     "production_gas": "Production (Gas)"
   },
   "InactiveLinesMode": {
-    "normal": "Normal",
-    "dimmed": "Dimmed",
-    "greyed": "Greyed",
-    "hidden": "Hidden"
+    "normal": "Normal colors",
+    "dimmed": "Dimmed colors",
+    "greyed": "Greyed-out"
   },
   "DotsMode": {
     "dynamic": "Dynamic",

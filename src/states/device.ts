@@ -5,7 +5,6 @@ import { SingleValueState } from "./state";
 
 export class DeviceState extends SingleValueState {
   config?: DeviceConfig;
-  state: number;
 
   public constructor(hass: HomeAssistant, config: DeviceConfig | undefined) {
     super(
@@ -16,6 +15,5 @@ export class DeviceState extends SingleValueState {
     );
 
     this.config = config;
-    this.state = 0;
   }
 }

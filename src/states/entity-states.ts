@@ -492,12 +492,12 @@ export class EntityStates {
       return;
     }
 
-    this._setSecondaryStatistic(this.battery)
-    this._setSecondaryStatistic(this.gas)
-    this._setSecondaryStatistic(this.grid)
-    this._setSecondaryStatistic(this.home)
-    this._setSecondaryStatistic(this.lowCarbon)
-    this._setSecondaryStatistic(this.solar)
+    this._setSecondaryStatistic(this.battery);
+    this._setSecondaryStatistic(this.gas);
+    this._setSecondaryStatistic(this.grid);
+    this._setSecondaryStatistic(this.home);
+    this._setSecondaryStatistic(this.lowCarbon);
+    this._setSecondaryStatistic(this.solar);
     this.devices.forEach(device => this._setSecondaryStatistic(device));
   }
 

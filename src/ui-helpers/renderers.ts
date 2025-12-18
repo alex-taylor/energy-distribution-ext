@@ -2,7 +2,7 @@ import { html, TemplateResult, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { FlowLine, Segment, SegmentGroup } from ".";
 import { CIRCLE_CENTRE, DOT_RADIUS } from "@/const";
-import { CssClass, DotsMode, InactiveLinesMode } from "@/enums";
+import { CssClass, DotsMode, InactiveFlowsMode } from "@/enums";
 import { EditorPages, EnergyFlowCardExtConfig, FlowsOptions, AppearanceOptions } from "@/config";
 
 const INTER_GROUP_ARC: number = 7.5;
@@ -11,7 +11,7 @@ const INTER_SEGMENT_ARC: number = INTER_GROUP_ARC / 3;
 //================================================================================================================================================================================//
 
 export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine[]): TemplateResult => {
-  const inactiveLinesMode: InactiveLinesMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Lines] || InactiveLinesMode.Normal;
+  const inactiveFlowsMode: InactiveFlowsMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal;
   const animationEnabled: boolean = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Animation] !== DotsMode.Off;
 
   return html`
@@ -25,24 +25,21 @@ export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine
       let cssLine: string = line.cssLine;
 
       if (!isActive) {
-        switch (inactiveLinesMode) {
-          case InactiveLinesMode.Dimmed:
-            cssLine += " dimmed";
+        switch (inactiveFlowsMode) {
+          case InactiveFlowsMode.Dimmed:
+            cssLine += " " + CssClass.Dimmed;
             break;
 
-          case InactiveLinesMode.Greyed:
-            cssLine = CssClass.GreyedOut;
+          case InactiveFlowsMode.Greyed:
+            cssLine = CssClass.Inactive;
             break;
-
-          case InactiveLinesMode.Hidden:
-            return "";
         }
       }
 
       return svg`
           <path class="${cssLine}" d="${line.path}"></path>
           ${animationEnabled && isActive ?
-        svg`
+          svg`
             <circle r="${DOT_RADIUS}" class="${line.cssDot}">
               <animateMotion path="${line.path}" dur="${line.animDuration}s" repeatCount="indefinite" keyPoints="0; 1" keyTimes="0; 1" calcMode="linear"/>
             </circle>
@@ -57,7 +54,9 @@ export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine
 
 //================================================================================================================================================================================//
 
-export function renderSegmentedCircle(segmentGroups: SegmentGroup[], radius: number, startingAngle: number, interSegmentGaps: boolean): TemplateResult {
+export function renderSegmentedCircle(config: EnergyFlowCardExtConfig, segmentGroups: SegmentGroup[], radius: number, startingAngle: number, interSegmentGaps: boolean): TemplateResult {
+  const inactiveFlowsMode: InactiveFlowsMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal;
+
   const circumference: number = 2 * radius * Math.PI;
 
   const interGroupArc: number = segmentGroups.length > 1 ? INTER_GROUP_ARC : 0;
@@ -92,9 +91,21 @@ export function renderSegmentedCircle(segmentGroups: SegmentGroup[], radius: num
       });
 
       if (activeSegments === 0) {
+        let cssCircle: string = group.inactiveCss;
+
+        switch (inactiveFlowsMode) {
+          case InactiveFlowsMode.Dimmed:
+            cssCircle += " " + CssClass.Dimmed;
+            break;
+
+          case InactiveFlowsMode.Greyed:
+            cssCircle = CssClass.Inactive;
+            break;
+        }
+
         return svg`
           <circle
-            class="${group.inactiveCss}"
+            class="${cssCircle}"
             cx = "${CIRCLE_CENTRE}"
             cy = "${CIRCLE_CENTRE}"
             r = "${radius}"

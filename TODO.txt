@@ -1,92 +1,72 @@
-BUGS
+TODO
 ----
 
-Layout:
-  - find out about setting a min width
-  - insert spacers between columns
+Code:
+  - rename to 'Energy Distribution Extended' (energy-distribution-ext) for consistency with the built-in card
 
-Clicking on the low-carbon circle should do the same as the HASS card
+Animation:
+  - work out a new 'dynamic' algo (and rename this to 'Linear')
 
-Battery: if either Import or Export is missing, this should be treated as a warning
+Interaction:
+  - clicking on the low-carbon circle should do the same as the HASS card
 
-The 'multi entity' picker is sizing itself to the full width of its entity's name, should be constrained
-  - HASS bug
+Settings:
+  - battery: if either Import or Export is missing, this should be treated as a warning
+  - The 'multi entity' picker is sizing itself to the full width of its entity's name, should be constrained
+    - HASS bug
+  - linear/log scale flag for circle segments (in Appearance)
 
-Power-outage is calculating its state up-front, rather than live as-needed (see GridState)
-  - also needs implementing in the new grid render method
-
-If there are no exports to a Node, don't display its export state
-  - logically, the export should be excluded from the flow calcs, too
-
-If there are no imports from a Node, don't display its import state
-  - logically, the import should be excluded from the flow calcs, too
-
-If the circle size is set larger, we can spill off the side of the card - what is HASS using as the card's min-width here?
-  - should we resize the circles dynamically as the card shrinks?
-
-
-
-
-FEATURES
---------
-
-Make the colour of the grid->home line and dot either larger-value or (for the line) dashed by proportion of high/low-carbon
-
-More modes:
-    - current month
-    - current year
-    - perhaps a user-supplied date-range?
-  - could display this as a title?
-
-If data is still loading when we render, go ahead and render the circles/lines anyway, just put 'loading' for the values
-
-Bigger circles!
-  - possibly dynamic if something can be figured out?
-
-Display the flow rates as hover-overs on the lines
-  Or over the circles?
-
-Might need to support a vertical layout
-  - either dynamic, based on available width and the number of Nodes to draw, or user-controlled
-  - basically rotate right by 90
-
-
-
-
-GENERAL
--------
-
-Linear/log scale flag in Appearance
-'Gas' option in Home: 'Do not show', 'Single ring', 'Dual ring', 'Split ring'
-'Electric devices' flag in Home
-For the dual-value nodes, add 'Dual' and 'Split' options
-
-README and CHANGELOG updates
-
-Add license
-
-Rename to 'Energy Distribution Extended' (energy-distribution-ext) for consistency with the built-in card
-
- - for the Home node, perhaps have the option to show Gas and Electric as separate figures?
+  - 'Gas' option in Home: 'Do not show', 'Single ring', 'Dual ring', 'Split ring'
+  - 'Electric devices' flag in Home: when true, they are added/subtracted from the Home electric total
+  - for the dual-value nodes, add 'Dual' and 'Split' options
+  - for the Home node, perhaps have the option to show Gas and Electric as separate figures?
     - this would allow the Gas to be added to the circle without it overpowering the value
     - could even display all three figures, if the circle were made larger
     - producing devices are expected to be electric, not gas, so they won't be a problem
     - each value will require an icon (same idea as the secondaries, use the icons from Grid/Gas)
     - the 'include in calculation' could be moved onto Home, rather than being per-device
-        - separate options for 'electric' and 'gas'?
-            - 'electric' is probably just whether to include Devices
-            - 'gas' would be 'hidden', 'displayed', 'include in total'...or something
+      - separate options for 'electric' and 'gas'?
+        - 'electric' is probably just whether to include Devices
+        - 'gas' would be 'hidden', 'displayed', 'include in total'...or something
 
- May be able to remove pruneConfig() now
+Display:
+  - power-outage is calculating its state up-front, rather than live as-needed (see GridState)
+    - also needs implementing in the new grid render method
+  - if there are no exports to a Node, don't display its export state
+    - logically, the export should be excluded from the flow calcs, too
+    - same for imports
+  - bigger circles!
+    - possibly dynamic if something can be figured out?
+  - if data is still loading when we render, go ahead and render the circles/lines anyway, just put 'loading' for the values
 
- See if the 'state' values in the State objects can be made internal/private - they should not be accessed outside the EntityStates object
 
 
 
+Under consideration
+-------------------
 
- TEST
- ----
-  - dashboard link
+  - make the colour of the grid->home line and dot either larger-value or (for the line) dashed by proportion of high/low-carbon
+  - more modes:
+    - current month
+    - current year
+    - perhaps a user-supplied date-range?
+    - could display this as a title?
+  - display the flow rates as hover-overs on the lines
+    - or over the circles?
+  - might need to support a vertical layout
+    - either dynamic, based on available width and the number of Nodes to draw, or user-controlled
+    - basically rotate right by 90
+  - may be able to remove pruneConfig() now
+  - see if the 'state' values in the State objects can be made internal/private - they should not be accessed outside the EntityStates object
+  - alternative flow algorithm which prioritises House->Battery->Grid
 
-  - Test localisation by disabling EN and EN-GB and checking that all strings revert to their keys
+
+
+Before release
+--------------
+
+  - README and CHANGELOG updates
+  - add license
+  - test dashboard link
+  - test localisation by disabling EN and EN-GB and checking that all strings revert to their keys
     - also check that there aren't any redundant keys!

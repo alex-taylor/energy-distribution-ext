@@ -15,6 +15,10 @@ export abstract class ValueState extends State {
 }
 
 export abstract class SingleValueState extends ValueState {
+  public state: {
+    import: number;
+  };
+
   protected constructor(hass: HomeAssistant, config: SingleValueNodeConfig | undefined, defaultName: string, defaultIcon: string) {
     super(
       hass,
@@ -22,6 +26,10 @@ export abstract class SingleValueState extends ValueState {
       filterPrimaryEntities(hass, config?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids]),
       defaultName,
       defaultIcon);
+
+    this.state = {
+      import: 0
+    };
   }
 }
 

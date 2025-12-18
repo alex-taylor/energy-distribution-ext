@@ -8,6 +8,10 @@
     "custom_colour": "Custom colour",
     "import_colour": "Import colour",
     "export_colour": "Export colour",
-    "use_hass_colours": "Use HASS colours"
+    "use_hass_colours": "Use HASS colour mappings"
+  },
+  "InactiveLinesMode": {
+    "normal": "Normal colours",
+    "dimmed": "Dimmed colours"
   }
 }

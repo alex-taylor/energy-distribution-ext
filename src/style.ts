@@ -1,11 +1,12 @@
 import { css, CSSResult, unsafeCSS } from 'lit';
-import { CIRCLE_CIRCUMFERENCE, CIRCLE_SIZE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, FLOW_DASH_LENGTH, ROW_SPACING, TEXT_LINE_HEIGHT } from '@/const';
+import { CIRCLE_CIRCUMFERENCE, CIRCLE_SIZE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, COL_SPACING, FLOW_DASH_LENGTH, ROW_SPACING } from '@/const';
 
 const px = (value: number): CSSResult => { return css`${unsafeCSS(value + 'px')}`; };
 
 export const styles: CSSResult = css`
   :host {
     --mdc-icon-size: calc(2 * var(--ha-font-size-s));
+    --label-height: calc(var(--ha-font-size-s) * var(--ha-line-height-normal));
     --clickable-cursor: pointer;
   }
   :root {
@@ -27,18 +28,22 @@ export const styles: CSSResult = css`
     margin: 0 auto;
   }
   .top-row {
-    height: ${px(CIRCLE_SIZE + TEXT_LINE_HEIGHT + ROW_SPACING)};
+    height: calc(var(--label-height) + ${px(CIRCLE_SIZE + ROW_SPACING)});
   }
   .bottom-row {
     height: ${px(CIRCLE_SIZE + ROW_SPACING)};
     justify-content: flex-end;
   }
 
-  .spacer {
-    width: ${px(CIRCLE_SIZE)};
+  .horiz-spacer {
+    min-width: ${px(COL_SPACING)};
   }
 
-  .circle-container {
+  .node-spacer {
+    min-width: ${px(CIRCLE_SIZE)};
+  }
+
+  .node {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -61,12 +66,18 @@ export const styles: CSSResult = css`
     position: relative;
     text-decoration: none;
     color: var(--primary-text-color);
+  }
+  .background {
+    border-width: 0;
     background-color: var(--card-background-color);
   }
   .hidden-circle {
     border-width: 0;
   }
-  .circle-container .circle {
+  .circle .inactive {
+    border-color: var(--disabled-text-color) !important;
+  }
+  .node .circle {
     cursor: var(--clickable-cursor);
   }
   ha-icon {
@@ -100,6 +111,10 @@ export const styles: CSSResult = css`
     left: 0;
   }
 
+  .dimmed {
+    opacity: 40%;
+  }
+
   span {
     z-index: 2;
   }
@@ -112,10 +127,14 @@ export const styles: CSSResult = css`
     overflow: hidden;
   }
 
+  span.inactive {
+    color: var(--disabled-text-color) !important;
+  }
+
   .non-fossil .circle {
     border-color: var(--circle-non-fossil-color);
   }
-  .non-fossil span:not(.label) {
+  .non-fossil {
     color: var(--text-non-fossil-color);
   }
   .non-fossil ha-icon {
@@ -125,7 +144,7 @@ export const styles: CSSResult = css`
   .solar .circle {
     border-color: var(--circle-solar-color);
   }
-  .solar span:not(.label) {
+  .solar {
     color: var(--text-solar-color);
   }
   .solar ha-icon {
@@ -135,7 +154,7 @@ export const styles: CSSResult = css`
   .gas .circle {
     border-color: var(--circle-gas-color);
   }
-  .gas span:not(.label) {
+  .gas {
     color: var(--text-gas-color);
   }
   .gas ha-icon {
@@ -182,7 +201,7 @@ export const styles: CSSResult = css`
   .home ha-icon {
     color: var(--icon-home-color);
   }
-  .home span:not(.label) {
+  .home {
     color: var(--text-home-color);
   }
 
@@ -208,10 +227,7 @@ export const styles: CSSResult = css`
   }
 
   path.inactive {
-    stroke: var(--inactive-path-color);
-  }
-  path.dimmed {
-    opacity: 50%;
+    stroke: var(--inactive-path-color) !important;
   }
   path.dashed {
     stroke-dasharray: ${FLOW_DASH_LENGTH};
@@ -290,6 +306,10 @@ export const styles: CSSResult = css`
   .entity-icon {
     padding-top: 2px;
     padding-bottom: 2px;
+  }
+
+  ha-icon.inactive {
+    color: var(--disabled-text-color) !important;
   }
 
   ha-entity-picker {
