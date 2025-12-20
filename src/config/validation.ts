@@ -1,5 +1,5 @@
 import { any, assign, boolean, integer, number, object, optional, string, array } from 'superstruct';
-import { AppearanceOptions, ColourOptions, DeviceOptions, DeviceType, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, HomeOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
+import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, HomeOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
 
 const baseLovelaceCardConfigStruct = object({
   type: string(),
@@ -52,15 +52,18 @@ const valueColoursConfig = {
 
 const singleValueColoursConfigStruct = object({
   ...valueColoursConfig,
-  [ColourOptions.Value]: optional(string()),
-  [ColourOptions.Custom_Colour]: optional(array())
+  [ColourOptions.Flow]: optional(string()),
+  [ColourOptions.Custom_Colour]: optional(array()),
+  [ColourOptions.Value]: optional(string())
 });
 
 const dualValueColoursConfigStruct = object({
   ...valueColoursConfig,
-  [ColourOptions.Values]: optional(string()),
+  [ColourOptions.Import_Flow]: optional(string()),
+  [ColourOptions.Export_Flow]: optional(string()),
   [ColourOptions.Import_Colour]: optional(array()),
-  [ColourOptions.Export_Colour]: optional(array())
+  [ColourOptions.Export_Colour]: optional(array()),
+  [ColourOptions.Values]: optional(string())
 });
 
 const overridesConfigStruct = object({
@@ -126,9 +129,15 @@ const homeOptionsConfigStruct = object({
   [HomeOptions.Subtract_Consumers]: optional(boolean())
 });
 
+const homeColoursConfigStruct = object({
+  [ColourOptions.Circle]: optional(string()),
+  [ColourOptions.Icon]: optional(string()),
+  [ColourOptions.Values]: optional(string()),
+});
+
 const homeConfigStruct = object({
   ...nodeConfig,
-  [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
+  [EntitiesOptions.Colours]: optional(homeColoursConfigStruct),
   [GlobalOptions.Options]: optional(homeOptionsConfigStruct)
 });
 
@@ -149,17 +158,11 @@ const solarConfigStruct = object({
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
 });
 
-const deviceTypeStruct = object({
-  [DeviceType.ElectricSource]: optional(boolean()),
-  [DeviceType.ElectricConsumer]: optional(boolean()),
-  [DeviceType.GasSource]: optional(boolean()),
-  [DeviceType.GasConsumer]: optional(boolean()),
-});
-
 const deviceConfigStruct = object({
   [DeviceOptions.Name]: optional(string()),
   [DeviceOptions.Icon]: optional(string()),
-  [DeviceOptions.Type]: optional(deviceTypeStruct),
+  [DeviceOptions.EnergyType]: optional(string()),
+  [DeviceOptions.EnergyDirection]: optional(string()),
   [EntitiesOptions.Entities]: optional(entitiesConfigStruct),
   [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)

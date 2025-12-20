@@ -1,5 +1,6 @@
-import { DeviceConfig, DeviceOptions, DeviceType, EnergyFlowCardExtConfig, EntitiesOptions } from '@/config';
+import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions } from '@/config';
 import { secondaryInfoSchema, singleValueNodeSchema } from '.';
+import { EnergyDirection, EnergyType } from '@/enums';
 
 export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: DeviceConfig | undefined): any[] {
   const result: any[] = [
@@ -7,17 +8,34 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
       type: 'grid',
       schema: [
         { name: DeviceOptions.Name, required: true, selector: { text: {} } },
-        { name: DeviceOptions.Icon, selector: { icon: {} } }
-      ]
-    },
-    {
-      type: 'grid',
-      name: DeviceOptions.Type,
-      schema: [
-        { name: DeviceType.ElectricConsumer, selector: { boolean: {} } },
-        { name: DeviceType.GasConsumer, selector: { boolean: {} } },
-        { name: DeviceType.ElectricSource, selector: { boolean: {} } },
-        { name: DeviceType.GasSource, selector: { boolean: {} } }
+        { name: DeviceOptions.Icon, selector: { icon: {} } },
+        {
+          name: DeviceOptions.EnergyType,
+          required: true,
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                EnergyType.getItem(EnergyType.Electric),
+                EnergyType.getItem(EnergyType.Gas)
+              ]
+            }
+          }
+        },
+        {
+          name: DeviceOptions.EnergyDirection,
+          required: true,
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                EnergyDirection.getItem(EnergyDirection.Consumer),
+                EnergyDirection.getItem(EnergyDirection.Source),
+                EnergyDirection.getItem(EnergyDirection.Both)
+              ]
+            }
+          }
+        }
       ]
     }
   ].concat(singleValueNodeSchema(config, schemaConfig));

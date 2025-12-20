@@ -58,8 +58,7 @@ export namespace DisplayMode {
 
 export enum ColourMode {
   Do_Not_Colour = "none",
-  Default = "default",
-  Circle = "circle",
+  Flow = "flow",
   Larger_Value = "larger_value",
   Largest_Value = "largest_value",
   Import = "import",
@@ -69,8 +68,7 @@ export enum ColourMode {
   High_Carbon = "high_carbon",
   Low_Carbon = "low_carbon",
   Battery = "battery",
-  Gas = "gas",
-  Custom = "custom"
+  Gas = "gas"
 }
 
 export namespace ColourMode {
@@ -186,6 +184,52 @@ export namespace GasSourcesMode {
   }
 
   export function getItem(value: GasSourcesMode): { label: string, value: string } {
+    return { label: getName(value), value: value };
+  }
+}
+
+export enum EnergyType {
+  Electric = "electric",
+  Gas = "gas"
+}
+
+export namespace EnergyType {
+  export function getName(value: EnergyType): string {
+    return getEditorLabel("EnergyType", value);
+  }
+
+  export function getItem(value: EnergyType): { label: string, value: string } {
+    return { label: getName(value), value: value };
+  }
+}
+
+export enum EnergyDirection {
+  Source = "source",
+  Consumer = "consumer",
+  Both = "both"
+}
+
+export namespace EnergyDirection {
+  export function getName(value: EnergyDirection): string {
+    return getEditorLabel("EnergyDirection", value);
+  }
+
+  export function getItem(value: EnergyDirection): { label: string, value: string } {
+    return { label: getName(value), value: value };
+  }
+}
+
+export enum FlowColourMode {
+  HASS = "hass",
+  Custom = "custom"
+}
+
+export namespace FlowColourMode {
+  export function getName(value: FlowColourMode): string {
+    return getEditorLabel("FlowColourMode", value);
+  }
+
+  export function getItem(value: FlowColourMode): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
 }

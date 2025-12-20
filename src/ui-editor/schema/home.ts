@@ -1,4 +1,4 @@
-import { nodeConfigSchema, singleValueColourPickerSchema } from '.';
+import { nodeConfigSchema } from '.';
 import { ColourMode, GasSourcesMode } from '@/enums';
 import { ColourOptions, EditorPages, EntitiesOptions, EnergyFlowCardExtConfig, HomeConfig, GlobalOptions, HomeOptions } from '@/config';
 
@@ -20,19 +20,19 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
                     mode: 'dropdown',
                     options: [
                       ColourMode.getItem(ColourMode.Dynamic),
+                      ColourMode.getItem(ColourMode.Do_Not_Colour),
                       ColourMode.getItem(ColourMode.Largest_Value),
                       ColourMode.getItem(ColourMode.Solar),
                       ColourMode.getItem(ColourMode.High_Carbon),
                       ColourMode.getItem(ColourMode.Low_Carbon),
                       ColourMode.getItem(ColourMode.Battery),
-                      ColourMode.getItem(ColourMode.Gas),
-                      ColourMode.getItem(ColourMode.Custom)
+                      ColourMode.getItem(ColourMode.Gas)
                     ]
                   }
                 }
               },
               {
-                name: ColourOptions.Value,
+                name: ColourOptions.Values,
                 required: true,
                 selector: {
                   select: {
@@ -43,8 +43,7 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
                       ColourMode.getItem(ColourMode.High_Carbon),
                       ColourMode.getItem(ColourMode.Low_Carbon),
                       ColourMode.getItem(ColourMode.Battery),
-                      ColourMode.getItem(ColourMode.Gas),
-                      ColourMode.getItem(ColourMode.Custom)
+                      ColourMode.getItem(ColourMode.Gas)
                     ],
                     mode: 'dropdown'
                   },
@@ -62,14 +61,12 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
                       ColourMode.getItem(ColourMode.High_Carbon),
                       ColourMode.getItem(ColourMode.Low_Carbon),
                       ColourMode.getItem(ColourMode.Battery),
-                      ColourMode.getItem(ColourMode.Gas),
-                      ColourMode.getItem(ColourMode.Custom)
+                      ColourMode.getItem(ColourMode.Gas)
                     ],
                     mode: 'dropdown'
                   },
                 },
-              },
-              singleValueColourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours])
+              }
             ]
           }
         ]

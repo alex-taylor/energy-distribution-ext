@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
+import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes, FlowColourMode } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 declare global {
@@ -80,6 +80,9 @@ export enum EntityOptions {
 };
 
 export enum ColourOptions {
+  Flow = "colour_of_flow",
+  Import_Flow = "colour_of_import_flow",
+  Export_Flow = "colour_of_export_flow",
   Circle = "colour_of_circle",
   Icon = "colour_of_icon",
   Values = "colour_of_values",
@@ -108,14 +111,8 @@ export enum SecondaryInfoOptions {
 export enum DeviceOptions {
   Name = "device_name",
   Icon = "device_icon",
-  Type = "type"
-}
-
-export enum DeviceType {
-  ElectricSource = "electric_source",
-  ElectricConsumer = "electric_consumer",
-  GasSource = "gas_source",
-  GasConsumer = "gas_consumer"
+  EnergyType = "energy_type",
+  EnergyDirection = "energy_direction"
 }
 
 export enum HomeOptions {
@@ -198,8 +195,14 @@ export interface SolarConfig extends SingleValueNodeConfig {
 export interface BatteryConfig extends DualValueNodeConfig {
 };
 
+export interface HomeColourConfig {
+  [ColourOptions.Circle]?: ColourMode;
+  [ColourOptions.Icon]?: ColourMode;
+  [ColourOptions.Values]?: ColourMode;
+};
+
 export interface HomeConfig extends NodeConfig {
-  [EntitiesOptions.Colours]?: SingleValueColourConfig;
+  [EntitiesOptions.Colours]?: HomeColourConfig;
   [GlobalOptions.Options]?: HomeOptionsConfig;
 };
 
@@ -212,17 +215,11 @@ export interface HomeOptionsConfig {
 export interface DeviceConfig {
   [DeviceOptions.Name]?: string;
   [DeviceOptions.Icon]?: string;
-  [DeviceOptions.Type]?: DeviceTypeConfig;
+  [DeviceOptions.EnergyType]?: string;
+  [DeviceOptions.EnergyDirection]?: string;
   [EntitiesOptions.Entities]?: EntityConfig;
   [EntitiesOptions.Colours]?: SingleValueColourConfig;
   [EntitiesOptions.Secondary_Info]?: SecondaryInfoConfig;
-};
-
-export interface DeviceTypeConfig {
-  [DeviceType.ElectricSource]?: boolean;
-  [DeviceType.ElectricConsumer]?: boolean;
-  [DeviceType.GasSource]?: boolean;
-  [DeviceType.GasConsumer]?: boolean;
 };
 
 export interface NodeConfig {
@@ -246,20 +243,21 @@ export interface DualValueNodeConfig extends NodeConfig {
   [EntitiesOptions.Colours]?: DualValueColourConfig;
 };
 
-interface ValueColourConfig {
-  [ColourOptions.Icon]?: ColourMode;
-  [ColourOptions.Circle]?: ColourMode;
-};
-
-export interface SingleValueColourConfig extends ValueColourConfig {
-  [ColourOptions.Value]?: ColourMode;
+export interface SingleValueColourConfig {
+  [ColourOptions.Flow]?: FlowColourMode;
   [ColourOptions.Custom_Colour]?: number[];
+  [ColourOptions.Value]?: ColourMode;
+  [ColourOptions.Icon]?: ColourMode;
 };
 
-export interface DualValueColourConfig extends ValueColourConfig {
-  [ColourOptions.Values]?: ColourMode;
+export interface DualValueColourConfig {
+  [ColourOptions.Import_Flow]?: FlowColourMode;
+  [ColourOptions.Export_Flow]?: FlowColourMode;
   [ColourOptions.Import_Colour]?: number[];
   [ColourOptions.Export_Colour]?: number[];
+  [ColourOptions.Circle]?: ColourMode;
+  [ColourOptions.Values]?: ColourMode;
+  [ColourOptions.Icon]?: ColourMode;
 };
 
 export interface EntityConfig {
@@ -282,6 +280,7 @@ export interface SecondaryInfoConfig {
   [SecondaryInfoOptions.Icon]?: string;
 };
 
+//================================================================================================================================================================================//
 
 const isTotalisingEntity = (hass: HomeAssistant, entityId: string = ""): boolean => ["total", "total_increasing"].includes(hass.states[entityId]?.attributes?.state_class || "");
 
@@ -290,3 +289,5 @@ export const isValidSecondaryEntity = (hass: HomeAssistant, entityId: string = "
 
 export const filterPrimaryEntities = (hass: HomeAssistant, entityIds: string[] = []): string[] => entityIds.filter(entityId => isValidPrimaryEntity(hass, entityId));
 export const filterSecondaryEntity = (hass: HomeAssistant, entityId: string = ""): string[] => isValidSecondaryEntity(hass, entityId) ? [entityId] : [];
+
+//================================================================================================================================================================================//

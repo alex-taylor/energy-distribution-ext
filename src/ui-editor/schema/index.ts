@@ -1,5 +1,5 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueColourConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueColourConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
-import { ColourMode, DisplayMode, DotsMode, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
+import { ColourMode, DisplayMode, DotsMode, FlowColourMode, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 //================================================================================================================================================================================//
@@ -291,18 +291,19 @@ export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefi
         type: 'grid',
         schema: [
           {
-            name: ColourOptions.Circle,
+            name: ColourOptions.Flow,
             required: true,
             selector: {
               select: {
                 mode: 'dropdown',
                 options: [
-                  ColourMode.getItem(ColourMode.Default),
-                  ColourMode.getItem(ColourMode.Custom)
+                  FlowColourMode.getItem(FlowColourMode.HASS),
+                  FlowColourMode.getItem(FlowColourMode.Custom)
                 ]
               }
             }
           },
+          colourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Flow], ColourOptions.Custom_Colour),
           {
             name: ColourOptions.Value,
             required: true,
@@ -311,9 +312,7 @@ export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefi
                 mode: 'dropdown',
                 options: [
                   ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Default),
-                  ColourMode.getItem(ColourMode.Circle),
-                  ColourMode.getItem(ColourMode.Custom)
+                  ColourMode.getItem(ColourMode.Flow)
                 ]
               }
             }
@@ -326,31 +325,15 @@ export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefi
                 mode: 'dropdown',
                 options: [
                   ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Default),
-                  ColourMode.getItem(ColourMode.Circle),
-                  ColourMode.getItem(ColourMode.Custom)
+                  ColourMode.getItem(ColourMode.Flow)
                 ]
               }
             }
-          },
-          singleValueColourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours])
+          }
         ]
       }
     ]
   };
-}
-
-//================================================================================================================================================================================//
-
-export function singleValueColourPickerSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: SingleValueColourConfig | undefined): {} {
-  if (schemaConfig?.[ColourOptions.Circle] === ColourMode.Custom || schemaConfig?.[ColourOptions.Value] === ColourMode.Custom || schemaConfig?.[ColourOptions.Icon] === ColourMode.Custom) {
-    return {
-      name: ColourOptions.Custom_Colour,
-      selector: { color_rgb: {} }
-    };
-  }
-
-  return {};
 }
 
 //================================================================================================================================================================================//
@@ -385,6 +368,34 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
           type: 'grid',
           schema: [
             {
+              name: ColourOptions.Import_Flow,
+              required: true,
+              selector: {
+                select: {
+                  mode: 'dropdown',
+                  options: [
+                    FlowColourMode.getItem(FlowColourMode.HASS),
+                    FlowColourMode.getItem(FlowColourMode.Custom)
+                  ]
+                }
+              }
+            },
+            colourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Import_Flow], ColourOptions.Import_Colour),
+            {
+              name: ColourOptions.Export_Flow,
+              required: true,
+              selector: {
+                select: {
+                  mode: 'dropdown',
+                  options: [
+                    FlowColourMode.getItem(FlowColourMode.HASS),
+                    FlowColourMode.getItem(FlowColourMode.Custom)
+                  ]
+                }
+              }
+            },
+            colourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Export_Flow], ColourOptions.Export_Colour),
+            {
               name: [ColourOptions.Circle],
               required: true,
               selector: {
@@ -394,8 +405,7 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
                     ColourMode.getItem(ColourMode.Larger_Value),
                     ColourMode.getItem(ColourMode.Import),
                     ColourMode.getItem(ColourMode.Export),
-                    ColourMode.getItem(ColourMode.Dynamic),
-                    ColourMode.getItem(ColourMode.Custom)
+                    ColourMode.getItem(ColourMode.Dynamic)
                   ]
                 }
               }
@@ -408,8 +418,7 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
                   mode: 'dropdown',
                   options: [
                     ColourMode.getItem(ColourMode.Do_Not_Colour),
-                    ColourMode.getItem(ColourMode.Default),
-                    ColourMode.getItem(ColourMode.Custom)
+                    ColourMode.getItem(ColourMode.Flow)
                   ]
                 }
               }
@@ -424,13 +433,11 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
                     ColourMode.getItem(ColourMode.Do_Not_Colour),
                     ColourMode.getItem(ColourMode.Larger_Value),
                     ColourMode.getItem(ColourMode.Import),
-                    ColourMode.getItem(ColourMode.Export),
-                    ColourMode.getItem(ColourMode.Custom)
+                    ColourMode.getItem(ColourMode.Export)
                   ]
                 }
               }
-            },
-            dualValueColourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours])
+            }
           ]
         }
       ]
@@ -440,21 +447,11 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
 
 //================================================================================================================================================================================//
 
-function dualValueColourPickerSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: DualValueColourConfig | undefined): {} {
-  if (schemaConfig?.[ColourOptions.Circle] === ColourMode.Custom || schemaConfig?.[ColourOptions.Icon] === ColourMode.Custom || schemaConfig?.[ColourOptions.Values] === ColourMode.Custom) {
+export function colourPickerSchema(config: EnergyFlowCardExtConfig | undefined, flowMode: FlowColourMode | undefined, name: string): {} {
+  if (flowMode === FlowColourMode.Custom) {
     return {
-      type: 'grid',
-      column_min_width: '100px',
-      schema: [
-        {
-          name: ColourOptions.Import_Colour,
-          selector: { color_rgb: {} }
-        },
-        {
-          name: ColourOptions.Export_Colour,
-          selector: { color_rgb: {} }
-        }
-      ]
+      name: name,
+      selector: { color_rgb: {} }
     };
   }
 

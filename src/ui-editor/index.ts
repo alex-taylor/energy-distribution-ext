@@ -1,6 +1,6 @@
 import { localize } from "@/localize/localize";
 import { HomeAssistant } from "custom-card-helpers";
-import { DeviceConfig, DeviceOptions, DeviceType, DeviceTypeConfig, EntitiesOptions, EntityOptions, isValidPrimaryEntity, isValidSecondaryEntity } from "@/config";
+import { EntitiesOptions, EntityOptions, isValidPrimaryEntity, isValidSecondaryEntity } from "@/config";
 
 export const computeLabelCallback = (schema: any) => localize(`editor.${schema?.name}`);
 export const computeHelperCallback = (schema: any): string => localize(`editor.${schema?.name}#helptext`, "");
@@ -16,15 +16,6 @@ export const STATUS_ICONS: string[] = ["", "mdi:check-circle", "mdi:alert", "mdi
 export const STATUS_CLASSES: string[] = ["", "page-valid", "page-warning", "page-error"];
 
 export function getStatusIcon(hass: HomeAssistant, config: any, supportsPrimaries: boolean = true): Status {
-  if (config?.[DeviceOptions.Type]) {
-    const errors: {} = {};
-    validateDevice(hass, DeviceOptions.Type, config, errors);
-
-    if (errors[DeviceOptions.Type]) {
-      return Status.Errors;
-    }
-  }
-
   let primaryEntityCount: number = 0;
   let secondaryEntityCount: number = 0;
   let validPrimaryEntityCount: number = 0;
@@ -126,16 +117,4 @@ export function validateSecondaryEntity(hass: HomeAssistant, label: string, enti
   } else if (!isValidSecondaryEntity(hass, entityId)) {
     errors[label] = "'" + (hass.states[entityId]?.attributes?.friendly_name || entityId) + "' " + localize("editor.invalid_secondary_entity");
   }
-};
-
-export function validateDevice(hass: HomeAssistant, label: string, config: DeviceConfig, errors: object): void {
-  delete errors[label];
-
-  const deviceTypeConfig: DeviceTypeConfig | undefined = config?.[DeviceOptions.Type];
-
-  if (deviceTypeConfig?.[DeviceType.ElectricSource] || deviceTypeConfig?.[DeviceType.GasSource] || deviceTypeConfig?.[DeviceType.ElectricConsumer] || deviceTypeConfig?.[DeviceType.GasConsumer]) {
-    return;
-  }
-
-  errors[label] = localize("editor.missing_device_type");
 };

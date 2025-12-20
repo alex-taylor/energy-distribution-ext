@@ -1,6 +1,6 @@
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode } from "@/enums";
+import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, FlowColourMode } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
-import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, DeviceType, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, SolarConfig } from ".";
+import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
 import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions } from "@/config";
 import { localize } from "@/localize/localize";
@@ -158,8 +158,10 @@ export function getDefaultGridConfig(hass: HomeAssistant, requireEntity: boolean
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
+      [ColourOptions.Import_Flow]: FlowColourMode.HASS,
+      [ColourOptions.Export_Flow]: FlowColourMode.HASS,
       [ColourOptions.Circle]: ColourMode.Import,
-      [ColourOptions.Values]: ColourMode.Default,
+      [ColourOptions.Values]: ColourMode.Flow,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
@@ -211,8 +213,10 @@ export function getDefaultBatteryConfig(hass: HomeAssistant, requireEntity: bool
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
+      [ColourOptions.Import_Flow]: FlowColourMode.HASS,
+      [ColourOptions.Export_Flow]: FlowColourMode.HASS,
       [ColourOptions.Circle]: ColourMode.Export,
-      [ColourOptions.Values]: ColourMode.Default,
+      [ColourOptions.Values]: ColourMode.Flow,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
@@ -261,7 +265,7 @@ export function getDefaultSolarConfig(hass: HomeAssistant, requireEntity: boolea
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Circle]: ColourMode.Default,
+      [ColourOptions.Flow]: FlowColourMode.HASS,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
@@ -302,7 +306,7 @@ export function getDefaultGasConfig(hass: HomeAssistant, requireEntity: boolean)
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Circle]: ColourMode.Default,
+      [ColourOptions.Flow]: FlowColourMode.HASS,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
@@ -341,7 +345,7 @@ export function getDefaultHomeConfig(): HomeConfig {
   return {
     [EntitiesOptions.Colours]: {
       [ColourOptions.Circle]: ColourMode.Dynamic,
-      [ColourOptions.Value]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Values]: ColourMode.Do_Not_Colour,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
@@ -360,9 +364,9 @@ export function getDefaultHomeConfig(): HomeConfig {
 export function getDefaultLowCarbonConfig(): LowCarbonConfig {
   return {
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Circle]: ColourMode.Default,
+      [ColourOptions.Flow]: FlowColourMode.HASS,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
-      [ColourOptions.Icon]: ColourMode.Default
+      [ColourOptions.Icon]: ColourMode.Flow
     },
     [GlobalOptions.Options]: {
       [EntitiesOptions.Low_Carbon_Mode]: LowCarbonType.Energy
@@ -381,7 +385,7 @@ export function getDefaultDeviceConfig(): DeviceConfig {
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Circle]: ColourMode.Default,
+      [ColourOptions.Flow]: FlowColourMode.HASS,
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
@@ -390,9 +394,8 @@ export function getDefaultDeviceConfig(): DeviceConfig {
     },
     [DeviceOptions.Name]: localize("common.new_device"),
     [DeviceOptions.Icon]: "mdi:devices",
-    [DeviceOptions.Type]: {
-      [DeviceType.ElectricConsumer]: true
-    }
+    [DeviceOptions.EnergyType]: EnergyType.Electric,
+    [DeviceOptions.EnergyDirection]: EnergyDirection.Consumer
   };
 }
 
@@ -418,3 +421,5 @@ export function getCo2SignalEntity(hass: HomeAssistant): string {
 
   return co2SignalEntity ?? "";
 }
+
+//================================================================================================================================================================================//

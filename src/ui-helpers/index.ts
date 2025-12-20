@@ -1,6 +1,3 @@
-import { Flows } from "@/states";
-import { EnergyFlowCardExtConfig } from "@/config";
-
 export interface Segment {
   state: number;
   cssClass: string;

@@ -20,6 +20,9 @@ Settings:
       - linear/log scale flag
         - used for circle segments and dot animations
         - could also perhaps be used (for Home only) to control the relative sizes of the groups when in split-ring mode
+  - Colours:
+    - add custom colours for circle, icon, value(s)
+    - add custom colour for secondary
   - Config:
     - HASS can add its own settings...!
       - so is it even possible to validate here?
@@ -75,4 +78,4 @@ Before release
   - test dashboard link
   - test localisation by disabling EN and EN-GB and checking that all strings revert to their keys
     - also check that there aren't any redundant keys!
-  - find out why there seems to be a serious delay in populating the display after setting the date
+  - find out why there seems to be a serious delay in populating the display after setting the date or changing the config

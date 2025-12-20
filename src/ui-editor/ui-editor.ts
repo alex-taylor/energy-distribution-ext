@@ -33,8 +33,8 @@ const CONFIG_PAGES: {
       page: EditorPages.Appearance,
       icon: "mdi:cog",
       schema: appearanceSchema,
-    createConfig: getDefaultAppearanceConfig,
-    statusIcon: () => Status.Undefined
+      createConfig: getDefaultAppearanceConfig,
+      statusIcon: () => Status.Undefined
     },
     {
       page: EditorPages.Grid,

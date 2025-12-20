@@ -90,21 +90,21 @@ export function renderSegmentedCircle(config: EnergyFlowCardExtConfig, segmentGr
       });
 
       if (activeSegments === 0) {
-        let cssCircle: string = group.inactiveCss;
+        let cssFlow: string = group.inactiveCss;
 
         switch (inactiveFlowsMode) {
           case InactiveFlowsMode.Dimmed:
-            cssCircle += " " + CssClass.Dimmed;
+            cssFlow += " " + CssClass.Dimmed;
             break;
 
           case InactiveFlowsMode.Greyed:
-            cssCircle = CssClass.Inactive;
+            cssFlow = CssClass.Inactive;
             break;
         }
 
         return svg`
           <circle
-            class="${cssCircle}"
+            class="${cssFlow}"
             cx = "${CIRCLE_CENTRE}"
             cy = "${CIRCLE_CENTRE}"
             r = "${radius}"

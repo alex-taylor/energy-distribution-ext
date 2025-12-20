@@ -75,8 +75,8 @@
 
     "gas_sources": "Show gas sources",
     "threshold": "Threshold (%)",
-    "threshold#helptext": "If gas usage is below this, add to the total; otherwise display separately",
-    "subtract_consumers": "Subtract consumers from totals",
+    "threshold#helptext": "If gas usage is below this, add it to the total; otherwise display it separately",
+    "subtract_consumers": "Subtract consuming devices from totals",
 
     "gas": "Gas",
 
@@ -92,16 +92,18 @@
 
     "devices": "Devices",
     "device": "Device",
-    "electric_source": "Electric source",
-    "electric_consumer": "Electric consumer",
-    "gas_source": "Gas source",
-    "gas_consumer": "Gas consumer",
+    "energy_type": "Type",
+    "energy_direction": "Direction",
+    "electric": "Electric",
 
     "colours": "Colors",
     "custom_colour": "Custom color",
     "import_colour": "Import color",
     "export_colour": "Export color",
 
+    "colour_of_flow": "Flow",
+    "colour_of_import_flow": "Import flow",
+    "colour_of_export_flow": "Export flow",
     "colour_of_value": "Value",
     "colour_of_icon": "Icon",
     "colour_of_values": "Values",
@@ -113,7 +115,6 @@
     "missing_entity": "Entity must be specified",
     "invalid_primary_entity": "is not an energy sensor of type Total or Total_Increasing",
     "invalid_secondary_entity": "is not of type Total or Total_Increasing",
-    "missing_device_type": "At least one option must be selected",
 
     "device_name": "Name",
     "device_icon": "Icon"
@@ -125,8 +126,7 @@
   },
   "ColourMode": {
     "none": "Do not color",
-    "default": "Default",
-    "circle": "Same as circle",
+    "flow": "Same as flow",
     "larger_value": "Larger value",
     "largest_value": "Largest value",
     "import": "Import",
@@ -136,8 +136,7 @@
     "high_carbon": "High-carbon",
     "low_carbon": "Low-carbon",
     "battery": "Battery",
-    "gas": "Gas",
-    "custom": "Custom"
+    "gas": "Gas"
   },
   "LowCarbonType": {
     "energy": "Energy",
@@ -170,5 +169,18 @@
     "add_to_total": "Add to the total",
     "show_separately": "Show as separate total",
     "automatic": "Automatic"
+  },
+  "EnergyType": {
+    "electric": "Electric",
+    "gas": "Gas"
+  },
+  "EnergyDirection": {
+    "source": "Source",
+    "consumer": "Consumer",
+    "both": "Both"
+  },
+  "FlowColourMode": {
+    "hass": "HASS",
+    "custom": "Custom"
   }
 }
