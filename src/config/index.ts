@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DeviceType, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
+import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 declare global {
@@ -67,9 +67,7 @@ export enum EntitiesOptions {
   Colours = "colours",
   Overrides = "overrides",
   Secondary_Info = "secondary_info",
-  Include_In_Home = "include_in_home",
-  Low_Carbon_Mode = "low_carbon_mode",
-  Device_Type = "device_type"
+  Low_Carbon_Mode = "low_carbon_mode"
 };
 
 export enum EntityOptions {
@@ -109,7 +107,21 @@ export enum SecondaryInfoOptions {
 
 export enum DeviceOptions {
   Name = "device_name",
-  Icon = "device_icon"
+  Icon = "device_icon",
+  Type = "type"
+}
+
+export enum DeviceType {
+  ElectricSource = "electric_source",
+  ElectricConsumer = "electric_consumer",
+  GasSource = "gas_source",
+  GasConsumer = "gas_consumer"
+}
+
+export enum HomeOptions {
+  Gas_Sources = "gas_sources",
+  Gas_Sources_Threshold = "threshold",
+  Subtract_Consumers = "subtract_consumers"
 }
 
 //================================================================================================================================================================================//
@@ -169,7 +181,6 @@ export interface GridConfig extends DualValueNodeConfig {
 };
 
 export interface GasConfig extends SingleValueNodeConfig {
-  [EntitiesOptions.Include_In_Home]?: boolean;
 };
 
 export interface LowCarbonConfig extends NodeConfig {
@@ -189,20 +200,29 @@ export interface BatteryConfig extends DualValueNodeConfig {
 
 export interface HomeConfig extends NodeConfig {
   [EntitiesOptions.Colours]?: SingleValueColourConfig;
+  [GlobalOptions.Options]?: HomeOptionsConfig;
+};
+
+export interface HomeOptionsConfig {
+  [HomeOptions.Gas_Sources]?: string;
+  [HomeOptions.Gas_Sources_Threshold]?: number;
+  [HomeOptions.Subtract_Consumers]?: boolean;
 };
 
 export interface DeviceConfig {
   [DeviceOptions.Name]?: string;
   [DeviceOptions.Icon]?: string;
+  [DeviceOptions.Type]?: DeviceTypeConfig;
   [EntitiesOptions.Entities]?: EntityConfig;
   [EntitiesOptions.Colours]?: SingleValueColourConfig;
   [EntitiesOptions.Secondary_Info]?: SecondaryInfoConfig;
-  [GlobalOptions.Options]?: DeviceOptionsConfig;
 };
 
-export interface DeviceOptionsConfig {
-  [EntitiesOptions.Device_Type]?: DeviceType;
-  [EntitiesOptions.Include_In_Home]?: boolean;
+export interface DeviceTypeConfig {
+  [DeviceType.ElectricSource]?: boolean;
+  [DeviceType.ElectricConsumer]?: boolean;
+  [DeviceType.GasSource]?: boolean;
+  [DeviceType.GasConsumer]?: boolean;
 };
 
 export interface NodeConfig {

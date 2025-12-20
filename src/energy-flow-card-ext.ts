@@ -15,7 +15,7 @@ import { EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
 import { ColourMode, DisplayMode, DotsMode, LowCarbonType, DefaultValues, UnitPosition, UnitPrefixes, CssClass, EnergyUnits, InactiveFlowsMode } from "@/enums";
 import { HomeState } from "@/states/home";
-import { SingleValueState, ValueState } from "@/states/state";
+import { SingleValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_RADIUS, CIRCLE_SIZE, COL_SPACING, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_DIAMETER, FLOW_LINE_CURVED, FLOW_LINE_CURVED_CONTROL, FLOW_LINE_SPACING, ROW_SPACING } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, FlowsConfig } from "@/config";
@@ -23,6 +23,7 @@ import { setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNod
 import { renderFlowLines, renderSegmentedCircle } from "@/ui-helpers/renderers";
 import { AnimSpeeds, FlowLine, SegmentGroup } from "@/ui-helpers";
 import { LowCarbonState } from "@/states/low-carbon";
+import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight } from "@mdi/js";
 
 interface RegisterCardParams {
   type: string;
@@ -409,8 +410,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, CIRCLE_RADIUS, 180, this._showSegmentGaps) : ""}
             ${this._renderSecondarySpan(state.secondary, states.batterySecondary, inactiveCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
-            ${this._renderEnergyStateSpan(CssClass.BatteryExport + " " + inactiveCssExport, state.firstExportEntity, "mdi:arrow-down", states.batteryExport, energyUnits)}
-            ${this._renderEnergyStateSpan(CssClass.BatteryImport + " " + inactiveCssImport, state.firstImportEntity, "mdi:arrow-up", states.batteryImport, energyUnits)}
+            ${this._renderEnergyStateSpan(CssClass.BatteryExport + " " + inactiveCssExport, state.firstExportEntity, mdiArrowDown, states.batteryExport, energyUnits)}
+            ${this._renderEnergyStateSpan(CssClass.BatteryImport + " " + inactiveCssImport, state.firstImportEntity, mdiArrowUp, states.batteryImport, energyUnits)}
           </div>
         </div>
         <span class="label ${inactiveCss}">${state.name}</span>
@@ -489,8 +490,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, CIRCLE_RADIUS, 270, this._showSegmentGaps) : ""}
             ${this._renderSecondarySpan(this._entityStates.grid.secondary, states.gridSecondary, inactiveCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
-            ${this._renderEnergyStateSpan(CssClass.GridExport + " " + inactiveCssExport, state.firstExportEntity, "mdi:arrow-left", states.gridExport, energyUnits)}
-            ${this._renderEnergyStateSpan(CssClass.GridImport + " " + inactiveCssImport, state.firstImportEntity, "mdi:arrow-right", states.gridImport, energyUnits)}
+            ${this._renderEnergyStateSpan(CssClass.GridExport + " " + inactiveCssExport, state.firstExportEntity, mdiArrowLeft, states.gridExport, energyUnits)}
+            ${this._renderEnergyStateSpan(CssClass.GridImport + " " + inactiveCssImport, state.firstImportEntity, mdiArrowRight, states.gridImport, energyUnits)}
           </div>
         </div>
         <span class="label ${inactiveCss}">${state.name}</span>
@@ -537,11 +538,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     return html`
       <div class="node ${CssClass.Home}">
         <div class="circle background">
-          <div class="circle ${inactiveCss}" @click=${this._handleClick(state.firstImportEntity)} @keyDown=${this._handleKeyDown(state.firstImportEntity)}>
+          <div class="circle ${inactiveCss}">
             ${renderSegmentedCircle(this._config, segmentGroups, CIRCLE_RADIUS, 0, this._showSegmentGaps)}
             ${this._renderSecondarySpan(state.secondary, states.homeSecondary, inactiveCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
-            ${this._renderEnergyStateSpan(CssClass.Home + " " + inactiveCss, state.firstImportEntity, undefined, states.home, energyUnits)}
+            ${this._renderEnergyStateSpan(CssClass.Home + " " + inactiveCss, undefined, undefined, states.home, energyUnits)}
           </div>
         </div>
         <span class="label ${inactiveCss}">${state.name}</span>
@@ -558,7 +559,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     return html`
       <span class="${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${this._handleKeyDown(entityId)}>
-        ${icon ? html`<ha-icon class="small" .icon=${icon}></ha-icon>` : ""}
+        <ha-svg-icon class="small ${icon ? '' : 'hidden'}" .path=${icon}></ha-svg-icon>
         ${this._renderEnergyState(state, energyUnits)}
       </span>
     `;

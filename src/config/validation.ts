@@ -1,5 +1,5 @@
 import { any, assign, boolean, integer, number, object, optional, string, array } from 'superstruct';
-import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
+import { AppearanceOptions, ColourOptions, DeviceOptions, DeviceType, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, HomeOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
 
 const baseLovelaceCardConfigStruct = object({
   type: string(),
@@ -102,8 +102,7 @@ const batteryConfigStruct = object({
 });
 
 const gasConfigStruct = object({
-  ...singleValueNodeConfig,
-  [EntitiesOptions.Include_In_Home]: optional(boolean())
+  ...singleValueNodeConfig
 });
 
 const powerOutageConfigStruct = object({
@@ -121,9 +120,16 @@ const gridConfigStruct = object({
   [PowerOutageOptions.Power_Outage]: optional(powerOutageConfigStruct)
 });
 
+const homeOptionsConfigStruct = object({
+  [HomeOptions.Gas_Sources]: optional(string()),
+  [HomeOptions.Gas_Sources_Threshold]: optional(number()),
+  [HomeOptions.Subtract_Consumers]: optional(boolean())
+});
+
 const homeConfigStruct = object({
   ...nodeConfig,
-  [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct)
+  [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
+  [GlobalOptions.Options]: optional(homeOptionsConfigStruct)
 });
 
 const lowCarbonOptionsConfig = object({
@@ -143,18 +149,20 @@ const solarConfigStruct = object({
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
 });
 
-const deviceOptionsConfigStruct = object({
-  [EntitiesOptions.Device_Type]: optional(string()),
-  [EntitiesOptions.Include_In_Home]: optional(boolean())
+const deviceTypeStruct = object({
+  [DeviceType.ElectricSource]: optional(boolean()),
+  [DeviceType.ElectricConsumer]: optional(boolean()),
+  [DeviceType.GasSource]: optional(boolean()),
+  [DeviceType.GasConsumer]: optional(boolean()),
 });
 
 const deviceConfigStruct = object({
   [DeviceOptions.Name]: optional(string()),
   [DeviceOptions.Icon]: optional(string()),
+  [DeviceOptions.Type]: optional(deviceTypeStruct),
   [EntitiesOptions.Entities]: optional(entitiesConfigStruct),
   [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
-  [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct),
-  [GlobalOptions.Options]: optional(deviceOptionsConfigStruct)
+  [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
 });
 
 export const cardConfigStruct = assign(

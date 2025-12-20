@@ -1,5 +1,4 @@
-import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, GlobalOptions } from '@/config';
-import { DeviceType } from '@/enums';
+import { DeviceConfig, DeviceOptions, DeviceType, EnergyFlowCardExtConfig, EntitiesOptions } from '@/config';
 import { secondaryInfoSchema, singleValueNodeSchema } from '.';
 
 export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: DeviceConfig | undefined): any[] {
@@ -10,38 +9,19 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
         { name: DeviceOptions.Name, required: true, selector: { text: {} } },
         { name: DeviceOptions.Icon, selector: { icon: {} } }
       ]
+    },
+    {
+      type: 'grid',
+      name: DeviceOptions.Type,
+      schema: [
+        { name: DeviceType.ElectricConsumer, selector: { boolean: {} } },
+        { name: DeviceType.GasConsumer, selector: { boolean: {} } },
+        { name: DeviceType.ElectricSource, selector: { boolean: {} } },
+        { name: DeviceType.GasSource, selector: { boolean: {} } }
+      ]
     }
   ].concat(singleValueNodeSchema(config, schemaConfig));
 
   result.push(secondaryInfoSchema(config, schemaConfig?.[EntitiesOptions.Secondary_Info]));
-
-  result.push(
-    {
-      name: GlobalOptions.Options,
-      type: 'expandable',
-      schema: [
-        {
-          name: EntitiesOptions.Device_Type,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                DeviceType.getItem(DeviceType.Consumption_Electric),
-                DeviceType.getItem(DeviceType.Consumption_Gas),
-                DeviceType.getItem(DeviceType.Production_Electric),
-                DeviceType.getItem(DeviceType.Production_Gas)
-              ]
-            }
-          }
-        },
-        {
-          name: [EntitiesOptions.Include_In_Home],
-          selector: { boolean: {} }
-        }
-      ]
-    }
-  );
-
   return result;
 }

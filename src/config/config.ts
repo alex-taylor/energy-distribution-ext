@@ -1,6 +1,6 @@
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, DeviceType, DefaultValues, UnitPrefixes, UnitPosition } from "@/enums";
+import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
-import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, LowCarbonConfig, SolarConfig } from ".";
+import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, DeviceType, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
 import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions } from "@/config";
 import { localize } from "@/localize/localize";
@@ -346,6 +346,11 @@ export function getDefaultHomeConfig(): HomeConfig {
     },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
+    },
+    [GlobalOptions.Options]: {
+      [HomeOptions.Gas_Sources]: GasSourcesMode.Do_Not_Show,
+      [HomeOptions.Gas_Sources_Threshold]: DefaultValues.GasSourcesThreshold,
+      [HomeOptions.Subtract_Consumers]: false
     }
   };
 }
@@ -380,14 +385,14 @@ export function getDefaultDeviceConfig(): DeviceConfig {
       [ColourOptions.Value]: ColourMode.Do_Not_Colour,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour
     },
-    [GlobalOptions.Options]: {
-      [EntitiesOptions.Device_Type]: DeviceType.Consumption_Electric
-    },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
     },
     [DeviceOptions.Name]: localize("common.new_device"),
-    [DeviceOptions.Icon]: "mdi:devices"
+    [DeviceOptions.Icon]: "mdi:devices",
+    [DeviceOptions.Type]: {
+      [DeviceType.ElectricConsumer]: true
+    }
   };
 }
 

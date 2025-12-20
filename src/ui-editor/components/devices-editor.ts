@@ -6,7 +6,7 @@ import { customElement, property, state } from "lit-element";
 import { CARD_NAME } from "@/const";
 import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from "@/config";
 import { deviceSchema } from "../schema/device";
-import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from "..";
+import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validateDevice, validatePrimaryEntities, validateSecondaryEntity } from "..";
 import { repeat } from "lit/directives/repeat.js";
 import { localize } from "@/localize/localize";
 import { cleanupConfig, getDefaultDeviceConfig } from '@/config/config';
@@ -132,6 +132,7 @@ export class DevicesEditor extends LitElement {
       validateSecondaryEntity(this.hass, EntitiesOptions.Secondary_Info, secondaryEntityId, errors);
     }
 
+    validateDevice(this.hass, DeviceOptions.Type, config, errors);
     return errors;
   }
 

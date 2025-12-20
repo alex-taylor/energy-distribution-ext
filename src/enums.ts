@@ -35,7 +35,9 @@ export enum DefaultValues {
   MinRate = 1,
   MaxRate = 6,
   MinEnergy = 10,
-  MaxEnergy = 2000
+  MaxEnergy = 2000,
+
+  GasSourcesThreshold = 33
 }
 
 export enum DisplayMode {
@@ -92,23 +94,6 @@ export namespace LowCarbonType {
   }
 
   export function getItem(value: LowCarbonType): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum DeviceType {
-  Consumption_Electric = "consumption_electric",
-  Production_Electric = "production_electric",
-  Consumption_Gas = "consumption_gas",
-  Production_Gas = "production_gas"
-}
-
-export namespace DeviceType {
-  export function getName(value: DeviceType): string {
-    return getEditorLabel("DeviceType", value);
-  }
-
-  export function getItem(value: DeviceType): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
 }
@@ -186,4 +171,21 @@ export enum EntityMode {
   Totalising = "totalising",
   Resetting = "resetting",
   Misconfigured_Resetting = "misconfigured resetting"
+}
+
+export enum GasSourcesMode {
+  Do_Not_Show = "do_not_show",
+  Add_To_Total = "add_to_total",
+  Show_Separately = "show_separately",
+  Automatic = "automatic"
+}
+
+export namespace GasSourcesMode {
+  export function getName(value: GasSourcesMode): string {
+    return getEditorLabel("GasSourcesMode", value);
+  }
+
+  export function getItem(value: GasSourcesMode): { label: string, value: string } {
+    return { label: getName(value), value: value };
+  }
 }

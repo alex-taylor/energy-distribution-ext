@@ -73,8 +73,12 @@
     "icon_alert": "Icon for alert",
     "state_alert": "State of alert",
 
+    "gas_sources": "Show gas sources",
+    "threshold": "Threshold (%)",
+    "threshold#helptext": "If gas usage is below this, add to the total; otherwise display separately",
+    "subtract_consumers": "Subtract consumers from totals",
+
     "gas": "Gas",
-    "sum": "Sum",
 
     "solar": "Solar",
 
@@ -88,7 +92,10 @@
 
     "devices": "Devices",
     "device": "Device",
-    "device_type": "Device type",
+    "electric_source": "Electric source",
+    "electric_consumer": "Electric consumer",
+    "gas_source": "Gas source",
+    "gas_consumer": "Gas consumer",
 
     "colours": "Colors",
     "custom_colour": "Custom color",
@@ -106,6 +113,7 @@
     "missing_entity": "Entity must be specified",
     "invalid_primary_entity": "is not an energy sensor of type Total or Total_Increasing",
     "invalid_secondary_entity": "is not of type Total or Total_Increasing",
+    "missing_device_type": "At least one option must be selected",
 
     "device_name": "Name",
     "device_icon": "Icon"
@@ -136,12 +144,6 @@
     "percentage": "Percentage",
     "hidden": "Hidden"
   },
-  "DeviceType": {
-    "consumption_electric": "Consumption (Electric)",
-    "production_electric": "Production (Electric)",
-    "consumption_gas": "Consumption (Gas)",
-    "production_gas": "Production (Gas)"
-  },
   "InactiveLinesMode": {
     "normal": "Normal colors",
     "dimmed": "Dimmed colors",
@@ -162,5 +164,11 @@
     "after_space": "After value (with space)",
     "before_space": "Before value (with space)",
     "hidden": "Hidden"
+  },
+  "GasSourcesMode": {
+    "do_not_show": "Do not show",
+    "add_to_total": "Add to the total",
+    "show_separately": "Show as separate total",
+    "automatic": "Automatic"
   }
 }

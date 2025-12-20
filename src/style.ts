@@ -81,12 +81,18 @@ export const styles: CSSResult = css`
   .node .circle {
     cursor: var(--clickable-cursor);
   }
-  ha-icon {
-    padding-bottom: 2px;
-  }
+
   ha-icon.small {
     --mdc-icon-size: var(--ha-font-size-s);
   }
+  ha-svg-icon.small {
+    --mdc-icon-size: var(--ha-font-size-s);
+    padding-bottom: 2px;
+  }
+  ha-svg-icon.hidden {
+    --mdc-icon-size: 0px !important;
+  }
+
   .label {
     color: var(--secondary-text-color);
     font-size: var(--ha-font-size-s);
@@ -167,13 +173,11 @@ export const styles: CSSResult = css`
   }
   .grid-export {
     color: var(--text-grid-export-color);
-    padding-top: 2px;
   }
   .grid-import {
     color: var(--text-grid-import-color);
-    padding-top: 2px;
   }
-  .grid ha-icon not(:small) {
+  .grid ha-icon {
     color: var(--icon-grid-color);
   }
 
@@ -206,13 +210,11 @@ export const styles: CSSResult = css`
   }
   .battery-export {
     color: var(--text-battery-export-color);
-    padding-top: 2px;
   }
   .battery-import {
     color: var(--text-battery-import-color);
-    padding-top: 2px;
   }
-  .battery ha-icon not(:small) {
+  .battery ha-icon {
     color: var(--icon-battery-color);
   }
 
