@@ -34,6 +34,8 @@ Settings:
         - if set, gas consumers are subtracted from the gas value, so this will happen only if it's being displayed
   - Devices:
     - allow each to be bi-directional and dual-fuel
+  - Config:
+    - HASS can add its own settings...!
 
 Display:
   - bigger circles!

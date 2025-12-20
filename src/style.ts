@@ -7,13 +7,14 @@ export const styles: CSSResult = css`
   :host {
     --mdc-icon-size: calc(2 * var(--ha-font-size-s));
     --label-height: calc(var(--ha-font-size-s) * var(--ha-line-height-normal));
-    --clickable-cursor: pointer;
   }
   :root {
   }
   .card-content {
     position: relative;
     direction: ltr;
+    max-width: ${px(CIRCLE_SIZE * 5 + COL_SPACING * 4)};
+    margin: 0 auto;
   }
 
   .lines {
@@ -121,7 +122,7 @@ export const styles: CSSResult = css`
 
   span.secondary-info {
     font-size: var(--ha-font-size-s);
-    max-width: 60px;
+    max-width: ${px(CIRCLE_SIZE * 3 / 4)};
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -175,16 +176,11 @@ export const styles: CSSResult = css`
   .grid ha-icon not(:small) {
     color: var(--icon-grid-color);
   }
-  .grid .arrow-import {
-    color: var(--text-grid-import-color);
-  }
-  .grid .arrow-export {
-    color: var(--text-grid-export-color);
-  }
 
   .home .circle {
     border-width: 0;
     border-color: var(--primary-color);
+    cursor: default !important;
   }
   .home .solar {
     stroke: var(--circle-home-solar-color);
@@ -218,12 +214,6 @@ export const styles: CSSResult = css`
   }
   .battery ha-icon not(:small) {
     color: var(--icon-battery-color);
-  }
-  .battery .arrow-import {
-    color: var(--text-battery-import-color);
-  }
-  .battery .arrow-export {
-    color: var(--text-battery-export-color);
   }
 
   path.inactive {
