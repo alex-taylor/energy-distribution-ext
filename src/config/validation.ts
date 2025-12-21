@@ -30,7 +30,7 @@ const energyUnitsOptionsConfigStruct = object({
 
 const flowsOptionsConfigStruct = object({
   [FlowsOptions.Use_Hourly_Stats]: optional(boolean()),
-  [FlowsOptions.Use_HASS_Colours]: optional(boolean()),
+  [FlowsOptions.Use_HASS_Style]: optional(boolean()),
   [FlowsOptions.Animation]: optional(string()),
   [FlowsOptions.Inactive_Flows]: optional(string()),
   [FlowsOptions.Min_Rate]: optional(number()),
@@ -49,25 +49,32 @@ const entitiesConfigStruct = object({
   [EntityOptions.Entity_Ids]: optional(array())
 });
 
-const valueColoursConfig = {
-  [ColourOptions.Icon]: optional(string()),
-  [ColourOptions.Circle]: optional(string())
-};
-
 const singleValueColoursConfigStruct = object({
-  ...valueColoursConfig,
   [ColourOptions.Flow]: optional(string()),
-  [ColourOptions.Custom_Colour]: optional(array()),
-  [ColourOptions.Value]: optional(string())
+  [ColourOptions.Flow_Colour]: optional(array()),
+  [ColourOptions.Icon]: optional(string()),
+  [ColourOptions.Icon_Colour]: optional(array()),
+  [ColourOptions.Secondary]: optional(string()),
+  [ColourOptions.Secondary_Colour]: optional(array()),
+  [ColourOptions.Value]: optional(string()),
+  [ColourOptions.Value_Colour]: optional(array())
 });
 
 const dualValueColoursConfigStruct = object({
-  ...valueColoursConfig,
-  [ColourOptions.Import_Flow]: optional(string()),
-  [ColourOptions.Export_Flow]: optional(string()),
-  [ColourOptions.Import_Colour]: optional(array()),
-  [ColourOptions.Export_Colour]: optional(array()),
-  [ColourOptions.Values]: optional(string())
+  [ColourOptions.Circle]: optional(string()),
+  [ColourOptions.Circle_Colour]: optional(array()),
+  [ColourOptions.Flow_Import]: optional(string()),
+  [ColourOptions.Flow_Import_Colour]: optional(array()),
+  [ColourOptions.Flow_Export]: optional(string()),
+  [ColourOptions.Flow_Export_Colour]: optional(array()),
+  [ColourOptions.Icon]: optional(string()),
+  [ColourOptions.Icon_Colour]: optional(array()),
+  [ColourOptions.Secondary]: optional(string()),
+  [ColourOptions.Secondary_Colour]: optional(array()),
+  [ColourOptions.Value_Import]: optional(string()),
+  [ColourOptions.Value_Import_Colour]: optional(array()),
+  [ColourOptions.Value_Export]: optional(string()),
+  [ColourOptions.Value_Export_Colour]: optional(array())
 });
 
 const overridesConfigStruct = object({
@@ -135,8 +142,13 @@ const homeOptionsConfigStruct = object({
 
 const homeColoursConfigStruct = object({
   [ColourOptions.Circle]: optional(string()),
+  [ColourOptions.Circle_Colour]: optional(array()),
   [ColourOptions.Icon]: optional(string()),
-  [ColourOptions.Values]: optional(string()),
+  [ColourOptions.Icon_Colour]: optional(array()),
+  [ColourOptions.Secondary]: optional(string()),
+  [ColourOptions.Secondary_Colour]: optional(array()),
+  [ColourOptions.Value]: optional(string()),
+  [ColourOptions.Value_Colour]: optional(array())
 });
 
 const homeConfigStruct = object({
@@ -162,13 +174,29 @@ const solarConfigStruct = object({
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
 });
 
+const deviceColoursConfigStruct = object({
+  [ColourOptions.Circle]: optional(string()),
+  [ColourOptions.Circle_Colour]: optional(array()),
+  [ColourOptions.Flow_Import_Colour]: optional(array()),
+  [ColourOptions.Flow_Export_Colour]: optional(array()),
+  [ColourOptions.Icon]: optional(string()),
+  [ColourOptions.Icon_Colour]: optional(array()),
+  [ColourOptions.Secondary]: optional(string()),
+  [ColourOptions.Secondary_Colour]: optional(array()),
+  [ColourOptions.Value_Import]: optional(string()),
+  [ColourOptions.Value_Import_Colour]: optional(array()),
+  [ColourOptions.Value_Export]: optional(string()),
+  [ColourOptions.Value_Export_Colour]: optional(array())
+});
+
 const deviceConfigStruct = object({
   [DeviceOptions.Name]: optional(string()),
   [DeviceOptions.Icon]: optional(string()),
-  [DeviceOptions.EnergyType]: optional(string()),
-  [DeviceOptions.EnergyDirection]: optional(string()),
-  [EntitiesOptions.Entities]: optional(entitiesConfigStruct),
-  [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
+  [DeviceOptions.Energy_Type]: optional(string()),
+  [DeviceOptions.Energy_Direction]: optional(string()),
+  [EntitiesOptions.Import_Entities]: optional(entitiesConfigStruct),
+  [EntitiesOptions.Export_Entities]: optional(entitiesConfigStruct),
+  [EntitiesOptions.Colours]: optional(deviceColoursConfigStruct),
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
 });
 

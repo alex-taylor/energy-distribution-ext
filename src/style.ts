@@ -141,44 +141,56 @@ export const styles: CSSResult = css`
   .non-fossil .circle {
     border-color: var(--circle-non-fossil-color);
   }
-  .non-fossil {
-    color: var(--text-non-fossil-color);
-  }
   .non-fossil ha-icon {
     color: var(--icon-non-fossil-color);
+  }
+  .non-fossil.secondary-info {
+    color: var(--secondary-non-fossil-color);
+  }
+  .non-fossil.value {
+    color: var(--value-non-fossil-color);
   }
 
   .solar .circle {
     border-color: var(--circle-solar-color);
   }
-  .solar {
-    color: var(--text-solar-color);
-  }
   .solar ha-icon {
     color: var(--icon-solar-color);
+  }
+  .solar.secondary-info {
+    color: var(--secondary-solar-color);
+  }
+  .solar.value {
+    color: var(--value-solar-color);
   }
 
   .gas .circle {
     border-color: var(--circle-gas-color);
   }
-  .gas {
-    color: var(--text-gas-color);
-  }
   .gas ha-icon {
     color: var(--icon-gas-color);
+  }
+  .gas.secondary-info {
+    color: var(--secondary-gas-color);
+  }
+  .gas.value {
+    color: var(--value-gas-color);
   }
 
   .grid .circle {
     border-color: var(--circle-grid-color);
   }
-  .grid-export {
-    color: var(--text-grid-export-color);
-  }
-  .grid-import {
-    color: var(--text-grid-import-color);
-  }
   .grid ha-icon {
     color: var(--icon-grid-color);
+  }
+  .grid.secondary-info {
+    color: var(--secondary-grid-color);
+  }
+  .export-grid.value {
+    color: var(--value-export-grid-color);
+  }
+  .import-grid.value {
+    color: var(--value-import-grid-color);
   }
 
   .home .circle {
@@ -188,21 +200,27 @@ export const styles: CSSResult = css`
   .home ha-icon {
     color: var(--icon-home-color);
   }
-  .home {
-    color: var(--text-home-color);
+  .home.secondary-info {
+    color: var(--secondary-home-color);
+  }
+  .home.value {
+    color: var(--value-home-color);
   }
 
   .battery .circle {
     border-color: var(--circle-battery-color);
   }
-  .battery-export {
-    color: var(--text-battery-export-color);
-  }
-  .battery-import {
-    color: var(--text-battery-import-color);
-  }
   .battery ha-icon {
     color: var(--icon-battery-color);
+  }
+  .battery.secondary-info {
+    color: var(--secondary-battery-color);
+  }
+  .export-battery.value {
+    color: var(--value-export-battery-color);
+  }
+  .import-battery.value {
+    color: var(--value-import-battery-color);
   }
 
   path.inactive {
@@ -214,17 +232,17 @@ export const styles: CSSResult = css`
   path.solar {
     stroke: var(--flow-solar-color);
   }
-  path.grid-export {
-    stroke: var(--flow-grid-export-color);
+  path.export-grid {
+    stroke: var(--flow-export-grid-color);
   }
-  path.grid-import {
-    stroke: var(--flow-grid-import-color);
+  path.import-grid {
+    stroke: var(--flow-import-grid-color);
   }
-  path.battery-export {
-    stroke: var(--flow-battery-export-color);
+  path.export-battery {
+    stroke: var(--flow-export-battery-color);
   }
-  path.battery-import {
-    stroke: var(--flow-battery-import-color);
+  path.import-battery {
+    stroke: var(--flow-import-battery-color);
   }
   path.gas {
     stroke: var(--flow-gas-color);
@@ -248,21 +266,21 @@ export const styles: CSSResult = css`
     fill: var(--flow-gas-color);
     stroke: var(--flow-gas-color);
   }
-  circle.grid-export {
-    fill: var(--flow-grid-export-color);
-    stroke: var(--flow-grid-export-color);
+  circle.export-grid {
+    fill: var(--flow-export-grid-color);
+    stroke: var(--flow-export-grid-color);
   }
-  circle.grid-import {
-    fill: var(--flow-grid-import-color);
-    stroke: var(--flow-grid-import-color);
+  circle.import-grid {
+    fill: var(--flow-import-grid-color);
+    stroke: var(--flow-import-grid-color);
   }
-  circle.battery-export {
-    fill: var(--flow-battery-export-color);
-    stroke: var(--flow-battery-export-color);
+  circle.export-battery {
+    fill: var(--flow-export-battery-color);
+    stroke: var(--flow-export-battery-color);
   }
-  circle.battery-import {
-    fill: var(--flow-battery-import-color);
-    stroke: var(--flow-battery-import-color);
+  circle.import-battery {
+    fill: var(--flow-import-battery-color);
+    stroke: var(--flow-import-battery-color);
   }
 
   .circle svg circle {

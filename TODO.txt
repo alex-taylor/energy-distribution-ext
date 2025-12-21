@@ -20,15 +20,17 @@ Settings:
       - linear/log scale flag
         - used for circle segments and dot animations
         - could also perhaps be used (for Home only) to control the relative sizes of the groups when in split-ring mode
-  - Colours:
-    - add custom colours for circle, icon, value(s)
-    - add custom colour for secondary
 
 Display:
   - bigger circles!
     - possibly dynamic if something can be figured out?
     - need a Layout class to hold the calculated sizes
   - if data is still loading when we render, go ahead and render the circles/lines anyway, just put 'loading' for the values (or an overlay in the centre of the card?)
+  - Flows:
+    - in non-HASS mode, see if the grid->home flow can be made to alternate between high and low carbon colours on successive runs
+      - ideally in proportion, but otherwise a simple 1:1 will do
+      - can animation do this?
+      - similarly, the grid-import ring can now show high and low
   - Home:
     - if gas producers is 'show separately', display a second value and a split-ring
       - in this case, the gas and electric values need icons

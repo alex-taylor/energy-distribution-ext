@@ -1,5 +1,5 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
-import { ColourMode, DisplayMode, DotsMode, FlowColourMode, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig, SingleValueColourConfig, DualValueColourConfig } from '@/config';
+import { ColourMode, DisplayMode, DotsMode, InactiveFlowsMode, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 //================================================================================================================================================================================//
@@ -162,7 +162,7 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
           selector: { boolean: {} }
         },
         {
-          name: FlowsOptions.Use_HASS_Colours,
+          name: FlowsOptions.Use_HASS_Style,
           selector: { boolean: {} }
         },
         {
@@ -290,46 +290,41 @@ export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefi
       {
         type: 'grid',
         schema: [
-          {
-            name: ColourOptions.Flow,
-            required: true,
-            selector: {
-              select: {
-                mode: 'dropdown',
-                options: [
-                  FlowColourMode.getItem(FlowColourMode.Default),
-                  FlowColourMode.getItem(FlowColourMode.Custom)
-                ]
-              }
-            }
-          },
-          colourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Flow], ColourOptions.Custom_Colour),
-          {
-            name: ColourOptions.Value,
-            required: true,
-            selector: {
-              select: {
-                mode: 'dropdown',
-                options: [
-                  ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Flow)
-                ]
-              }
-            }
-          },
-          {
-            name: ColourOptions.Icon,
-            required: true,
-            selector: {
-              select: {
-                mode: 'dropdown',
-                options: [
-                  ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Flow)
-                ]
-              }
-            }
-          }
+          ...colourSchema(
+            schemaConfig,
+            ColourOptions.Flow,
+            [
+              ColourMode.getItem(ColourMode.Default),
+              ColourMode.getItem(ColourMode.Custom)
+            ]
+          ),
+          ...colourSchema(
+            schemaConfig,
+            ColourOptions.Value,
+            [
+              ColourMode.getItem(ColourMode.Do_Not_Colour),
+              ColourMode.getItem(ColourMode.Flow),
+              ColourMode.getItem(ColourMode.Custom)
+            ]
+          ),
+          ...colourSchema(
+            schemaConfig,
+            ColourOptions.Icon,
+            [
+              ColourMode.getItem(ColourMode.Do_Not_Colour),
+              ColourMode.getItem(ColourMode.Flow),
+              ColourMode.getItem(ColourMode.Custom)
+            ]
+          ),
+          ...colourSchema(
+            schemaConfig,
+            ColourOptions.Secondary,
+            [
+              ColourMode.getItem(ColourMode.Do_Not_Colour),
+              ColourMode.getItem(ColourMode.Flow),
+              ColourMode.getItem(ColourMode.Custom)
+            ]
+          )
         ]
       }
     ]
@@ -367,77 +362,74 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
         {
           type: 'grid',
           schema: [
-            {
-              name: ColourOptions.Import_Flow,
-              required: true,
-              selector: {
-                select: {
-                  mode: 'dropdown',
-                  options: [
-                    FlowColourMode.getItem(FlowColourMode.Default),
-                    FlowColourMode.getItem(FlowColourMode.Custom)
-                  ]
-                }
-              }
-            },
-            colourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Import_Flow], ColourOptions.Import_Colour),
-            {
-              name: ColourOptions.Export_Flow,
-              required: true,
-              selector: {
-                select: {
-                  mode: 'dropdown',
-                  options: [
-                    FlowColourMode.getItem(FlowColourMode.Default),
-                    FlowColourMode.getItem(FlowColourMode.Custom)
-                  ]
-                }
-              }
-            },
-            colourPickerSchema(config, schemaConfig?.[EntitiesOptions.Colours]?.[ColourOptions.Export_Flow], ColourOptions.Export_Colour),
-            {
-              name: [ColourOptions.Circle],
-              required: true,
-              selector: {
-                select: {
-                  mode: 'dropdown',
-                  options: [
-                    ColourMode.getItem(ColourMode.Larger_Value),
-                    ColourMode.getItem(ColourMode.Import),
-                    ColourMode.getItem(ColourMode.Export),
-                    ColourMode.getItem(ColourMode.Dynamic)
-                  ]
-                }
-              }
-            },
-            {
-              name: [ColourOptions.Values],
-              required: true,
-              selector: {
-                select: {
-                  mode: 'dropdown',
-                  options: [
-                    ColourMode.getItem(ColourMode.Do_Not_Colour),
-                    ColourMode.getItem(ColourMode.Flow)
-                  ]
-                }
-              }
-            },
-            {
-              name: [ColourOptions.Icon],
-              required: true,
-              selector: {
-                select: {
-                  mode: 'dropdown',
-                  options: [
-                    ColourMode.getItem(ColourMode.Do_Not_Colour),
-                    ColourMode.getItem(ColourMode.Larger_Value),
-                    ColourMode.getItem(ColourMode.Import),
-                    ColourMode.getItem(ColourMode.Export)
-                  ]
-                }
-              }
-            }
+            ...colourSchema(
+              schemaConfig,
+              ColourOptions.Flow_Import,
+              [
+                ColourMode.getItem(ColourMode.Default),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
+            ),
+            ...colourSchema(
+              schemaConfig,
+              ColourOptions.Flow_Export,
+              [
+                ColourMode.getItem(ColourMode.Default),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
+            ),
+            ...colourSchema(
+              schemaConfig,
+              ColourOptions.Circle,
+              [
+                ColourMode.getItem(ColourMode.Dynamic),
+                ColourMode.getItem(ColourMode.Larger_Value),
+                ColourMode.getItem(ColourMode.Import),
+                ColourMode.getItem(ColourMode.Export),
+                ColourMode.getItem(ColourMode.Do_Not_Colour),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
+            ),
+            ...colourSchema(
+              schemaConfig,
+              ColourOptions.Value_Import,
+              [
+                ColourMode.getItem(ColourMode.Do_Not_Colour),
+                ColourMode.getItem(ColourMode.Flow),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
+            ),
+            ...colourSchema(
+              schemaConfig,
+              ColourOptions.Value_Export,
+              [
+                ColourMode.getItem(ColourMode.Do_Not_Colour),
+                ColourMode.getItem(ColourMode.Flow),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
+            ),
+            ...colourSchema(
+              schemaConfig,
+              ColourOptions.Icon,
+              [
+                ColourMode.getItem(ColourMode.Do_Not_Colour),
+                ColourMode.getItem(ColourMode.Larger_Value),
+                ColourMode.getItem(ColourMode.Import),
+                ColourMode.getItem(ColourMode.Export),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
+            ),
+            ...colourSchema(
+              schemaConfig,
+              ColourOptions.Secondary,
+              [
+                ColourMode.getItem(ColourMode.Do_Not_Colour),
+                ColourMode.getItem(ColourMode.Larger_Value),
+                ColourMode.getItem(ColourMode.Import),
+                ColourMode.getItem(ColourMode.Export),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
+            )
           ]
         }
       ]
@@ -447,15 +439,28 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
 
 //================================================================================================================================================================================//
 
-export function colourPickerSchema(config: EnergyFlowCardExtConfig | undefined, flowMode: FlowColourMode | undefined, name: string): {} {
-  if (flowMode === FlowColourMode.Custom) {
-    return {
-      name: name,
+export function colourSchema(config: SingleValueNodeConfig | DualValueNodeConfig | undefined, name: string, options: any[]): any[] {
+  const schema: any[] = [{
+    name: name,
+    required: true,
+    selector: {
+      select: {
+        mode: 'dropdown',
+        options: options
+      }
+    }
+  }];
+
+  if (config?.[EntitiesOptions.Colours]?.[name] === ColourMode.Custom) {
+    schema.push({
+      name: name.replace("mode", "colour"),
       selector: { color_rgb: {} }
-    };
+    });
+  } else {
+    schema.push({});
   }
 
-  return {};
+  return schema;
 }
 
 //================================================================================================================================================================================//

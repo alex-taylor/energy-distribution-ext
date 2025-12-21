@@ -132,7 +132,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
             <energy-flow-card-ext-devices-editor
               .hass=${this.hass}
               .config=${this._config}
-              @config-changed=${this._valueChanged}
+              @value-changed=${this._valueChanged}
             ></energy-flow-card-ext-devices-editor>
           `
           : html`
@@ -205,6 +205,8 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
   //================================================================================================================================================================================//
 
   private _valueChanged(ev: any): void {
+    ev.stopPropagation();
+
     if (!this._config || !this.hass) {
       return;
     }

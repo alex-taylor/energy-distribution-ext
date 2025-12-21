@@ -9,9 +9,28 @@ import { deviceSchema } from "../schema/device";
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from "..";
 import { repeat } from "lit/directives/repeat.js";
 import { localize } from "@/localize/localize";
-import { cleanupConfig, getDefaultDeviceConfig } from '@/config/config';
+import { getDefaultDeviceConfig } from '@/config/config';
 
 //================================================================================================================================================================================//
+
+const DEVICE_COLOURS = [
+  // yellow
+  [0xFF, 0xFF, 0x00],
+  // blue
+  [0x00, 0x00, 0xFF],
+  // chocolate
+  [0xD2, 0x69, 0x1E],
+  // cornflower blue
+  [0x64, 0x95, 0xED],
+  // indian red
+  [0xCD, 0x5C, 0x5C],
+  // light sky blue
+  [0x87, 0xCE, 0xFA],
+  // orange red
+  [0xFF, 0x45, 0x00],
+  // medium aqua marine
+  [0x66, 0xCD, 0xAA]
+];
 
 const DEVICES_EDITOR_ELEMENT_NAME = CARD_NAME + "-devices-editor";
 
@@ -20,9 +39,10 @@ export class DevicesEditor extends LitElement {
   public hass!: HomeAssistant;
   @property({ attribute: false }) public config!: EnergyFlowCardExtConfig;
   @state() private _devices?: DeviceConfig[];
-  @state() protected _indexBeingEdited: number = -1;
+  @state() private _indexBeingEdited: number = -1;
 
   private _entityKeys = new WeakMap<DeviceConfig, string>();
+  private _nextDeviceColour: number = 0;
 
   protected render(): TemplateResult {
     if (!this.config || !this.hass) {
@@ -30,6 +50,11 @@ export class DevicesEditor extends LitElement {
     }
 
     this._devices = this.config.devices || [];
+
+    if (this._indexBeingEdited >= this._devices.length) {
+      // a new device has been added, but the config change has not propagated through yet
+      return html``;
+    }
 
     if (this._indexBeingEdited !== -1) {
       return html`
@@ -89,7 +114,7 @@ export class DevicesEditor extends LitElement {
       this._devices,
       deviceConf => this._getKey(deviceConf),
       (deviceConf, index) => {
-        const statusIcon: Status = getStatusIcon(this.hass, deviceConf);
+        const statusIcon: Status = getStatusIcon(this.hass, deviceConf, true, true);
 
         return html`
           <div class="devices">
@@ -123,10 +148,15 @@ export class DevicesEditor extends LitElement {
   //================================================================================================================================================================================//
 
   private _validateConfig(config: DeviceConfig): {} {
+    if (!config) {
+      return {};
+    }
+
     const errors: object = {};
     const secondaryEntityId: string | undefined = config?.[EntitiesOptions.Secondary_Info]?.[EntityOptions.Entity_Id];
 
-    validatePrimaryEntities(this.hass, EntitiesOptions.Entities, config?.[EntitiesOptions.Entities]?.[EntityOptions.Entity_Ids], !!secondaryEntityId, errors);
+    validatePrimaryEntities(this.hass, EntitiesOptions.Import_Entities, config?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids], true, errors);
+    validatePrimaryEntities(this.hass, EntitiesOptions.Export_Entities, config?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids], true, errors);
 
     if (secondaryEntityId) {
       validateSecondaryEntity(this.hass, EntitiesOptions.Secondary_Info, secondaryEntityId, errors);
@@ -147,16 +177,22 @@ export class DevicesEditor extends LitElement {
 
   //================================================================================================================================================================================//
 
-  private async _addDevice(): Promise<void> {
-    const newDevice: DeviceConfig = getDefaultDeviceConfig();
+  private _addDevice(): void {
+    const newDevice: DeviceConfig = getDefaultDeviceConfig(DEVICE_COLOURS[this._nextDeviceColour++], DEVICE_COLOURS[this._nextDeviceColour++]);
     const updatedDevices: DeviceConfig[] = this._devices!.concat(newDevice);
-    this._editDevice(updatedDevices.length - 1);
     this._updateConfig(updatedDevices);
+    this._editDevice(updatedDevices.length - 1);
+
+    if (this._nextDeviceColour === DEVICE_COLOURS.length) {
+      this._nextDeviceColour = 0;
+    }
   }
 
   //================================================================================================================================================================================//
 
   private _moveDevice(ev: CustomEvent): void {
+    ev.stopPropagation();
+
     if (ev.detail.oldIndex === ev.detail.newIndex) {
       return;
     }
@@ -169,6 +205,8 @@ export class DevicesEditor extends LitElement {
   //================================================================================================================================================================================//
 
   private _removeDevice(ev: CustomEvent): void {
+    ev.stopPropagation();
+
     const index = (ev.currentTarget as any).index;
     const updatedDevices = this._devices!.concat();
     updatedDevices.splice(index, 1);
@@ -184,7 +222,9 @@ export class DevicesEditor extends LitElement {
 
   //================================================================================================================================================================================//
 
-  private _valueChanged(ev: any): void {
+  private _valueChanged(ev: CustomEvent): void {
+    ev.stopPropagation();
+
     if (!this.config || !this.hass) {
       return;
     }
@@ -205,8 +245,7 @@ export class DevicesEditor extends LitElement {
   //================================================================================================================================================================================//
 
   private _updateConfig(updatedDevices: DeviceConfig[]): void {
-    const config: EnergyFlowCardExtConfig = { ...this.config, devices: updatedDevices.length === 0 ? undefined : updatedDevices };
-    fireEvent(this, 'config-changed', { config: cleanupConfig(this.hass, config) });
+    fireEvent(this, 'value-changed', { value: updatedDevices });
   }
 
   //================================================================================================================================================================================//

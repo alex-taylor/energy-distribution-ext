@@ -20,9 +20,6 @@
   <ItemGroup>
     <Content Include="hacs.json" />
     <Content Include="package.json" />
-    <Content Include="src\localize\languages\en-GB.json">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="src\ui-editor\components\page-header.ts">
       <SubType>Code</SubType>
     </Content>
@@ -42,26 +39,11 @@
     <None Include="src\logging.ts" />
     <None Include="src\style.ts" />
     <None Include="src\config\index.ts" />
-    <None Include="__tests__\i18n.test.ts" />
     <None Include="src\energy\index.ts" />
     <None Include="src\energy\subscribe-mixin.ts" />
     <None Include="src\localize\localize.ts" />
     <None Include="src\ui-editor\ui-editor.ts" />
-    <Content Include="src\localize\languages\cs.json" />
-    <Content Include="src\localize\languages\de.json" />
-    <Content Include="src\localize\languages\dk.json" />
     <Content Include="src\localize\languages\en.json" />
-    <Content Include="src\localize\languages\es.json" />
-    <Content Include="src\localize\languages\fi.json" />
-    <Content Include="src\localize\languages\fr.json" />
-    <Content Include="src\localize\languages\it.json" />
-    <Content Include="src\localize\languages\nl.json" />
-    <Content Include="src\localize\languages\pl.json" />
-    <Content Include="src\localize\languages\pt-BR.json" />
-    <Content Include="src\localize\languages\pt-PT.json" />
-    <Content Include="src\localize\languages\ru.json" />
-    <Content Include="src\localize\languages\sk.json" />
-    <Content Include="src\localize\languages\sv.json" />
     <None Include="src\ui-editor\schema\battery.ts" />
     <None Include="src\ui-editor\schema\low-carbon.ts" />
     <None Include="src\ui-editor\schema\grid.ts" />
@@ -75,7 +57,6 @@
     <Folder Include="src\states\" />
     <Folder Include="src\config\" />
     <Folder Include="src\ui-editor\components\" />
-    <Folder Include="__tests__" />
     <Folder Include="dist" />
     <Folder Include="src" />
     <Folder Include="src\energy" />

@@ -15,7 +15,7 @@ export enum Status {
 export const STATUS_ICONS: string[] = ["", "mdi:check-circle", "mdi:alert", "mdi:alert-octagon"];
 export const STATUS_CLASSES: string[] = ["", "page-valid", "page-warning", "page-error"];
 
-export function getStatusIcon(hass: HomeAssistant, config: any, supportsPrimaries: boolean = true): Status {
+export function getStatusIcon(hass: HomeAssistant, config: any, supportsPrimaries: boolean = true, requiresPrimaries: boolean = false): Status {
   let primaryEntityCount: number = 0;
   let secondaryEntityCount: number = 0;
   let validPrimaryEntityCount: number = 0;
@@ -66,6 +66,10 @@ export function getStatusIcon(hass: HomeAssistant, config: any, supportsPrimarie
     }
   }
 
+  if (primaryEntityCount === 0 && requiresPrimaries) {
+    return Status.Errors;
+  }
+
   if (primaryEntityCount === 0 && secondaryEntityCount === 0) {
     return Status.Undefined;
   }
@@ -81,13 +85,13 @@ export function getStatusIcon(hass: HomeAssistant, config: any, supportsPrimarie
   return Status.Valid;
 };
 
-export function validatePrimaryEntities(hass: HomeAssistant, label: string, entityIds: string[] = [], hasSecondary: boolean, errors: object): void {
+export function validatePrimaryEntities(hass: HomeAssistant, label: string, entityIds: string[] = [], requirePrimary: boolean, errors: object): void {
   delete errors[label];
 
   let error: string = "";
 
   if (entityIds.length === 0) {
-    if (hasSecondary) {
+    if (requirePrimary) {
       error = localize("editor.missing_entity");
     }
   } else {

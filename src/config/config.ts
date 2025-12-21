@@ -1,4 +1,4 @@
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, FlowColourMode } from "@/enums";
+import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
 import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
@@ -128,21 +128,21 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
     [AppearanceOptions.Energy_Units]: {
       [EnergyUnitsOptions.Unit_Prefixes]: UnitPrefixes.Unified,
       [EnergyUnitsOptions.Unit_Position]: UnitPosition.After_Space,
-      [EnergyUnitsOptions.Display_Precision_Under_10]: DefaultValues.DisplayPrecisionUnder10,
-      [EnergyUnitsOptions.Display_Precision_Under_100]: DefaultValues.DisplayPrecisionUnder100,
-      [EnergyUnitsOptions.Display_Precision_Default]: DefaultValues.DisplayPrecision,
-      [EnergyUnitsOptions.Wh_Kwh_Threshold]: DefaultValues.WhkWhThreshold,
-      [EnergyUnitsOptions.Kwh_Mwh_Threshold]: DefaultValues.KwhMwhThreshold
+      [EnergyUnitsOptions.Display_Precision_Under_10]: DefaultValues.Display_Precision_Under_10,
+      [EnergyUnitsOptions.Display_Precision_Under_100]: DefaultValues.Display_Precision_Under_100,
+      [EnergyUnitsOptions.Display_Precision_Default]: DefaultValues.Display_Precision,
+      [EnergyUnitsOptions.Wh_Kwh_Threshold]: DefaultValues.Whk_Wh_Threshold,
+      [EnergyUnitsOptions.Kwh_Mwh_Threshold]: DefaultValues.Kwh_Mwh_Threshold
     },
     [AppearanceOptions.Flows]: {
       [FlowsOptions.Use_Hourly_Stats]: false,
-      [FlowsOptions.Use_HASS_Colours]: true,
+      [FlowsOptions.Use_HASS_Style]: true,
       [FlowsOptions.Animation]: DotsMode.HASS,
       [FlowsOptions.Inactive_Flows]: InactiveFlowsMode.Normal,
-      [FlowsOptions.Min_Rate]: DefaultValues.MinRate,
-      [FlowsOptions.Max_Rate]: DefaultValues.MaxRate,
-      [FlowsOptions.Min_Energy]: DefaultValues.MinEnergy,
-      [FlowsOptions.Max_Energy]: DefaultValues.MaxEnergy
+      [FlowsOptions.Min_Rate]: DefaultValues.Min_Flow_Rate,
+      [FlowsOptions.Max_Rate]: DefaultValues.Max_Flow_Rate,
+      [FlowsOptions.Min_Energy]: DefaultValues.Min_Flow_Energy,
+      [FlowsOptions.Max_Energy]: DefaultValues.Max_Flow_Energy
     }
   };
 }
@@ -158,11 +158,13 @@ export function getDefaultGridConfig(hass: HomeAssistant, requireEntity: boolean
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Import_Flow]: FlowColourMode.Default,
-      [ColourOptions.Export_Flow]: FlowColourMode.Default,
       [ColourOptions.Circle]: ColourMode.Import,
-      [ColourOptions.Values]: ColourMode.Flow,
-      [ColourOptions.Icon]: ColourMode.Do_Not_Colour
+      [ColourOptions.Flow_Import]: ColourMode.Default,
+      [ColourOptions.Flow_Export]: ColourMode.Default,
+      [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value_Import]: ColourMode.Flow,
+      [ColourOptions.Value_Export]: ColourMode.Flow
     },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
@@ -213,11 +215,13 @@ export function getDefaultBatteryConfig(hass: HomeAssistant, requireEntity: bool
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Import_Flow]: FlowColourMode.Default,
-      [ColourOptions.Export_Flow]: FlowColourMode.Default,
       [ColourOptions.Circle]: ColourMode.Export,
-      [ColourOptions.Values]: ColourMode.Flow,
-      [ColourOptions.Icon]: ColourMode.Do_Not_Colour
+      [ColourOptions.Flow_Import]: ColourMode.Default,
+      [ColourOptions.Flow_Export]: ColourMode.Default,
+      [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value_Import]: ColourMode.Flow,
+      [ColourOptions.Value_Export]: ColourMode.Flow
     },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
@@ -265,9 +269,10 @@ export function getDefaultSolarConfig(hass: HomeAssistant, requireEntity: boolea
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Flow]: FlowColourMode.Default,
-      [ColourOptions.Value]: ColourMode.Do_Not_Colour,
-      [ColourOptions.Icon]: ColourMode.Do_Not_Colour
+      [ColourOptions.Flow]: ColourMode.Default,
+      [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
@@ -306,9 +311,10 @@ export function getDefaultGasConfig(hass: HomeAssistant, requireEntity: boolean)
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Flow]: FlowColourMode.Default,
-      [ColourOptions.Value]: ColourMode.Do_Not_Colour,
-      [ColourOptions.Icon]: ColourMode.Do_Not_Colour
+      [ColourOptions.Flow]: ColourMode.Default,
+      [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
@@ -345,15 +351,16 @@ export function getDefaultHomeConfig(): HomeConfig {
   return {
     [EntitiesOptions.Colours]: {
       [ColourOptions.Circle]: ColourMode.Dynamic,
-      [ColourOptions.Values]: ColourMode.Do_Not_Colour,
-      [ColourOptions.Icon]: ColourMode.Do_Not_Colour
+      [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
     },
     [GlobalOptions.Options]: {
       [HomeOptions.Gas_Sources]: GasSourcesMode.Do_Not_Show,
-      [HomeOptions.Gas_Sources_Threshold]: DefaultValues.GasSourcesThreshold,
+      [HomeOptions.Gas_Sources_Threshold]: DefaultValues.Gas_Sources_Threshold,
       [HomeOptions.Subtract_Consumers]: false
     }
   };
@@ -364,9 +371,10 @@ export function getDefaultHomeConfig(): HomeConfig {
 export function getDefaultLowCarbonConfig(): LowCarbonConfig {
   return {
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Flow]: FlowColourMode.Default,
-      [ColourOptions.Value]: ColourMode.Do_Not_Colour,
-      [ColourOptions.Icon]: ColourMode.Flow
+      [ColourOptions.Flow]: ColourMode.Default,
+      [ColourOptions.Icon]: ColourMode.Flow,
+      [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value]: ColourMode.Do_Not_Colour
     },
     [GlobalOptions.Options]: {
       [EntitiesOptions.Low_Carbon_Mode]: LowCarbonType.Energy
@@ -379,23 +387,30 @@ export function getDefaultLowCarbonConfig(): LowCarbonConfig {
 
 //================================================================================================================================================================================//
 
-export function getDefaultDeviceConfig(): DeviceConfig {
+export function getDefaultDeviceConfig(importColour: number[], exportColour: number[]): DeviceConfig {
   return {
-    [EntitiesOptions.Entities]: {
+    [EntitiesOptions.Import_Entities]: {
+      [EntityOptions.Entity_Ids]: []
+    },
+    [EntitiesOptions.Export_Entities]: {
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
-      [ColourOptions.Flow]: FlowColourMode.Default,
-      [ColourOptions.Value]: ColourMode.Do_Not_Colour,
-      [ColourOptions.Icon]: ColourMode.Do_Not_Colour
+      [ColourOptions.Flow_Import_Colour]: importColour,
+      [ColourOptions.Flow_Export_Colour]: exportColour,
+      [ColourOptions.Circle]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value_Import]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Value_Export]: ColourMode.Do_Not_Colour
     },
     [EntitiesOptions.Secondary_Info]: {
       [EntityOptions.Unit_Position]: UnitPosition.After_Space
     },
     [DeviceOptions.Name]: localize("common.new_device"),
     [DeviceOptions.Icon]: "mdi:devices",
-    [DeviceOptions.EnergyType]: EnergyType.Electric,
-    [DeviceOptions.EnergyDirection]: EnergyDirection.Consumer
+    [DeviceOptions.Energy_Type]: EnergyType.Electric,
+    [DeviceOptions.Energy_Direction]: EnergyDirection.Consumer
   };
 }
 

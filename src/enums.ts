@@ -8,36 +8,36 @@ export enum EnergyUnits {
 
 export enum CssClass {
   Battery = "battery",
-  BatteryExport = "battery-export",
-  BatteryImport = "battery-import",
+  Battery_Export = "export-battery",
+  Battery_Import = "import-battery",
   Gas = "gas",
   Grid = "grid",
-  GridExport = "grid-export",
-  GridImport = "grid-import",
+  Grid_Export = "export-grid",
+  Grid_Import = "import-grid",
   Home = "home",
   // for some reason HASS calls its css classes 'non-fossil'
-  LowCarbon = "non-fossil",
+  Low_Carbon = "non-fossil",
   Solar = "solar",
   Inactive = "inactive",
   Dimmed = "dimmed",
-  HiddenCircle = "hidden-circle"
+  Hidden_Circle = "hidden-circle"
 }
 
 export enum DefaultValues {
   // EnergyUnits
-  DisplayPrecisionUnder10 = 2,
-  DisplayPrecisionUnder100 = 1,
-  DisplayPrecision = 0,
-  WhkWhThreshold = 1000,
-  KwhMwhThreshold = 1000,
+  Display_Precision_Under_10 = 2,
+  Display_Precision_Under_100 = 1,
+  Display_Precision = 0,
+  Whk_Wh_Threshold = 1000,
+  Kwh_Mwh_Threshold = 1000,
 
   // Flows
-  MinRate = 1,
-  MaxRate = 6,
-  MinEnergy = 10,
-  MaxEnergy = 2000,
+  Min_Flow_Rate = 1,
+  Max_Flow_Rate = 6,
+  Min_Flow_Energy = 10,
+  Max_Flow_Energy = 2000,
 
-  GasSourcesThreshold = 33
+  Gas_Sources_Threshold = 33
 }
 
 export enum DisplayMode {
@@ -68,7 +68,9 @@ export enum ColourMode {
   High_Carbon = "high_carbon",
   Low_Carbon = "low_carbon",
   Battery = "battery",
-  Gas = "gas"
+  Gas = "gas",
+  Custom = "custom",
+  Default = "default"
 }
 
 export namespace ColourMode {
@@ -215,21 +217,6 @@ export namespace EnergyDirection {
   }
 
   export function getItem(value: EnergyDirection): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum FlowColourMode {
-  Default = "default",
-  Custom = "custom"
-}
-
-export namespace FlowColourMode {
-  export function getName(value: FlowColourMode): string {
-    return getEditorLabel("FlowColourMode", value);
-  }
-
-  export function getItem(value: FlowColourMode): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
 }

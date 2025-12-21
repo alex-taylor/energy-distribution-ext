@@ -34,7 +34,7 @@
     "show_zero_states": "Show zero states",
     "clickable_entities": "Clickable entities",
     "segment_gaps": "Show gaps between segments",
-    "use_hass_colours": "Use HASS color mappings",
+    "use_hass_style": "Use HASS-style flows",
     "use_hourly_stats": "Use hourly statistics",
     "use_hourly_stats#helptext": "Hourly statistics are more precise, but may take longer to calculate",
     "unit_whitespace": "White-space between value and unit",
@@ -86,7 +86,7 @@
 
     "low_carbon": "Low-carbon",
     "low_carbon_energy": "Low-Carbon Energy",
-    "low_carbon_show_as": "Show As",
+    "low_carbon_show_as": "Show as",
 
     "home": "Home",
 
@@ -97,17 +97,25 @@
     "electric": "Electric",
 
     "colours": "Colors",
-    "custom_colour": "Custom color",
-    "import_colour": "Import color",
-    "export_colour": "Export color",
+    "circle_colour": "Circle color",
+    "flow_colour": "Flow color",
+    "flow_export_colour": "Export color",
+    "flow_import_colour": "Import color",
+    "icon_colour": "Icon color",
+    "secondary_colour": "Secondary value color",
+    "value_colour": "Value color",
+    "value_export_colour": "Export color",
+    "value_import_colour": "Import color",
 
-    "colour_of_flow": "Flow",
-    "colour_of_import_flow": "Import flow",
-    "colour_of_export_flow": "Export flow",
-    "colour_of_value": "Value",
-    "colour_of_icon": "Icon",
-    "colour_of_values": "Values",
-    "colour_of_circle": "Circle",
+    "circle_mode": "Circle",
+    "flow_mode": "Flow",
+    "flow_export_mode": "Export flow",
+    "flow_import_mode": "Import flow",
+    "icon_mode": "Icon",
+    "secondary_mode": "Secondary value",
+    "value_mode": "Value",
+    "value_export_mode": "Export value",
+    "value_import_mode": "Import value",
 
     "secondary_info": "Secondary Info",
     "secondary_icon": "Icon",
@@ -136,7 +144,9 @@
     "high_carbon": "High-carbon",
     "low_carbon": "Low-carbon",
     "battery": "Battery",
-    "gas": "Gas"
+    "gas": "Gas",
+    "custom": "Custom",
+    "default": "Default"
   },
   "LowCarbonType": {
     "energy": "Energy",
@@ -178,9 +188,5 @@
     "source": "Source",
     "consumer": "Consumer",
     "both": "Both"
-  },
-  "FlowColourMode": {
-    "default": "Default",
-    "custom": "Custom"
   }
 }

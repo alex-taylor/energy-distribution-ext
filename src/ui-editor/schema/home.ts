@@ -1,4 +1,4 @@
-import { nodeConfigSchema } from '.';
+import { colourSchema, nodeConfigSchema } from '.';
 import { ColourMode, GasSourcesMode } from '@/enums';
 import { ColourOptions, EditorPages, EntitiesOptions, EnergyFlowCardExtConfig, HomeConfig, GlobalOptions, HomeOptions } from '@/config';
 
@@ -12,61 +12,63 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
           {
             type: 'grid',
             schema: [
-              {
-                name: ColourOptions.Circle,
-                required: true,
-                selector: {
-                  select: {
-                    mode: 'dropdown',
-                    options: [
-                      ColourMode.getItem(ColourMode.Dynamic),
-                      ColourMode.getItem(ColourMode.Do_Not_Colour),
-                      ColourMode.getItem(ColourMode.Largest_Value),
-                      ColourMode.getItem(ColourMode.Solar),
-                      ColourMode.getItem(ColourMode.High_Carbon),
-                      ColourMode.getItem(ColourMode.Low_Carbon),
-                      ColourMode.getItem(ColourMode.Battery),
-                      ColourMode.getItem(ColourMode.Gas)
-                    ]
-                  }
-                }
-              },
-              {
-                name: ColourOptions.Values,
-                required: true,
-                selector: {
-                  select: {
-                    options: [
-                      ColourMode.getItem(ColourMode.Do_Not_Colour),
-                      ColourMode.getItem(ColourMode.Largest_Value),
-                      ColourMode.getItem(ColourMode.Solar),
-                      ColourMode.getItem(ColourMode.High_Carbon),
-                      ColourMode.getItem(ColourMode.Low_Carbon),
-                      ColourMode.getItem(ColourMode.Battery),
-                      ColourMode.getItem(ColourMode.Gas)
-                    ],
-                    mode: 'dropdown'
-                  },
-                }
-              },
-              {
-                name: ColourOptions.Icon,
-                required: true,
-                selector: {
-                  select: {
-                    options: [
-                      ColourMode.getItem(ColourMode.Do_Not_Colour),
-                      ColourMode.getItem(ColourMode.Largest_Value),
-                      ColourMode.getItem(ColourMode.Solar),
-                      ColourMode.getItem(ColourMode.High_Carbon),
-                      ColourMode.getItem(ColourMode.Low_Carbon),
-                      ColourMode.getItem(ColourMode.Battery),
-                      ColourMode.getItem(ColourMode.Gas)
-                    ],
-                    mode: 'dropdown'
-                  },
-                },
-              }
+              ...colourSchema(
+                schemaConfig,
+                ColourOptions.Circle,
+                [
+                  ColourMode.getItem(ColourMode.Dynamic),
+                  ColourMode.getItem(ColourMode.Do_Not_Colour),
+                  ColourMode.getItem(ColourMode.Largest_Value),
+                  ColourMode.getItem(ColourMode.Solar),
+                  ColourMode.getItem(ColourMode.High_Carbon),
+                  ColourMode.getItem(ColourMode.Low_Carbon),
+                  ColourMode.getItem(ColourMode.Battery),
+                  ColourMode.getItem(ColourMode.Gas),
+                  ColourMode.getItem(ColourMode.Custom)
+                ]
+              ),
+              ...colourSchema(
+                schemaConfig,
+                ColourOptions.Value,
+                [
+                  ColourMode.getItem(ColourMode.Do_Not_Colour),
+                  ColourMode.getItem(ColourMode.Largest_Value),
+                  ColourMode.getItem(ColourMode.Solar),
+                  ColourMode.getItem(ColourMode.High_Carbon),
+                  ColourMode.getItem(ColourMode.Low_Carbon),
+                  ColourMode.getItem(ColourMode.Battery),
+                  ColourMode.getItem(ColourMode.Gas),
+                  ColourMode.getItem(ColourMode.Custom)
+                ]
+              ),
+              ...colourSchema(
+                schemaConfig,
+                ColourOptions.Icon,
+                [
+                  ColourMode.getItem(ColourMode.Do_Not_Colour),
+                  ColourMode.getItem(ColourMode.Largest_Value),
+                  ColourMode.getItem(ColourMode.Solar),
+                  ColourMode.getItem(ColourMode.High_Carbon),
+                  ColourMode.getItem(ColourMode.Low_Carbon),
+                  ColourMode.getItem(ColourMode.Battery),
+                  ColourMode.getItem(ColourMode.Gas),
+                  ColourMode.getItem(ColourMode.Custom)
+                ]
+              ),
+              ...colourSchema(
+                schemaConfig,
+                ColourOptions.Secondary,
+                [
+                  ColourMode.getItem(ColourMode.Do_Not_Colour),
+                  ColourMode.getItem(ColourMode.Largest_Value),
+                  ColourMode.getItem(ColourMode.Solar),
+                  ColourMode.getItem(ColourMode.High_Carbon),
+                  ColourMode.getItem(ColourMode.Low_Carbon),
+                  ColourMode.getItem(ColourMode.Battery),
+                  ColourMode.getItem(ColourMode.Gas),
+                  ColourMode.getItem(ColourMode.Custom)
+                ]
+              )
             ]
           }
         ]

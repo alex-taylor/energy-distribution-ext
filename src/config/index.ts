@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes, FlowColourMode } from '@/enums';
+import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 declare global {
@@ -51,7 +51,7 @@ export enum EnergyUnitsOptions {
 
 export enum FlowsOptions {
   Use_Hourly_Stats = "use_hourly_stats",
-  Use_HASS_Colours = "use_hass_colours",
+  Use_HASS_Style = "use_hass_style",
   Animation = "animation",
   Inactive_Flows = "inactive_flows",
   Min_Rate = "min_rate",
@@ -80,16 +80,24 @@ export enum EntityOptions {
 };
 
 export enum ColourOptions {
-  Flow = "colour_of_flow",
-  Import_Flow = "colour_of_import_flow",
-  Export_Flow = "colour_of_export_flow",
-  Circle = "colour_of_circle",
-  Icon = "colour_of_icon",
-  Values = "colour_of_values",
-  Value = "colour_of_value",
-  Custom_Colour = "custom_colour",
-  Import_Colour = "import_colour",
-  Export_Colour = "export_colour"
+  Circle = "circle_mode",
+  Circle_Colour = "circle_colour",
+  Flow = "flow_mode",
+  Flow_Colour = "flow_colour",
+  Flow_Export = "flow_export_mode",
+  Flow_Export_Colour = "flow_export_colour",
+  Flow_Import = "flow_import_mode",
+  Flow_Import_Colour = "flow_import_colour",
+  Icon = "icon_mode",
+  Icon_Colour = "icon_colour",
+  Secondary = "secondary_mode",
+  Secondary_Colour = "secondary_colour",
+  Value = "value_mode",
+  Value_Colour = "value_colour",
+  Value_Export = "value_export_mode",
+  Value_Export_Colour = "value_export_colour",
+  Value_Import = "value_import_mode",
+  Value_Import_Colour = "value_import_colour"
 };
 
 export enum PowerOutageOptions {
@@ -111,8 +119,8 @@ export enum SecondaryInfoOptions {
 export enum DeviceOptions {
   Name = "device_name",
   Icon = "device_icon",
-  EnergyType = "energy_type",
-  EnergyDirection = "energy_direction"
+  Energy_Type = "energy_type",
+  Energy_Direction = "energy_direction"
 }
 
 export enum HomeOptions {
@@ -164,7 +172,7 @@ export interface EnergyUnitsConfig {
 
 export interface FlowsConfig {
   [FlowsOptions.Use_Hourly_Stats]?: boolean;
-  [FlowsOptions.Use_HASS_Colours]?: boolean;
+  [FlowsOptions.Use_HASS_Style]?: boolean;
   [FlowsOptions.Animation]?: DotsMode;
   [FlowsOptions.Inactive_Flows]?: InactiveFlowsMode;
   [FlowsOptions.Min_Rate]?: number;
@@ -198,7 +206,8 @@ export interface BatteryConfig extends DualValueNodeConfig {
 export interface HomeColourConfig {
   [ColourOptions.Circle]?: ColourMode;
   [ColourOptions.Icon]?: ColourMode;
-  [ColourOptions.Values]?: ColourMode;
+  [ColourOptions.Secondary]?: ColourMode;
+  [ColourOptions.Value]?: ColourMode;
 };
 
 export interface HomeConfig extends NodeConfig {
@@ -207,7 +216,7 @@ export interface HomeConfig extends NodeConfig {
 };
 
 export interface HomeOptionsConfig {
-  [HomeOptions.Gas_Sources]?: string;
+  [HomeOptions.Gas_Sources]?: GasSourcesMode;
   [HomeOptions.Gas_Sources_Threshold]?: number;
   [HomeOptions.Subtract_Consumers]?: boolean;
 };
@@ -215,11 +224,27 @@ export interface HomeOptionsConfig {
 export interface DeviceConfig {
   [DeviceOptions.Name]?: string;
   [DeviceOptions.Icon]?: string;
-  [DeviceOptions.EnergyType]?: string;
-  [DeviceOptions.EnergyDirection]?: string;
-  [EntitiesOptions.Entities]?: EntityConfig;
-  [EntitiesOptions.Colours]?: SingleValueColourConfig;
+  [DeviceOptions.Energy_Type]?: EnergyType;
+  [DeviceOptions.Energy_Direction]?: EnergyDirection;
+  [EntitiesOptions.Import_Entities]?: EntityConfig;
+  [EntitiesOptions.Export_Entities]?: EntityConfig;
+  [EntitiesOptions.Colours]?: DeviceColourConfig;
   [EntitiesOptions.Secondary_Info]?: SecondaryInfoConfig;
+};
+
+export interface DeviceColourConfig {
+  [ColourOptions.Circle]?: ColourMode;
+  [ColourOptions.Circle_Colour]?: number[];
+  [ColourOptions.Flow_Import_Colour]?: number[];
+  [ColourOptions.Flow_Export_Colour]?: number[];
+  [ColourOptions.Icon]?: ColourMode;
+  [ColourOptions.Icon_Colour]?: number[];
+  [ColourOptions.Secondary]?: ColourMode;
+  [ColourOptions.Secondary_Colour]?: number[];
+  [ColourOptions.Value_Import]?: ColourMode;
+  [ColourOptions.Value_Export_Colour]?: number[];
+  [ColourOptions.Value_Export]?: ColourMode;
+  [ColourOptions.Value_Import_Colour]?: number[];
 };
 
 export interface NodeConfig {
@@ -244,20 +269,31 @@ export interface DualValueNodeConfig extends NodeConfig {
 };
 
 export interface SingleValueColourConfig {
-  [ColourOptions.Flow]?: FlowColourMode;
-  [ColourOptions.Custom_Colour]?: number[];
-  [ColourOptions.Value]?: ColourMode;
+  [ColourOptions.Flow]?: ColourMode;
+  [ColourOptions.Flow_Colour]?: number[];
   [ColourOptions.Icon]?: ColourMode;
+  [ColourOptions.Icon_Colour]?: number[];
+  [ColourOptions.Secondary]?: ColourMode;
+  [ColourOptions.Secondary_Colour]?: number[];
+  [ColourOptions.Value]?: ColourMode;
+  [ColourOptions.Value_Colour]?: number[];
 };
 
 export interface DualValueColourConfig {
-  [ColourOptions.Import_Flow]?: FlowColourMode;
-  [ColourOptions.Export_Flow]?: FlowColourMode;
-  [ColourOptions.Import_Colour]?: number[];
-  [ColourOptions.Export_Colour]?: number[];
   [ColourOptions.Circle]?: ColourMode;
-  [ColourOptions.Values]?: ColourMode;
+  [ColourOptions.Circle_Colour]?: number[];
+  [ColourOptions.Flow_Import]?: ColourMode;
+  [ColourOptions.Flow_Import_Colour]?: number[];
+  [ColourOptions.Flow_Export]?: ColourMode;
+  [ColourOptions.Flow_Export_Colour]?: number[];
   [ColourOptions.Icon]?: ColourMode;
+  [ColourOptions.Icon_Colour]?: number[];
+  [ColourOptions.Secondary]?: ColourMode;
+  [ColourOptions.Secondary_Colour]?: number[];
+  [ColourOptions.Value_Import]?: ColourMode;
+  [ColourOptions.Value_Export_Colour]?: number[];
+  [ColourOptions.Value_Export]?: ColourMode;
+  [ColourOptions.Value_Import_Colour]?: number[];
 };
 
 export interface EntityConfig {
