@@ -46,8 +46,6 @@
     "animation": "Animation",
     "min_rate": "Min rate",
     "max_rate": "Max rate",
-    "min_energy": "Min energy",
-    "max_energy": "Max energy",
 
     "energy_units": "Energy Units",
     "wh_kwh_threshold": "Wh/kWh threshold",
@@ -158,11 +156,6 @@
     "normal": "Normal colors",
     "dimmed": "Dimmed colors",
     "greyed": "Greyed-out"
-  },
-  "DotsMode": {
-    "dynamic": "Dynamic",
-    "hass": "HASS",
-    "off": "Off"
   },
   "UnitPrefixes": {
     "unified": "Unified",

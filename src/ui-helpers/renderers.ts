@@ -2,7 +2,7 @@ import { html, TemplateResult, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { FlowLine, Segment, SegmentGroup } from ".";
 import { CIRCLE_CENTRE, DOT_RADIUS } from "@/const";
-import { CssClass, DotsMode, InactiveFlowsMode, Scale } from "@/enums";
+import { CssClass, InactiveFlowsMode, Scale } from "@/enums";
 import { EditorPages, EnergyFlowCardExtConfig, FlowsOptions, AppearanceOptions } from "@/config";
 
 const INTER_GROUP_ARC: number = 7.5;
@@ -12,7 +12,7 @@ const INTER_SEGMENT_ARC: number = INTER_GROUP_ARC / 3;
 
 export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine[]): TemplateResult => {
   const inactiveFlowsMode: InactiveFlowsMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal;
-  const animationEnabled: boolean = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Animation] !== DotsMode.Off;
+  const animationEnabled: boolean = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Animation] ?? true;
 
   return html`
     <svg class="lines" xmlns="http://www.w3.org/2000/svg">
@@ -41,7 +41,7 @@ export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine
           ${animationEnabled && isActive ?
           svg`
             <circle r="${DOT_RADIUS}" class="${line.cssDot}">
-              <animateMotion path="${line.path}" dur="${line.animDuration}s" repeatCount="indefinite" calcMode="linear"/>
+              <animateMotion path="${line.path}" dur="${line.animDuration}s" repeatCount="indefinite" calcMode="linear"></animateMotion>
             </circle>
           `
           : ""}

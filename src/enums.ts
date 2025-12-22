@@ -35,8 +35,6 @@ export enum DefaultValues {
   // Flows
   Min_Flow_Rate = 1,
   Max_Flow_Rate = 6,
-  Min_Flow_Energy = 10,
-  Max_Flow_Energy = 2000,
 
   Gas_Sources_Threshold = 33
 }
@@ -111,22 +109,6 @@ export namespace InactiveFlowsMode {
   }
 
   export function getItem(value: InactiveFlowsMode): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum DotsMode {
-  Off = "off",
-  HASS = "hass",
-  Dynamic = "dynamic"
-}
-
-export namespace DotsMode {
-  export function getName(value: DotsMode): string {
-    return getEditorLabel("DotsMode", value);
-  }
-
-  export function getItem(value: DotsMode): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
 }

@@ -13,15 +13,15 @@ import { SecondaryInfoState } from "@/states/secondary-info";
 import { States, Flows } from "@/states";
 import { EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, DefaultValues, UnitPosition, UnitPrefixes, CssClass, EnergyUnits, InactiveFlowsMode, GasSourcesMode } from "@/enums";
+import { ColourMode, DisplayMode, LowCarbonType, DefaultValues, UnitPosition, UnitPrefixes, CssClass, EnergyUnits, InactiveFlowsMode, GasSourcesMode, Scale } from "@/enums";
 import { HomeState } from "@/states/home";
 import { SingleValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_RADIUS, CIRCLE_SIZE, COL_SPACING, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_DIAMETER, FLOW_LINE_CURVED, FLOW_LINE_CURVED_CONTROL, FLOW_LINE_SPACING, ROW_SPACING } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, FlowsConfig, HomeOptions, HomeConfig } from "@/config";
+import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, HomeConfig } from "@/config";
 import { setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setSingleValueNodeStyles } from "@/ui-helpers/styles";
 import { renderFlowLines, renderSegmentedCircle } from "@/ui-helpers/renderers";
-import { AnimSpeeds, FlowLine, getGasSourcesMode, SegmentGroup } from "@/ui-helpers";
+import { AnimationDurations, FlowLine, getGasSourcesMode, PathScaleFactors, SegmentGroup } from "@/ui-helpers";
 import { LowCarbonState } from "@/states/low-carbon";
 import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight, mdiFlash, mdiFire } from "@mdi/js";
 
@@ -89,6 +89,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _gridToBatteryPath: string = "";
   private _gasToHomePath: string = "";
   private _lowCarbonToGridPath: string = "";
+  private _pathScaleFactors: PathScaleFactors = {
+    horizLine: 0,
+    vertLine: 0,
+    curvedLine: 0,
+    topRowLine: 0
+  };
 
   private _entityStates!: EntityStates;
   private _kiloToMegaThreshold!: Decimal;
@@ -103,8 +109,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _useHassColours: boolean = true;
   private _lowCarbonAsPercentage: boolean = true;
   private _inactiveFlowsCss: string = CssClass.Inactive;
-  private _gasSourcesMode: GasSourcesMode = GasSourcesMode.Do_Not_Show;
-  private _gasThreshold: number = DefaultValues.Gas_Sources_Threshold;
+  private _scale: Scale = Scale.Linear;
+  private _minFlowRate: number = DefaultValues.Min_Flow_Rate;
+  private _maxFlowRate: number = DefaultValues.Max_Flow_Rate;
 
   //================================================================================================================================================================================//
 
@@ -149,8 +156,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this._showSegmentGaps = this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Segment_Gaps] ?? false;
     this._useHassColours = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_HASS_Style] ?? true;
     this._lowCarbonAsPercentage = this._config?.[EditorPages.Low_Carbon]?.[GlobalOptions.Options]?.[EntitiesOptions.Low_Carbon_Mode] === LowCarbonType.Percentage;
-    this._gasSourcesMode = this._config?.[EditorPages.Home]?.[GlobalOptions.Options]?.[HomeOptions.Gas_Sources] ?? GasSourcesMode.Do_Not_Show;
-    this._gasThreshold = this._config?.[EditorPages.Home]?.[GlobalOptions.Options]?.[HomeOptions.Gas_Sources_Threshold] ?? DefaultValues.Gas_Sources_Threshold;
+    this._scale = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Scale] || Scale.Linear;
+    this._minFlowRate = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Min_Rate] || DefaultValues.Min_Flow_Rate;
+    this._maxFlowRate = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Max_Rate] || DefaultValues.Max_Flow_Rate;
 
     switch (this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal) {
       case InactiveFlowsMode.Dimmed:
@@ -208,14 +216,14 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const states: States = this._entityStates.getStates();
     const electricUnits: string | undefined = this._energyUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnits(new Decimal(states.largestElectricValue)) : undefined;
-    const animSpeeds: AnimSpeeds = this._calculateAnimationSpeeds(states);
+    const animationDurations: AnimationDurations = this._calculateAnimationDurations(states);
 
     return html`
       <ha-card .header=${this._config?.[GlobalOptions.Title]}>
         <div class="card-content" id=${CARD_NAME}>
 
         <!-- flow lines -->
-        ${this._renderFlowLines(states, animSpeeds)}
+        ${this._renderFlowLines(states, animationDurations)}
 
         <!-- top row -->
         <div class="row">
@@ -630,28 +638,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _calculateDotRate = (value: number, total: number): number => {
-    const flowsConfig: FlowsConfig | undefined = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows];
-
-    if (flowsConfig?.[FlowsOptions.Animation] === DotsMode.HASS) {
-      return DefaultValues.Max_Flow_Rate - (value / total) * (DefaultValues.Max_Flow_Rate - DefaultValues.Min_Flow_Rate);
-    }
-
-    const maxRate = flowsConfig?.[FlowsOptions.Max_Rate] || DefaultValues.Max_Flow_Rate;
-    const minRate = flowsConfig?.[FlowsOptions.Min_Rate] || DefaultValues.Min_Flow_Rate;
-
-    const maxEnergy: number = flowsConfig?.[FlowsOptions.Max_Energy] || DefaultValues.Max_Flow_Energy;
-    const minEnergy: number = flowsConfig?.[FlowsOptions.Min_Energy] || DefaultValues.Min_Flow_Energy;
-
-    if (value > maxEnergy) {
-      return minRate;
-    }
-
-    return ((value - minEnergy) * (minRate - maxRate)) / (maxEnergy - minEnergy) + maxRate;
-  };
-
-  //================================================================================================================================================================================//
-
   private _calculateEnergyUnits(value: Decimal): EnergyUnits {
     if (value.abs().dividedBy(1000).greaterThanOrEqualTo(this._kiloToMegaThreshold)) {
       return EnergyUnits.MegaWattHours;
@@ -858,7 +844,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderFlowLines = (states: States, animSpeeds: AnimSpeeds): TemplateResult => {
+  private _renderFlowLines = (states: States, animationDurations: AnimationDurations): TemplateResult => {
     const entityStates: EntityStates = this._entityStates;
     const grid: GridState = entityStates.grid;
     const battery: BatteryState = entityStates.battery;
@@ -872,7 +858,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Solar,
         path: this._solarToHomePath,
         active: flows.solarToHome > 0,
-        animDuration: animSpeeds.solarToHome
+        animDuration: animationDurations.solarToHome
       });
     }
 
@@ -882,7 +868,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Grid_Export,
         path: this._solarToGridPath,
         active: flows.solarToGrid > 0,
-        animDuration: animSpeeds.solarToGrid
+        animDuration: animationDurations.solarToGrid
       });
     }
 
@@ -892,7 +878,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Battery_Export,
         path: this._solarToBatteryPath,
         active: flows.solarToBattery > 0,
-        animDuration: animSpeeds.solarToBattery
+        animDuration: animationDurations.solarToBattery
       });
     }
 
@@ -902,7 +888,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Grid_Import,
         path: this._gridToHomePath,
         active: flows.gridToHome > 0,
-        animDuration: animSpeeds.gridToHome
+        animDuration: animationDurations.gridToHome
       });
     }
 
@@ -912,7 +898,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Battery_Import,
         path: this._batteryToHomePath,
         active: flows.batteryToHome > 0,
-        animDuration: animSpeeds.batteryToHome
+        animDuration: animationDurations.batteryToHome
       });
     }
 
@@ -948,7 +934,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           cssDot: cssGridToBatteryDot,
           path: this._gridToBatteryPath,
           active: gridToBatteryActive,
-          animDuration: animSpeeds.gridToBattery
+          animDuration: animationDurations.gridToBattery
         });
       }
 
@@ -958,7 +944,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           cssDot: CssClass.Grid_Export,
           path: this._batteryToGridPath,
           active: batteryToGridActive,
-          animDuration: animSpeeds.batteryToGrid
+          animDuration: animationDurations.batteryToGrid
         });
       }
     }
@@ -969,7 +955,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Low_Carbon,
         path: this._lowCarbonToGridPath,
         active: states.lowCarbon > 0,
-        animDuration: animSpeeds.lowCarbon
+        animDuration: animationDurations.lowCarbon
       });
     }
 
@@ -979,7 +965,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Gas,
         path: this._gasToHomePath,
         active: states.gasImport > 0,
-        animDuration: animSpeeds.gas
+        animDuration: animationDurations.gas
       });
     }
 
@@ -1008,7 +994,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           textLineHeight = parseFloat(getComputedStyle(label).getPropertyValue("line-height").replace("px", ""));
         }
 
-
         const battery: boolean = !!this._entityStates.battery.firstExportEntity;
         const grid: boolean = !!this._entityStates.grid.firstImportEntity;
         const solar: boolean = this._entityStates.solar.isPresent;
@@ -1021,10 +1006,26 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         const row2Y: number = (isTopRowPresent ? CIRCLE_SIZE + textLineHeight + ROW_SPACING : 0) + CIRCLE_SIZE / 2;
         const row3Y: number = (isTopRowPresent ? CIRCLE_SIZE + textLineHeight + ROW_SPACING : 0) + CIRCLE_SIZE + ROW_SPACING + DOT_DIAMETER;
 
-        this._solarToBatteryPath = `M${col2X},${row1Y} V${row3Y}`;
-        this._gridToHomePath = `M${col1X},${row2Y} H${col3X}`;
-        this._lowCarbonToGridPath = `M${CIRCLE_SIZE / 2},${row1Y} V${row2Y - CIRCLE_SIZE / 2 + DOT_DIAMETER}`;
-        this._gasToHomePath = `M${CIRCLE_SIZE + colSpacing + CIRCLE_SIZE + colSpacing + CIRCLE_SIZE / 2},${row1Y} V${row2Y - CIRCLE_SIZE / 2 + DOT_DIAMETER}`;
+        const topRowLineLength: number = Math.round((row2Y - CIRCLE_SIZE / 2 + DOT_DIAMETER) - row1Y);
+        const horizLineLength: number = Math.round(col3X - col1X);
+        const vertLineLength: number = Math.round(row3Y - row1Y);
+        const curvedLineLength: number = row2Y - FLOW_LINE_CURVED - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0) - row1Y
+          + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: FLOW_LINE_CURVED }, { x: FLOW_LINE_CURVED_CONTROL, y: FLOW_LINE_CURVED }, { x: FLOW_LINE_CURVED, y: FLOW_LINE_CURVED })
+          + col3X - FLOW_LINE_CURVED - (col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0));
+
+        const maxLineLength: number = Math.max(topRowLineLength, horizLineLength, vertLineLength, curvedLineLength);
+
+        this._pathScaleFactors = {
+          horizLine: horizLineLength / maxLineLength,
+          vertLine: vertLineLength / maxLineLength,
+          curvedLine: curvedLineLength / maxLineLength,
+          topRowLine: topRowLineLength / maxLineLength
+        };
+
+        this._solarToBatteryPath = `M${col2X},${row1Y} v${vertLineLength}`;
+        this._gridToHomePath = `M${col1X},${row2Y} h${horizLineLength}`;
+        this._lowCarbonToGridPath = `M${CIRCLE_SIZE / 2},${row1Y} v${topRowLineLength}`;
+        this._gasToHomePath = `M${CIRCLE_SIZE + colSpacing + CIRCLE_SIZE + colSpacing + CIRCLE_SIZE / 2},${row1Y} v${topRowLineLength}`;
 
         this._solarToHomePath = `M${col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0)},${row1Y}
                                V${row2Y - FLOW_LINE_CURVED - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0)}
@@ -1063,25 +1064,83 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _calculateAnimationSpeeds = (states: States): AnimSpeeds => {
+  private _calculateAnimationDurations = (states: States): AnimationDurations => {
+    const gasSourceMode: GasSourcesMode = getGasSourcesMode(this._config?.[EditorPages.Home]!, states);
     const flows: Flows = states.flows;
-
-    // TODO: devices
-    const totalFlows = flows.solarToHome + flows.solarToGrid + flows.solarToBattery + flows.gridToHome + flows.gridToBattery + flows.batteryToHome + flows.batteryToGrid + states.lowCarbon + states.gasImport;
+    const totalFlows: number = states.homeElectric
+      + flows.batteryToGrid
+      + flows.gridToBattery
+      + flows.solarToBattery
+      + flows.solarToGrid
+      + (gasSourceMode !== GasSourcesMode.Do_Not_Show ? states.homeGas : 0);
 
     return {
-      batteryToGrid: this._calculateDotRate(flows.batteryToGrid ?? 0, totalFlows),
-      batteryToHome: this._calculateDotRate(flows.batteryToHome ?? 0, totalFlows),
-      gridToHome: this._calculateDotRate(flows.gridToHome, totalFlows),
-      gridToBattery: this._calculateDotRate(flows.gridToBattery ?? 0, totalFlows),
-      solarToBattery: this._calculateDotRate(flows.solarToBattery ?? 0, totalFlows),
-      solarToGrid: this._calculateDotRate(flows.solarToGrid ?? 0, totalFlows),
-      solarToHome: this._calculateDotRate(flows.solarToHome ?? 0, totalFlows),
-      lowCarbon: this._calculateDotRate(states.lowCarbon ?? 0, totalFlows),
-      gas: this._calculateDotRate(states.gasImport ?? 0, totalFlows)
+      batteryToGrid: this._calculateDotRate(flows.batteryToGrid ?? 0, totalFlows, this._pathScaleFactors.curvedLine),
+      batteryToHome: this._calculateDotRate(flows.batteryToHome ?? 0, totalFlows, this._pathScaleFactors.curvedLine),
+      gridToBattery: this._calculateDotRate(flows.gridToBattery ?? 0, totalFlows, this._pathScaleFactors.curvedLine),
+      gridToHome: this._calculateDotRate(flows.gridToHome, totalFlows, this._pathScaleFactors.horizLine),
+      solarToBattery: this._calculateDotRate(flows.solarToBattery ?? 0, totalFlows, this._pathScaleFactors.vertLine),
+      solarToGrid: this._calculateDotRate(flows.solarToGrid ?? 0, totalFlows, this._pathScaleFactors.curvedLine),
+      solarToHome: this._calculateDotRate(flows.solarToHome ?? 0, totalFlows, this._pathScaleFactors.curvedLine),
+      lowCarbon: this._calculateDotRate(states.lowCarbon ?? 0, totalFlows, this._pathScaleFactors.topRowLine),
+      gas: this._calculateDotRate(states.gasImport ?? 0, totalFlows + (gasSourceMode === GasSourcesMode.Do_Not_Show ? states.homeGas : 0), this._pathScaleFactors.topRowLine)
 
       // TODO devices
     };
   }
 
+  //================================================================================================================================================================================//
+
+  private _calculateDotRate = (value: number, total: number, scale: number): number => {
+    if (this._scale === Scale.Logarithmic) {
+      value = Math.log(value);
+      total = Math.log(total);
+    }
+
+    return this._minFlowRate + (1 - (value / total)) * (this._maxFlowRate - this._minFlowRate) * scale;
+  };
+
+  //================================================================================================================================================================================//
+
+  // Source - https://stackoverflow.com/a
+  // Posted by herrstrietzel, modified by community. See post 'Timeline' for change history
+  // Retrieved 2025-12-22, License - CC BY-SA 4.0
+
+  /**
+   * Based on snap.svg bezlen() function
+   * https://github.com/adobe-webplatform/Snap.svg/blob/master/dist/snap.svg.js#L5786
+   */
+  private _cubicBezierLength(p0: { x: number, y: number }, cp1: { x: number, y: number }, cp2: { x: number, y: number }, p1: { x: number, y: number }, t: number = 1): number {
+    if (t === 0) {
+      return 0;
+    }
+
+    const base3 = (t, p1, p2, p3, p4): number => {
+      let t1: number = -3 * p1 + 9 * p2 - 9 * p3 + 3 * p4,
+        t2 = t * t1 + 6 * p1 - 12 * p2 + 6 * p3;
+
+      return t * t2 - 3 * p1 + 3 * p2;
+    };
+
+    t = t > 1 ? 1 : t < 0 ? 0 : t;
+
+    let t2: number = t / 2;
+    let Tvalues: number[] = [-.1252, .1252, -.3678, .3678, -.5873, .5873, -.7699, .7699, -.9041, .9041, -.9816, .9816];
+    let Cvalues: number[] = [0.2491, 0.2491, 0.2335, 0.2335, 0.2032, 0.2032, 0.1601, 0.1601, 0.1069, 0.1069, 0.0472, 0.0472];
+
+    let n = Tvalues.length;
+    let sum: number = 0;
+
+    for (let i = 0; i < n; i++) {
+      let ct = t2 * Tvalues[i] + t2,
+        xbase = base3(ct, p0.x, cp1.x, cp2.x, p1.x),
+        ybase = base3(ct, p0.y, cp1.y, cp2.y, p1.y),
+        comb = xbase * xbase + ybase * ybase;
+      sum += Cvalues[i] * Math.sqrt(comb);
+    }
+
+    return t2 * sum;
+  }
+
+  //================================================================================================================================================================================//
 }

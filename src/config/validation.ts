@@ -31,13 +31,11 @@ const energyUnitsOptionsConfigStruct = object({
 const flowsOptionsConfigStruct = object({
   [FlowsOptions.Use_Hourly_Stats]: optional(boolean()),
   [FlowsOptions.Use_HASS_Style]: optional(boolean()),
-  [FlowsOptions.Animation]: optional(string()),
+  [FlowsOptions.Animation]: optional(boolean()),
   [FlowsOptions.Inactive_Flows]: optional(string()),
   [FlowsOptions.Scale]: optional(string()),
   [FlowsOptions.Min_Rate]: optional(number()),
-  [FlowsOptions.Max_Rate]: optional(number()),
-  [FlowsOptions.Min_Energy]: optional(number()),
-  [FlowsOptions.Max_Energy]: optional(number())
+  [FlowsOptions.Max_Rate]: optional(number())
 });
 
 const appearanceConfigStruct = object({

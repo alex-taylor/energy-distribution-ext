@@ -99,7 +99,7 @@ export class EntityStates {
     this._addStateDeltas(states);
 
     // TODO: electric-producing devices need adding here
-    states.homeElectric = states.batteryImport + states.gridImport + states.solarImport - states.batteryExport - states.gridExport;
+    states.homeElectric = states.flows.gridToHome + states.flows.batteryToHome + states.flows.solarToHome;
     states.lowCarbon = states.gridImport - states.highCarbon;
     states.lowCarbonPercentage = (states.lowCarbon / states.gridImport) * 100 || 0;
 

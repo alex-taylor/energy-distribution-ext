@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig, SingleValueColourConfig, DualValueColourConfig } from '@/config';
-import { ColourMode, DisplayMode, DotsMode, InactiveFlowsMode, Scale, UnitPosition, UnitPrefixes } from '@/enums';
+import { ColourMode, DisplayMode, InactiveFlowsMode, Scale, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 //================================================================================================================================================================================//
@@ -158,14 +158,6 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
       type: 'grid',
       schema: [
         {
-          name: FlowsOptions.Use_Hourly_Stats,
-          selector: { boolean: {} }
-        },
-        {
-          name: FlowsOptions.Use_HASS_Style,
-          selector: { boolean: {} }
-        },
-        {
           name: FlowsOptions.Inactive_Flows,
           required: true,
           selector: {
@@ -193,18 +185,16 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
           }
         },
         {
+          name: FlowsOptions.Use_Hourly_Stats,
+          selector: { boolean: {} }
+        },
+        {
+          name: FlowsOptions.Use_HASS_Style,
+          selector: { boolean: {} }
+        },
+        {
           name: FlowsOptions.Animation,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                DotsMode.getItem(DotsMode.Dynamic),
-                DotsMode.getItem(DotsMode.HASS),
-                DotsMode.getItem(DotsMode.Off)
-              ]
-            }
-          }
+          selector: { boolean: {} }
         }
       ]
     },
@@ -215,7 +205,7 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
 //================================================================================================================================================================================//
 
 function dynamicFlowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: FlowsConfig | undefined): {} {
-  if (schemaConfig?.[FlowsOptions.Animation] !== DotsMode.Dynamic) {
+  if (!(schemaConfig?.[FlowsOptions.Animation] ?? true)) {
     return {};
   }
 
@@ -225,22 +215,12 @@ function dynamicFlowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, 
       {
         name: FlowsOptions.Min_Rate,
         required: true,
-        selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } }
+        selector: { number: { mode: 'box', min: 0, max: 10, step: 0.1 } }
       },
       {
         name: FlowsOptions.Max_Rate,
         required: true,
-        selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } }
-      },
-      {
-        name: FlowsOptions.Min_Energy,
-        required: true,
-        selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } }
-      },
-      {
-        name: FlowsOptions.Max_Energy,
-        required: true,
-        selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } }
+        selector: { number: { mode: 'box', min: 0, max: 10, step: 0.1 } }
       }
     ]
   };

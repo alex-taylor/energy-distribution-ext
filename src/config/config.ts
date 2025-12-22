@@ -1,4 +1,4 @@
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, Scale } from "@/enums";
+import { ColourMode, DisplayMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, Scale } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
 import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
@@ -137,13 +137,12 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
     [AppearanceOptions.Flows]: {
       [FlowsOptions.Use_Hourly_Stats]: false,
       [FlowsOptions.Use_HASS_Style]: true,
-      [FlowsOptions.Animation]: DotsMode.HASS,
+      [FlowsOptions.Animation]: true,
       [FlowsOptions.Inactive_Flows]: InactiveFlowsMode.Normal,
       [FlowsOptions.Scale]: Scale.Linear,
       [FlowsOptions.Min_Rate]: DefaultValues.Min_Flow_Rate,
-      [FlowsOptions.Max_Rate]: DefaultValues.Max_Flow_Rate,
-      [FlowsOptions.Min_Energy]: DefaultValues.Min_Flow_Energy,
-      [FlowsOptions.Max_Energy]: DefaultValues.Max_Flow_Energy
+      [FlowsOptions.Max_Rate]: DefaultValues.Max_Flow_Rate
+
     }
   };
 }

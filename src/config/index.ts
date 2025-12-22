@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DisplayMode, DotsMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale } from '@/enums';
+import { ColourMode, DisplayMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 declare global {
@@ -56,9 +56,7 @@ export enum FlowsOptions {
   Inactive_Flows = "inactive_flows",
   Scale = "scale",
   Min_Rate = "min_rate",
-  Max_Rate = "max_rate",
-  Min_Energy = "min_energy",
-  Max_Energy = "max_energy"
+  Max_Rate = "max_rate"
 };
 
 export enum EntitiesOptions {
@@ -174,13 +172,12 @@ export interface EnergyUnitsConfig {
 export interface FlowsConfig {
   [FlowsOptions.Use_Hourly_Stats]?: boolean;
   [FlowsOptions.Use_HASS_Style]?: boolean;
-  [FlowsOptions.Animation]?: DotsMode;
+  [FlowsOptions.Animation]?: boolean;
   [FlowsOptions.Inactive_Flows]?: InactiveFlowsMode;
   [FlowsOptions.Scale]?: Scale;
   [FlowsOptions.Min_Rate]?: number;
   [FlowsOptions.Max_Rate]?: number;
-  [FlowsOptions.Min_Energy]?: number;
-  [FlowsOptions.Max_Energy]?: number;
+
 };
 
 export interface GridConfig extends DualValueNodeConfig {

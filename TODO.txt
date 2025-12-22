@@ -16,11 +16,6 @@ Code:
   - move the language files to Typescript so enum values can be used for the keys
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
 
-Animation:
-  - work out a new 'dynamic' algo (and rename this to 'Linear')
-    - this may not be required if log-scaling works out, in which case the option reduces to 'on/off' - no 'HASS' option required, and the other settings can be dropped
-  - if it's not possible to specify the speed directly, calculate the length of each line and use that to work out the duration
-
 Interaction:
   - clicking on the low-carbon circle should do the same as the HASS card
 

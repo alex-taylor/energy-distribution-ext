@@ -1,6 +1,6 @@
-import { GlobalOptions, HomeConfig, HomeOptions } from "../config";
-import { DefaultValues, GasSourcesMode } from "../enums";
-import { States } from "../states";
+import { GlobalOptions, HomeConfig, HomeOptions } from "@/config";
+import { DefaultValues, GasSourcesMode } from "@/enums";
+import { States } from "@/states";
 
 export interface Segment {
   state: number;
@@ -20,7 +20,7 @@ export interface FlowLine {
   animDuration: number;
 }
 
-export interface AnimSpeeds {
+export interface AnimationDurations {
   batteryToGrid: number;
   batteryToHome: number;
   gridToHome: number;
@@ -30,6 +30,15 @@ export interface AnimSpeeds {
   solarToHome: number;
   lowCarbon: number;
   gas: number;
+
+  // TODO: devices
+}
+
+export interface PathScaleFactors {
+  horizLine: number;
+  vertLine: number;
+  curvedLine: number;
+  topRowLine: number;
 
   // TODO: devices
 }
