@@ -1,7 +1,7 @@
 import { html, TemplateResult, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { FlowLine, Segment, SegmentGroup } from ".";
-import { CIRCLE_CENTRE, DOT_RADIUS } from "@/const";
+import { CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS } from "@/const";
 import { CssClass, InactiveFlowsMode, Scale } from "@/enums";
 import { EditorPages, EnergyFlowCardExtConfig, FlowsOptions, AppearanceOptions } from "@/config";
 
@@ -54,10 +54,12 @@ export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine
 
 //================================================================================================================================================================================//
 
-export function renderSegmentedCircle(config: EnergyFlowCardExtConfig, segmentGroups: SegmentGroup[], radius: number, startingAngle: number, interSegmentGaps: boolean): TemplateResult {
+export function renderSegmentedCircle(config: EnergyFlowCardExtConfig, segmentGroups: SegmentGroup[], size: number, startingAngle: number, interSegmentGaps: boolean): TemplateResult {
   const inactiveFlowsMode: InactiveFlowsMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal;
   const scale: Scale = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Scale] || Scale.Linear;
 
+  const centre: number = size / 2;
+  const radius: number = (size - CIRCLE_STROKE_WIDTH_SEGMENTS) / 2;
   const circumference: number = 2 * radius * Math.PI;
 
   const interGroupArc: number = segmentGroups.length > 1 ? INTER_GROUP_ARC : 0;
@@ -106,8 +108,8 @@ export function renderSegmentedCircle(config: EnergyFlowCardExtConfig, segmentGr
         return svg`
           <circle
             class="${cssFlow}"
-            cx = "${CIRCLE_CENTRE}"
-            cy = "${CIRCLE_CENTRE}"
+            cx = "${centre}"
+            cy = "${centre}"
             r = "${radius}"
             stroke-dasharray="${groupLength} ${circumference - groupLength}"
             stroke-dashoffset="${(groupIdx + 1) * (groupLength + interGroupLength) - circumference + startingOffset}"
@@ -141,8 +143,8 @@ export function renderSegmentedCircle(config: EnergyFlowCardExtConfig, segmentGr
           return svg`
           <circle
             class="${segment.cssClass}"
-            cx = "${CIRCLE_CENTRE}"
-            cy = "${CIRCLE_CENTRE}"
+            cx = "${centre}"
+            cy = "${centre}"
             r = "${radius}"
             stroke-dasharray="${length} ${circumference - length}"
             stroke-dashoffset="${offset - circumference}"

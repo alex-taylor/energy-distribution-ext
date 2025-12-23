@@ -15,14 +15,26 @@ Code:
   - unit-testing
   - move the language files to Typescript so enum values can be used for the keys
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
+  - support GWh and TWh thresholds and calculations
+  - support cal and J as well as Wh, for compatibility with HASS?
+    - if not, then make sure the entities are in Wh!
+    - gas also supports volumes, although who knows how you're supposed to convert that to Wh!
+      - we'd need the conversion factor to be supplied by the user
 
 Interaction:
   - clicking on the low-carbon circle should do the same as the HASS card
 
 Display:
   - bigger circles!
-    - possibly dynamic if something can be figured out?
-    - need a Layout class to hold the calculated sizes
+      - take 60% of font-height as the average char-width
+      - calculate the approximate width of the spans, including the icon for dual-value nodes
+        - how to work out the number of chars?  It's not just about the current value, since trailing zeroes can be dropped at render-time
+          - but the number of decimals before the point is not predictable...
+          - so in principle we actually need to resize on-the-fly rather than just when the config changes
+      - find the height of the spans+icon
+      - find the largest of the height and spans (secondary, import, export) and ceil()
+      - size the circle to hold a square of that size (ie, set _circleSize to the diagonal of the square plus CIRCLE_STROKE_WIDTH_SEGMENTS * 2)
+      - if HASS styles are enabled, skip all the above!
   - if data is still loading when we render, go ahead and render the circles/lines anyway, just put 'loading' for the values (or an overlay in the centre of the card?)
   - Flows:
     - in non-HASS mode, see if the grid->home flow can be made to alternate between high and low carbon colours on successive runs

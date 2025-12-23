@@ -36,7 +36,9 @@ export enum DefaultValues {
   Min_Flow_Rate = 1,
   Max_Flow_Rate = 6,
 
-  Gas_Sources_Threshold = 33
+  Gas_Sources_Threshold = 33,
+
+  Circle_Size = 80
 }
 
 export enum DisplayMode {

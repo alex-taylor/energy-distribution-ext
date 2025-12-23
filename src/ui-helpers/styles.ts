@@ -1,5 +1,4 @@
-import { ColourOptions, DualValueNodeConfig, EntitiesOptions, GlobalOptions, HomeConfig, HomeOptions, SingleValueNodeConfig } from "@/config";
-import { STYLE_ENERGY_BATTERY_EXPORT_COLOR, STYLE_ENERGY_BATTERY_IMPORT_COLOR, STYLE_ENERGY_GRID_EXPORT_COLOR, STYLE_ENERGY_GRID_IMPORT_COLOR, STYLE_PRIMARY_TEXT_COLOR } from "@/const";
+import { ColourOptions, DualValueNodeConfig, EntitiesOptions, HomeConfig, SingleValueNodeConfig } from "@/config";
 import { ColourMode, CssClass, GasSourcesMode } from "@/enums";
 import { Flows, States } from "@/states";
 import { getGasSourcesMode } from ".";
@@ -13,6 +12,12 @@ const COLOUR_MAPPINGS: Map<ColourMode, CssClass> = new Map(
     [ColourMode.Gas, CssClass.Gas]
   ]
 );
+
+const STYLE_PRIMARY_TEXT_COLOR: string = "var(--primary-text-color)";
+const STYLE_ENERGY_BATTERY_IMPORT_COLOR: string = "var(--energy-battery-out-color)";
+const STYLE_ENERGY_BATTERY_EXPORT_COLOR: string = "var(--energy-battery-in-color)";
+const STYLE_ENERGY_GRID_IMPORT_COLOR: string = "var(--energy-grid-consumption-color)";
+const STYLE_ENERGY_GRID_EXPORT_COLOR: string = "var(--energy-grid-return-color)";
 
 const HOME_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Circle, ColourOptions.Icon, ColourOptions.Value, ColourOptions.Secondary];
 const SINGLE_NODE_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Icon, ColourOptions.Value, ColourOptions.Secondary];

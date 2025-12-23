@@ -17,7 +17,7 @@ import { ColourMode, DisplayMode, LowCarbonType, DefaultValues, UnitPosition, Un
 import { HomeState } from "@/states/home";
 import { SingleValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
-import { CARD_NAME, CIRCLE_RADIUS, CIRCLE_SIZE, COL_SPACING, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_DIAMETER, FLOW_LINE_CURVED, FLOW_LINE_CURVED_CONTROL, FLOW_LINE_SPACING, ROW_SPACING } from "@/const";
+import { CARD_NAME, COL_SPACING_MIN, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_DIAMETER } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, HomeConfig } from "@/config";
 import { setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setSingleValueNodeStyles } from "@/ui-helpers/styles";
 import { renderFlowLines, renderSegmentedCircle } from "@/ui-helpers/renderers";
@@ -50,6 +50,8 @@ registerCustomCard({
   name: "Energy Flow Card Extended",
   description: "A custom card for displaying energy flow in Home Assistant. Inspired by the official Energy Distribution Card and Energy Flow Card Plus.",
 });
+
+const FLOW_LINE_SPACING: number = DOT_DIAMETER + 5;
 
 const NODE_SPACER: TemplateResult = html`<div class="node-spacer"></div>`;
 const HORIZ_SPACER: TemplateResult = html`<div class="horiz-spacer"></div>`;
@@ -112,6 +114,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _scale: Scale = Scale.Linear;
   private _minFlowRate: number = DefaultValues.Min_Flow_Rate;
   private _maxFlowRate: number = DefaultValues.Max_Flow_Rate;
+  private _circleSize: number = DefaultValues.Circle_Size;
+  private _rowSpacing: number = 0;
+  private _colSpacing: number = 0;
+  private _flowLineCurved: number = 0;
+  private _flowLineCurvedControl: number = 0;
 
   //================================================================================================================================================================================//
 
@@ -191,6 +198,15 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     this.style.setProperty("--clickable-cursor", this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Clickable_Entities] ? "pointer" : "default");
     this.style.setProperty("--inactive-path-color", this._useHassColours && this._inactiveFlowsCss !== CssClass.Inactive ? "var(--primary-text-color)" : "var(--disabled-text-color)");
+
+    this._rowSpacing = Math.round(this._circleSize * 3 / 8);
+    this._colSpacing = Math.round(this._circleSize * 5 / 8);
+    this._flowLineCurved = this._circleSize / 2 + this._rowSpacing - FLOW_LINE_SPACING;
+    this._flowLineCurvedControl = Math.round(this._flowLineCurved / 3);
+
+    this.style.setProperty("--circle-size", this._circleSize + "px");
+    this.style.setProperty("--row-spacing", this._rowSpacing + "px");
+    this.style.setProperty("--col-spacing", this._colSpacing + "px");
   }
 
   //================================================================================================================================================================================//
@@ -218,8 +234,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const electricUnits: string | undefined = this._energyUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnits(new Decimal(states.largestElectricValue)) : undefined;
     const animationDurations: AnimationDurations = this._calculateAnimationDurations(states);
 
+    // TODO: move the style on ha-card to the css
     return html`
-      <ha-card .header=${this._config?.[GlobalOptions.Title]}>
+      <ha-card .header=${this._config?.[GlobalOptions.Title]} style="min-width: calc(${this._circleSize * 3 + COL_SPACING_MIN * 2}px + 2 * var(--ha-card-border-width, 1px) + 2 * var(--ha-space-4));">
         <div class="card-content" id=${CARD_NAME}>
 
         <!-- flow lines -->
@@ -424,7 +441,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       <div class="node bottom-row ${CssClass.Battery}">
         <div class="circle background">
           <div class="circle ${borderCss} ${inactiveCss}" @click=${this._handleClick(mainEntityId)} @keyDown=${this._handleKeyDown(mainEntityId)}>
-            ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, CIRCLE_RADIUS, 180, this._showSegmentGaps) : ""}
+            ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, this._circleSize, 180, this._showSegmentGaps) : ""}
             ${this._renderSecondarySpan(state.secondary, states.batterySecondary, CssClass.Battery + " " + inactiveCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
             ${this._renderEnergyStateSpan(CssClass.Battery_Export + " " + inactiveCssExport, state.firstExportEntity, mdiArrowDown, state.firstExportEntity ? states.batteryExport : undefined, energyUnits)}
@@ -508,7 +525,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       <div class="node ${CssClass.Grid}">
         <div class="circle background">
           <div class="circle ${borderCss} ${inactiveCss}" @click=${this._handleClick(mainEntityId)} @keyDown=${this._handleKeyDown(mainEntityId)}>
-            ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, CIRCLE_RADIUS, 270, this._showSegmentGaps) : ""}
+            ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, this._circleSize, 270, this._showSegmentGaps) : ""}
             ${this._renderSecondarySpan(this._entityStates.grid.secondary, states.gridSecondary, CssClass.Grid + " " + inactiveCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
             ${this._renderEnergyStateSpan(CssClass.Grid_Export + " " + inactiveCssExport, state.firstExportEntity, mdiArrowLeft, state.firstExportEntity ? states.gridExport : undefined, energyUnits)}
@@ -609,7 +626,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       <div class="node ${CssClass.Home}">
         <div class="circle background">
           <div class="circle ${borderCss} ${inactiveCss}">
-            ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, CIRCLE_RADIUS, 0, this._showSegmentGaps) : ""}
+            ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, this._circleSize, 0, this._showSegmentGaps) : ""}
             ${this._renderSecondarySpan(state.secondary, states.homeSecondary, valueSecondaryCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
             ${this._renderEnergyStateSpan(valueElectricCss, undefined, electricIcon, electricTotal, energyUnits)}
@@ -985,7 +1002,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       if (width > 0) {
         const isTopRowPresent: boolean = (this._entityStates.lowCarbon.isPresent && this._entityStates.grid.isPresent) || this._entityStates.solar.isPresent || this._entityStates.gas.isPresent;
         const numColumns: number = this._getNumColumns();
-        const colSpacing: number = Math.max(COL_SPACING, (width - numColumns * CIRCLE_SIZE) / (numColumns - 1));
+        const colSpacing: number = Math.max(COL_SPACING_MIN, (width - numColumns * this._circleSize) / (numColumns - 1));
         let textLineHeight: number = 0;
 
         const label = this?.shadowRoot?.querySelector(".label");
@@ -998,20 +1015,20 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         const grid: boolean = !!this._entityStates.grid.firstImportEntity;
         const solar: boolean = this._entityStates.solar.isPresent;
 
-        const col1X: number = CIRCLE_SIZE - DOT_DIAMETER;
-        const col2X: number = CIRCLE_SIZE + colSpacing + CIRCLE_SIZE / 2;
-        const col3X: number = CIRCLE_SIZE + colSpacing + CIRCLE_SIZE + colSpacing + DOT_DIAMETER;
+        const col1X: number = this._circleSize - DOT_DIAMETER;
+        const col2X: number = this._circleSize + colSpacing + this._circleSize / 2;
+        const col3X: number = this._circleSize + colSpacing + this._circleSize + colSpacing + DOT_DIAMETER;
 
-        const row1Y: number = CIRCLE_SIZE + textLineHeight - DOT_DIAMETER;
-        const row2Y: number = (isTopRowPresent ? CIRCLE_SIZE + textLineHeight + ROW_SPACING : 0) + CIRCLE_SIZE / 2;
-        const row3Y: number = (isTopRowPresent ? CIRCLE_SIZE + textLineHeight + ROW_SPACING : 0) + CIRCLE_SIZE + ROW_SPACING + DOT_DIAMETER;
+        const row1Y: number = this._circleSize + textLineHeight - DOT_DIAMETER;
+        const row2Y: number = (isTopRowPresent ? this._circleSize + textLineHeight + this._rowSpacing : 0) + this._circleSize / 2;
+        const row3Y: number = (isTopRowPresent ? this._circleSize + textLineHeight + this._rowSpacing : 0) + this._circleSize + this._rowSpacing + DOT_DIAMETER;
 
-        const topRowLineLength: number = Math.round((row2Y - CIRCLE_SIZE / 2 + DOT_DIAMETER) - row1Y);
+        const topRowLineLength: number = Math.round((row2Y - this._circleSize / 2 + DOT_DIAMETER) - row1Y);
         const horizLineLength: number = Math.round(col3X - col1X);
         const vertLineLength: number = Math.round(row3Y - row1Y);
-        const curvedLineLength: number = row2Y - FLOW_LINE_CURVED - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0) - row1Y
-          + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: FLOW_LINE_CURVED }, { x: FLOW_LINE_CURVED_CONTROL, y: FLOW_LINE_CURVED }, { x: FLOW_LINE_CURVED, y: FLOW_LINE_CURVED })
-          + col3X - FLOW_LINE_CURVED - (col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0));
+        const curvedLineLength: number = row2Y - this._flowLineCurved - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0) - row1Y
+          + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: this._flowLineCurved }, { x: this._flowLineCurvedControl, y: this._flowLineCurved }, { x: this._flowLineCurved, y: this._flowLineCurved })
+          + col3X - this._flowLineCurved - (col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0));
 
         const maxLineLength: number = Math.max(topRowLineLength, horizLineLength, vertLineLength, curvedLineLength);
 
@@ -1024,32 +1041,32 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
         this._solarToBatteryPath = `M${col2X},${row1Y} v${vertLineLength}`;
         this._gridToHomePath = `M${col1X},${row2Y} h${horizLineLength}`;
-        this._lowCarbonToGridPath = `M${CIRCLE_SIZE / 2},${row1Y} v${topRowLineLength}`;
-        this._gasToHomePath = `M${CIRCLE_SIZE + colSpacing + CIRCLE_SIZE + colSpacing + CIRCLE_SIZE / 2},${row1Y} v${topRowLineLength}`;
+        this._lowCarbonToGridPath = `M${this._circleSize / 2},${row1Y} v${topRowLineLength}`;
+        this._gasToHomePath = `M${this._circleSize + colSpacing + this._circleSize + colSpacing + this._circleSize / 2},${row1Y} v${topRowLineLength}`;
 
         this._solarToHomePath = `M${col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0)},${row1Y}
-                               V${row2Y - FLOW_LINE_CURVED - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0)}
-                               c0,${FLOW_LINE_CURVED} ${FLOW_LINE_CURVED_CONTROL},${FLOW_LINE_CURVED} ${FLOW_LINE_CURVED},${FLOW_LINE_CURVED}
+                               V${row2Y - this._flowLineCurved - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0)}
+                               c0,${this._flowLineCurved} ${this._flowLineCurvedControl},${this._flowLineCurved} ${this._flowLineCurved},${this._flowLineCurved}
                                H${col3X}`;
 
         this._solarToGridPath = `M${col2X - FLOW_LINE_SPACING * (battery ? 1 : 0.5)},${row1Y}
-                               V${row2Y - FLOW_LINE_CURVED - FLOW_LINE_SPACING}
-                               c0,${FLOW_LINE_CURVED} ${-FLOW_LINE_CURVED_CONTROL},${FLOW_LINE_CURVED} ${-FLOW_LINE_CURVED},${FLOW_LINE_CURVED}
+                               V${row2Y - this._flowLineCurved - FLOW_LINE_SPACING}
+                               c0,${this._flowLineCurved} ${-this._flowLineCurvedControl},${this._flowLineCurved} ${-this._flowLineCurved},${this._flowLineCurved}
                                H${col1X}`;
 
         this._batteryToHomePath = `M${col2X + FLOW_LINE_SPACING * (solar ? 1 : grid ? 0.5 : 0)},${row3Y}
-                                 V${row2Y + FLOW_LINE_CURVED + FLOW_LINE_SPACING * (grid ? 1 : solar ? 0.5 : 0)}
-                                 c0,${-FLOW_LINE_CURVED} ${FLOW_LINE_CURVED_CONTROL},${-FLOW_LINE_CURVED} ${FLOW_LINE_CURVED},${-FLOW_LINE_CURVED}
+                                 V${row2Y + this._flowLineCurved + FLOW_LINE_SPACING * (grid ? 1 : solar ? 0.5 : 0)}
+                                 c0,${-this._flowLineCurved} ${this._flowLineCurvedControl},${-this._flowLineCurved} ${this._flowLineCurved},${-this._flowLineCurved}
                                  H${col3X}`;
 
         this._batteryToGridPath = `M${col2X - FLOW_LINE_SPACING * (solar ? 1 : 0.5)},${row3Y}
-                                 V${row2Y + FLOW_LINE_CURVED + FLOW_LINE_SPACING}
-                                 c0,${-FLOW_LINE_CURVED} ${-FLOW_LINE_CURVED_CONTROL},${-FLOW_LINE_CURVED} ${-FLOW_LINE_CURVED},${-FLOW_LINE_CURVED}
+                                 V${row2Y + this._flowLineCurved + FLOW_LINE_SPACING}
+                                 c0,${-this._flowLineCurved} ${-this._flowLineCurvedControl},${-this._flowLineCurved} ${-this._flowLineCurved},${-this._flowLineCurved}
                                  H${col1X}`;
 
         this._gridToBatteryPath = `M${col1X},${row2Y + FLOW_LINE_SPACING}
-                                 H${col2X - FLOW_LINE_CURVED - FLOW_LINE_SPACING * (solar ? 1 : 0.5)}
-                                 c${FLOW_LINE_CURVED_CONTROL * 2},0 ${FLOW_LINE_CURVED},0 ${FLOW_LINE_CURVED},${FLOW_LINE_CURVED}
+                                 H${col2X - this._flowLineCurved - FLOW_LINE_SPACING * (solar ? 1 : 0.5)}
+                                 c${this._flowLineCurvedControl * 2},0 ${this._flowLineCurved},0 ${this._flowLineCurved},${this._flowLineCurved}
                                  V${row3Y}`;
       }
     }

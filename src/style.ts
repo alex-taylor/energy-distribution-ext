@@ -1,7 +1,5 @@
-import { css, CSSResult, unsafeCSS } from 'lit';
-import { CIRCLE_CIRCUMFERENCE, CIRCLE_SIZE, CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, COL_SPACING, FLOW_DASH_LENGTH, ROW_SPACING } from '@/const';
-
-const px = (value: number): CSSResult => { return css`${unsafeCSS(value + 'px')}`; };
+import { css, CSSResult } from 'lit';
+import { CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, COL_SPACING_MIN } from '@/const';
 
 export const styles: CSSResult = css`
   :host {
@@ -13,7 +11,7 @@ export const styles: CSSResult = css`
   .card-content {
     position: relative;
     direction: ltr;
-    max-width: ${px(CIRCLE_SIZE * 5 + COL_SPACING * 4)};
+    max-width: calc(var(--circle-size) * 5 + var(--col-spacing) * 4);
     margin: 0 auto;
   }
 
@@ -29,19 +27,19 @@ export const styles: CSSResult = css`
     margin: 0 auto;
   }
   .top-row {
-    height: calc(var(--label-height) + ${px(CIRCLE_SIZE + ROW_SPACING)});
+    height: calc(var(--label-height) + var(--circle-size) + var(--row-spacing));
   }
   .bottom-row {
-    height: ${px(CIRCLE_SIZE + ROW_SPACING)};
+    height: calc(var(--circle-size) + var(--row-spacing));
     justify-content: flex-end;
   }
 
   .horiz-spacer {
-    min-width: ${px(COL_SPACING)};
+    min-width: calc(${COL_SPACING_MIN}px);
   }
 
   .node-spacer {
-    min-width: ${px(CIRCLE_SIZE)};
+    min-width: var(--circle-size);
   }
 
   .node {
@@ -51,11 +49,11 @@ export const styles: CSSResult = css`
     z-index: 2;
   }
   .circle {
-    width: ${px(CIRCLE_SIZE)};
-    height: ${px(CIRCLE_SIZE)};
+    width: var(--circle-size);
+    height: var(--circle-size);
     border-radius: 50%;
     box-sizing: border-box;
-    border: ${px(CIRCLE_STROKE_WIDTH)};
+    border: calc(${CIRCLE_STROKE_WIDTH}px);
     border-style: solid;
     display: flex;
     flex-direction: column;
@@ -96,7 +94,7 @@ export const styles: CSSResult = css`
   .label {
     color: var(--secondary-text-color);
     font-size: var(--ha-font-size-s);
-    max-width: ${px(CIRCLE_SIZE)};
+    max-width: var(--circle-size);
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -111,7 +109,7 @@ export const styles: CSSResult = css`
   .circle svg {
     position: absolute;
     fill: none;
-    stroke-width: ${CIRCLE_STROKE_WIDTH_SEGMENTS};
+    stroke-width: calc(${CIRCLE_STROKE_WIDTH_SEGMENTS}px);
     width: 100%;
     height: 100%;
     top: 0;
@@ -128,10 +126,6 @@ export const styles: CSSResult = css`
 
   span.secondary-info {
     font-size: var(--ha-font-size-s);
-    max-width: ${px(CIRCLE_SIZE * 3 / 4)};
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
   }
 
   span.inactive {
@@ -230,7 +224,7 @@ export const styles: CSSResult = css`
     stroke: var(--inactive-flow-color) !important;
   }
   path.dashed {
-    stroke-dasharray: ${FLOW_DASH_LENGTH};
+    stroke-dasharray: 25px;
   }
   path.solar {
     stroke: var(--flow-solar-color);
@@ -290,13 +284,6 @@ export const styles: CSSResult = css`
     animation: rotate-in 0.6s ease-in;
     transition: stroke-dashoffset 0.4s, stroke-dasharray 0.4s;
     fill: none;
-  }
-
-  @keyframes rotate-in {
-    from {
-      stroke-dashoffset: ${CIRCLE_CIRCUMFERENCE};
-      stroke-dasharray: ${CIRCLE_CIRCUMFERENCE};
-    }
   }
 
   .card-actions a {
