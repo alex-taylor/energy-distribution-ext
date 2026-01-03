@@ -24,8 +24,7 @@ const energyUnitsOptionsConfigStruct = object({
   [EnergyUnitsOptions.Display_Precision_Under_10]: optional(integer()),
   [EnergyUnitsOptions.Display_Precision_Under_100]: optional(integer()),
   [EnergyUnitsOptions.Display_Precision_Default]: optional(integer()),
-  [EnergyUnitsOptions.Wh_Kwh_Threshold]: optional(number()),
-  [EnergyUnitsOptions.Kwh_Mwh_Threshold]: optional(number())
+  [EnergyUnitsOptions.Prefix_Threshold]: optional(number())
 });
 
 const flowsOptionsConfigStruct = object({

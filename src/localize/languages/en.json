@@ -48,6 +48,7 @@
     "max_rate": "Max rate",
 
     "energy_units": "Energy Units",
+    "prefix_threshold": "Prefix threshold",
     "wh_kwh_threshold": "Wh/kWh threshold",
     "kwh_mwh_threshold": "kWh/MWh threshold",
     "display_precision_under_10": "Display precision (<10)",
@@ -73,8 +74,8 @@
     "state_alert": "State of alert",
 
     "gas_sources": "Show gas sources",
-    "threshold": "Threshold (%)",
-    "threshold#helptext": "If gas usage is below this, add it to the total; otherwise display it separately",
+    "gas_sources_threshold": "Threshold (%)",
+    "gas_sources_threshold#helptext": "If gas usage is below this, add it to the total; otherwise display it separately",
     "subtract_consumers": "Subtract consuming devices from totals",
 
     "gas": "Gas",

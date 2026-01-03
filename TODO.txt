@@ -16,7 +16,6 @@ Code:
   - move the language files to Typescript so enum values can be used for the keys
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
   - support entities in cal and J as well as Wh, for compatibility with HASS
-    - might not need to, it looks like the stats API may do the conversion to kWh (or, presumably, Wh) automatically if we pass in a 'units' value to the call
     - gas also supports volumes
       - needs the calorific value to be supplied by the user
         - support a sensor as well as a value?
@@ -27,35 +26,47 @@ Code:
 Interaction:
   - clicking on the low-carbon circle should do the same as the HASS card
 
+Config:
+  - is it possible to auto-detect changes to the Energy config?
+      - either way, we could have a button on the main page to (re)load the entities from that config
+  - Secondaries:
+    - drop threshold
+    - if the selected entity is Energy, hide the 'show units', 'override units' and 'display precision' options, since these will be ignored
+    - need a helptext for 'override units', 'display precision' to explain what happens if set/not set
+
 Display:
   - bigger circles!
       - take 60% of font-height as the average char-width
       - calculate the approximate width of the spans, including the icon for dual-value nodes
         - how to work out the number of chars?  It's not just about the current value, since trailing zeroes can be dropped at render-time
-          - but the number of decimals before the point is not predictable...
+          - but the number of decimals before the point is not predictable...it will, however, be no more than four for all realistic use-cases
+            - we need to look at the threshold and decimal-places config settings
           - so in principle we actually need to resize on-the-fly rather than just when the config changes
       - find the height of the spans+icon
-      - find the largest of the height and spans (secondary, import, export) and ceil()
-      - size the circle to hold a square of that size (ie, set _circleSize to the diagonal of the square plus CIRCLE_STROKE_WIDTH_SEGMENTS * 2)
+      - find the largest of the spans (secondary, import, export) and ceil()
+      - size the circle to hold a rectangle of that size (ie, height*span and set _circleSize to the diagonal of the rect plus CIRCLE_STROKE_WIDTH_SEGMENTS * 2)
       - if HASS styles are enabled, skip all the above!
         - or do we want a specific flag for this behaviour?
 
   - Energy Units:
-    - support GWh and TWh
-    - single unit threshold, range 900-1100, step 25?
-    - limit decimals to 3dp
     - support display in J and cal as well as Wh
-      - for Gas, also support suitable volume units
+      - for Gas, support 'same as electric', plus suitable volume units
   - if data is still loading when we render, go ahead and render the diagram anyway, just put 'loading' for the values (or an overlay in the centre of the card?)
   - Flows:
     - in non-HASS mode, see if the grid->home flow can be made to alternate between high and low carbon colours on successive runs
       - ideally in proportion, but otherwise a simple 1:1 will do
       - can animation do this?
       - similarly, the grid-import ring can now show high and low
+    - fix z-ordering so that dots appear on top of lines
+    - go back to specifying direction:
+        - this will fix the alignment and overlap problems with the dashed line, and will help when doing bi-directional devices
   - Home:
     - include producing devices in the segment arrays
     - if 'subtract' is set, subtract consuming devices from the appropriate total
+  - Low-carbon:
+    - change value display to support energy/percentage/both options
   - Devices:
+    - see if the Energy Dashboard's devices can be detected and loaded
     - first attempt to expand to the right
     - if there is not enough space for the required number of columns, expand below instead
     - for rightwards, draw the bus out from the Home circle and position devices above/below it
@@ -84,6 +95,21 @@ Under consideration
   - see if the 'state' values in the State objects can be made internal/private - they should not be accessed outside the EntityStates object
     - probably not, they'd have to be instance fields on EntityStates
   - alternative flow algorithm which prioritises House->Battery->Grid
+    - implementation:
+      - define consts/enum for the four nodes: House, Grid, Battery, Solar
+      - define arrays of 'producer order' and 'consumer order': these use the consts
+      - inside the flow-calculation:
+        - use the five supplied values plus the calculated 'to house' value to populate an array of nodes, where each entry is a tuple{producer,consumer} using 'undefined' where appropriate
+        - iterate over the selected 'producer order' array
+          - for each producer, iterate over the 'consumer order' array, skipping where producer==consumer
+          - calculate the producer->consumer flow value at this point and increment the corresponding entry in a 2d-array, where the first index is the 'producer' and the second the 'consumer'
+        - finally, pull the values out of the 2d-array and populate the Flows object as normal
+      - check whether this actually matches how the HASS algo works!
+        - might, for example, need per-producer 'consumer order' arrays rather than a single one
+      - the arrays are selected based on the config, eg:
+        - for HASS the 'producer' might be [Solar,Battery,Grid] and 'consumer' [Battery,Grid,House]
+        - whereas for a more realistic approach the 'consumer' would be [House,Battery,Grid]
+        - we can give the user some degree of control here if/as required, but the basic algo should cope with any setup
 
 
 

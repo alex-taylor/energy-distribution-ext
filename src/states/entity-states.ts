@@ -593,8 +593,6 @@ export class EntityStates {
     let solarToBattery: number;
     let solarToGrid: number;
 
-    console.log("in:" + energyIn + ", out:" + energyOut);
-
     const excess: number = Math.max(0, Math.min(toBattery, fromGrid - remaining));
     gridToBattery = excess;
     toBattery -= excess;

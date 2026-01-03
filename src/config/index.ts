@@ -45,8 +45,7 @@ export enum EnergyUnitsOptions {
   Display_Precision_Under_10 = "display_precision_under_10",
   Display_Precision_Under_100 = "display_precision_under_100",
   Display_Precision_Default = "display_precision_default",
-  Wh_Kwh_Threshold = "wh_kwh_threshold",
-  Kwh_Mwh_Threshold = "kwh_mwh_threshold"
+  Prefix_Threshold = "prefix_threshold"
 };
 
 export enum FlowsOptions {
@@ -124,7 +123,7 @@ export enum DeviceOptions {
 
 export enum HomeOptions {
   Gas_Sources = "gas_sources",
-  Gas_Sources_Threshold = "threshold",
+  Gas_Sources_Threshold = "gas_sources_threshold",
   Subtract_Consumers = "subtract_consumers"
 }
 
@@ -165,8 +164,7 @@ export interface EnergyUnitsConfig {
   [EnergyUnitsOptions.Display_Precision_Under_10]?: number;
   [EnergyUnitsOptions.Display_Precision_Under_100]?: number;
   [EnergyUnitsOptions.Display_Precision_Default]?: number;
-  [EnergyUnitsOptions.Wh_Kwh_Threshold]?: number;
-  [EnergyUnitsOptions.Kwh_Mwh_Threshold]?: number;
+  [EnergyUnitsOptions.Prefix_Threshold]?: number;
 };
 
 export interface FlowsConfig {

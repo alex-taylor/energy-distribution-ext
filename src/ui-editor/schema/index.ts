@@ -118,14 +118,9 @@ function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, s
           }
         },
         {
-          name: EnergyUnitsOptions.Wh_Kwh_Threshold,
+          name: EnergyUnitsOptions.Prefix_Threshold,
           required: true,
-          selector: { number: { mode: 'box', min: 0, max: 1000000, step: 1 } }
-        },
-        {
-          name: EnergyUnitsOptions.Kwh_Mwh_Threshold,
-          required: true,
-          selector: { number: { mode: 'box', min: 0, max: 1000000, step: 1 } }
+          selector: { number: { mode: 'slider', min: 900, max: 1100, step: 25 } }
         }
       ]
     },

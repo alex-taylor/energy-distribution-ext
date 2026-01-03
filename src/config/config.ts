@@ -29,9 +29,11 @@ export function getDefaultConfig(hass: HomeAssistant): EnergyFlowCardExtConfig {
 
 export function cleanupConfig(hass: HomeAssistant, config: EnergyFlowCardExtConfig): EnergyFlowCardExtConfig {
   //pruneConfig(config);
+  config = updateConfig(config, EditorPages.Appearance, getDefaultAppearanceConfig());
   config = updateConfig(config, EditorPages.Battery, getDefaultBatteryConfig(hass, false));
   config = updateConfig(config, EditorPages.Gas, getDefaultGasConfig(hass, false));
   config = updateConfig(config, EditorPages.Grid, getDefaultGridConfig(hass, false));
+  config = updateConfig(config, EditorPages.Home, getDefaultHomeConfig());
   config = updateConfig(config, EditorPages.Low_Carbon, getDefaultLowCarbonConfig());
   config = updateConfig(config, EditorPages.Solar, getDefaultSolarConfig(hass, false));
   return config;
@@ -131,8 +133,7 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
       [EnergyUnitsOptions.Display_Precision_Under_10]: DefaultValues.Display_Precision_Under_10,
       [EnergyUnitsOptions.Display_Precision_Under_100]: DefaultValues.Display_Precision_Under_100,
       [EnergyUnitsOptions.Display_Precision_Default]: DefaultValues.Display_Precision,
-      [EnergyUnitsOptions.Wh_Kwh_Threshold]: DefaultValues.Whk_Wh_Threshold,
-      [EnergyUnitsOptions.Kwh_Mwh_Threshold]: DefaultValues.Kwh_Mwh_Threshold
+      [EnergyUnitsOptions.Prefix_Threshold]: DefaultValues.Prefix_Threshold
     },
     [AppearanceOptions.Flows]: {
       [FlowsOptions.Use_Hourly_Stats]: false,

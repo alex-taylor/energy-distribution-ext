@@ -1,9 +1,11 @@
 import { localize } from '@/localize/localize';
 
-export enum EnergyUnits {
-  MegaWattHours = "MWh",
-  KiloWattHours = "kWh",
-  WattHours = "Wh"
+export enum EnergyUnitPrefixes {
+  None = "",
+  Kilo = "k",
+  Mega = "M",
+  Giga = "G",
+  Tera = "T"
 }
 
 export enum CssClass {
@@ -29,8 +31,7 @@ export enum DefaultValues {
   Display_Precision_Under_10 = 2,
   Display_Precision_Under_100 = 1,
   Display_Precision = 0,
-  Whk_Wh_Threshold = 1000,
-  Kwh_Mwh_Threshold = 1000,
+  Prefix_Threshold = 1000,
 
   // Flows
   Min_Flow_Rate = 1,

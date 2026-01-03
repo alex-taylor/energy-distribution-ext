@@ -104,7 +104,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
 
   public async setConfig(config: EnergyFlowCardExtConfig): Promise<void> {
     assert(config, cardConfigStruct);
-    this._config = config;
+    this._config = cleanupConfig(this.hass, config);
   }
 
   protected render(): TemplateResult | typeof nothing {
