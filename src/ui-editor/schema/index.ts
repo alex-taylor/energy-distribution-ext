@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig, SingleValueColourConfig, DualValueColourConfig } from '@/config';
-import { ColourMode, DisplayMode, InactiveFlowsMode, Scale, UnitPosition, UnitPrefixes } from '@/enums';
+import { ColourMode, DisplayMode, ElectricUnits, GasUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 //================================================================================================================================================================================//
@@ -89,19 +89,6 @@ function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, s
       type: 'grid',
       schema: [
         {
-          name: EnergyUnitsOptions.Unit_Prefixes,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                UnitPrefixes.getItem(UnitPrefixes.Unified),
-                UnitPrefixes.getItem(UnitPrefixes.Individual)
-              ]
-            }
-          }
-        },
-        {
           name: EnergyUnitsOptions.Unit_Position,
           required: true,
           selector: {
@@ -120,25 +107,92 @@ function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, s
         {
           name: EnergyUnitsOptions.Prefix_Threshold,
           required: true,
-          selector: { number: { mode: 'slider', min: 900, max: 1100, step: 25 } }
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: Object.values(PrefixThreshold).filter(value => !isNaN(Number(value)))
+            }
+          }
+        },
+        {
+          name: EnergyUnitsOptions.Electric_Units,
+          required: true,
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                ElectricUnits.getItem(ElectricUnits.WattHours),
+                ElectricUnits.getItem(ElectricUnits.Joules),
+                ElectricUnits.getItem(ElectricUnits.Calories)
+              ]
+            }
+          }
+        },
+        {
+          name: EnergyUnitsOptions.Electric_Unit_Prefixes,
+          required: true,
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                UnitPrefixes.getItem(UnitPrefixes.Unified),
+                UnitPrefixes.getItem(UnitPrefixes.Individual)
+              ]
+            }
+          }
+        },
+        {
+          name: EnergyUnitsOptions.Gas_Units,
+          required: true,
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                GasUnits.getItem(GasUnits.Same_As_Electric),
+                GasUnits.getItem(GasUnits.Cubic_Metres),
+                GasUnits.getItem(GasUnits.Cubic_Feet),
+                GasUnits.getItem(GasUnits.CCF),
+                GasUnits.getItem(GasUnits.MCF)
+              ]
+            }
+          }
+        },
+        {
+          name: EnergyUnitsOptions.Gas_Unit_Prefixes,
+          required: true,
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                UnitPrefixes.getItem(UnitPrefixes.Unified),
+                UnitPrefixes.getItem(UnitPrefixes.Individual)
+              ]
+            }
+          }
         }
       ]
     },
+    schemaConfig?.[EnergyUnitsOptions.Gas_Units] !== GasUnits.Same_As_Electric
+      ? {
+        type: 'grid',
+        schema: [{ name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: 'box', min: 0} } }]
+      }
+      : {},
     {
       type: 'grid',
       column_min_width: '67px',
       schema: [
         {
           name: EnergyUnitsOptions.Display_Precision_Under_10,
-          selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } }
+          selector: { number: { mode: 'box', min: 0, max: 3, unit_of_measurement: "dp" } }
         },
         {
           name: EnergyUnitsOptions.Display_Precision_Under_100,
-          selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } }
+          selector: { number: { mode: 'box', min: 0, max: 3, unit_of_measurement: "dp" } }
         },
         {
           name: EnergyUnitsOptions.Display_Precision_Default,
-          selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } }
+          selector: { number: { mode: 'box', min: 0, max: 3, unit_of_measurement: "dp" } }
         }
       ]
     }
@@ -152,6 +206,10 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
     {
       type: 'grid',
       schema: [
+        {
+          name: FlowsOptions.Use_Hourly_Stats,
+          selector: { boolean: {} }
+        },
         {
           name: FlowsOptions.Inactive_Flows,
           required: true,
@@ -167,6 +225,10 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
           }
         },
         {
+          name: FlowsOptions.Use_HASS_Style,
+          selector: { boolean: {} }
+        },
+        {
           name: FlowsOptions.Scale,
           required: true,
           selector: {
@@ -180,45 +242,12 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
           }
         },
         {
-          name: FlowsOptions.Use_Hourly_Stats,
-          selector: { boolean: {} }
-        },
-        {
-          name: FlowsOptions.Use_HASS_Style,
-          selector: { boolean: {} }
-        },
-        {
           name: FlowsOptions.Animation,
           selector: { boolean: {} }
         }
       ]
-    },
-    dynamicFlowsOptionsSchema(config, schemaConfig)
+    }
   ];
-}
-
-//================================================================================================================================================================================//
-
-function dynamicFlowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: FlowsConfig | undefined): {} {
-  if (!(schemaConfig?.[FlowsOptions.Animation] ?? true)) {
-    return {};
-  }
-
-  return {
-    type: 'grid',
-    schema: [
-      {
-        name: FlowsOptions.Min_Rate,
-        required: true,
-        selector: { number: { mode: 'box', min: 0, max: 10, step: 0.1 } }
-      },
-      {
-        name: FlowsOptions.Max_Rate,
-        required: true,
-        selector: { number: { mode: 'box', min: 0, max: 10, step: 0.1 } }
-      }
-    ]
-  };
 }
 
 //================================================================================================================================================================================//
@@ -482,9 +511,9 @@ export function secondaryInfoSchema(config: EnergyFlowCardExtConfig | undefined,
               }
             }
           },
-          { name: EntityOptions.Units, selector: { text: {} } },
-          { name: EntityOptions.Zero_Threshold, selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } } },
-          { name: EntityOptions.Display_Precision, selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } } }
+          { name: SecondaryInfoOptions.Units, selector: { text: {} } },
+          { name: SecondaryInfoOptions.Zero_Threshold, selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } } },
+          { name: SecondaryInfoOptions.Display_Precision, selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } } }
         ]
       },
       {

@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DisplayMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale } from '@/enums';
+import { ColourMode, DisplayMode, LowCarbonType, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, ElectricUnits, GasUnits } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
 declare global {
@@ -40,12 +40,16 @@ export enum AppearanceOptions {
 };
 
 export enum EnergyUnitsOptions {
-  Unit_Prefixes = "unit_prefixes",
+  Electric_Units = "electric_units",
+  Gas_Units = "gas_units",
+  Electric_Unit_Prefixes = "electric_unit_prefixes",
+  Gas_Unit_Prefixes = "gas_unit_prefixes",
   Unit_Position = "unit_position",
   Display_Precision_Under_10 = "display_precision_under_10",
   Display_Precision_Under_100 = "display_precision_under_100",
   Display_Precision_Default = "display_precision_default",
-  Prefix_Threshold = "prefix_threshold"
+  Prefix_Threshold = "prefix_threshold",
+  Gas_Calorific_Value = "gas_calorific_value"
 };
 
 export enum FlowsOptions {
@@ -53,9 +57,7 @@ export enum FlowsOptions {
   Use_HASS_Style = "use_hass_style",
   Animation = "animation",
   Inactive_Flows = "inactive_flows",
-  Scale = "scale",
-  Min_Rate = "min_rate",
-  Max_Rate = "max_rate"
+  Scale = "scale"
 };
 
 export enum EntitiesOptions {
@@ -71,10 +73,7 @@ export enum EntitiesOptions {
 export enum EntityOptions {
   Entity_Id = "entity_id",
   Entity_Ids = "entity_ids",
-  Units = "units",
-  Unit_Position = "unit_position",
-  Zero_Threshold = "zero_threshold",
-  Display_Precision = "display_precision"
+  Unit_Position = "unit_position"
 };
 
 export enum ColourOptions {
@@ -111,7 +110,10 @@ export enum OverridesOptions {
 };
 
 export enum SecondaryInfoOptions {
-  Icon = "secondary_icon"
+  Icon = "secondary_icon",
+  Units = "units",
+  Zero_Threshold = "zero_threshold",
+  Display_Precision = "display_precision"
 }
 
 export enum DeviceOptions {
@@ -159,12 +161,16 @@ export interface AppearanceOptionsConfig {
 };
 
 export interface EnergyUnitsConfig {
-  [EnergyUnitsOptions.Unit_Prefixes]?: UnitPrefixes;
+  [EnergyUnitsOptions.Electric_Units]?: ElectricUnits;
+  [EnergyUnitsOptions.Electric_Unit_Prefixes]?: UnitPrefixes;
+  [EnergyUnitsOptions.Gas_Units]?: GasUnits;
+  [EnergyUnitsOptions.Gas_Unit_Prefixes]?: UnitPrefixes;
   [EnergyUnitsOptions.Unit_Position]?: UnitPosition;
   [EnergyUnitsOptions.Display_Precision_Under_10]?: number;
   [EnergyUnitsOptions.Display_Precision_Under_100]?: number;
   [EnergyUnitsOptions.Display_Precision_Default]?: number;
   [EnergyUnitsOptions.Prefix_Threshold]?: number;
+  [EnergyUnitsOptions.Gas_Calorific_Value]?: number;
 };
 
 export interface FlowsConfig {
@@ -173,9 +179,6 @@ export interface FlowsConfig {
   [FlowsOptions.Animation]?: boolean;
   [FlowsOptions.Inactive_Flows]?: InactiveFlowsMode;
   [FlowsOptions.Scale]?: Scale;
-  [FlowsOptions.Min_Rate]?: number;
-  [FlowsOptions.Max_Rate]?: number;
-
 };
 
 export interface GridConfig extends DualValueNodeConfig {
@@ -306,10 +309,10 @@ export interface PowerOutageConfig {
 
 export interface SecondaryInfoConfig {
   [EntityOptions.Entity_Id]?: string;
-  [EntityOptions.Units]?: string;
+  [SecondaryInfoOptions.Units]?: string;
   [EntityOptions.Unit_Position]?: UnitPosition;
-  [EntityOptions.Zero_Threshold]?: number;
-  [EntityOptions.Display_Precision]?: number;
+  [SecondaryInfoOptions.Zero_Threshold]?: number;
+  [SecondaryInfoOptions.Display_Precision]?: number;
   [SecondaryInfoOptions.Icon]?: string;
 };
 

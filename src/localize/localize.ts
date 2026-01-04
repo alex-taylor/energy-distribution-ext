@@ -25,6 +25,7 @@ export function localize(key: string, fallback: string | undefined = undefined):
   if (lang === "en_GB") {
     translated = translated?.replace("color", "colour");
     translated = translated?.replace("Color", "Colour");
+    translated = translated?.replace("meter", "metre");
   }
 
   return translated ?? fallback ?? key;

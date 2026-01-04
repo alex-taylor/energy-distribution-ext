@@ -3,6 +3,11 @@ import { ColourMode, CssClass, GasSourcesMode } from "@/enums";
 import { Flows, States } from "@/states";
 import { getGasSourcesMode } from ".";
 
+export interface MinMax {
+  min: number;
+  max: number;
+}
+
 const COLOUR_MAPPINGS: Map<ColourMode, CssClass> = new Map(
   [
     [ColourMode.Solar, CssClass.Solar],
@@ -22,6 +27,25 @@ const STYLE_ENERGY_GRID_EXPORT_COLOR: string = "var(--energy-grid-return-color)"
 const HOME_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Circle, ColourOptions.Icon, ColourOptions.Value, ColourOptions.Secondary];
 const SINGLE_NODE_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Icon, ColourOptions.Value, ColourOptions.Secondary];
 const DUAL_NODE_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Circle, ColourOptions.Icon, ColourOptions.Value_Import, ColourOptions.Value_Export, ColourOptions.Secondary];
+
+
+//================================================================================================================================================================================//
+
+export function getColSpacing(circleSize: number): MinMax {
+  return { min: Math.round(circleSize / 10), max: Math.round(circleSize * 5 / 8) }
+}
+
+//================================================================================================================================================================================//
+
+export function setLayout(style: CSSStyleDeclaration, circleSize: number): void {
+  const colSpacing = getColSpacing(circleSize);
+  const rowSpacing: number = Math.round(circleSize * 3 / 8);
+
+  style.setProperty("--circle-size", circleSize + "px");
+  style.setProperty("--row-spacing", rowSpacing + "px");
+  style.setProperty("--col-spacing-max", colSpacing.max + "px");
+  style.setProperty("--col-spacing-min", colSpacing.min + "px");
+}
 
 //================================================================================================================================================================================//
 

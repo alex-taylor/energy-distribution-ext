@@ -22,6 +22,9 @@ Code:
     - all energy values are converted to the same units, whatever that is
       - in the case of a volume sensor for gas, while we do the conversion so that flow calcs will work we also store the actual value for display in that node if the user selects to do so
         - which is to say that the value will be converted to the user's selected units, so if they picked an energy unit rather than a volume unit we either don't store or else convert to m3
+  - see if a generic 'get enum values for UI' function can be written
+    - params would be the name (or type) of the enum, and an optional list of the values wanted
+      - if no values are specified, it returns all values in the order they are defined
 
 Interaction:
   - clicking on the low-carbon circle should do the same as the HASS card
@@ -35,19 +38,6 @@ Config:
     - need a helptext for 'override units', 'display precision' to explain what happens if set/not set
 
 Display:
-  - bigger circles!
-      - take 60% of font-height as the average char-width
-      - calculate the approximate width of the spans, including the icon for dual-value nodes
-        - how to work out the number of chars?  It's not just about the current value, since trailing zeroes can be dropped at render-time
-          - but the number of decimals before the point is not predictable...it will, however, be no more than four for all realistic use-cases
-            - we need to look at the threshold and decimal-places config settings
-          - so in principle we actually need to resize on-the-fly rather than just when the config changes
-      - find the height of the spans+icon
-      - find the largest of the spans (secondary, import, export) and ceil()
-      - size the circle to hold a rectangle of that size (ie, height*span and set _circleSize to the diagonal of the rect plus CIRCLE_STROKE_WIDTH_SEGMENTS * 2)
-      - if HASS styles are enabled, skip all the above!
-        - or do we want a specific flag for this behaviour?
-
   - Energy Units:
     - support display in J and cal as well as Wh
       - for Gas, support 'same as electric', plus suitable volume units
@@ -123,3 +113,4 @@ Before release
     - also check that there aren't any redundant keys!
       - if all keys are enums, this should be simple
   - find out why there seems to be a serious delay in populating the display after setting the date or changing the config
+    - apparently receiving each data-set (primary and secondary) twice per card

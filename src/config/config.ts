@@ -1,4 +1,4 @@
-import { ColourMode, DisplayMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, Scale } from "@/enums";
+import { ColourMode, DisplayMode, LowCarbonType, InactiveFlowsMode, DefaultValues, UnitPrefixes, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, Scale, ElectricUnits, GasUnits } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
 import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
@@ -128,21 +128,23 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
       [AppearanceOptions.Segment_Gaps]: false
     },
     [AppearanceOptions.Energy_Units]: {
-      [EnergyUnitsOptions.Unit_Prefixes]: UnitPrefixes.Unified,
+      [EnergyUnitsOptions.Electric_Units]: ElectricUnits.WattHours,
+      [EnergyUnitsOptions.Electric_Unit_Prefixes]: UnitPrefixes.Unified,
+      [EnergyUnitsOptions.Gas_Units]: GasUnits.Same_As_Electric,
+      [EnergyUnitsOptions.Gas_Unit_Prefixes]: UnitPrefixes.Unified,
       [EnergyUnitsOptions.Unit_Position]: UnitPosition.After_Space,
       [EnergyUnitsOptions.Display_Precision_Under_10]: DefaultValues.Display_Precision_Under_10,
       [EnergyUnitsOptions.Display_Precision_Under_100]: DefaultValues.Display_Precision_Under_100,
       [EnergyUnitsOptions.Display_Precision_Default]: DefaultValues.Display_Precision,
-      [EnergyUnitsOptions.Prefix_Threshold]: DefaultValues.Prefix_Threshold
+      [EnergyUnitsOptions.Prefix_Threshold]: DefaultValues.Prefix_Threshold,
+      [EnergyUnitsOptions.Gas_Calorific_Value]: DefaultValues.Gas_Calorific_Value,
     },
     [AppearanceOptions.Flows]: {
       [FlowsOptions.Use_Hourly_Stats]: false,
       [FlowsOptions.Use_HASS_Style]: true,
       [FlowsOptions.Animation]: true,
       [FlowsOptions.Inactive_Flows]: InactiveFlowsMode.Normal,
-      [FlowsOptions.Scale]: Scale.Linear,
-      [FlowsOptions.Min_Rate]: DefaultValues.Min_Flow_Rate,
-      [FlowsOptions.Max_Rate]: DefaultValues.Max_Flow_Rate
+      [FlowsOptions.Scale]: Scale.Linear
 
     }
   };

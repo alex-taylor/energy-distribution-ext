@@ -1,7 +1,7 @@
 export const CIRCLE_STROKE_WIDTH: number = 2;
 export const CIRCLE_STROKE_WIDTH_SEGMENTS: number = CIRCLE_STROKE_WIDTH * 2;
 
-export const COL_SPACING_MIN: number = 5;
+export const ICON_PADDING: number = 2;
 
 export const DOT_RADIUS: number = 4.5;
 export const DOT_DIAMETER: number =  DOT_RADIUS * 2;

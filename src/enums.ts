@@ -1,5 +1,13 @@
 import { localize } from '@/localize/localize';
 
+function getEditorLabel(type: string, value: any): string {
+  return localize(type + "." + value);
+}
+
+export function clampEnumValue<T extends Object>(value: any, type: any, defaultValue: T): T {
+  return Object.values(type).indexOf(value) === -1 ? defaultValue : value;
+}
+
 export enum EnergyUnitPrefixes {
   None = "",
   Kilo = "k",
@@ -32,6 +40,7 @@ export enum DefaultValues {
   Display_Precision_Under_100 = 1,
   Display_Precision = 0,
   Prefix_Threshold = 1000,
+  Gas_Calorific_Value = 39,
 
   // Flows
   Min_Flow_Rate = 1,
@@ -108,16 +117,12 @@ export enum InactiveFlowsMode {
 
 export namespace InactiveFlowsMode {
   export function getName(value: InactiveFlowsMode): string {
-    return getEditorLabel("InactiveLinesMode", value);
+    return getEditorLabel("InactiveFlowsMode", value);
   }
 
   export function getItem(value: InactiveFlowsMode): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
-}
-
-function getEditorLabel(type: string, value: any): string {
-  return localize(type + "." + value);
 }
 
 export enum UnitPrefixes {
@@ -220,4 +225,50 @@ export namespace Scale {
   export function getItem(value: Scale): { label: string, value: string } {
     return { label: getName(value), value: value };
   }
+}
+
+export enum ElectricUnits {
+  WattHours = "Wh",
+  Joules = "J",
+  Calories = "cal"
+}
+
+export namespace ElectricUnits {
+  export function getName(value: ElectricUnits): string {
+    return getEditorLabel("ElectricUnits", value);
+  }
+
+  export function getItem(value: ElectricUnits): { label: string, value: string } {
+    return { label: getName(value), value: value };
+  }
+}
+
+export enum GasUnits {
+  Same_As_Electric = "same_as_electric",
+  Cubic_Feet = "ft³",
+  Cubic_Metres = "m³",
+  CCF = "CCF",
+  MCF = "MCF"
+}
+
+export namespace GasUnits {
+  export function getName(value: GasUnits): string {
+    return getEditorLabel("GasUnits", value);
+  }
+
+  export function getItem(value: GasUnits): { label: string, value: string } {
+    return { label: getName(value), value: value };
+  }
+}
+
+export enum PrefixThreshold {
+  Threshold_900 = 900,
+  Threshold_925 = 925,
+  Threshold_950 = 950,
+  Threshold_975 = 975,
+  Threshold_1000 = 1000,
+  Threshold_1025 = 1025,
+  Threshold_1050 = 1050,
+  Threshold_1075 = 1075,
+  Threshold_1100 = 1100
 }

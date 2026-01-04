@@ -1,17 +1,19 @@
 import { css, CSSResult } from 'lit';
-import { CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, COL_SPACING_MIN } from '@/const';
+import { CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, ICON_PADDING } from '@/const';
 
 export const styles: CSSResult = css`
   :host {
     --mdc-icon-size: calc(2 * var(--ha-font-size-s));
     --label-height: calc(var(--ha-font-size-s) * var(--ha-line-height-normal));
   }
-  :root {
+
+  ha-card {
+    min-width: calc(var(--circle-size) * 3 + var(--col-spacing-min) * 2 + 2 * var(--ha-card-border-width, 1px) + 2 * var(--ha-space-4));
   }
   .card-content {
     position: relative;
     direction: ltr;
-    max-width: calc(var(--circle-size) * 5 + var(--col-spacing) * 4);
+    max-width: calc(var(--circle-size) * 5 + var(--col-spacing-max) * 4);
     margin: 0 auto;
   }
 
@@ -35,7 +37,7 @@ export const styles: CSSResult = css`
   }
 
   .horiz-spacer {
-    min-width: calc(${COL_SPACING_MIN}px);
+    min-width: var(--col-spacing-min);
   }
 
   .node-spacer {
@@ -85,7 +87,7 @@ export const styles: CSSResult = css`
   }
   ha-svg-icon.small {
     --mdc-icon-size: var(--ha-font-size-s);
-    padding-bottom: 2px;
+    padding-bottom: calc(${ICON_PADDING}px);
   }
   ha-svg-icon.hidden {
     --mdc-icon-size: 0px !important;
@@ -291,17 +293,12 @@ export const styles: CSSResult = css`
   }
 
   .entity-icon {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: calc(${ICON_PADDING}px);
+    padding-bottom: calc(${ICON_PADDING}px);
   }
 
   ha-icon.inactive {
     color: var(--disabled-text-color) !important;
-  }
-
-  ha-entity-picker {
-    flex-grow: 1;
-    min-width: 0;
   }
 
 `;

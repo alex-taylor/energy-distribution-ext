@@ -34,7 +34,7 @@
     "show_zero_states": "Show zero states",
     "clickable_entities": "Clickable entities",
     "segment_gaps": "Show gaps between segments",
-    "use_hass_style": "Use HASS-style flows",
+    "use_hass_style": "Use HASS-style layout",
     "use_hourly_stats": "Use hourly statistics",
     "use_hourly_stats#helptext": "Hourly statistics are more precise, but may take longer to calculate",
     "unit_whitespace": "White-space between value and unit",
@@ -44,25 +44,21 @@
     "flows": "Flows",
     "scale": "Scale",
     "animation": "Animation",
-    "min_rate": "Min rate",
-    "max_rate": "Max rate",
 
     "energy_units": "Energy Units",
+    "electric_units": "Electric units",
+    "electric_unit_prefixes": "Electric unit prefixes",
+    "gas_units": "Gas units",
+    "gas_unit_prefixes": "Gas unit prefixes",
+    "gas_calorific_value": "Gas calorific value",
+    "gas_calorific_value#helptext": "This can be found on your gas statement and can change from time to time",
     "prefix_threshold": "Prefix threshold",
-    "wh_kwh_threshold": "Wh/kWh threshold",
-    "kwh_mwh_threshold": "kWh/MWh threshold",
     "display_precision_under_10": "Display precision (<10)",
     "display_precision_under_100": "Display precision (<100)",
     "display_precision_default": "Display precision (100+)",
 
     "entity_id": "",
     "entity_ids": "",
-    "unit_prefixes": "Electric unit prefixes",
-    "unit_position": "Show units",
-    "units": "Override units",
-    "zero_threshold": "Threshold",
-    "zero_threshold#helptext": "Values less than this will be shown as zero",
-    "display_precision": "Display precision",
 
     "grid": "Grid",
     "import_entities": "Import Entities",
@@ -119,6 +115,11 @@
 
     "secondary_info": "Secondary Info",
     "secondary_icon": "Icon",
+    "unit_position": "Show units",
+    "units": "Override units",
+    "zero_threshold": "Threshold",
+    "zero_threshold#helptext": "Values less than this will be shown as zero",
+    "display_precision": "Display precision",
 
     "missing_entity": "Entity must be specified",
     "invalid_primary_entity": "is not an energy sensor of type Total or Total_Increasing",
@@ -153,7 +154,7 @@
     "percentage": "Percentage",
     "hidden": "Hidden"
   },
-  "InactiveLinesMode": {
+  "InactiveFlowsMode": {
     "normal": "Normal colors",
     "dimmed": "Dimmed colors",
     "greyed": "Greyed-out"
@@ -187,5 +188,17 @@
   "Scale": {
     "linear": "Linear",
     "logarithmic": "Logarithmic"
+  },
+  "ElectricUnits": {
+    "Wh": "Watt hours",
+    "J": "Joules",
+    "cal": "Calories"
+  },
+  "GasUnits": {
+    "same_as_electric": "Same as electric",
+    "ft³": "Cubic feet",
+    "m³": "Cubic meters",
+    "CCF": "CCF",
+    "MCF": "MCF"
   }
 }

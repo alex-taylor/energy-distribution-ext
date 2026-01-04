@@ -13,13 +13,13 @@ import { SecondaryInfoState } from "@/states/secondary-info";
 import { States, Flows } from "@/states";
 import { EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { ColourMode, DisplayMode, LowCarbonType, DefaultValues, UnitPosition, UnitPrefixes, CssClass, EnergyUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale } from "@/enums";
+import { ColourMode, DisplayMode, LowCarbonType, DefaultValues, UnitPosition, UnitPrefixes, CssClass, EnergyUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, clampEnumValue, PrefixThreshold, ElectricUnits, GasUnits } from "@/enums";
 import { HomeState } from "@/states/home";
 import { SingleValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
-import { CARD_NAME, COL_SPACING_MIN, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_DIAMETER } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, HomeConfig } from "@/config";
-import { setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setSingleValueNodeStyles } from "@/ui-helpers/styles";
+import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_DIAMETER, ICON_PADDING } from "@/const";
+import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, HomeConfig, SecondaryInfoOptions, HomeOptions, DualValueNodeConfig } from "@/config";
+import { getColSpacing, MinMax, setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setLayout, setSingleValueNodeStyles } from "@/ui-helpers/styles";
 import { renderFlowLines, renderSegmentedCircle } from "@/ui-helpers/renderers";
 import { AnimationDurations, FlowLine, getGasSourcesMode, PathScaleFactors, SegmentGroup } from "@/ui-helpers";
 import { LowCarbonState } from "@/states/low-carbon";
@@ -103,21 +103,19 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _displayPrecisionUnder10: number = DefaultValues.Display_Precision_Under_10;
   private _displayPrecisionUnder100: number = DefaultValues.Display_Precision_Under_100;
   private _displayPrecision: number = DefaultValues.Display_Precision;
-  private _energyUnitPrefixes!: UnitPrefixes;
+  private _electricUnits!: ElectricUnits;
+  private _electricUnitPrefixes!: UnitPrefixes;
+  private _gasUnits!: GasUnits;
+  private _gasUnitPrefixes!: UnitPrefixes;
   private _energyUnitPosition!: UnitPosition;
   private _showZeroStates: boolean = true;
   private _showSegmentGaps: boolean = false;
-  private _useHassColours: boolean = true;
+  private _useHassStyles: boolean = true;
   private _lowCarbonAsPercentage: boolean = true;
   private _inactiveFlowsCss: string = CssClass.Inactive;
   private _scale: Scale = Scale.Linear;
-  private _minFlowRate: number = DefaultValues.Min_Flow_Rate;
-  private _maxFlowRate: number = DefaultValues.Max_Flow_Rate;
   private _circleSize: number = DefaultValues.Circle_Size;
-  private _rowSpacing: number = 0;
-  private _colSpacing: number = 0;
-  private _flowLineCurved: number = 0;
-  private _flowLineCurvedControl: number = 0;
+  private _colSpacingMin: number = 0;
 
   //================================================================================================================================================================================//
 
@@ -158,13 +156,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this._config = cleanupConfig(this.hass, config);
     this.resetSubscriptions();
 
-    this._showZeroStates = this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Show_Zero_States] ?? true;
-    this._showSegmentGaps = this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Segment_Gaps] ?? false;
-    this._useHassColours = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_HASS_Style] ?? true;
+    this._showZeroStates = !!this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Show_Zero_States] ?? true;
+    this._showSegmentGaps = !!this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Segment_Gaps] ?? false;
+    this._useHassStyles = !!this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_HASS_Style] ?? true;
     this._lowCarbonAsPercentage = this._config?.[EditorPages.Low_Carbon]?.[GlobalOptions.Options]?.[EntitiesOptions.Low_Carbon_Mode] === LowCarbonType.Percentage;
-    this._scale = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Scale] || Scale.Linear;
-    this._minFlowRate = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Min_Rate] || DefaultValues.Min_Flow_Rate;
-    this._maxFlowRate = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Max_Rate] || DefaultValues.Max_Flow_Rate;
+    this._scale = clampEnumValue(this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Scale], Scale, Scale.Linear);
 
     switch (this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal) {
       case InactiveFlowsMode.Dimmed:
@@ -181,9 +177,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const energyUnitsConfig: EnergyUnitsConfig = this._config?.[EditorPages.Appearance]?.[AppearanceOptions.Energy_Units]!;
-    this._energyUnitPrefixes = energyUnitsConfig?.[EnergyUnitsOptions.Unit_Prefixes] || UnitPrefixes.Unified;
-    this._energyUnitPosition = energyUnitsConfig?.[EnergyUnitsOptions.Unit_Position] || UnitPosition.After_Space;
-    this._prefixThreshold = new Decimal(energyUnitsConfig?.[EnergyUnitsOptions.Prefix_Threshold] || DefaultValues.Prefix_Threshold);
+    this._electricUnits = clampEnumValue(energyUnitsConfig?.[EnergyUnitsOptions.Electric_Units], ElectricUnits, ElectricUnits.WattHours);
+    this._electricUnitPrefixes = clampEnumValue(energyUnitsConfig?.[EnergyUnitsOptions.Electric_Unit_Prefixes], UnitPrefixes, UnitPrefixes.Unified);
+    this._gasUnits = clampEnumValue(energyUnitsConfig?.[EnergyUnitsOptions.Gas_Units], GasUnits, GasUnits.Same_As_Electric);
+    this._gasUnitPrefixes = clampEnumValue(energyUnitsConfig?.[EnergyUnitsOptions.Gas_Unit_Prefixes], UnitPrefixes, UnitPrefixes.Unified);
+    this._energyUnitPosition = clampEnumValue(energyUnitsConfig?.[EnergyUnitsOptions.Unit_Position], UnitPosition, UnitPosition.After_Space);
+    this._prefixThreshold = new Decimal(clampEnumValue(energyUnitsConfig?.[EnergyUnitsOptions.Prefix_Threshold], PrefixThreshold, DefaultValues.Prefix_Threshold));
     this._displayPrecisionUnder10 = energyUnitsConfig?.[EnergyUnitsOptions.Display_Precision_Under_10] ?? DefaultValues.Display_Precision_Under_10;
     this._displayPrecisionUnder100 = energyUnitsConfig?.[EnergyUnitsOptions.Display_Precision_Under_100] ?? DefaultValues.Display_Precision_Under_100;
     this._displayPrecision = energyUnitsConfig?.[EnergyUnitsOptions.Display_Precision_Default] ?? DefaultValues.Display_Precision;
@@ -195,16 +194,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     setDualValueNodeStaticStyles(this._config?.[EditorPages.Battery]!, CssClass.Battery, this.style);
 
     this.style.setProperty("--clickable-cursor", this._config?.[EditorPages.Appearance]?.[GlobalOptions.Options]?.[AppearanceOptions.Clickable_Entities] ? "pointer" : "default");
-    this.style.setProperty("--inactive-flow-color", this._useHassColours && this._inactiveFlowsCss !== CssClass.Inactive ? "var(--primary-text-color)" : "var(--disabled-text-color)");
+    this.style.setProperty("--inactive-flow-color", this._useHassStyles && this._inactiveFlowsCss !== CssClass.Inactive ? "var(--primary-text-color)" : "var(--disabled-text-color)");
 
-    this._rowSpacing = Math.round(this._circleSize * 3 / 8);
-    this._colSpacing = Math.round(this._circleSize * 5 / 8);
-    this._flowLineCurved = this._circleSize / 2 + this._rowSpacing - FLOW_LINE_SPACING;
-    this._flowLineCurvedControl = Math.round(this._flowLineCurved / 3);
-
-    this.style.setProperty("--circle-size", this._circleSize + "px");
-    this.style.setProperty("--row-spacing", this._rowSpacing + "px");
-    this.style.setProperty("--col-spacing", this._colSpacing + "px");
+    if (!!this.style.getPropertyValue("--circle-size")) {
+      setLayout(this.style, DefaultValues.Circle_Size);
+    }
   }
 
   //================================================================================================================================================================================//
@@ -229,12 +223,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this._calculateFlowLines();
 
     const states: States = this._entityStates.getStates();
-    const electricUnitPrefix: string | undefined = this._energyUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue)) : undefined;
+    const electricUnitPrefix: string | undefined = this._electricUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue)) : undefined;
+    const gasUnitPrefix: string | undefined = this._gasUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestGasValue)) : undefined;
     const animationDurations: AnimationDurations = this._calculateAnimationDurations(states);
 
-    // TODO: move the style on ha-card to the css
     return html`
-      <ha-card .header=${this._config?.[GlobalOptions.Title]} style="min-width: calc(${this._circleSize * 3 + COL_SPACING_MIN * 2}px + 2 * var(--ha-card-border-width, 1px) + 2 * var(--ha-space-4));">
+      <ha-card .header=${this._config?.[GlobalOptions.Title]}>
         <div class="card-content" id=${CARD_NAME}>
 
         <!-- flow lines -->
@@ -254,7 +248,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           ${HORIZ_SPACER}
 
           <!-- top right -->
-          ${this._renderTopRowNode(this._entityStates.gas, CssClass.Gas, states.gasImport, states.gasSecondary)}
+          ${this._renderTopRowNode(this._entityStates.gas, CssClass.Gas, states.gasImport, states.gasSecondary, gasUnitPrefix)}
 
         </div>
 
@@ -374,7 +368,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const config: BatteryConfig = this._config[EditorPages.Battery]!;
-    const circleMode: ColourMode = config?.[EntitiesOptions.Colours]?.[ColourOptions.Circle]!;
+    const circleMode: ColourMode = config?.[EntitiesOptions.Colours]?.[ColourOptions.Circle] || ColourMode.Export;
     const flows: Flows = states.flows;
     const highCarbon: number = 1 - (states.lowCarbonPercentage / 100);
     let mainEntityId: string = "";
@@ -463,7 +457,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const config: GridConfig = this._config[EditorPages.Grid]!;
-    const circleMode: ColourMode = config?.[EntitiesOptions.Colours]?.[ColourOptions.Circle]!;
+    const circleMode: ColourMode = config?.[EntitiesOptions.Colours]?.[ColourOptions.Circle] || ColourMode.Import;
     const flows: Flows = states.flows;
     let mainEntityId: string = "";
     const segmentGroups: SegmentGroup[] = [];
@@ -554,7 +548,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     if (circleMode === ColourMode.Dynamic) {
       segmentGroups.push(
         {
-          inactiveCss: this._useHassColours ? CssClass.Grid_Import : CssClass.Inactive,
+          inactiveCss: this._useHassStyles ? CssClass.Grid_Import : CssClass.Inactive,
           segments: [
             {
               state: flows.solarToHome || 0,
@@ -587,7 +581,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       }
     }
 
-    setHomeNodeStaticStyles(this._config?.[EditorPages.Home]!, this.style);
+    setHomeNodeStaticStyles(config, this.style);
     setHomeNodeDynamicStyles(config, states, this.style);
 
     const inactiveCss: string = states.homeElectric === 0 ? this._inactiveFlowsCss : "";
@@ -717,7 +711,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     decimals = getDisplayPrecisionForEnergyState(stateAsDecimal);
     const units: string = prefix + (prefix === "%" ? "" : "Wh");
-
     const formattedValue = formatNumber(stateAsDecimal.toDecimalPlaces(decimals).toString(), this.hass.locale);
     return this._formatState(formattedValue, units, this._energyUnitPosition);
   }
@@ -733,8 +726,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       return this._renderEnergyState(state, undefined);
     }
 
-    const units: string | undefined = config?.[EntityOptions.Units] ?? this.hass.states[entityId].attributes.unit_of_measurement;
-    const decimals: number = config?.[EntityOptions.Display_Precision] ?? this.hass["entities"][entityId].display_precision;
+    const units: string | undefined = config?.[SecondaryInfoOptions.Units] || this.hass.states[entityId].attributes.unit_of_measurement;
+    const decimals: number = config?.[SecondaryInfoOptions.Display_Precision] ?? this.hass["entities"][entityId].display_precision;
     const isCurrencyDevice: boolean = (deviceClass ?? this.hass.states[entityId].attributes.device_class) === DEVICE_CLASS_MONETARY;
     let formattedValue: string;
 
@@ -806,10 +799,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const entityId: string = secondary.firstImportEntity!;
 
-    state = Math.abs(state) < (secondary.config?.[EntityOptions.Zero_Threshold] ?? 0)
-      ? 0
-      : state;
-
     return html`
         <span class="secondary-info ${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
           ${secondary.icon ? html`<ha-icon class="secondary-info small ${cssClass}" .icon=${secondary.icon}></ha-icon>` : ""}
@@ -827,7 +816,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const gridIcon: string =
       this._entityStates.grid.powerOutage.isOutage
-        ? this._config?.[EditorPages.Grid]?.[PowerOutageOptions.Power_Outage]?.[PowerOutageOptions.Icon_Alert] ?? "mdi:transmission-tower-off"
+        ? this._config?.[EditorPages.Grid]?.[PowerOutageOptions.Power_Outage]?.[PowerOutageOptions.Icon_Alert] || "mdi:transmission-tower-off"
         : this._entityStates.grid.icon;
 
     return html`
@@ -928,7 +917,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       let cssBatteryToGrid: string | undefined = undefined;
       let cssGridToBatteryDot: string = CssClass.Battery_Export;
 
-      if (this._useHassColours) {
+      if (this._useHassStyles) {
         if (!gridToBatteryActive && !batteryToGridActive) {
           cssGridToBattery = CssClass.Inactive;
         } else {
@@ -993,43 +982,46 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _calculateFlowLines(): void {
-    const elem = this?.shadowRoot?.querySelector(".lines");
-    const widthStr = elem ? getComputedStyle(elem).getPropertyValue("width") : "0px";
-    const width: number = parseInt(widthStr.replace("px", ""), 10);
+    const width: number = this._getPropertyValue(".lines", "width");
 
     if (width !== this._width) {
       this._width = width;
 
       if (width > 0) {
+        const circleSize: number = this._calculateCircleSize();
+        this._circleSize = circleSize;
+        setLayout(this.style, circleSize);
+
+        const colSpacing: MinMax = getColSpacing(circleSize);
+        this._colSpacingMin = colSpacing.min;
+
+        const rowSpacing: number = Math.round(circleSize * 3 / 8);
+        const flowLineCurved: number = circleSize / 2 + rowSpacing - FLOW_LINE_SPACING;
+        const flowLineCurvedControl: number = Math.round(flowLineCurved / 3);
+
         const isTopRowPresent: boolean = (this._entityStates.lowCarbon.isPresent && this._entityStates.grid.isPresent) || this._entityStates.solar.isPresent || this._entityStates.gas.isPresent;
         const numColumns: number = this._getNumColumns();
-        const colSpacing: number = Math.max(COL_SPACING_MIN, (width - numColumns * this._circleSize) / (numColumns - 1));
-        let textLineHeight: number = 0;
-
-        const label = this?.shadowRoot?.querySelector(".label");
-
-        if (label) {
-          textLineHeight = parseFloat(getComputedStyle(label).getPropertyValue("line-height").replace("px", ""));
-        }
+        const columnSpacing: number = Math.max(colSpacing.min, (width - numColumns * circleSize) / (numColumns - 1));
+        const textLineHeight: number = this._getPropertyValue(".label", "line-height");
 
         const battery: boolean = !!this._entityStates.battery.firstExportEntity;
         const grid: boolean = !!this._entityStates.grid.firstImportEntity;
         const solar: boolean = this._entityStates.solar.isPresent;
 
-        const col1X: number = this._circleSize - DOT_DIAMETER;
-        const col2X: number = this._circleSize + colSpacing + this._circleSize / 2;
-        const col3X: number = this._circleSize + colSpacing + this._circleSize + colSpacing + DOT_DIAMETER;
+        const col1X: number = circleSize - DOT_DIAMETER;
+        const col2X: number = circleSize + columnSpacing + circleSize / 2;
+        const col3X: number = circleSize + columnSpacing + circleSize + columnSpacing + DOT_DIAMETER;
 
-        const row1Y: number = this._circleSize + textLineHeight - DOT_DIAMETER;
-        const row2Y: number = (isTopRowPresent ? this._circleSize + textLineHeight + this._rowSpacing : 0) + this._circleSize / 2;
-        const row3Y: number = (isTopRowPresent ? this._circleSize + textLineHeight + this._rowSpacing : 0) + this._circleSize + this._rowSpacing + DOT_DIAMETER;
+        const row1Y: number = circleSize + textLineHeight - DOT_DIAMETER;
+        const row2Y: number = (isTopRowPresent ? circleSize + textLineHeight + rowSpacing : 0) + circleSize / 2;
+        const row3Y: number = (isTopRowPresent ? circleSize + textLineHeight + rowSpacing : 0) + circleSize + rowSpacing + DOT_DIAMETER;
 
-        const topRowLineLength: number = Math.round((row2Y - this._circleSize / 2 + DOT_DIAMETER) - row1Y);
+        const topRowLineLength: number = Math.round((row2Y - circleSize / 2 + DOT_DIAMETER) - row1Y);
         const horizLineLength: number = Math.round(col3X - col1X);
         const vertLineLength: number = Math.round(row3Y - row1Y);
-        const curvedLineLength: number = row2Y - this._flowLineCurved - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0) - row1Y
-          + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: this._flowLineCurved }, { x: this._flowLineCurvedControl, y: this._flowLineCurved }, { x: this._flowLineCurved, y: this._flowLineCurved })
-          + col3X - this._flowLineCurved - (col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0));
+        const curvedLineLength: number = row2Y - flowLineCurved - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0) - row1Y
+          + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: flowLineCurved }, { x: flowLineCurvedControl, y: flowLineCurved }, { x: flowLineCurved, y: flowLineCurved })
+          + col3X - flowLineCurved - (col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0));
 
         const maxLineLength: number = Math.max(topRowLineLength, horizLineLength, vertLineLength, curvedLineLength);
 
@@ -1042,32 +1034,32 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
         this._solarToBatteryPath = `M${col2X},${row1Y} v${vertLineLength}`;
         this._gridToHomePath = `M${col1X},${row2Y} h${horizLineLength}`;
-        this._lowCarbonToGridPath = `M${this._circleSize / 2},${row1Y} v${topRowLineLength}`;
-        this._gasToHomePath = `M${this._circleSize + colSpacing + this._circleSize + colSpacing + this._circleSize / 2},${row1Y} v${topRowLineLength}`;
+        this._lowCarbonToGridPath = `M${circleSize / 2},${row1Y} v${topRowLineLength}`;
+        this._gasToHomePath = `M${circleSize + columnSpacing + circleSize + columnSpacing + circleSize / 2},${row1Y} v${topRowLineLength}`;
 
         this._solarToHomePath = `M${col2X + FLOW_LINE_SPACING * (battery ? 1 : grid ? 0.5 : 0)},${row1Y}
-                               V${row2Y - this._flowLineCurved - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0)}
-                               c0,${this._flowLineCurved} ${this._flowLineCurvedControl},${this._flowLineCurved} ${this._flowLineCurved},${this._flowLineCurved}
+                               V${row2Y - flowLineCurved - FLOW_LINE_SPACING * (grid ? 1 : battery ? 0.5 : 0)}
+                               c0,${flowLineCurved} ${flowLineCurvedControl},${flowLineCurved} ${flowLineCurved},${flowLineCurved}
                                H${col3X}`;
 
         this._solarToGridPath = `M${col2X - FLOW_LINE_SPACING * (battery ? 1 : 0.5)},${row1Y}
-                               V${row2Y - this._flowLineCurved - FLOW_LINE_SPACING}
-                               c0,${this._flowLineCurved} ${-this._flowLineCurvedControl},${this._flowLineCurved} ${-this._flowLineCurved},${this._flowLineCurved}
+                               V${row2Y - flowLineCurved - FLOW_LINE_SPACING}
+                               c0,${flowLineCurved} ${-flowLineCurvedControl},${flowLineCurved} ${-flowLineCurved},${flowLineCurved}
                                H${col1X}`;
 
         this._batteryToHomePath = `M${col2X + FLOW_LINE_SPACING * (solar ? 1 : grid ? 0.5 : 0)},${row3Y}
-                                 V${row2Y + this._flowLineCurved + FLOW_LINE_SPACING * (grid ? 1 : solar ? 0.5 : 0)}
-                                 c0,${-this._flowLineCurved} ${this._flowLineCurvedControl},${-this._flowLineCurved} ${this._flowLineCurved},${-this._flowLineCurved}
+                                 V${row2Y + flowLineCurved + FLOW_LINE_SPACING * (grid ? 1 : solar ? 0.5 : 0)}
+                                 c0,${-flowLineCurved} ${flowLineCurvedControl},${-flowLineCurved} ${flowLineCurved},${-flowLineCurved}
                                  H${col3X}`;
 
         this._batteryToGridPath = `M${col2X - FLOW_LINE_SPACING * (solar ? 1 : 0.5)},${row3Y}
-                                 V${row2Y + this._flowLineCurved + FLOW_LINE_SPACING}
-                                 c0,${-this._flowLineCurved} ${-this._flowLineCurvedControl},${-this._flowLineCurved} ${-this._flowLineCurved},${-this._flowLineCurved}
+                                 V${row2Y + flowLineCurved + FLOW_LINE_SPACING}
+                                 c0,${-flowLineCurved} ${-flowLineCurvedControl},${-flowLineCurved} ${-flowLineCurved},${-flowLineCurved}
                                  H${col1X}`;
 
         this._gridToBatteryPath = `M${col1X},${row2Y + FLOW_LINE_SPACING}
-                                 H${col2X - this._flowLineCurved - FLOW_LINE_SPACING * (solar ? 1 : 0.5)}
-                                 c${this._flowLineCurvedControl * 2},0 ${this._flowLineCurved},0 ${this._flowLineCurved},${this._flowLineCurved}
+                                 H${col2X - flowLineCurved - FLOW_LINE_SPACING * (solar ? 1 : 0.5)}
+                                 c${flowLineCurvedControl * 2},0 ${flowLineCurved},0 ${flowLineCurved},${flowLineCurved}
                                  V${row3Y}`;
       }
     }
@@ -1115,7 +1107,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       total = Math.log(total);
     }
 
-    return this._minFlowRate + (1 - (value / total)) * (this._maxFlowRate - this._minFlowRate) * scale;
+    return DefaultValues.Min_Flow_Rate + (1 - (value / total)) * (DefaultValues.Max_Flow_Rate - DefaultValues.Min_Flow_Rate) * scale;
   };
 
   //================================================================================================================================================================================//
@@ -1143,21 +1135,108 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     t = t > 1 ? 1 : t < 0 ? 0 : t;
 
     let t2: number = t / 2;
-    let Tvalues: number[] = [-.1252, .1252, -.3678, .3678, -.5873, .5873, -.7699, .7699, -.9041, .9041, -.9816, .9816];
-    let Cvalues: number[] = [0.2491, 0.2491, 0.2335, 0.2335, 0.2032, 0.2032, 0.1601, 0.1601, 0.1069, 0.1069, 0.0472, 0.0472];
+    let tValues: number[] = [-.1252, .1252, -.3678, .3678, -.5873, .5873, -.7699, .7699, -.9041, .9041, -.9816, .9816];
+    let cValues: number[] = [0.2491, 0.2491, 0.2335, 0.2335, 0.2032, 0.2032, 0.1601, 0.1601, 0.1069, 0.1069, 0.0472, 0.0472];
 
-    let n = Tvalues.length;
+    let n = tValues.length;
     let sum: number = 0;
 
     for (let i = 0; i < n; i++) {
-      let ct = t2 * Tvalues[i] + t2,
+      let ct = t2 * tValues[i] + t2,
         xbase = base3(ct, p0.x, cp1.x, cp2.x, p1.x),
         ybase = base3(ct, p0.y, cp1.y, cp2.y, p1.y),
         comb = xbase * xbase + ybase * ybase;
-      sum += Cvalues[i] * Math.sqrt(comb);
+      sum += cValues[i] * Math.sqrt(comb);
     }
 
     return t2 * sum;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _calculateCircleSize = (): number => {
+    if (this._useHassStyles) {
+      return DefaultValues.Circle_Size;
+    }
+
+    const fontHeight: number = this._getPropertyValue(".value", "line-height");
+
+    const numChars: number = Math.max(
+      this._renderEnergyState(0.9999, " ").length,
+      this._renderEnergyState(10.9999, " ").length,
+      this._renderEnergyState(100.9999, " ").length,
+      this._renderEnergyState(1000.9999, " ").length,
+    );
+
+    const textLineHeight: number = fontHeight + ICON_PADDING;
+    const numTextLines: number = 1 + this._hasSecondPrimaryState() + this._hasSecondaryState();
+
+    const width: number = (numChars * fontHeight * 60 / 100) + this._getPropertyValue(".small", "width") + ICON_PADDING;
+    const height: number = Math.ceil(numTextLines * textLineHeight + this._getPropertyValue(".entity-icon", "height") + ICON_PADDING * 2);
+
+    return Math.max(DefaultValues.Circle_Size, Math.ceil(Math.sqrt(width * width + height * height)) + CIRCLE_STROKE_WIDTH_SEGMENTS * 2);
+  }
+
+  //================================================================================================================================================================================//
+
+  private _hasSecondPrimaryState = (): number => {
+    const homeConfig: HomeConfig = this._config?.[EditorPages.Home]!;
+
+    if (homeConfig?.[HomeOptions.Gas_Sources] === GasSourcesMode.Show_Separately || homeConfig?.[HomeOptions.Gas_Sources] === GasSourcesMode.Automatic) {
+      return 1;
+    }
+
+    const dualPrimaries: DualValueNodeConfig[] = [
+      this._config?.[EditorPages.Battery]!,
+      this._config?.[EditorPages.Grid]!,
+
+      // TODO: devices
+    ];
+
+    for (let n = 0; n < dualPrimaries.length; n++) {
+      const dualPrimary: DualValueNodeConfig = dualPrimaries[n]!;
+
+      if (dualPrimary?.[EntitiesOptions.Import_Entities]?.[EntityOptions.Entity_Ids]?.length && dualPrimary?.[EntitiesOptions.Export_Entities]?.[EntityOptions.Entity_Ids]?.length) {
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _hasSecondaryState = (): number => {
+    const secondaries: SecondaryInfoConfig[] = [
+      this._config?.[EditorPages.Battery]?.[EntitiesOptions.Secondary_Info]!,
+      this._config?.[EditorPages.Gas]?.[EntitiesOptions.Secondary_Info]!,
+      this._config?.[EditorPages.Grid]?.[EntitiesOptions.Secondary_Info]!,
+      this._config?.[EditorPages.Home]?.[EntitiesOptions.Secondary_Info]!,
+      this._config?.[EditorPages.Low_Carbon]?.[EntitiesOptions.Secondary_Info]!,
+      this._config?.[EditorPages.Solar]?.[EntitiesOptions.Secondary_Info]!,
+
+      // TODO: devices
+    ];
+
+    for (let n = 0; n < secondaries.length; n++) {
+      if (secondaries[n]?.[EntityOptions.Entity_Id]) {
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _getPropertyValue = (selector: string, property: string): number => {
+    const element: Element | null | undefined = this?.shadowRoot?.querySelector(selector);
+
+    if (element) {
+      return parseFloat(getComputedStyle(element).getPropertyValue(property).replace("px", ""));
+    }
+
+    return 0;
   }
 
   //================================================================================================================================================================================//

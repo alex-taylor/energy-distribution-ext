@@ -1,7 +1,7 @@
 import { HomeAssistant, round } from "custom-card-helpers";
 import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
 import { EnergyCollection, EnergyData, Statistics, StatisticValue } from "@/hass";
-import { AppearanceOptions, EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions } from "@/config";
+import { AppearanceOptions, EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, FlowsOptions, GlobalOptions, SecondaryInfoOptions } from "@/config";
 import { GridState } from "./grid";
 import { BatteryState } from "./battery";
 import { GasState } from "./gas";
@@ -64,6 +64,7 @@ export class EntityStates {
   public getStates(): States {
     const states: States = {
       largestElectricValue: 0,
+      largestGasValue: 0,
       batteryImport: this.battery.state.import,
       batteryExport: this.battery.state.export,
       batterySecondary: this.battery.secondary.state,
@@ -150,6 +151,9 @@ export class EntityStates {
       states.lowCarbon,
       states.solarImport
     );
+
+    // TODO: add gas-producing devices
+    states.largestGasValue = states.gasImport;
 
     return states;
   }
@@ -511,7 +515,7 @@ export class EntityStates {
       return;
     }
 
-    state.secondary.state = this._getEntityStates(this._secondaryStatistics!, state.secondary.firstImportEntity!, state.secondary.config?.[EntitiesOptions.Entities]?.[EntityOptions.Units]);
+    state.secondary.state = this._getEntityStates(this._secondaryStatistics!, state.secondary.firstImportEntity!, state.secondary.config?.[EntitiesOptions.Entities]?.[SecondaryInfoOptions.Units]);
   }
 
   //================================================================================================================================================================================//
@@ -556,7 +560,7 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _getDirectEntityStates(config: any, entityIds: string[] | undefined = []): number {
-    const configUnits: string | undefined = config?.[EntitiesOptions.Entities]?.[EntityOptions.Units];
+    const configUnits: string | undefined = config?.[EntitiesOptions.Entities]?.[SecondaryInfoOptions.Units];
     let stateSum: number = 0;
 
     entityIds.forEach(entityId => {

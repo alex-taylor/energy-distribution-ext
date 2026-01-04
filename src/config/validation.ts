@@ -19,12 +19,16 @@ const appearanceOptionsConfigStruct = object({
 });
 
 const energyUnitsOptionsConfigStruct = object({
-  [EnergyUnitsOptions.Unit_Prefixes]: optional(string()),
+  [EnergyUnitsOptions.Electric_Units]: optional(string()),
+  [EnergyUnitsOptions.Electric_Unit_Prefixes]: optional(string()),
+  [EnergyUnitsOptions.Gas_Units]: optional(string()),
+  [EnergyUnitsOptions.Gas_Unit_Prefixes]: optional(string()),
   [EnergyUnitsOptions.Unit_Position]: optional(string()),
   [EnergyUnitsOptions.Display_Precision_Under_10]: optional(integer()),
   [EnergyUnitsOptions.Display_Precision_Under_100]: optional(integer()),
   [EnergyUnitsOptions.Display_Precision_Default]: optional(integer()),
-  [EnergyUnitsOptions.Prefix_Threshold]: optional(number())
+  [EnergyUnitsOptions.Prefix_Threshold]: optional(integer()),
+  [EnergyUnitsOptions.Gas_Calorific_Value]: optional(number())
 });
 
 const flowsOptionsConfigStruct = object({
@@ -32,9 +36,7 @@ const flowsOptionsConfigStruct = object({
   [FlowsOptions.Use_HASS_Style]: optional(boolean()),
   [FlowsOptions.Animation]: optional(boolean()),
   [FlowsOptions.Inactive_Flows]: optional(string()),
-  [FlowsOptions.Scale]: optional(string()),
-  [FlowsOptions.Min_Rate]: optional(number()),
-  [FlowsOptions.Max_Rate]: optional(number())
+  [FlowsOptions.Scale]: optional(string())
 });
 
 const appearanceConfigStruct = object({
@@ -82,10 +84,10 @@ const overridesConfigStruct = object({
 
 const secondaryInfoConfigStruct = object({
   [EntityOptions.Entity_Id]: optional(string()),
-  [EntityOptions.Units]: optional(string()),
+  [SecondaryInfoOptions.Units]: optional(string()),
   [EntityOptions.Unit_Position]: optional(string()),
-  [EntityOptions.Zero_Threshold]: optional(number()),
-  [EntityOptions.Display_Precision]: optional(number()),
+  [SecondaryInfoOptions.Zero_Threshold]: optional(number()),
+  [SecondaryInfoOptions.Display_Precision]: optional(number()),
   [SecondaryInfoOptions.Icon]: optional(string())
 });
 
