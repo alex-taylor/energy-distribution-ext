@@ -50,6 +50,8 @@ const entitiesConfigStruct = object({
 });
 
 const singleValueColoursConfigStruct = object({
+  [ColourOptions.Circle]: optional(string()),
+  [ColourOptions.Circle_Colour]: optional(array()),
   [ColourOptions.Flow]: optional(string()),
   [ColourOptions.Flow_Colour]: optional(array()),
   [ColourOptions.Icon]: optional(string()),

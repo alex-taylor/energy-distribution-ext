@@ -25,7 +25,7 @@ const STYLE_ENERGY_GRID_IMPORT_COLOR: string = "var(--energy-grid-consumption-co
 const STYLE_ENERGY_GRID_EXPORT_COLOR: string = "var(--energy-grid-return-color)";
 
 const HOME_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Circle, ColourOptions.Icon, ColourOptions.Value, ColourOptions.Secondary];
-const SINGLE_NODE_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Icon, ColourOptions.Value, ColourOptions.Secondary];
+const SINGLE_NODE_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Circle, ColourOptions.Icon, ColourOptions.Value, ColourOptions.Secondary];
 const DUAL_NODE_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Circle, ColourOptions.Icon, ColourOptions.Value_Import, ColourOptions.Value_Export, ColourOptions.Secondary];
 
 
@@ -159,10 +159,9 @@ export function setSingleValueNodeStyles(config: SingleValueNodeConfig, cssClass
   }
 
   style.setProperty(`--flow-${cssClass}-color`, flowColour);
-  style.setProperty(`--circle-${cssClass}-color`, flowColour);
 
   SINGLE_NODE_UI_ELEMENTS.forEach(options => {
-    const defaultMode: ColourMode = cssClass === CssClass.Low_Carbon && options === ColourOptions.Icon ? ColourMode.Flow : ColourMode.Do_Not_Colour;
+    const defaultMode: ColourMode = options === ColourOptions.Circle || (cssClass === CssClass.Low_Carbon && options === ColourOptions.Icon) ? ColourMode.Flow : ColourMode.Do_Not_Colour;
     const mode: ColourMode = config?.[EntitiesOptions.Colours]?.[options] || defaultMode;
     let colour: string;
 

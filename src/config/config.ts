@@ -272,6 +272,7 @@ export function getDefaultSolarConfig(hass: HomeAssistant, requireEntity: boolea
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
+      [ColourOptions.Circle]: ColourMode.Flow,
       [ColourOptions.Flow]: ColourMode.Default,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
       [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
@@ -314,6 +315,7 @@ export function getDefaultGasConfig(hass: HomeAssistant, requireEntity: boolean)
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
+      [ColourOptions.Circle]: ColourMode.Flow,
       [ColourOptions.Flow]: ColourMode.Default,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
       [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
@@ -374,6 +376,7 @@ export function getDefaultHomeConfig(): HomeConfig {
 export function getDefaultLowCarbonConfig(): LowCarbonConfig {
   return {
     [EntitiesOptions.Colours]: {
+      [ColourOptions.Circle]: ColourMode.Flow,
       [ColourOptions.Flow]: ColourMode.Default,
       [ColourOptions.Icon]: ColourMode.Flow,
       [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,

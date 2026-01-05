@@ -269,6 +269,8 @@ export interface DualValueNodeConfig extends NodeConfig {
 };
 
 export interface SingleValueColourConfig {
+  [ColourOptions.Circle]?: ColourMode;
+  [ColourOptions.Circle_Colour]?: number[];
   [ColourOptions.Flow]?: ColourMode;
   [ColourOptions.Flow_Colour]?: number[];
   [ColourOptions.Icon]?: ColourMode;

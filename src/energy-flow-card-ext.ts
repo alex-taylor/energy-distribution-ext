@@ -18,12 +18,13 @@ import { HomeState } from "@/states/home";
 import { SingleValueState } from "@/states/state";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_DIAMETER, ICON_PADDING } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, HomeConfig, SecondaryInfoOptions, HomeOptions, DualValueNodeConfig } from "@/config";
+import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, EntitiesOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, PowerOutageOptions, EntityOptions, EnergyUnitsConfig, SecondaryInfoConfig, BatteryConfig, GridConfig, HomeConfig, SecondaryInfoOptions, HomeOptions, DualValueNodeConfig, SolarConfig } from "@/config";
 import { getColSpacing, MinMax, setDualValueNodeDynamicStyles, setDualValueNodeStaticStyles, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setLayout, setSingleValueNodeStyles } from "@/ui-helpers/styles";
 import { renderFlowLines, renderSegmentedCircle } from "@/ui-helpers/renderers";
 import { AnimationDurations, FlowLine, getGasSourcesMode, PathScaleFactors, SegmentGroup } from "@/ui-helpers";
 import { LowCarbonState } from "@/states/low-carbon";
 import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight, mdiFlash, mdiFire } from "@mdi/js";
+import { GasState } from "./states/gas";
 
 interface RegisterCardParams {
   type: string;
@@ -103,9 +104,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _displayPrecisionUnder10: number = DefaultValues.Display_Precision_Under_10;
   private _displayPrecisionUnder100: number = DefaultValues.Display_Precision_Under_100;
   private _displayPrecision: number = DefaultValues.Display_Precision;
-  private _electricUnits!: ElectricUnits;
+  private _electricUnits!: string;
   private _electricUnitPrefixes!: UnitPrefixes;
-  private _gasUnits!: GasUnits;
+  private _gasUnits!: string;
   private _gasUnitPrefixes!: UnitPrefixes;
   private _energyUnitPosition!: UnitPosition;
   private _showZeroStates: boolean = true;
@@ -186,6 +187,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this._displayPrecisionUnder100 = energyUnitsConfig?.[EnergyUnitsOptions.Display_Precision_Under_100] ?? DefaultValues.Display_Precision_Under_100;
     this._displayPrecision = energyUnitsConfig?.[EnergyUnitsOptions.Display_Precision_Default] ?? DefaultValues.Display_Precision;
 
+    if (this._gasUnits === GasUnits.Same_As_Electric) {
+      this._gasUnits = this._electricUnits;
+    }
+
     setSingleValueNodeStyles(this._config?.[EditorPages.Low_Carbon]!, CssClass.Low_Carbon, this.style);
     setSingleValueNodeStyles(this._config?.[EditorPages.Solar]!, CssClass.Solar, this.style);
     setSingleValueNodeStyles(this._config?.[EditorPages.Gas]!, CssClass.Gas, this.style);
@@ -242,12 +247,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           ${HORIZ_SPACER}
 
           <!-- top centre -->
-          ${this._renderTopRowNode(this._entityStates.solar, CssClass.Solar, states.solarImport, states.solarSecondary, this._electricUnits, electricUnitPrefix)}
+          ${this._renderSolarNode(this._entityStates.solar, states.flows, states.solarImport, states.solarSecondary, this._electricUnits, electricUnitPrefix)}
 
           ${HORIZ_SPACER}
 
           <!-- top right -->
-          ${this._renderTopRowNode(this._entityStates.gas, CssClass.Gas, states.gasImport, states.gasSecondary, this._getGasUnits(), gasUnitPrefix)}
+          ${this._renderGasNode(this._entityStates.gas, states.gasImport, states.gasSecondary, this._gasUnits, gasUnitPrefix)}
 
         </div>
 
@@ -307,7 +312,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderLowCarbonNode(state: LowCarbonState, states: States, primaryState: number, secondaryState: number, units: string, electricUnitPrefix: string | undefined = undefined): TemplateResult {
+  private _renderLowCarbonNode(state: LowCarbonState, states: States, primaryState: number, secondaryState: number, units: string, prefix: string | undefined = undefined): TemplateResult {
     if (!this._entityStates.grid.isPresent || !state.isPresent) {
       return NODE_SPACER;
     }
@@ -326,7 +331,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           <div class="circle ${inactiveCss}" @click=${this._handleClick(state.firstImportEntity)} @keyDown=${this._handleKeyDown(state.firstImportEntity)}}>
             ${this._renderSecondarySpan(state.secondary, secondaryState, valueCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
-            ${this._renderEnergyStateSpan(valueCss, state.firstImportEntity, undefined, primaryState, units, electricUnitPrefix)}
+            ${this._renderEnergyStateSpan(valueCss, state.firstImportEntity, undefined, primaryState, units, prefix)}
           </div>
         </div>
       </div>
@@ -335,16 +340,68 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderTopRowNode(state: SingleValueState, cssClass: CssClass, primaryState: number, secondaryState: number, units: string, prefix: string | undefined = undefined): TemplateResult {
+  private _renderSolarNode(state: SolarState, flows: Flows, primaryState: number, secondaryState: number, units: string, prefix: string | undefined = undefined): TemplateResult {
+    if (!state.isPresent) {
+      return NODE_SPACER;
+    }
+
+    const config: SolarConfig = this._config[EditorPages.Solar]!;
+    const circleMode: ColourMode = config?.[EntitiesOptions.Colours]?.[ColourOptions.Circle] || ColourMode.Flow;
+    const segmentGroups: SegmentGroup[] = [];
+
+    if (circleMode === ColourMode.Dynamic) {
+      segmentGroups.push(
+        {
+          inactiveCss: CssClass.Solar,
+          segments: [
+            {
+              state: flows.solarToBattery || 0,
+              cssClass: CssClass.Battery_Export
+            },
+            {
+              state: flows.solarToGrid || 0,
+              cssClass: CssClass.Grid_Export
+            },
+            {
+              state: flows.solarToHome || 0,
+              cssClass: CssClass.Solar
+            }
+          ]
+        }
+      );
+    }
+
+    const inactiveCss: string = primaryState === 0 ? this._inactiveFlowsCss : "";
+    const valueCss: string = CssClass.Solar + " " + inactiveCss;
+    const borderCss: string = circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : "";
+
+    return html`
+      <div class="node top-row ${CssClass.Solar}">
+        <span class="label ${inactiveCss}">${state.name}</span>
+        <div class="circle background">
+          <div class="circle ${borderCss} ${inactiveCss}" @click=${this._handleClick(state.firstImportEntity)} @keyDown=${this._handleKeyDown(state.firstImportEntity)}}>
+            ${circleMode === ColourMode.Dynamic ? renderSegmentedCircle(this._config, segmentGroups, this._circleSize, 180, this._showSegmentGaps) : ""}
+            ${this._renderSecondarySpan(state.secondary, secondaryState, valueCss)}
+            <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
+            ${this._renderEnergyStateSpan(valueCss, state.firstImportEntity, undefined, primaryState, units, prefix)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _renderGasNode(state: GasState, primaryState: number, secondaryState: number, units: string, prefix: string | undefined = undefined): TemplateResult {
     if (!state.isPresent) {
       return NODE_SPACER;
     }
 
     const inactiveCss: string = primaryState === 0 ? this._inactiveFlowsCss : "";
-    const valueCss: string = cssClass + " " + inactiveCss;
+    const valueCss: string = CssClass.Gas + " " + inactiveCss;
 
     return html`
-      <div class="node top-row ${cssClass}">
+      <div class="node top-row ${CssClass.Gas}">
         <span class="label ${inactiveCss}">${state.name}</span>
         <div class="circle background">
           <div class="circle ${inactiveCss}" @click=${this._handleClick(state.firstImportEntity)} @keyDown=${this._handleKeyDown(state.firstImportEntity)}}>
@@ -621,7 +678,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             ${this._renderSecondarySpan(state.secondary, states.homeSecondary, valueSecondaryCss)}
             <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
             ${this._renderEnergyStateSpan(valueElectricCss, undefined, electricIcon, electricTotal, this._electricUnits, electricUnitPrefix)}
-            ${this._renderEnergyStateSpan(valueGasCss, undefined, gasIcon, gasTotal, this._getGasUnits(), gasUnitPrefix)}
+            ${this._renderEnergyStateSpan(valueGasCss, undefined, gasIcon, gasTotal, this._gasUnits, gasUnitPrefix)}
           </div>
         </div>
         <span class="label ${inactiveCss}">${state.name}</span>
@@ -990,7 +1047,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
       if (width > 0) {
         const numColumns: number = this._getNumColumns();
-        const maxCircleSize: number = Math.floor((width - (numColumns - 1) * getColSpacing(DefaultValues.Circle_Size).min) / numColumns);
+        const maxCircleSize: number = Math.max(DefaultValues.Circle_Size, Math.floor((width - (numColumns - 1) * getColSpacing(DefaultValues.Circle_Size).min) / numColumns));
         const circleSize: number = Math.min(maxCircleSize, this._calculateCircleSize());
         this._circleSize = circleSize;
         setLayout(this.style, circleSize);
@@ -1161,12 +1218,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const fontHeight: number = this._getPropertyValue(".value", "line-height");
+    const units: string = this._electricUnits.length > this._gasUnits.length ? this._electricUnits : this._gasUnits;
 
     const numChars: number = Math.max(
-      this._renderEnergyState(0.9999, " ").length,
-      this._renderEnergyState(10.9999, " ").length,
-      this._renderEnergyState(100.9999, " ").length,
-      this._renderEnergyState(1000.9999, " ").length,
+      this._renderEnergyState(0.9999, units, " ").length,
+      this._renderEnergyState(10.9999, units, " ").length,
+      this._renderEnergyState(100.9999, units, " ").length,
+      this._renderEnergyState(1000.9999, units, " ").length,
     );
 
     const textLineHeight: number = fontHeight + ICON_PADDING;
@@ -1238,12 +1296,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     return 0;
-  }
-
-  //================================================================================================================================================================================//
-
-  private _getGasUnits = (): string => {
-    return this._gasUnits === GasUnits.Same_As_Electric ? this._electricUnits : this._gasUnits;
   }
 
   //================================================================================================================================================================================//

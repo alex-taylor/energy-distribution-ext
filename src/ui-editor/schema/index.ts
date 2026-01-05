@@ -1,4 +1,4 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig, SingleValueColourConfig, DualValueColourConfig } from '@/config';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
 import { ColourMode, DisplayMode, ElectricUnits, GasUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
@@ -175,7 +175,7 @@ function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, s
     schemaConfig?.[EnergyUnitsOptions.Gas_Units] !== GasUnits.Same_As_Electric
       ? {
         type: 'grid',
-        schema: [{ name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: 'box', min: 0} } }]
+        schema: [{ name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: 'box', min: 0 } } }]
       }
       : {},
     {
@@ -281,7 +281,7 @@ export function nodeConfigSchema(config: EnergyFlowCardExtConfig | undefined, sc
 
 //================================================================================================================================================================================//
 
-export function singleValueNodeSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: SingleValueNodeConfig | undefined): any[] {
+export function singleValueNodeSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: SingleValueNodeConfig | undefined, isSolarNode: boolean = false): any[] {
   return [
     {
       name: EntitiesOptions.Entities,
@@ -293,13 +293,13 @@ export function singleValueNodeSchema(config: EnergyFlowCardExtConfig | undefine
         }
       ]
     },
-    singleValueColourSchema(config, schemaConfig)
+    singleValueColourSchema(config, schemaConfig, isSolarNode)
   ];
 }
 
 //================================================================================================================================================================================//
 
-export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: SingleValueNodeConfig | LowCarbonConfig | undefined): {} {
+export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: SingleValueNodeConfig | LowCarbonConfig | undefined, isSolarNode: boolean): {} {
   return {
     name: EntitiesOptions.Colours,
     type: 'expandable',
@@ -314,6 +314,22 @@ export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefi
               ColourMode.getItem(ColourMode.Default),
               ColourMode.getItem(ColourMode.Custom)
             ]
+          ),
+          ...colourSchema(
+            schemaConfig,
+            ColourOptions.Circle,
+            isSolarNode ? 
+              [
+                ColourMode.getItem(ColourMode.Dynamic),
+                ColourMode.getItem(ColourMode.Flow),
+                ColourMode.getItem(ColourMode.Do_Not_Colour),
+                ColourMode.getItem(ColourMode.Custom)
+              ] :
+              [
+                ColourMode.getItem(ColourMode.Flow),
+                ColourMode.getItem(ColourMode.Do_Not_Colour),
+                ColourMode.getItem(ColourMode.Custom)
+              ]
           ),
           ...colourSchema(
             schemaConfig,
