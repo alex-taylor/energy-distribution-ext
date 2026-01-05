@@ -1,10 +1,14 @@
 import { localize } from "@/localize/localize";
 import { HomeAssistant } from "custom-card-helpers";
 import { EntitiesOptions, EntityOptions, isValidPrimaryEntity, isValidSecondaryEntity } from "@/config";
-import { ELECTRIC_ENTITY_CLASSES } from "../const";
 
-export const computeLabelCallback = (schema: any) => localize(`editor.${schema?.name}`);
-export const computeHelperCallback = (schema: any): string => localize(`editor.${schema?.name}#helptext`, "");
+export function computeLabelCallback(schema: any: string) {
+  return localize(`editor.${schema?.name}`);
+}
+
+export function computeHelperCallback(schema: any): string {
+  return localize(`editor.${schema?.name}#helptext`, "");
+}
 
 export enum Status {
   Undefined = 0,

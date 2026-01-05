@@ -1,6 +1,6 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { EnergyCollection } from '@/hass';
 
-export const getEnergyDataCollection = (hass: HomeAssistant, key: string = '_energy'): EnergyCollection | undefined => {
-  return hass.connection[key];
+export function getEnergyDataCollection(hass: HomeAssistant | undefined, key: string = '_energy'): EnergyCollection | undefined {
+  return hass ? hass.connection[key] : undefined; 
 };

@@ -1,6 +1,8 @@
-import { GlobalOptions, HomeConfig, HomeOptions } from "@/config";
-import { DefaultValues, GasSourcesMode } from "@/enums";
+import { EditorPages, EnergyFlowCardExtConfig, GlobalOptions, HomeOptions } from "@/config";
+import { GasSourcesMode } from "@/enums";
 import { States } from "@/states";
+import { getConfigValue } from "@/config/config";
+import { DEFAULT_CONFIG } from "@/const";
 
 export interface Segment {
   state: number;
@@ -43,9 +45,9 @@ export interface PathScaleFactors {
   // TODO: devices
 }
 
-export const getGasSourcesMode = (config: HomeConfig, states: States): GasSourcesMode => {
-  const gasSourcesMode: GasSourcesMode = config?.[GlobalOptions.Options]?.[HomeOptions.Gas_Sources] || GasSourcesMode.Do_Not_Show;
-  const gasThreshold: number = config?.[GlobalOptions.Options]?.[HomeOptions.Gas_Sources_Threshold] || DefaultValues.Gas_Sources_Threshold;
+export function getGasSourcesMode(config: EnergyFlowCardExtConfig, states: States): GasSourcesMode {
+  const gasSourcesMode: GasSourcesMode = getConfigValue([config, DEFAULT_CONFIG], [EditorPages.Home, GlobalOptions.Options, HomeOptions.Gas_Sources]);
+  const gasThreshold: number = getConfigValue([config, DEFAULT_CONFIG], [EditorPages.Home, GlobalOptions.Options, HomeOptions.Gas_Sources_Threshold]);
 
   return gasSourcesMode === GasSourcesMode.Automatic
     ? 100 * states.homeGas / states.homeElectric + states.homeGas < gasThreshold

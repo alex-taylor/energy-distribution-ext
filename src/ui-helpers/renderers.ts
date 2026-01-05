@@ -1,18 +1,19 @@
 import { html, TemplateResult, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { FlowLine, Segment, SegmentGroup } from ".";
-import { CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS } from "@/const";
+import { CIRCLE_STROKE_WIDTH_SEGMENTS, DEFAULT_CONFIG, DOT_RADIUS } from "@/const";
 import { CssClass, InactiveFlowsMode, Scale } from "@/enums";
 import { EditorPages, EnergyFlowCardExtConfig, FlowsOptions, AppearanceOptions } from "@/config";
+import { getConfigValue } from "@/config/config";
 
 const INTER_GROUP_ARC: number = 7.5;
 const INTER_SEGMENT_ARC: number = INTER_GROUP_ARC / 3;
 
 //================================================================================================================================================================================//
 
-export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine[]): TemplateResult => {
-  const inactiveFlowsMode: InactiveFlowsMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal;
-  const animationEnabled: boolean = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Animation] ?? true;
+export function renderFlowLines(config: EnergyFlowCardExtConfig, lines: FlowLine[]): TemplateResult {
+  const inactiveFlowsMode: InactiveFlowsMode = getConfigValue([config, DEFAULT_CONFIG], [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Inactive_Flows]);
+  const animationEnabled: boolean = getConfigValue([config, DEFAULT_CONFIG], [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Animation]);
 
   return html`
     <svg class="lines" xmlns="http://www.w3.org/2000/svg">
@@ -55,8 +56,8 @@ export const renderFlowLines = (config: EnergyFlowCardExtConfig, lines: FlowLine
 //================================================================================================================================================================================//
 
 export function renderSegmentedCircle(config: EnergyFlowCardExtConfig, segmentGroups: SegmentGroup[], size: number, startingAngle: number, interSegmentGaps: boolean): TemplateResult {
-  const inactiveFlowsMode: InactiveFlowsMode = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Inactive_Flows] || InactiveFlowsMode.Normal;
-  const scale: Scale = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Scale] || Scale.Linear;
+  const inactiveFlowsMode: InactiveFlowsMode = getConfigValue([config, DEFAULT_CONFIG], [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Inactive_Flows]);
+  const scale: Scale = getConfigValue([config, DEFAULT_CONFIG], [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Scale]);
 
   const centre: number = size / 2;
   const radius: number = (size - CIRCLE_STROKE_WIDTH_SEGMENTS) / 2;

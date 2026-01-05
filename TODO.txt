@@ -18,6 +18,7 @@ Code:
   - see if a generic 'get enum values for UI' function can be written
     - params would be the name (or type) of the enum, and an optional list of the values wanted
       - if no values are specified, it returns all values in the order they are defined
+  - odd layout glitches when changing settings, refreshing the page, etc - the circles are small and squashed
 
 Config:
   - is it possible to auto-detect changes to the Energy config?

@@ -15,10 +15,10 @@ export const logError = debounce((error: string) => {
   );
 }, 60000);
 
-export const logDebug = (message: string) => {
+export const logDebug = debounce((message: string) => {
   console.debug(
     `%c⚡ Energy Flow Card Extended v${version} %c${message}`,
     'font-weight: bold',
     'font-weight: normal'
   );
-};
+}, 60000);

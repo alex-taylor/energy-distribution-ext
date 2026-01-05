@@ -322,12 +322,32 @@ export interface SecondaryInfoConfig {
 
 //================================================================================================================================================================================//
 
-const isTotalisingEntity = (hass: HomeAssistant, entityId: string = ""): boolean => ["total", "total_increasing"].includes(hass.states[entityId]?.attributes?.state_class || "");
+function isTotalisingEntity(hass: HomeAssistant, entityId: string = ""): boolean {
+  return ["total", "total_increasing"].includes(hass.states[entityId]?.attributes?.state_class || "");
+}
 
-export const isValidPrimaryEntity = (hass: HomeAssistant, entityId: string = "", deviceClasses: string[]): boolean => isTotalisingEntity(hass, entityId) && deviceClasses.indexOf(hass.states[entityId]?.attributes?.device_class!) !== -1;
-export const isValidSecondaryEntity = (hass: HomeAssistant, entityId: string = ""): boolean => isTotalisingEntity(hass, entityId);
+//================================================================================================================================================================================//
 
-export const filterPrimaryEntities = (hass: HomeAssistant, entityIds: string[] = [], deviceClasses: string[]): string[] => entityIds.filter(entityId => isValidPrimaryEntity(hass, entityId, deviceClasses));
-export const filterSecondaryEntity = (hass: HomeAssistant, entityId: string = ""): string[] => isValidSecondaryEntity(hass, entityId) ? [entityId] : [];
+export function isValidPrimaryEntity(hass: HomeAssistant, entityId: string = "", deviceClasses: string[]): boolean {
+  return isTotalisingEntity(hass, entityId) && deviceClasses.includes(hass.states[entityId]?.attributes?.device_class!);
+}
+
+//================================================================================================================================================================================//
+
+export function isValidSecondaryEntity(hass: HomeAssistant, entityId: string = ""): boolean {
+  return isTotalisingEntity(hass, entityId);
+}
+
+//================================================================================================================================================================================//
+
+export function filterPrimaryEntities(hass: HomeAssistant, entityIds: string[] = [], deviceClasses: string[]): string[] {
+  return entityIds.filter(entityId => isValidPrimaryEntity(hass, entityId, deviceClasses));
+}
+
+//================================================================================================================================================================================//
+
+export function filterSecondaryEntity(hass: HomeAssistant, entityId: string = ""): string[] {
+  return isValidSecondaryEntity(hass, entityId) ? [entityId] : [];
+}
 
 //================================================================================================================================================================================//

@@ -4,8 +4,8 @@ function getEditorLabel(type: string, value: any): string {
   return localize(type + "." + value);
 }
 
-export function clampEnumValue<T extends Object>(value: any, type: any, defaultValue: T): T {
-  return Object.values(type).indexOf(value) === -1 ? defaultValue : value;
+export function checkEnumValue(value: any, type: any): boolean {
+  return Object.values(type).includes(value);
 }
 
 export enum EnergyUnitPrefix {
@@ -32,23 +32,6 @@ export enum CssClass {
   Inactive = "inactive",
   Dimmed = "dimmed",
   Hidden_Circle = "hidden-circle"
-}
-
-export enum DefaultValues {
-  // EnergyUnits
-  Display_Precision_Under_10 = 2,
-  Display_Precision_Under_100 = 1,
-  Display_Precision = 0,
-  Prefix_Threshold = 1000,
-  Gas_Calorific_Value = 39,
-
-  // Flows
-  Min_Flow_Rate = 1,
-  Max_Flow_Rate = 6,
-
-  Gas_Sources_Threshold = 33,
-
-  Circle_Size = 80
 }
 
 export enum DisplayMode {
@@ -142,11 +125,11 @@ export namespace UnitPrefixes {
 }
 
 export enum UnitPosition {
-  Hidden = "hidden",
-  Before = "before",
-  After = "after",
+  After_Space = "after_space",
   Before_Space = "before_space",
-  After_Space = "after_space"
+  After = "after",
+  Before = "before",
+  Hidden = "hidden"
 }
 
 export namespace UnitPosition {

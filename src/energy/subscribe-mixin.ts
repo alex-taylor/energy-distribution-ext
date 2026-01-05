@@ -15,7 +15,7 @@ export interface HassSubscribeElement {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Constructor<T = any> = new (...args: any[]) => T;
 
-export const SubscribeMixin = <T extends Constructor<ReactiveElement>>(superClass: T) => {
+export function SubscribeMixin<T extends Constructor<ReactiveElement>>(superClass: T) {
   class SubscribeClass extends superClass {
     @property({ attribute: false }) public hass?: HomeAssistant;
     private __unsubs?: Array<UnsubscribeFunc | Promise<UnsubscribeFunc>>;
@@ -73,4 +73,4 @@ export const SubscribeMixin = <T extends Constructor<ReactiveElement>>(superClas
   }
 
   return SubscribeClass;
-};
+}

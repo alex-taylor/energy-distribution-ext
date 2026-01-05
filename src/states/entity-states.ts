@@ -10,13 +10,16 @@ import { LowCarbonState } from "./low-carbon";
 import { SolarState } from "./solar";
 import { DeviceState } from "./device";
 import { addDays, addHours, differenceInDays, endOfDay, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfDay } from "date-fns";
-import { clampEnumValue, DefaultValues, DisplayMode, EnergyUnits, EnergyUnitPrefix, EntityMode, VolumeUnits } from "@/enums";
+import { DisplayMode, EnergyUnits, EnergyUnitPrefix, EntityMode, VolumeUnits, checkEnumValue } from "@/enums";
 import { logDebug } from "@/logging";
 import { getEnergyDataCollection } from "@/energy";
-import { ENERGY_DATA_TIMEOUT } from "@/const";
 import { ValueState } from "./state";
 import { Flows, States } from ".";
 import { UNIT_CONVERSIONS } from "./unit-conversions";
+import { getConfigValue } from "@/config/config";
+import { DEFAULT_CONFIG } from "@/const";
+
+const ENERGY_DATA_TIMEOUT: number = 10000;
 
 export class EntityStates {
   public hass: HomeAssistant;
@@ -50,8 +53,11 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   public constructor(hass: HomeAssistant, config: EnergyFlowCardExtConfig) {
+    const configs: EnergyFlowCardExtConfig[] = [config, DEFAULT_CONFIG];
+
     this.hass = hass;
-    this._displayMode = config?.[GlobalOptions.Display_Mode] ?? DisplayMode.History;
+    this._displayMode = getConfigValue(configs, [GlobalOptions.Display_Mode]);
+
     this.battery = new BatteryState(hass, config?.[EditorPages.Battery]);
     this.gas = new GasState(hass, config?.[EditorPages.Gas]);
     this.grid = new GridState(hass, config?.[EditorPages.Grid]);
@@ -60,15 +66,15 @@ export class EntityStates {
     this.solar = new SolarState(hass, config?.[EditorPages.Solar]);
     this.devices = config?.[EditorPages.Devices]?.flatMap(device => new DeviceState(hass, device)) || [];
 
-    this._energyUnits = clampEnumValue(config?.[EditorPages.Appearance]?.[AppearanceOptions.Energy_Units]?.[EnergyUnitsOptions.Electric_Units], EnergyUnits, EnergyUnits.WattHours);
-    this._volumeUnits = clampEnumValue(config?.[EditorPages.Appearance]?.[AppearanceOptions.Energy_Units]?.[EnergyUnitsOptions.Gas_Units], VolumeUnits, VolumeUnits.Same_As_Electric);
+    this._energyUnits = getConfigValue(configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units, EnergyUnitsOptions.Electric_Units], value => checkEnumValue(value, EnergyUnits));
+    this._volumeUnits = getConfigValue(configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units, EnergyUnitsOptions.Gas_Units], value => checkEnumValue(value, VolumeUnits));
 
     if (this._volumeUnits === VolumeUnits.Same_As_Electric) {
       this._volumeUnits = VolumeUnits.Cubic_Metres;
     }
 
-    this._gasCalorificValue = config?.[EditorPages.Appearance]?.[AppearanceOptions.Energy_Units]?.[EnergyUnitsOptions.Gas_Calorific_Value] ?? DefaultValues.Gas_Calorific_Value;
-    this._useHourlyStats = config?.[EditorPages.Appearance]?.[AppearanceOptions.Flows]?.[FlowsOptions.Use_Hourly_Stats] ?? false;
+    this._gasCalorificValue = getConfigValue(configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units, EnergyUnitsOptions.Gas_Calorific_Value]);
+    this._useHourlyStats = getConfigValue(configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Use_Hourly_Stats]);
 
     this._populateEntityArrays();
     this._inferEntityModes();
@@ -118,7 +124,7 @@ export class EntityStates {
     // TODO: electric-producing devices need adding here
     states.homeElectric = states.batteryImport + states.gridImport + states.solarImport - states.batteryExport - states.gridExport;
     states.lowCarbon = states.gridImport - states.highCarbon;
-    states.lowCarbonPercentage = (states.lowCarbon / states.gridImport) * 100 || 0;
+    states.lowCarbonPercentage = (states.lowCarbon / states.gridImport) * 100 ?? 0;
 
     // TODO: gas-producing devices need adding to here
     states.homeGas = states.gasImport;
@@ -539,7 +545,7 @@ export class EntityStates {
       return;
     }
 
-    state.secondary.state = this._getEntityStates(this._secondaryStatistics!, state.secondary.firstImportEntity!, state.secondary.config?.[EntitiesOptions.Entities]?.[SecondaryInfoOptions.Units]);
+    state.secondary.state = this._getEntityStates(this._secondaryStatistics!, state.secondary.firstImportEntity!, getConfigValue([state.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
   }
 
   //================================================================================================================================================================================//
@@ -584,7 +590,7 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _getDirectEntityStates(config: any, entityIds: string[] | undefined = [], requestedUnits: string): number {
-    const configUnits: string | undefined = config?.[EntitiesOptions.Entities]?.[SecondaryInfoOptions.Units];
+    const configUnits: string | undefined = getConfigValue([config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]);
     let stateSum: number = 0;
 
     entityIds.forEach(entityId => {
