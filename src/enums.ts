@@ -1,20 +1,140 @@
-import { localize } from '@/localize/localize';
+namespace NamedEnums {
+  export const ColourMode = {
+    Do_Not_Colour: "none",
+    Flow: "flow",
+    Larger_Value: "larger_value",
+    Largest_Value: "largest_value",
+    Import: "import",
+    Export: "export",
+    Dynamic: "dynamic",
+    Solar: "solar",
+    High_Carbon: "high_carbon",
+    Low_Carbon: "low_carbon",
+    Battery: "battery",
+    Gas: "gas",
+    Custom: "custom",
+    Default: "default"
+  } as const satisfies Record<string, string>;
 
-function getEditorLabel(type: string, value: any): string {
-  return localize(type + "." + value);
+  export const DisplayMode = {
+    Today: "today",
+    History: "history",
+    Hybrid: "hybrid"
+  } as const satisfies Record<string, string>;
+
+  export const EnergyDirection = {
+    Consumer: "consumer",
+    Source: "source",
+    Both: "both"
+  } as const satisfies Record<string, string>;
+
+  export const EnergyType = {
+    Electric: "electric",
+    Gas: "gas"
+  } as const satisfies Record<string, string>;
+
+  export const EnergyUnits = {
+    WattHours: "Wh",
+    Joules: "J",
+    Calories: "cal"
+  } as const satisfies Record<string, string>;
+
+  export const GasSourcesMode = {
+    Do_Not_Show: "do_not_show",
+    Add_To_Total: "add_to_total",
+    Show_Separately: "show_separately",
+    Automatic: "automatic"
+  } as const satisfies Record<string, string>;
+
+  export const InactiveFlowsMode = {
+    Normal: "normal",
+    Dimmed: "dimmed",
+    Greyed: "greyed"
+  } as const satisfies Record<string, string>;
+
+  export const LowCarbonDisplayMode = {
+    Energy: "energy",
+    Percentage: "percentage",
+    Both: "both"
+  } as const satisfies Record<string, string>;
+
+  export const PrefixThreshold = {
+    Threshold_900: 900,
+    Threshold_925: 925,
+    Threshold_950: 950,
+    Threshold_975: 975,
+    Threshold_1000: 1000,
+    Threshold_1025: 1025,
+    Threshold_1050: 1050,
+    Threshold_1075: 1075,
+    Threshold_1100: 1100
+  } as const satisfies Record<string, number>;
+
+  export const Scale = {
+    Linear: "linear",
+    Logarithmic: "logarithmic"
+  } as const satisfies Record<string, string>;
+
+  export const UnitPosition = {
+    After_Space: "after_space",
+    Before_Space: "before_space",
+    After: "after",
+    Before: "before",
+    Hidden: "hidden"
+  } as const satisfies Record<string, string>;
+
+  export const UnitPrefixes = {
+    Unified: "unified",
+    Individual: "individual"
+  } as const satisfies Record<string, string>;
+
+  export const VolumeUnits = {
+    Same_As_Electric: "same_as_electric",
+    Cubic_Feet: "ft³",
+    Cubic_Metres: "m³",
+    CCF: "CCF",
+    MCF: "MCF",
+    Litres: "L"
+  } as const satisfies Record<string, string>;
 }
 
-export function checkEnumValue(value: any, type: any): boolean {
-  return Object.values(type).includes(value);
-}
+export const ColourMode = NamedEnums.ColourMode;
+export type ColourMode = typeof ColourMode[keyof typeof ColourMode];
+export const DisplayMode = NamedEnums.DisplayMode;
+export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
+export const EnergyDirection = NamedEnums.EnergyDirection;
+export type EnergyDirection = typeof EnergyDirection[keyof typeof EnergyDirection];
+export const EnergyType = NamedEnums.EnergyType;
+export type EnergyType = typeof EnergyType[keyof typeof EnergyType];
+export const EnergyUnits = NamedEnums.EnergyUnits;
+export type EnergyUnits = typeof EnergyUnits[keyof typeof EnergyUnits];
+export const GasSourcesMode = NamedEnums.GasSourcesMode;
+export type GasSourcesMode = typeof GasSourcesMode[keyof typeof GasSourcesMode];
+export const InactiveFlowsMode = NamedEnums.InactiveFlowsMode;
+export type InactiveFlowsMode = typeof InactiveFlowsMode[keyof typeof InactiveFlowsMode];
+export const LowCarbonDisplayMode = NamedEnums.LowCarbonDisplayMode;
+export type LowCarbonDisplayMode = typeof LowCarbonDisplayMode[keyof typeof LowCarbonDisplayMode];
+export const PrefixThreshold = NamedEnums.PrefixThreshold;
+export type PrefixThreshold = typeof PrefixThreshold[keyof typeof PrefixThreshold];
+export const Scale = NamedEnums.Scale;
+export type Scale = typeof Scale[keyof typeof Scale];
+export const UnitPosition = NamedEnums.UnitPosition;
+export type UnitPosition = typeof UnitPosition[keyof typeof UnitPosition];
+export const UnitPrefixes = NamedEnums.UnitPrefixes;
+export type UnitPrefixes = typeof UnitPrefixes[keyof typeof UnitPrefixes];
+export const VolumeUnits = NamedEnums.VolumeUnits;
+export type VolumeUnits = typeof VolumeUnits[keyof typeof VolumeUnits];
 
-export enum EnergyUnitPrefix {
-  None = "",
-  Kilo = "k",
-  Mega = "M",
-  Giga = "G",
-  Tera = "T"
-}
+(() => {
+  Object.keys(NamedEnums).forEach(e => {
+    const type = NamedEnums[e];
+
+    Object.defineProperty(type, "name", {
+      value: e,
+      configurable: true
+    });
+  });
+})();
 
 export enum CssClass {
   Battery = "battery",
@@ -34,112 +154,12 @@ export enum CssClass {
   Hidden_Circle = "hidden-circle"
 }
 
-export enum DisplayMode {
-  Today = "today",
-  History = "history",
-  Hybrid = "hybrid"
-}
-
-export namespace DisplayMode {
-  export function getName(value: DisplayMode): string {
-    return getEditorLabel("DisplayMode", value);
-  }
-
-  export function getItem(value: DisplayMode): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum ColourMode {
-  Do_Not_Colour = "none",
-  Flow = "flow",
-  Larger_Value = "larger_value",
-  Largest_Value = "largest_value",
-  Import = "import",
-  Export = "export",
-  Dynamic = "dynamic",
-  Solar = "solar",
-  High_Carbon = "high_carbon",
-  Low_Carbon = "low_carbon",
-  Battery = "battery",
-  Gas = "gas",
-  Custom = "custom",
-  Default = "default"
-}
-
-export namespace ColourMode {
-  export function getName(value: ColourMode): string {
-    return getEditorLabel("ColourMode", value);
-  }
-
-  export function getItem(value: ColourMode): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum LowCarbonDisplayMode {
-  Energy = "energy",
-  Percentage = "percentage",
-  Both = "both"
-}
-
-export namespace LowCarbonDisplayMode {
-  export function getName(value: LowCarbonDisplayMode): string {
-    return getEditorLabel("LowCarbonDisplayMode", value);
-  }
-
-  export function getItem(value: LowCarbonDisplayMode): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum InactiveFlowsMode {
-  Normal = "normal",
-  Dimmed = "dimmed",
-  Greyed = "greyed"
-}
-
-export namespace InactiveFlowsMode {
-  export function getName(value: InactiveFlowsMode): string {
-    return getEditorLabel("InactiveFlowsMode", value);
-  }
-
-  export function getItem(value: InactiveFlowsMode): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum UnitPrefixes {
-  Unified = "unified",
-  Individual = "individual"
-}
-
-export namespace UnitPrefixes {
-  export function getName(value: UnitPrefixes): string {
-    return getEditorLabel("UnitPrefixes", value);
-  }
-
-  export function getItem(value: UnitPrefixes): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum UnitPosition {
-  After_Space = "after_space",
-  Before_Space = "before_space",
-  After = "after",
-  Before = "before",
-  Hidden = "hidden"
-}
-
-export namespace UnitPosition {
-  export function getName(value: UnitPosition): string {
-    return getEditorLabel("UnitPosition", value);
-  }
-
-  export function getItem(value: UnitPosition): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
+export enum EnergyUnitPrefix {
+  None = "",
+  Kilo = "k",
+  Mega = "M",
+  Giga = "G",
+  Tera = "T"
 }
 
 export enum EntityMode {
@@ -148,112 +168,6 @@ export enum EntityMode {
   Misconfigured_Resetting = "misconfigured resetting"
 }
 
-export enum GasSourcesMode {
-  Do_Not_Show = "do_not_show",
-  Add_To_Total = "add_to_total",
-  Show_Separately = "show_separately",
-  Automatic = "automatic"
-}
-
-export namespace GasSourcesMode {
-  export function getName(value: GasSourcesMode): string {
-    return getEditorLabel("GasSourcesMode", value);
-  }
-
-  export function getItem(value: GasSourcesMode): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum EnergyType {
-  Electric = "electric",
-  Gas = "gas"
-}
-
-export namespace EnergyType {
-  export function getName(value: EnergyType): string {
-    return getEditorLabel("EnergyType", value);
-  }
-
-  export function getItem(value: EnergyType): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum EnergyDirection {
-  Source = "source",
-  Consumer = "consumer",
-  Both = "both"
-}
-
-export namespace EnergyDirection {
-  export function getName(value: EnergyDirection): string {
-    return getEditorLabel("EnergyDirection", value);
-  }
-
-  export function getItem(value: EnergyDirection): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum Scale {
-  Linear = "linear",
-  Logarithmic = "logarithmic"
-}
-
-export namespace Scale {
-  export function getName(value: Scale): string {
-    return getEditorLabel("Scale", value);
-  }
-
-  export function getItem(value: Scale): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum EnergyUnits {
-  WattHours = "Wh",
-  Joules = "J",
-  Calories = "cal"
-}
-
-export namespace EnergyUnits {
-  export function getName(value: EnergyUnits): string {
-    return getEditorLabel("EnergyUnits", value);
-  }
-
-  export function getItem(value: EnergyUnits): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum VolumeUnits {
-  Same_As_Electric = "same_as_electric",
-  Cubic_Feet = "ft³",
-  Cubic_Metres = "m³",
-  CCF = "CCF",
-  MCF = "MCF",
-  Litres = "L"
-}
-
-export namespace VolumeUnits {
-  export function getName(value: VolumeUnits): string {
-    return getEditorLabel("VolumeUnits", value);
-  }
-
-  export function getItem(value: VolumeUnits): { label: string, value: string } {
-    return { label: getName(value), value: value };
-  }
-}
-
-export enum PrefixThreshold {
-  Threshold_900 = 900,
-  Threshold_925 = 925,
-  Threshold_950 = 950,
-  Threshold_975 = 975,
-  Threshold_1000 = 1000,
-  Threshold_1025 = 1025,
-  Threshold_1050 = 1050,
-  Threshold_1075 = 1075,
-  Threshold_1100 = 1100
+export function checkEnumValue(value: any, type: any): boolean {
+  return Object.values(type).includes(value);
 }

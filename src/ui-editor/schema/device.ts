@@ -1,5 +1,5 @@
 import { ColourOptions, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from '@/config';
-import { colourSchema, secondaryInfoSchema } from '.';
+import { colourSchema, getDropdownValues, secondaryInfoSchema } from '.';
 import { ColourMode, EnergyDirection, EnergyType } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 
@@ -13,33 +13,8 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
       schema: [
         { name: DeviceOptions.Name, required: true, selector: { text: {} } },
         { name: DeviceOptions.Icon, selector: { icon: {} } },
-        {
-          name: DeviceOptions.Energy_Type,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                EnergyType.getItem(EnergyType.Electric),
-                EnergyType.getItem(EnergyType.Gas)
-              ]
-            }
-          }
-        },
-        {
-          name: DeviceOptions.Energy_Direction,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                EnergyDirection.getItem(EnergyDirection.Consumer),
-                EnergyDirection.getItem(EnergyDirection.Source),
-                EnergyDirection.getItem(EnergyDirection.Both)
-              ]
-            }
-          }
-        }
+        { name: DeviceOptions.Energy_Type, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(EnergyType) } } },
+        { name: DeviceOptions.Energy_Direction, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(EnergyDirection) } } }
       ]
     },
     energyDirection !== EnergyDirection.Consumer ?
@@ -116,14 +91,7 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
       ...colourSchema(
         schemaConfig,
         ColourOptions.Circle,
-        [
-          ColourMode.getItem(ColourMode.Dynamic),
-          ColourMode.getItem(ColourMode.Larger_Value),
-          ColourMode.getItem(ColourMode.Import),
-          ColourMode.getItem(ColourMode.Export),
-          ColourMode.getItem(ColourMode.Do_Not_Colour),
-          ColourMode.getItem(ColourMode.Custom)
-        ]
+        getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Do_Not_Colour, ColourMode.Custom])
       )
     );
   }
@@ -133,11 +101,7 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
       ...colourSchema(
         schemaConfig,
         ColourOptions.Value_Import,
-        [
-          ColourMode.getItem(ColourMode.Do_Not_Colour),
-          ColourMode.getItem(ColourMode.Flow),
-          ColourMode.getItem(ColourMode.Custom)
-        ]
+        getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
       )
     );
   }
@@ -147,11 +111,7 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
       ...colourSchema(
         schemaConfig,
         ColourOptions.Value_Export,
-        [
-          ColourMode.getItem(ColourMode.Do_Not_Colour),
-          ColourMode.getItem(ColourMode.Flow),
-          ColourMode.getItem(ColourMode.Custom)
-        ]
+        getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
       )
     );
   }
@@ -160,24 +120,12 @@ export function deviceSchema(config: EnergyFlowCardExtConfig | undefined, schema
     ...colourSchema(
       schemaConfig,
       ColourOptions.Icon,
-      [
-        ColourMode.getItem(ColourMode.Do_Not_Colour),
-        ColourMode.getItem(ColourMode.Larger_Value),
-        ColourMode.getItem(ColourMode.Import),
-        ColourMode.getItem(ColourMode.Export),
-        ColourMode.getItem(ColourMode.Custom)
-      ]
+      getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
     ),
     ...colourSchema(
       schemaConfig,
       ColourOptions.Secondary,
-      [
-        ColourMode.getItem(ColourMode.Do_Not_Colour),
-        ColourMode.getItem(ColourMode.Larger_Value),
-        ColourMode.getItem(ColourMode.Import),
-        ColourMode.getItem(ColourMode.Export),
-        ColourMode.getItem(ColourMode.Custom)
-      ]
+      getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
     )
   );
 

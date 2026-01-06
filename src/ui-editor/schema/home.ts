@@ -1,4 +1,4 @@
-import { colourSchema, nodeConfigSchema } from '.';
+import { colourSchema, getDropdownValues, nodeConfigSchema } from '.';
 import { ColourMode, GasSourcesMode } from '@/enums';
 import { ColourOptions, EditorPages, EntitiesOptions, EnergyFlowCardExtConfig, HomeConfig, GlobalOptions, HomeOptions } from '@/config';
 
@@ -15,59 +15,22 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
               ...colourSchema(
                 schemaConfig,
                 ColourOptions.Circle,
-                [
-                  ColourMode.getItem(ColourMode.Dynamic),
-                  ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Largest_Value),
-                  ColourMode.getItem(ColourMode.Solar),
-                  ColourMode.getItem(ColourMode.High_Carbon),
-                  ColourMode.getItem(ColourMode.Low_Carbon),
-                  ColourMode.getItem(ColourMode.Battery),
-                  ColourMode.getItem(ColourMode.Gas),
-                  ColourMode.getItem(ColourMode.Custom)
-                ]
+                getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               ),
               ...colourSchema(
                 schemaConfig,
                 ColourOptions.Value,
-                [
-                  ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Largest_Value),
-                  ColourMode.getItem(ColourMode.Solar),
-                  ColourMode.getItem(ColourMode.High_Carbon),
-                  ColourMode.getItem(ColourMode.Low_Carbon),
-                  ColourMode.getItem(ColourMode.Battery),
-                  ColourMode.getItem(ColourMode.Gas),
-                  ColourMode.getItem(ColourMode.Custom)
-                ]
+                getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               ),
               ...colourSchema(
                 schemaConfig,
                 ColourOptions.Icon,
-                [
-                  ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Largest_Value),
-                  ColourMode.getItem(ColourMode.Solar),
-                  ColourMode.getItem(ColourMode.High_Carbon),
-                  ColourMode.getItem(ColourMode.Low_Carbon),
-                  ColourMode.getItem(ColourMode.Battery),
-                  ColourMode.getItem(ColourMode.Gas),
-                  ColourMode.getItem(ColourMode.Custom)
-                ]
+                getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               ),
               ...colourSchema(
                 schemaConfig,
                 ColourOptions.Secondary,
-                [
-                  ColourMode.getItem(ColourMode.Do_Not_Colour),
-                  ColourMode.getItem(ColourMode.Largest_Value),
-                  ColourMode.getItem(ColourMode.Solar),
-                  ColourMode.getItem(ColourMode.High_Carbon),
-                  ColourMode.getItem(ColourMode.Low_Carbon),
-                  ColourMode.getItem(ColourMode.Battery),
-                  ColourMode.getItem(ColourMode.Gas),
-                  ColourMode.getItem(ColourMode.Custom)
-                ]
+                getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               )
             ]
           }
@@ -77,25 +40,8 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
         type: 'expandable',
         name: GlobalOptions.Options,
         schema: [
-          {
-            name: HomeOptions.Subtract_Consumers,
-            selector: { boolean: {} }
-          },
-          {
-            name: HomeOptions.Gas_Sources,
-            required: true,
-            selector: {
-              select: {
-                mode: 'dropdown',
-                options: [
-                  GasSourcesMode.getItem(GasSourcesMode.Do_Not_Show),
-                  GasSourcesMode.getItem(GasSourcesMode.Add_To_Total),
-                  GasSourcesMode.getItem(GasSourcesMode.Show_Separately),
-                  GasSourcesMode.getItem(GasSourcesMode.Automatic)
-                ]
-              }
-            }
-          },
+          { name: HomeOptions.Subtract_Consumers, selector: { boolean: {} } },
+          { name: HomeOptions.Gas_Sources, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(GasSourcesMode) } } },
           dynamicHomeOptionsSchema(schemaConfig)
         ]
       }

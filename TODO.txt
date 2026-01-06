@@ -8,28 +8,23 @@ Code:
     - sensor types are now Power and Measurement
     - support State-of-Charge for Battery
     - see what else should be changed/hidden
-  - rename to 'Energy Distribution Extended' (energy-distribution-ext) for consistency with the built-in card
-    - or something else, given Power support as well
   - power-outage is calculating its state up-front, rather than live as-needed (see GridState)
     - also needs implementing in the new grid render method
   - unit-testing
   - move the language files to Typescript so enum values can be used for the keys
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
-  - see if a generic 'get enum values for UI' function can be written
-    - params would be the name (or type) of the enum, and an optional list of the values wanted
-      - if no values are specified, it returns all values in the order they are defined
-  - odd layout glitches when changing settings, refreshing the page, etc - the circles are small and squashed
 
 Config:
   - is it possible to auto-detect changes to the Energy config?
-      - either way, we could have a button on the main page to (re)load the entities from that config
+    - if not, we could have a button on the main page to (re)load the entities from that config
   - Secondaries:
     - drop threshold
-    - if the selected entity is Energy, hide the 'show units', 'override units' and 'display precision' options, since these will be ignored
     - need a helptext for 'override units', 'display precision' to explain what happens if set/not set
 
 Display:
+  - odd layout glitches when changing settings, refreshing the page, etc - the circles are small and squashed
   - if data is still loading when we render, go ahead and render the diagram anyway, just put 'loading' for the values (or an overlay in the centre of the card?)
+    - related: also seeing the 'you are not configured' message
   - Flows:
     - in non-HASS mode, see if the grid->home flow can be made to alternate between high and low carbon colours on successive runs
       - ideally in proportion, but otherwise a simple 1:1 will do
@@ -93,6 +88,8 @@ Under consideration
 Before release
 --------------
 
+  - rename to 'Energy Distribution Extended' (energy-distribution-ext) for consistency with the built-in card
+    - or something else, given Power support as well
   - README and CHANGELOG updates
   - add license
   - reinstate terser in rollup.config.js

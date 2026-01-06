@@ -27,7 +27,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="CHANGELOG.md" />
-    <Content Include="CODE_OF_CONDUCT.md" />
     <Content Include="README.md" />
     <Content Include="tsconfig.json" />
     <None Include=".eslintrc.ts" />

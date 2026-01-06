@@ -1,26 +1,19 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
 import { ColourMode, DisplayMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
+import { localize } from '@/localize/localize';
+
+export interface DropdownValue {
+  label: string;
+  value: string;
+}
 
 //================================================================================================================================================================================//
 
 export function generalConfigSchema(config: EnergyFlowCardExtConfig | undefined): any[] {
   return [
     { name: GlobalOptions.Title, selector: { text: {} }, },
-    {
-      name: GlobalOptions.Display_Mode,
-      required: true,
-      selector: {
-        select: {
-          mode: 'dropdown',
-          options: [
-            DisplayMode.getItem(DisplayMode.Today),
-            DisplayMode.getItem(DisplayMode.History),
-            DisplayMode.getItem(DisplayMode.Hybrid)
-          ]
-        }
-      }
-    }
+    { name: GlobalOptions.Display_Mode, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(DisplayMode) } } }
   ];
 }
 
@@ -71,84 +64,12 @@ function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, s
     {
       type: 'grid',
       schema: [
-        {
-          name: EnergyUnitsOptions.Unit_Position,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                UnitPosition.getItem(UnitPosition.After_Space),
-                UnitPosition.getItem(UnitPosition.Before_Space),
-                UnitPosition.getItem(UnitPosition.After),
-                UnitPosition.getItem(UnitPosition.Before),
-                UnitPosition.getItem(UnitPosition.Hidden)
-              ]
-            }
-          }
-        },
-        {
-          name: EnergyUnitsOptions.Prefix_Threshold,
-          required: true,
-          selector: { select: { mode: 'dropdown', options: Object.values(PrefixThreshold).filter(value => !isNaN(Number(value))) } }
-        },
-        {
-          name: EnergyUnitsOptions.Electric_Units,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                EnergyUnits.getItem(EnergyUnits.WattHours),
-                EnergyUnits.getItem(EnergyUnits.Joules),
-                EnergyUnits.getItem(EnergyUnits.Calories)
-              ]
-            }
-          }
-        },
-        {
-          name: EnergyUnitsOptions.Electric_Unit_Prefixes,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                UnitPrefixes.getItem(UnitPrefixes.Unified),
-                UnitPrefixes.getItem(UnitPrefixes.Individual)
-              ]
-            }
-          }
-        },
-        {
-          name: EnergyUnitsOptions.Gas_Units,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                VolumeUnits.getItem(VolumeUnits.Same_As_Electric),
-                VolumeUnits.getItem(VolumeUnits.Cubic_Metres),
-                VolumeUnits.getItem(VolumeUnits.Cubic_Feet),
-                VolumeUnits.getItem(VolumeUnits.CCF),
-                VolumeUnits.getItem(VolumeUnits.MCF),
-                VolumeUnits.getItem(VolumeUnits.Litres)
-              ]
-            }
-          }
-        },
-        {
-          name: EnergyUnitsOptions.Gas_Unit_Prefixes,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                UnitPrefixes.getItem(UnitPrefixes.Unified),
-                UnitPrefixes.getItem(UnitPrefixes.Individual)
-              ]
-            }
-          }
-        }
+        { name: EnergyUnitsOptions.Unit_Position, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPosition) } } },
+        { name: EnergyUnitsOptions.Prefix_Threshold, required: true, selector: { select: { mode: 'dropdown', options: Object.values(PrefixThreshold).filter(value => !isNaN(Number(value))) } } },
+        { name: EnergyUnitsOptions.Electric_Units, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(EnergyUnits) } } },
+        { name: EnergyUnitsOptions.Electric_Unit_Prefixes, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPrefixes) } } },
+        { name: EnergyUnitsOptions.Gas_Units, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(VolumeUnits) } } },
+        { name: EnergyUnitsOptions.Gas_Unit_Prefixes, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPrefixes) } } }
       ]
     },
     schemaConfig?.[EnergyUnitsOptions.Gas_Units] !== VolumeUnits.Same_As_Electric ? { type: 'grid', schema: [{ name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: 'box', min: 0 } } }] } : {},
@@ -173,33 +94,8 @@ function flowsOptionsSchema(config: EnergyFlowCardExtConfig | undefined, schemaC
       schema: [
         { name: FlowsOptions.Use_Hourly_Stats, selector: { boolean: {} } },
         { name: FlowsOptions.Animation, selector: { boolean: {} } },
-        {
-          name: FlowsOptions.Inactive_Flows,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                InactiveFlowsMode.getItem(InactiveFlowsMode.Normal),
-                InactiveFlowsMode.getItem(InactiveFlowsMode.Dimmed),
-                InactiveFlowsMode.getItem(InactiveFlowsMode.Greyed)
-              ]
-            }
-          }
-        },
-        {
-          name: FlowsOptions.Scale,
-          required: true,
-          selector: {
-            select: {
-              mode: 'dropdown',
-              options: [
-                Scale.getItem(Scale.Linear),
-                Scale.getItem(Scale.Logarithmic)
-              ]
-            }
-          }
-        }
+        { name: FlowsOptions.Inactive_Flows, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(InactiveFlowsMode) } } },
+        { name: FlowsOptions.Scale, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(Scale) } } }
       ]
     }
   ];
@@ -262,53 +158,29 @@ export function singleValueColourSchema(config: EnergyFlowCardExtConfig | undefi
           ...colourSchema(
             schemaConfig,
             ColourOptions.Flow,
-            [
-              ColourMode.getItem(ColourMode.Default),
-              ColourMode.getItem(ColourMode.Custom)
-            ]
+            getDropdownValues(ColourMode, [ColourMode.Default, ColourMode.Custom]),
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Circle,
-            isSolarNode ?
-              [
-                ColourMode.getItem(ColourMode.Dynamic),
-                ColourMode.getItem(ColourMode.Flow),
-                ColourMode.getItem(ColourMode.Do_Not_Colour),
-                ColourMode.getItem(ColourMode.Custom)
-              ] :
-              [
-                ColourMode.getItem(ColourMode.Flow),
-                ColourMode.getItem(ColourMode.Do_Not_Colour),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+            isSolarNode
+              ? getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+              : getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Value,
-            [
-              ColourMode.getItem(ColourMode.Do_Not_Colour),
-              ColourMode.getItem(ColourMode.Flow),
-              ColourMode.getItem(ColourMode.Custom)
-            ]
+            getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Icon,
-            [
-              ColourMode.getItem(ColourMode.Do_Not_Colour),
-              ColourMode.getItem(ColourMode.Flow),
-              ColourMode.getItem(ColourMode.Custom)
-            ]
+            getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Secondary,
-            [
-              ColourMode.getItem(ColourMode.Do_Not_Colour),
-              ColourMode.getItem(ColourMode.Flow),
-              ColourMode.getItem(ColourMode.Custom)
-            ]
+            getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
           )
         ]
       }
@@ -344,70 +216,37 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig | undefined,
             ...colourSchema(
               schemaConfig,
               ColourOptions.Flow_Import,
-              [
-                ColourMode.getItem(ColourMode.Default),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+              getDropdownValues(ColourMode, [ColourMode.Default, ColourMode.Custom])
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Flow_Export,
-              [
-                ColourMode.getItem(ColourMode.Default),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+              getDropdownValues(ColourMode, [ColourMode.Default, ColourMode.Custom])
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Circle,
-              [
-                ColourMode.getItem(ColourMode.Dynamic),
-                ColourMode.getItem(ColourMode.Larger_Value),
-                ColourMode.getItem(ColourMode.Import),
-                ColourMode.getItem(ColourMode.Export),
-                ColourMode.getItem(ColourMode.Do_Not_Colour),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+              getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Do_Not_Colour, ColourMode.Custom])
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Value_Import,
-              [
-                ColourMode.getItem(ColourMode.Do_Not_Colour),
-                ColourMode.getItem(ColourMode.Flow),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Value_Export,
-              [
-                ColourMode.getItem(ColourMode.Do_Not_Colour),
-                ColourMode.getItem(ColourMode.Flow),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Icon,
-              [
-                ColourMode.getItem(ColourMode.Do_Not_Colour),
-                ColourMode.getItem(ColourMode.Larger_Value),
-                ColourMode.getItem(ColourMode.Import),
-                ColourMode.getItem(ColourMode.Export),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Secondary,
-              [
-                ColourMode.getItem(ColourMode.Do_Not_Colour),
-                ColourMode.getItem(ColourMode.Larger_Value),
-                ColourMode.getItem(ColourMode.Import),
-                ColourMode.getItem(ColourMode.Export),
-                ColourMode.getItem(ColourMode.Custom)
-              ]
+              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
             )
           ]
         }
@@ -446,22 +285,7 @@ export function secondaryInfoSchema(config: EnergyFlowCardExtConfig | undefined,
         type: 'grid',
         column_min_width: '150px',
         schema: [
-          {
-            name: SecondaryInfoOptions.Unit_Position,
-            required: true,
-            selector: {
-              select: {
-                mode: 'dropdown',
-                options: [
-                  UnitPosition.getItem(UnitPosition.After_Space),
-                  UnitPosition.getItem(UnitPosition.Before_Space),
-                  UnitPosition.getItem(UnitPosition.After),
-                  UnitPosition.getItem(UnitPosition.Before),
-                  UnitPosition.getItem(UnitPosition.Hidden)
-                ]
-              }
-            }
-          },
+          { name: SecondaryInfoOptions.Unit_Position, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPosition) } } },
           { name: SecondaryInfoOptions.Units, selector: { text: {} } },
           { name: SecondaryInfoOptions.Zero_Threshold, selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.01 } } },
           { name: SecondaryInfoOptions.Display_Precision, selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } } }
@@ -470,6 +294,25 @@ export function secondaryInfoSchema(config: EnergyFlowCardExtConfig | undefined,
       { name: [SecondaryInfoOptions.Icon], selector: { icon: {} } }
     ]
   };
+}
+
+//================================================================================================================================================================================//
+
+export function getDropdownValues(type: any, values: any[] = []): DropdownValue[] {
+  const enumValues: any[] = Object.values(type);
+
+  if (values.length === 0) {
+    values = enumValues;
+  } else {
+    values = values.filter(value => enumValues.includes(value));
+  }
+
+  return values.map(value => {
+    return {
+      label: localize(type.name + "." + value),
+      value: value
+    }
+  });
 }
 
 //================================================================================================================================================================================//

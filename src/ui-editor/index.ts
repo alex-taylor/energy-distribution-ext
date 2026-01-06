@@ -2,7 +2,7 @@ import { localize } from "@/localize/localize";
 import { HomeAssistant } from "custom-card-helpers";
 import { EntitiesOptions, EntityOptions, isValidPrimaryEntity, isValidSecondaryEntity } from "@/config";
 
-export function computeLabelCallback(schema: any: string) {
+export function computeLabelCallback(schema: any): string {
   return localize(`editor.${schema?.name}`);
 }
 
@@ -88,7 +88,7 @@ export function getStatusIcon(hass: HomeAssistant, config: any, deviceClasses: s
   }
 
   return Status.Valid;
-};
+}
 
 export function validatePrimaryEntities(hass: HomeAssistant, label: string, entityIds: string[] = [], deviceClasses: string[], requirePrimary: boolean, errors: object): void {
   delete errors[label];
@@ -112,7 +112,7 @@ export function validatePrimaryEntities(hass: HomeAssistant, label: string, enti
   if (error) {
     errors[label] = error;
   }
-};
+}
 
 export function validateSecondaryEntity(hass: HomeAssistant, label: string, entityId: string, errors: object): void {
   delete errors[label];
@@ -126,4 +126,4 @@ export function validateSecondaryEntity(hass: HomeAssistant, label: string, enti
   } else if (!isValidSecondaryEntity(hass, entityId)) {
     errors[label] = "'" + (hass.states[entityId]?.attributes?.friendly_name || entityId) + "' " + localize("editor.invalid_secondary_entity");
   }
-};
+}

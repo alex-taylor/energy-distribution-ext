@@ -1,6 +1,6 @@
 import { EditorPages, GlobalOptions, EnergyFlowCardExtConfig, LowCarbonOptions } from '@/config';
 import { LowCarbonDisplayMode } from '@/enums';
-import { nodeConfigSchema, singleValueColourSchema } from '.';
+import { getDropdownValues, nodeConfigSchema, singleValueColourSchema } from '.';
 
 export function lowCarbonSchema(config: EnergyFlowCardExtConfig | undefined): any[] {
   return [singleValueColourSchema(config, config?.[EditorPages.Low_Carbon])]
@@ -10,20 +10,7 @@ export function lowCarbonSchema(config: EnergyFlowCardExtConfig | undefined): an
           name: [GlobalOptions.Options],
           type: 'expandable',
           schema: [
-            {
-              name: [LowCarbonOptions.Low_Carbon_Mode],
-              required: true,
-              selector: {
-                select: {
-                  mode: 'dropdown',
-                  options: [
-                    LowCarbonDisplayMode.getItem(LowCarbonDisplayMode.Energy),
-                    LowCarbonDisplayMode.getItem(LowCarbonDisplayMode.Percentage),
-                    LowCarbonDisplayMode.getItem(LowCarbonDisplayMode.Both)
-                  ]
-                }
-              }
-            }
+            { name: [LowCarbonOptions.Low_Carbon_Mode], required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(LowCarbonDisplayMode) } } }
           ]
         }
       )
