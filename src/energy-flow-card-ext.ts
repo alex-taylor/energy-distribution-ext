@@ -122,6 +122,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _clickableEntities!: boolean;
   private _useHassStyles!: boolean;
   private _scale!: Scale;
+  private _dashboardLink!: string;
+  private _dashboardLinkLabel!: string;
 
   private _inactiveFlowsCss: string = CssClass.Inactive;
   private _circleSize: number = CIRCLE_SIZE_MIN;
@@ -173,6 +175,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this._useHassStyles = getConfigValue(this._configs, [EditorPages.Appearance, GlobalOptions.Options, AppearanceOptions.Use_HASS_Style]);
     this._clickableEntities = getConfigValue(this._configs, [EditorPages.Appearance, GlobalOptions.Options, AppearanceOptions.Clickable_Entities]);
     this._scale = getConfigValue(this._configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Scale], value => checkEnumValue(value, Scale));
+    this._dashboardLink = getConfigValue(this._configs, [EditorPages.Appearance, GlobalOptions.Options, AppearanceOptions.Dashboard_Link]);
+    this._dashboardLinkLabel = getConfigValue(this._configs, [EditorPages.Appearance, GlobalOptions.Options, AppearanceOptions.Dashboard_Link_Label]);
 
     switch (getConfigValue(this._configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Inactive_Flows])) {
       case InactiveFlowsMode.Dimmed:
@@ -307,12 +311,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       </div>
 
       <!-- dashboard link -->
-      ${getConfigValue(this._configs, [EditorPages.Appearance, GlobalOptions.Options, AppearanceOptions.Dashboard_Link])
+      ${this._dashboardLink
         ? html`
           <div class="card-actions">
-            <a href=${getConfigValue(this._configs, [EditorPages.Appearance, GlobalOptions.Options, AppearanceOptions.Dashboard_Link])}>
+            <a href=${this._dashboardLink}>
               <mwc-button>
-                ${getConfigValue(this._configs, [EditorPages.Appearance, GlobalOptions.Options, AppearanceOptions.Dashboard_Link_Label]) || this.hass.localize("ui.panel.lovelace.cards.energy.energy_distribution.go_to_energy_dashboard")}
+                ${this._dashboardLinkLabel || this.hass.localize("ui.panel.lovelace.cards.energy.energy_distribution.go_to_energy_dashboard")}
               </mwc-button>
             </a>
           </div>

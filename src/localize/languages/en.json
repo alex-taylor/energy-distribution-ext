@@ -33,7 +33,7 @@
     "dashboard_link_label": "Dashboard link label",
     "show_zero_states": "Show zero states",
     "clickable_entities": "Clickable entities",
-    "segment_gaps": "Show gaps between segments",
+    "segment_gaps": "Show gaps between circle segments",
     "use_hass_style": "Use HASS-style layout",
     "use_hourly_stats": "Use hourly statistics",
     "use_hourly_stats#helptext": "Hourly statistics are more precise, but may take longer to calculate",
