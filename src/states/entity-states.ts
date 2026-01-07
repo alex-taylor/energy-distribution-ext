@@ -16,8 +16,7 @@ import { getEnergyDataCollection } from "@/energy";
 import { ValueState } from "./state";
 import { Flows, States } from ".";
 import { UNIT_CONVERSIONS } from "./unit-conversions";
-import { getConfigValue } from "@/config/config";
-import { DEFAULT_CONFIG } from "@/const";
+import { DEFAULT_CONFIG, getConfigValue } from "@/config/config";
 
 const ENERGY_DATA_TIMEOUT: number = 10000;
 

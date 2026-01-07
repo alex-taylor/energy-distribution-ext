@@ -11,6 +11,14 @@ import { EnergyCollection, EnergySource, EntityRegistryEntry } from "@/hass";
 
 //================================================================================================================================================================================//
 
+export const DEFAULT_CONFIG: EnergyFlowCardExtConfig = getDefaultConfig();
+export const DEFAULT_GAS_CONFIG: GasConfig = getDefaultGasConfig()!;
+export const DEFAULT_SOLAR_CONFIG: SolarConfig = getDefaultSolarConfig()!;
+export const DEFAULT_LOW_CARBON_CONFIG: LowCarbonConfig = getDefaultLowCarbonConfig();
+export const DEFAULT_HOME_CONFIG: HomeConfig = getDefaultHomeConfig();
+
+//================================================================================================================================================================================//
+
 export function getConfigValue(configs: any[], path: string[], validator: ((value: any) => boolean) | undefined = _ => true): any {
   for (let c: number = 0; c < configs.length; c++) {
     let obj = configs[c];

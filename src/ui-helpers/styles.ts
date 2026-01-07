@@ -2,8 +2,7 @@ import { ColourOptions, DualValueNodeConfig, EditorPages, EnergyFlowCardExtConfi
 import { ColourMode, CssClass, GasSourcesMode } from "@/enums";
 import { Flows, States } from "@/states";
 import { getGasSourcesMode } from ".";
-import { getConfigValue } from "@/config/config";
-import { DEFAULT_HOME_CONFIG } from "@/const";
+import { DEFAULT_HOME_CONFIG, getConfigValue } from "@/config/config";
 
 export interface MinMax {
   min: number;

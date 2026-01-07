@@ -1,9 +1,10 @@
 {
   "common": {
-    "invalid_configuration": "Invalid Configuration",
+    "invalid_configuration": "Invalid configuration",
     "unknown": "Unknown",
     "new_device": "New Device",
-    "power_outage": "Power outage"
+    "power_outage": "Power outage",
+    "go_to_dashboard": "Go to the {title} dashboard"
   },
   "editor": {
     "undefined": "",

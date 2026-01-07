@@ -1,10 +1,10 @@
 import { html, TemplateResult, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { FlowLine, Segment, SegmentGroup } from ".";
-import { CIRCLE_STROKE_WIDTH_SEGMENTS, DEFAULT_CONFIG, DOT_RADIUS } from "@/const";
+import { CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS } from "@/const";
 import { CssClass, InactiveFlowsMode, Scale } from "@/enums";
 import { EditorPages, EnergyFlowCardExtConfig, FlowsOptions, AppearanceOptions } from "@/config";
-import { getConfigValue } from "@/config/config";
+import { DEFAULT_CONFIG, getConfigValue } from "@/config/config";
 
 const INTER_GROUP_ARC: number = 7.5;
 const INTER_SEGMENT_ARC: number = INTER_GROUP_ARC / 3;

@@ -1,8 +1,7 @@
 import { EditorPages, EnergyFlowCardExtConfig, GlobalOptions, HomeOptions } from "@/config";
 import { GasSourcesMode } from "@/enums";
 import { States } from "@/states";
-import { getConfigValue } from "@/config/config";
-import { DEFAULT_CONFIG } from "@/const";
+import { DEFAULT_CONFIG, getConfigValue } from "@/config/config";
 
 export interface Segment {
   state: number;

@@ -11,20 +11,6 @@ Code:
   - unit-testing
   - move the language files to Typescript so enum values can be used for the keys
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
-  - Dashboard label:
-    - split the URL on the /
-    - the first segment can be found in this.hass.panels
-    - if there is a second segment, this is a View:
-      - make the API call to get the config for the first segment
-      - find the View
-
-Config:
-  - is it possible to auto-detect changes to the Energy config?
-    - if we do, how should this be handled?
-      - can't just overwrite the user's config...
-      - we'd need a flag which instructed the card to use the Energy config rather than its own
-        - so this needs some thought - we shouldn't be duplicating the Energy config in the card
-    - if not, we could have a button on the main page to (re)load the entities from that config
 
 Display:
   - odd layout glitches when changing settings, refreshing the page, etc - the circles are small and squashed
@@ -62,6 +48,14 @@ Under consideration
     - current year
     - perhaps a user-supplied date-range?
     - could display this as a title?
+    - so the options might be:
+      - Date picker
+      - Today
+      - This month
+      - This year
+      - Custom
+    - and we then have a boolean for 'include latest readings' or some such
+    - rename 'display mode' to 'date range'
   - display the flow rates as hover-overs on the lines
     - or over the circles?
     - or do we bother?  the segments may be enough now
