@@ -1057,7 +1057,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       if (width > 0) {
         const dummy = this.shadowRoot?.ownerDocument.createElement("div")!;
         this.shadowRoot?.ownerDocument.body.append(dummy);
-        dummy.textContent = "x";
         dummy.style.height = "var(--ha-font-size-s)";
         const fontSize: number = dummy.getBoundingClientRect().height;
         dummy.remove();
@@ -1068,6 +1067,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         this._circleSize = circleSize;
         setLayout(this.style, circleSize);
 
+        const labelHeight: number = fontSize * this._getPropertyValue(".lines", "--ha-line-height-normal");
+
         const colSpacing: MinMax = getColSpacing(circleSize);
 
         const rowSpacing: number = Math.round(circleSize * 3 / 8);
@@ -1076,7 +1077,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
         const isTopRowPresent: boolean = (this._entityStates.lowCarbon.isPresent && this._entityStates.grid.isPresent) || this._entityStates.solar.isPresent || this._entityStates.gas.isPresent;
         const columnSpacing: number = Math.max(colSpacing.min, (width - numColumns * circleSize) / (numColumns - 1));
-        const textLineHeight: number = fontSize;
 
         const battery: boolean = !!this._entityStates.battery.firstExportEntity;
         const grid: boolean = !!this._entityStates.grid.firstImportEntity;
@@ -1086,9 +1086,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         const col2X: number = circleSize + columnSpacing + circleSize / 2;
         const col3X: number = circleSize + columnSpacing + circleSize + columnSpacing + DOT_DIAMETER;
 
-        const row1Y: number = circleSize + textLineHeight - DOT_DIAMETER;
-        const row2Y: number = (isTopRowPresent ? circleSize + textLineHeight + rowSpacing : 0) + circleSize / 2;
-        const row3Y: number = (isTopRowPresent ? circleSize + textLineHeight + rowSpacing : 0) + circleSize + rowSpacing + DOT_DIAMETER;
+        const row1Y: number = circleSize + labelHeight - DOT_DIAMETER;
+        const row2Y: number = (isTopRowPresent ? circleSize + labelHeight + rowSpacing : 0) + circleSize / 2;
+        const row3Y: number = (isTopRowPresent ? circleSize + labelHeight + rowSpacing : 0) + circleSize + rowSpacing + DOT_DIAMETER;
 
         const topRowLineLength: number = Math.round((row2Y - circleSize / 2 + DOT_DIAMETER) - row1Y);
         const horizLineLength: number = Math.round(col3X - col1X);
@@ -1236,10 +1236,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const units: string = this._energyUnits.length > volumeUnits.length ? this._energyUnits : volumeUnits;
 
     const numChars: number = Math.max(
-      this._renderEnergyState(9.9999, units).length,
-      this._renderEnergyState(99.9999, units).length,
-      this._renderEnergyState(999.9999, units).length,
-      this._renderEnergyState(9999.9999, units).length
+      this._renderEnergyState(9.999, units).length,
+      this._renderEnergyState(99.999, units).length,
+      this._renderEnergyState(999.999, units).length,
+      this._renderEnergyState(9999.999, units).length
     );
 
     const textLineHeight: number = fontSize + ICON_PADDING;
