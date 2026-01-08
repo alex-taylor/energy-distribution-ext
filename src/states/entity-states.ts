@@ -21,11 +21,23 @@ import { DEFAULT_CONFIG, getConfigObjects, getConfigValue } from "@/config/confi
 const ENERGY_DATA_TIMEOUT: number = 10000;
 const ENERGY_DATA_POLL: number = 100;
 
+const Period = {
+  Hour: "hour",
+  Day: "day",
+  Month: "month"
+} as const;
+
+type Period = typeof Period[keyof typeof Period];
+
 export class EntityStates {
   public hass: HomeAssistant;
 
   public get isDatePickerPresent(): boolean {
-    return !!this._energyData;
+    return this._isDatePickerPresent;
+  }
+
+  public get isDataPresent(): boolean {
+    return !!this._primaryStatistics;
   }
 
   public get isConfigPresent(): boolean {
@@ -41,7 +53,9 @@ export class EntityStates {
   public devices!: DeviceState[];
 
   private _isLoaded: boolean = false;
-  private _energyData: any;
+  private _isDatePickerPresent: boolean = false;
+  private _periodStart: Date | undefined = undefined;
+  private _periodEnd: Date | undefined = undefined;
   private _displayMode: DisplayMode;
   private _primaryEntityIds: string[] = [];
   private _secondaryEntityIds: string[] = [];
@@ -77,6 +91,10 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   public getStates(): States | undefined {
+    if (!this.isDataPresent) {
+      return undefined;
+    }
+
     const states: States = {
       largestElectricValue: 0,
       largestGasValue: 0,
@@ -183,32 +201,36 @@ export class EntityStates {
   public async subscribe(config: EnergyFlowCardExtConfig): Promise<UnsubscribeFunc> {
     await this._loadConfig(this.hass, config);
 
-    // TODO: create enum for the return-type
-    // TODO: move this logic inside _loadStatistics, there's no point passing 'period' in!
-    const calculatePeriod = (start: Date, end: Date) => {
-      const dayDiff: number = differenceInDays(end, start);
-      return this._useHourlyStats ? 'hour' : isFirstDayOfMonth(start) && isLastDayOfMonth(end) && dayDiff > 35 ? 'month' : dayDiff > 2 ? 'day' : 'hour';
-    }
-
-    // TODO: this is unlikely to refresh automatically at midnight...
     if (this._displayMode === DisplayMode.Today) {
-      const periodEnd: Date = new Date();
-      const periodStart: Date = startOfDay(periodEnd);
-      this._loadStatistics(periodStart, periodEnd, calculatePeriod(periodStart, periodEnd));
-      return (): void => { };
+      let refresh: NodeJS.Timeout;
+
+      const loadStatistics = () => {
+        const periodEnd: Date = endOfDay(new Date());
+        const periodStart: Date = startOfDay(periodEnd);
+        this._loadStatistics(periodStart, periodEnd);
+        const nextFetch: Date = new Date();
+
+        if (nextFetch.getMinutes() >= 20) {
+          nextFetch.setHours(nextFetch.getHours() + 1);
+        }
+
+        nextFetch.setMinutes(20, 0, 0);
+        refresh = setTimeout(() => loadStatistics(), nextFetch.getTime() - Date.now());
+      };
+
+      loadStatistics();
+      return (): void => clearTimeout(refresh);
     }
 
-    const start: number = Date.now();
+    const pollStartTime: number = Date.now();
 
-    const getEnergyDataCollectionPoll = (
-      resolve: (value: EnergyCollection | PromiseLike<EnergyCollection>) => void,
-      reject: (reason?: any) => void
-    ) => {
+    const getEnergyDataCollectionPoll = (resolve: (value: EnergyCollection) => void, reject: (reason: Error) => void) => {
       const energyCollection = getEnergyDataCollection(this.hass);
 
       if (energyCollection) {
+        this._isDatePickerPresent = true;
         resolve(energyCollection);
-      } else if (Date.now() - start > ENERGY_DATA_TIMEOUT) {
+      } else if (Date.now() - pollStartTime > ENERGY_DATA_TIMEOUT) {
         reject(new Error(`No energy data received after ${ENERGY_DATA_TIMEOUT}ms. Is there a type:energy-date-selection card on this screen?`));
       } else {
         setTimeout(() => getEnergyDataCollectionPoll(resolve, reject), ENERGY_DATA_POLL);
@@ -216,22 +238,7 @@ export class EntityStates {
     };
 
     return new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
-      .then(async (collection: EnergyCollection) => {
-        return collection.subscribe(async (data: EnergyData) => {
-          setTimeout(
-            () => {
-              if (!this._primaryStatistics && !this._secondaryStatistics) {
-                logDebug(`No energy statistics received after ${ENERGY_DATA_TIMEOUT * 2}ms`);
-              }
-            },
-            ENERGY_DATA_TIMEOUT * 2);
-
-          this._energyData = data;
-          const periodStart: Date = data.start;
-          const periodEnd: Date = data.end ?? new Date();
-          this._loadStatistics(periodStart, periodEnd, calculatePeriod(periodStart, periodEnd));
-        });
-      })
+      .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => this._loadStatistics(data.start, data.end || new Date())))
       .catch(err => {
         logDebug(err);
         return (): void => { };
@@ -267,17 +274,8 @@ export class EntityStates {
       return;
     }
 
-    let periodStart: Date;
-    let periodEnd: Date;
-
-    if (this._displayMode === DisplayMode.Today) {
-      periodStart = startOfDay(new Date());
-      periodEnd = endOfDay(periodStart);
-    } else {
-      // TODO: following a screen refresh we seem to be getting called before this is available
-      periodStart = this._energyData!.start;
-      periodEnd = this._energyData!.end!;
-    }
+    const periodStart: Date = this._periodStart!;
+    const periodEnd: Date = this._periodEnd!;
 
     const solarImportDelta: number = this._getStateDelta(periodStart, periodEnd, this._primaryStatistics, this.solar.importEntities, this._energyUnits);
     const batteryImportDelta: number = this._getStateDelta(periodStart, periodEnd, this._primaryStatistics, this.battery.importEntities, this._energyUnits);
@@ -348,35 +346,40 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private async _loadStatistics(periodStart: Date, periodEnd: Date, period: '5minute' | 'hour' | 'day' | 'week' | 'month'): Promise<void> {
-    let startTime: number = new Date().getTime();
+  private async _loadStatistics(periodStart: Date, periodEnd: Date): Promise<void> {
+    this._periodStart = periodStart;
+    this._periodEnd = periodEnd;
 
-    const [previousPrimaryData, primaryData]: Statistics[] = await Promise.all([
-      this._fetchStatistics(addHours(periodStart, -1), periodStart, this._primaryEntityIds, 'hour'),
-      this._fetchStatistics(periodStart, periodEnd, this._primaryEntityIds, period)
+    const dayDiff: number = differenceInDays(periodEnd, periodStart);
+    const period: Period = this._useHourlyStats ? Period.Hour : isFirstDayOfMonth(periodStart) && isLastDayOfMonth(periodEnd) && dayDiff > 35 ? Period.Month : dayDiff > 2 ? Period.Day : Period.Hour;
+
+    const timeout: NodeJS.Timeout = setTimeout(() => logDebug(`No energy statistics received after ${ENERGY_DATA_TIMEOUT * 2}ms`), ENERGY_DATA_TIMEOUT * 2);
+    const fetchStartTime: number = Date.now();
+
+    const [previousPrimaryData, primaryData, co2data, previousSecondaryData, secondaryData] = await Promise.all([
+      this._fetchStatistics(addHours(periodStart, -1), periodStart, this._primaryEntityIds, Period.Hour),
+      this._fetchStatistics(periodStart, periodEnd, this._primaryEntityIds, period),
+      this.lowCarbon.isPresent ? this._fetchCo2Data(periodStart, periodEnd, period) : Promise.resolve(),
+      this._secondaryEntityIds.length !== 0 ? this._fetchStatistics(addHours(periodStart, -1), periodStart, this._secondaryEntityIds, Period.Hour) : Promise.resolve(),
+      this._secondaryEntityIds.length !== 0 ? this._fetchStatistics(periodStart, periodEnd, this._secondaryEntityIds, Period.Day) : Promise.resolve()
     ]);
 
-    logDebug(`Received primary stats for period ${periodStart} - ${periodEnd}] @ ${new Date()} in  ${new Date().getTime() - startTime}ms`);
+    logDebug(`Received per-${period} stats (primary${this.lowCarbon.isPresent ? ", low-carbon" : ""}${this._secondaryEntityIds.length !== 0 ? ", secondary" : ""}) for period ${periodStart} - ${periodEnd}] at ${new Date()} in ${Date.now() - fetchStartTime}ms`);
+    clearTimeout(timeout);
 
-    if (this.lowCarbon.isPresent) {
-      this._co2data = await this._fetchCo2Data(periodStart, periodEnd, period);
+    if (co2data) {
+      this._co2data = co2data as Record<string, number>;
     }
 
-    this._validateStatistics(this._primaryEntityIds, primaryData, previousPrimaryData, periodStart, periodEnd);
-    this._primaryStatistics = primaryData;
-    this._calculatePrimaryStatistics();
+    if (primaryData) {
+      this._validateStatistics(this._primaryEntityIds, primaryData, previousPrimaryData, periodStart, periodEnd);
+      this._primaryStatistics = primaryData;
+      this._calculatePrimaryStatistics();
+    }
 
-    if (this._secondaryEntityIds.length !== 0) {
-      startTime = new Date().getTime();
-
-      const [previousSecondaryData, secondaryData]: Statistics[] = await Promise.all([
-        this._fetchStatistics(addHours(periodStart, -1), periodStart, this._secondaryEntityIds, 'hour'),
-        this._fetchStatistics(periodStart, periodEnd, this._secondaryEntityIds, 'day')
-      ]);
-
-      logDebug(`Received secondary stats for period ${periodStart} - ${periodEnd}] @ ${new Date()} in  ${new Date().getTime() - startTime}ms`);
-      this._validateStatistics(this._secondaryEntityIds, secondaryData, previousSecondaryData, periodStart, periodEnd);
-      this._secondaryStatistics = secondaryData;
+    if (secondaryData) {
+      this._validateStatistics(this._secondaryEntityIds, secondaryData as Statistics, previousSecondaryData as Statistics, periodStart, periodEnd);
+      this._secondaryStatistics = secondaryData as Statistics;
       this._calculateSecondaryStatistics();
     }
   }
@@ -384,7 +387,7 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private async _inferEntityModes(): Promise<void> {
-    const statistics: Statistics = await this._fetchStatistics(addDays(startOfDay(new Date()), -1), null, [...this._primaryEntityIds, ...this._secondaryEntityIds], 'day');
+    const statistics: Statistics = await this._fetchStatistics(addDays(startOfDay(new Date()), -1), startOfDay(new Date()), [...this._primaryEntityIds, ...this._secondaryEntityIds], Period.Day);
 
     for (const entity in statistics) {
       if (statistics[entity].length !== 0) {
@@ -724,7 +727,7 @@ export class EntityStates {
       if (!entityStats || entityStats.length === 0 || entityStats[0].start > periodStart.getTime()) {
         let dummyStat: StatisticValue;
 
-        if (previousStatistics && previousStatistics[entity]?.length) {
+        if (previousStatistics && previousStatistics[entity]?.length !== 0) {
           // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate the
           // Live/Hybrid-mode state-delta at midnight on the current date (ie, before the first stat of the new day has been generated) so we do
           // not want to include its values in the stats calculations.
@@ -733,8 +736,7 @@ export class EntityStates {
           dummyStat = {
             ...previousStat,
             change: 0,
-            state: this._entityModes.get(entity) === EntityMode.Totalising ? previousStat.state : 0,
-            mean: 100
+            state: this._entityModes.get(entity) === EntityMode.Totalising ? previousStat.state : 0
           };
         } else {
           dummyStat = {
@@ -744,7 +746,7 @@ export class EntityStates {
             start: periodStart.getTime(),
             end: periodEnd.getTime(),
             min: 0,
-            mean: 100,
+            mean: 0,
             max: 0,
             last_reset: null,
             statistic_id: entity
@@ -792,23 +794,24 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private _fetchStatistics(periodStart: Date, periodEnd?: Date | null, entityIds?: string[], period: '5minute' | 'hour' | 'day' | 'week' | 'month' = 'hour'): Promise<Statistics> {
+  private _fetchStatistics(periodStart: Date, periodEnd: Date, entityIds: string[], period: Period): Promise<Statistics> {
     return this.hass.callWS<Statistics>({
-      type: 'recorder/statistics_during_period',
+      type: "recorder/statistics_during_period",
       start_time: periodStart.toISOString(),
-      end_time: periodEnd?.toISOString(),
+      end_time: periodEnd.toISOString(),
       statistic_ids: entityIds,
-      period: period
+      period: period,
+      types: ["sum", "state", "change"]
     });
   }
 
   //================================================================================================================================================================================//
 
-  private _fetchCo2Data(periodStart: Date, periodEnd?: Date | null, period: '5minute' | 'hour' | 'day' | 'week' | 'month' = 'hour'): Promise<Record<string, number>> {
+  private _fetchCo2Data(periodStart: Date, periodEnd: Date, period: Period): Promise<Record<string, number>> {
     return this.hass.callWS<Record<string, number>>({
       type: "energy/fossil_energy_consumption",
       start_time: periodStart.toISOString(),
-      end_time: periodEnd?.toISOString(),
+      end_time: periodEnd.toISOString(),
       energy_statistic_ids: this.grid.importEntities,
       co2_statistic_id: this.lowCarbon.firstImportEntity,
       period

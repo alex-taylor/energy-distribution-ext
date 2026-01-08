@@ -13,7 +13,6 @@ Code:
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
 
 Display:
-  - odd layout glitches when changing settings, refreshing the page, etc - the circles are small and squashed
   - Flows:
     - in non-HASS mode, see if the grid->home flow can be made to alternate between high and low carbon colours on successive runs
       - ideally in proportion, but otherwise a simple 1:1 will do
@@ -93,5 +92,3 @@ Before release
   - test localisation by disabling EN and checking that all strings revert to their keys
     - also check that there aren't any redundant keys!
       - if all keys are enums, this should be simple
-  - find out why there seems to be a serious delay in populating the display after setting the date or changing the config
-    - apparently receiving each data-set (primary and secondary) twice per card

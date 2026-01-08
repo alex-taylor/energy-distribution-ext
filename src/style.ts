@@ -20,6 +20,28 @@ export const styles: CSSResult = css`
     height: calc(100% - 2 * var(--ha-space-4));
   }
 
+  .overlay {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: 60%;
+    z-index: 10;
+    background-color: var(--card-background-color);
+    border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg));
+    align-content: center;
+    text-align: center;
+    font-size: var(--ha-heading-card-title-font-size, var(--ha-font-size-l));
+    font-weight: var(--ha-heading-card-title-font-weight, var(--ha-font-weight-normal));
+    line-height: var(--ha-heading-card-title-line-height, var(--ha-line-height-normal));
+  }
+
+  .overlay-message {
+    padding: 0 25px;
+    display: block;
+  }
+
   .row {
     display: flex;
     justify-content: space-between;
