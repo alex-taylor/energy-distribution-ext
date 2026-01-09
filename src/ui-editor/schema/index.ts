@@ -1,8 +1,19 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, AppearanceOptionsConfig, DualValueNodeConfig, EnergyFlowCardExtConfig, EnergyUnitsConfig, FlowsConfig, NodeConfig, SecondaryInfoConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, DualValueNodeConfig, EnergyUnitsConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
 import { ColourMode, DisplayMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 import { localize } from '@/localize/localize';
 import { getConfigValue } from '@/config/config';
+import memoizeOne from 'memoize-one';
+
+export const SchemaTypes = {
+  Expandable: "expandable",
+  Grid: "grid"
+} as const;
+
+export const SelectorModes = {
+  Box: "box",
+  Dropdown: "dropdown"
+} as const;
 
 export interface DropdownValue {
   label: string;
@@ -11,45 +22,45 @@ export interface DropdownValue {
 
 //================================================================================================================================================================================//
 
-export function generalConfigSchema(config: EnergyFlowCardExtConfig): any[] {
+export const generalConfigSchema = memoizeOne((): any[] => {
   return [
     { key: GlobalOptions, name: GlobalOptions.Title, selector: { text: {} }, },
-    { key: GlobalOptions, name: GlobalOptions.Display_Mode, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(DisplayMode) } } },
+    { key: GlobalOptions, name: GlobalOptions.Display_Mode, required: true, selector: dropdownSelector(DisplayMode) },
     { key: GlobalOptions, name: GlobalOptions.Use_HASS_Config, selector: { boolean: {} } }
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-export function appearanceSchema(config: EnergyFlowCardExtConfig, schemaConfig: AppearanceConfig): any[] {
+export const appearanceSchema = memoizeOne((schemaConfig: AppearanceConfig): any[] => {
   return [
     {
       key: GlobalOptions,
       name: GlobalOptions.Options,
-      type: 'expandable',
-      schema: appearanceOptionsSchema(config, getConfigValue(schemaConfig, GlobalOptions.Options))
+      type: SchemaTypes.Expandable,
+      schema: appearanceOptionsSchema()
     },
     {
       key: AppearanceOptions,
       name: AppearanceOptions.Flows,
-      type: 'expandable',
-      schema: flowsOptionsSchema(config, getConfigValue(schemaConfig, AppearanceOptions.Flows))
+      type: SchemaTypes.Expandable,
+      schema: flowsOptionsSchema()
     },
     {
       key: AppearanceOptions,
       name: AppearanceOptions.Energy_Units,
-      type: 'expandable',
-      schema: energyUnitsOptionsSchema(config, getConfigValue(schemaConfig, AppearanceOptions.Energy_Units))
+      type: SchemaTypes.Expandable,
+      schema: energyUnitsOptionsSchema(getConfigValue(schemaConfig, AppearanceOptions.Energy_Units))
     }
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-function appearanceOptionsSchema(config: EnergyFlowCardExtConfig, schemaConfig: AppearanceOptionsConfig): any[] {
+const appearanceOptionsSchema = memoizeOne((): any[] => {
   return [
     {
-      type: 'grid',
+      type: SchemaTypes.Grid,
       schema: [
         { key: AppearanceOptions, name: AppearanceOptions.Dashboard_Link, selector: { navigation: {} } },
         { key: AppearanceOptions, name: AppearanceOptions.Dashboard_Link_Label, selector: { text: {} } },
@@ -60,65 +71,65 @@ function appearanceOptionsSchema(config: EnergyFlowCardExtConfig, schemaConfig: 
       ]
     }
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-function flowsOptionsSchema(config: EnergyFlowCardExtConfig, schemaConfig: FlowsConfig): any[] {
+const flowsOptionsSchema = memoizeOne((): any[] => {
   return [
     {
-      type: 'grid',
+      type: SchemaTypes.Grid,
       schema: [
         { key: FlowsOptions, name: FlowsOptions.Use_Hourly_Stats, selector: { boolean: {} } },
         { key: FlowsOptions, name: FlowsOptions.Animation, selector: { boolean: {} } },
-        { key: FlowsOptions, name: FlowsOptions.Inactive_Flows, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(InactiveFlowsMode) } } },
-        { key: FlowsOptions, name: FlowsOptions.Scale, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(Scale) } } }
+        { key: FlowsOptions, name: FlowsOptions.Inactive_Flows, required: true, selector: dropdownSelector(InactiveFlowsMode) },
+        { key: FlowsOptions, name: FlowsOptions.Scale, required: true, selector: dropdownSelector(Scale) }
       ]
     }
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-function energyUnitsOptionsSchema(config: EnergyFlowCardExtConfig, schemaConfig: EnergyUnitsConfig): any[] {
+const energyUnitsOptionsSchema = memoizeOne((schemaConfig: EnergyUnitsConfig): any[] => {
   return [
     {
-      type: 'grid',
+      type: SchemaTypes.Grid,
       schema: [
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Unit_Position, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPosition) } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Prefix_Threshold, required: true, selector: { select: { mode: 'dropdown', options: Object.values(PrefixThreshold).filter(value => !isNaN(Number(value))) } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Electric_Units, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(EnergyUnits) } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Electric_Unit_Prefixes, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPrefixes) } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Units, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(VolumeUnits) } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Unit_Prefixes, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPrefixes) } } }
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Unit_Position, required: true, selector: dropdownSelector(UnitPosition) },
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Prefix_Threshold, required: true, selector: { select: { mode: SelectorModes.Dropdown, options: Object.values(PrefixThreshold) } } },
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Electric_Units, required: true, selector: dropdownSelector(EnergyUnits) },
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Electric_Unit_Prefixes, required: true, selector: dropdownSelector(UnitPrefixes) },
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Units, required: true, selector: dropdownSelector(VolumeUnits) },
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Unit_Prefixes, required: true, selector: dropdownSelector(UnitPrefixes) }
       ]
     },
-    getConfigValue(schemaConfig, EnergyUnitsOptions.Gas_Units) !== VolumeUnits.Same_As_Electric ? { type: 'grid', schema: [{ key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: 'box', min: 0 } } }] } : {},
+    getConfigValue(schemaConfig, EnergyUnitsOptions.Gas_Units) !== VolumeUnits.Same_As_Electric ? { type: SchemaTypes.Grid, schema: [{ key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: SelectorModes.Box, min: 0 } } }] } : {},
     {
-      type: 'grid',
+      type: SchemaTypes.Grid,
       column_min_width: '67px',
       schema: [
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Display_Precision_Under_10, selector: { number: { mode: 'box', min: 0, max: 3, unit_of_measurement: 'dp' } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Display_Precision_Under_100, selector: { number: { mode: 'box', min: 0, max: 3, unit_of_measurement: 'dp' } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Display_Precision_Default, selector: { number: { mode: 'box', min: 0, max: 3, unit_of_measurement: 'dp' } } }
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Display_Precision_Under_10, selector: displayPrecisionSelector() },
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Display_Precision_Under_100, selector: displayPrecisionSelector() },
+        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Display_Precision_Default, selector: displayPrecisionSelector() }
       ]
     }
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-export function nodeConfigSchema(config: EnergyFlowCardExtConfig, schemaConfig: NodeConfig, entitySchema: any[] = []): any[] {
+export const nodeConfigSchema = memoizeOne((entitySchema: any[] = []): any[] => {
   const result: Array<any> = [...entitySchema];
 
   result.push(
     {
       key: EntitiesOptions,
       name: EntitiesOptions.Overrides,
-      type: 'expandable',
+      type: SchemaTypes.Expandable,
       schema: [
         {
-          type: 'grid',
+          type: SchemaTypes.Grid,
           schema: [
             { key: OverridesOptions, name: OverridesOptions.Name, selector: { text: {} } },
             { key: OverridesOptions, name: OverridesOptions.Icon, selector: { icon: {} } }
@@ -126,38 +137,38 @@ export function nodeConfigSchema(config: EnergyFlowCardExtConfig, schemaConfig: 
         }
       ]
     },
-    secondaryInfoSchema(config, getConfigValue(schemaConfig, EntitiesOptions.Secondary_Info))
+    secondaryInfoSchema()
   );
 
   return result;
-};
+});
 
 //================================================================================================================================================================================//
 
-export function singleValueNodeSchema(config: EnergyFlowCardExtConfig, schemaConfig: SingleValueNodeConfig, deviceClasses: string[], isSolarNode: boolean = false): any[] {
+export const singleValueNodeSchema = memoizeOne((schemaConfig: SingleValueNodeConfig, deviceClasses: string[], isSolarNode: boolean = false): any[] => {
   return [
     {
       key: EntitiesOptions,
       name: EntitiesOptions.Entities,
-      type: 'expandable',
+      type: SchemaTypes.Expandable,
       schema: [
         { key: EntityOptions, name: EntityOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: deviceClasses } } }
       ]
     },
-    singleValueColourSchema(config, schemaConfig, isSolarNode)
+    singleValueColourSchema(schemaConfig, isSolarNode)
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-export function singleValueColourSchema(config: EnergyFlowCardExtConfig, schemaConfig: SingleValueNodeConfig | LowCarbonConfig, isSolarNode: boolean = false): {} {
+export const singleValueColourSchema = memoizeOne((schemaConfig: SingleValueNodeConfig | LowCarbonConfig, isSolarNode: boolean = false): {} => {
   return {
     key: EntitiesOptions,
     name: EntitiesOptions.Colours,
-    type: 'expandable',
+    type: SchemaTypes.Expandable,
     schema: [
       {
-        type: 'grid',
+        type: SchemaTypes.Grid,
         schema: [
           ...colourSchema(
             schemaConfig,
@@ -190,16 +201,16 @@ export function singleValueColourSchema(config: EnergyFlowCardExtConfig, schemaC
       }
     ]
   };
-}
+});
 
 //================================================================================================================================================================================//
 
-export function dualValueNodeSchema(config: EnergyFlowCardExtConfig, schemaConfig: DualValueNodeConfig): any[] {
+export const dualValueNodeSchema = memoizeOne((schemaConfig: DualValueNodeConfig): any[] => {
   return [
     {
       key: EntitiesOptions,
       name: EntitiesOptions.Import_Entities,
-      type: 'expandable',
+      type: SchemaTypes.Expandable,
       schema: [
         { key: EntityOptions, name: EntityOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DEVICE_CLASS_ENERGY } } }
       ]
@@ -207,7 +218,7 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig, schemaConfi
     {
       key: EntitiesOptions,
       name: EntitiesOptions.Export_Entities,
-      type: 'expandable',
+      type: SchemaTypes.Expandable,
       schema: [
         { key: EntityOptions, name: EntityOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DEVICE_CLASS_ENERGY } } }
       ]
@@ -215,10 +226,10 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig, schemaConfi
     {
       key: EntitiesOptions,
       name: EntitiesOptions.Colours,
-      type: 'expandable',
+      type: SchemaTypes.Expandable,
       schema: [
         {
-          type: 'grid',
+          type: SchemaTypes.Grid,
           schema: [
             ...colourSchema(
               schemaConfig,
@@ -260,11 +271,11 @@ export function dualValueNodeSchema(config: EnergyFlowCardExtConfig, schemaConfi
       ]
     }
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-export function colourSchema(config: SingleValueNodeConfig | DualValueNodeConfig, name: ColourOptions, options: DropdownValue[]): any[] {
+export const colourSchema = memoizeOne((config: SingleValueNodeConfig | DualValueNodeConfig, name: ColourOptions, options: DropdownValue[]): any[] => {
   return [
     {
       key: ColourOptions,
@@ -272,37 +283,49 @@ export function colourSchema(config: SingleValueNodeConfig | DualValueNodeConfig
       required: true,
       selector: {
         select: {
-          mode: 'dropdown',
+          mode: SelectorModes.Dropdown,
           options: options
         }
       }
     },
     getConfigValue(config, [EntitiesOptions.Colours, name]) === ColourMode.Custom ? { key: EntitiesOptions, name: name.replace("mode", "colour"), selector: { color_rgb: {} } } : {}
   ];
-}
+});
 
 //================================================================================================================================================================================//
 
-export function secondaryInfoSchema(config: EnergyFlowCardExtConfig, schemaConfig: SecondaryInfoConfig): {} {
+export const secondaryInfoSchema = memoizeOne((): {} => {
   return {
     key: EntitiesOptions,
     name: EntitiesOptions.Secondary_Info,
-    type: 'expandable',
+    type: SchemaTypes.Expandable,
     schema: [
       { key: EntityOptions, name: EntityOptions.Entity_Id, selector: { entity: {} } },
       {
-        type: 'grid',
+        type: SchemaTypes.Grid,
         column_min_width: '150px',
         schema: [
-          { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Unit_Position, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(UnitPosition) } } },
+          { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Unit_Position, required: true, selector: dropdownSelector(UnitPosition) },
           { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Units, selector: { text: {} } },
-          { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Display_Precision, selector: { number: { mode: 'box', min: 0, max: 3, step: 1 } } },
-          { key: SecondaryInfoOptions, name: [SecondaryInfoOptions.Icon], selector: { icon: {} } }
+          { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Display_Precision, selector: displayPrecisionSelector() },
+          { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Icon, selector: { icon: {} } }
         ]
       }
     ]
   };
-}
+});
+
+//================================================================================================================================================================================//
+
+const displayPrecisionSelector = memoizeOne((): {} => {
+  return { number: { mode: SelectorModes.Box, min: 0, max: 3, step: 1, unit_of_measurement: "dp" } };
+});
+
+//================================================================================================================================================================================//
+
+export const dropdownSelector = memoizeOne((type: any): {} => {
+  return { select: { mode: SelectorModes.Dropdown, options: getDropdownValues(type) } };
+});
 
 //================================================================================================================================================================================//
 

@@ -135,7 +135,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
       const configForPage: any = config[currentPage];
 
       return html`
-        <energy-flow-card-ext-page-header @go-back=${this._goBack} icon="${icon}" label=${localize(`editor.${currentPage}`)}></energy-flow-card-ext-page-header>
+        <energy-flow-card-ext-page-header @go-back=${this._goBack} icon="${icon}" label=${localize(`EditorPages.${currentPage}`)}></energy-flow-card-ext-page-header>
         ${this._currentConfigPage === EditorPages.Devices
           ? html`
             <energy-flow-card-ext-devices-editor
@@ -164,7 +164,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
         <ha-form
           .hass=${this.hass}
           .data=${config}
-          .schema=${generalConfigSchema(config)}
+          .schema=${generalConfigSchema()}
           .computeLabel=${computeLabelCallback}
           .computeHelper=${computeHelperCallback}
           @value-changed=${this._valueChanged}

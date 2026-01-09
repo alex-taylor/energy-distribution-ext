@@ -174,7 +174,7 @@ export default {
 
   "HomeOptions": {
     [HomeOptions.Gas_Sources]: "Show gas sources",
-    [HomeOptions.Gas_Sources_Threshold]: "Threshold (%)",
+    [HomeOptions.Gas_Sources_Threshold]: "Threshold",
     [HomeOptions.Gas_Sources_Threshold + HELPTEXT_SUFFIX]: "If gas usage is below this, add it to the total; otherwise display it separately",
     [HomeOptions.Subtract_Consumers]: "Subtract consuming devices from totals"
   },

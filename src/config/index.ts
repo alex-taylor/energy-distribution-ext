@@ -47,8 +47,8 @@ namespace ConfigKeys {
   export const DeviceOptions = {
     Energy_Direction: "energy_direction",
     Energy_Type: "energy_type",
-    Icon: "device_icon",
-    Name: "device_name"
+    Icon: "icon",
+    Name: "name"
   } as const;
 
   export const EditorPages = {
@@ -129,7 +129,7 @@ namespace ConfigKeys {
 
   export const SecondaryInfoOptions = {
     Display_Precision: "display_precision",
-    Icon: "secondary_icon",
+    Icon: "icon",
     Units: "units",
     Unit_Position: "unit_position"
   } as const;

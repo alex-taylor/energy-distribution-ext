@@ -99,7 +99,7 @@ export class DevicesEditor extends LitElement {
         <ha-form
           .hass=${this.hass}
           .data=${this._devices[this._indexBeingEdited]}
-          .schema=${deviceSchema(this.config, this._devices[this._indexBeingEdited])}
+          .schema=${deviceSchema(this._devices[this._indexBeingEdited])}
           .computeLabel=${computeLabelCallback}
           .computeHelper=${computeHelperCallback}
           .error=${this._validateConfig(this._devices[this._indexBeingEdited])}

@@ -1,18 +1,19 @@
-import { colourSchema, getDropdownValues, nodeConfigSchema } from '.';
+import { colourSchema, dropdownSelector, getDropdownValues, nodeConfigSchema, SchemaTypes, SelectorModes } from '.';
 import { ColourMode, GasSourcesMode } from '@/enums';
-import { ColourOptions, EditorPages, EntitiesOptions, EnergyFlowCardExtConfig, HomeConfig, GlobalOptions, HomeOptions } from '@/config';
-import { DEFAULT_CONFIG, DEFAULT_HOME_CONFIG, getConfigValue } from '@/config/config';
+import { ColourOptions, EntitiesOptions, HomeConfig, GlobalOptions, HomeOptions } from '@/config';
+import { DEFAULT_HOME_CONFIG, getConfigValue } from '@/config/config';
+import memoizeOne from 'memoize-one';
 
-export function homeSchema(config: EnergyFlowCardExtConfig, schemaConfig: HomeConfig): any[] {
-  return nodeConfigSchema(config, getConfigValue([config, DEFAULT_CONFIG], EditorPages.Home))
+export const homeSchema = memoizeOne((schemaConfig: HomeConfig): any[] => {
+  return nodeConfigSchema()
     .concat(
       {
         key: EntitiesOptions,
         name: EntitiesOptions.Colours,
-        type: 'expandable',
+        type: SchemaTypes.Expandable,
         schema: [
           {
-            type: 'grid',
+            type: SchemaTypes.Grid,
             schema: [
               ...colourSchema(
                 schemaConfig,
@@ -41,20 +42,20 @@ export function homeSchema(config: EnergyFlowCardExtConfig, schemaConfig: HomeCo
       {
         key: GlobalOptions,
         name: GlobalOptions.Options,
-        type: 'expandable',
+        type: SchemaTypes.Expandable,
         schema: [
           { key: HomeOptions, name: HomeOptions.Subtract_Consumers, selector: { boolean: {} } },
-          { key: HomeOptions, name: HomeOptions.Gas_Sources, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(GasSourcesMode) } } },
+          { key: HomeOptions, name: HomeOptions.Gas_Sources, required: true, selector: dropdownSelector(GasSourcesMode) },
           dynamicHomeOptionsSchema(schemaConfig)
         ]
       }
     );
-}
+});
 
-const dynamicHomeOptionsSchema = (schemaConfig: HomeConfig): {} => {
+const dynamicHomeOptionsSchema = memoizeOne((schemaConfig: HomeConfig): {} => {
   if (getConfigValue([schemaConfig, DEFAULT_HOME_CONFIG], [GlobalOptions.Options, HomeOptions.Gas_Sources]) !== GasSourcesMode.Automatic) {
     return {};
   }
 
-  return { key: HomeOptions, name: HomeOptions.Gas_Sources_Threshold, required: true, selector: { number: { mode: 'box', min: 0, max: 100, step: 1 } } };
-}
+  return { key: HomeOptions, name: HomeOptions.Gas_Sources_Threshold, required: true, selector: { number: { mode: SelectorModes.Box, min: 0, max: 100, step: 1, unit_of_measurement: "%" } } };
+});

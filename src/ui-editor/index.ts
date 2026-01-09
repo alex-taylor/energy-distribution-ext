@@ -3,8 +3,9 @@ import { HomeAssistant } from "custom-card-helpers";
 import { isValidPrimaryEntity, isValidSecondaryEntity } from "@/config";
 import { ValueState } from "@/states/state";
 import { HELPTEXT_SUFFIX } from "@/const";
+import memoizeOne from "memoize-one";
 
-export function computeLabelCallback(schema: any): string {
+export const computeLabelCallback = memoizeOne((schema: any): string => {
   if (!schema) {
     return "";
   }
@@ -14,9 +15,9 @@ export function computeLabelCallback(schema: any): string {
   }
 
   return localize(`editor.${schema.name}`);
-}
+});
 
-export function computeHelperCallback(schema: any): string {
+export const computeHelperCallback = memoizeOne((schema: any): string => {
   if (!schema) {
     return "";
   }
@@ -26,7 +27,7 @@ export function computeHelperCallback(schema: any): string {
   }
 
   return localize(`editor.${schema.name}${HELPTEXT_SUFFIX}`, "");
-}
+});
 
 export enum Status {
   NotConfigured = 0,

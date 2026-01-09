@@ -1,20 +1,21 @@
 import { EditorPages, PowerOutageOptions, EnergyFlowCardExtConfig, EntityOptions, GridConfig, GridOptions } from '@/config';
-import { dualValueNodeSchema, nodeConfigSchema } from '.';
+import { dualValueNodeSchema, nodeConfigSchema, SchemaTypes } from '.';
 import { DEFAULT_CONFIG, getConfigValue } from '@/config/config';
+import memoizeOne from 'memoize-one';
 
-export function gridSchema(config: EnergyFlowCardExtConfig): any[] {
+export const gridSchema = memoizeOne((config: EnergyFlowCardExtConfig): any[] => {
   const gridConfig: GridConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Grid);
 
-  return nodeConfigSchema(config, gridConfig, dualValueNodeSchema(config, gridConfig))
+  return nodeConfigSchema(dualValueNodeSchema(gridConfig))
     .concat(
       {
         key: GridOptions,
         name: GridOptions.Power_Outage,
-        type: 'expandable',
+        type: SchemaTypes.Expandable,
         schema: [
           { key: EntityOptions, name: EntityOptions.Entity_Id, selector: { entity: {} }, },
           {
-            type: 'grid',
+            type: SchemaTypes.Grid,
             schema: [
               { key: PowerOutageOptions, name: PowerOutageOptions.Alert_State, selector: { text: {} } },
               { key: PowerOutageOptions, name: PowerOutageOptions.Alert_Icon, selector: { icon: {} } }
@@ -23,4 +24,4 @@ export function gridSchema(config: EnergyFlowCardExtConfig): any[] {
         ]
       }
     );
-}
+});
