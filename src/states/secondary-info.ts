@@ -1,19 +1,23 @@
 import { EntityOptions, filterSecondaryEntity, SecondaryInfoConfig, SecondaryInfoOptions } from "@/config";
 import { HomeAssistant } from "custom-card-helpers";
 import { State } from ".";
-import { getConfigValue } from "@/config/config";
+import { DEFAULT_SECONDARY_INFO_CONFIG, getConfigValue } from "@/config/config";
 
 export class SecondaryInfoState extends State {
-  config?: SecondaryInfoConfig;
+  config: SecondaryInfoConfig[];
   state: number;
-  units?: string;
 
-  public constructor(hass: HomeAssistant, config: SecondaryInfoConfig | undefined) {
-    super(config, filterSecondaryEntity(hass, getConfigValue([config], [EntityOptions.Entity_Id])), getConfigValue([config], [SecondaryInfoOptions.Icon]) || "");
-    this.config = config;
+  public constructor(hass: HomeAssistant, config: SecondaryInfoConfig) {
+    super(
+      [config, DEFAULT_SECONDARY_INFO_CONFIG],
+      filterSecondaryEntity(hass, getConfigValue([config, DEFAULT_SECONDARY_INFO_CONFIG], EntityOptions.Entity_Id)),
+      getConfigValue([config, DEFAULT_SECONDARY_INFO_CONFIG], SecondaryInfoOptions.Icon)
+    );
+
+    this.config = [config, DEFAULT_SECONDARY_INFO_CONFIG];
     this.state = 0;
 
-    const entityId: string = getConfigValue([config], [EntityOptions.Entity_Id]);
+    const entityId: string = getConfigValue(config, EntityOptions.Entity_Id);
 
     if (entityId) {
       this.rawEntities.push(entityId);

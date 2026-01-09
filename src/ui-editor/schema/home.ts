@@ -1,13 +1,15 @@
 import { colourSchema, getDropdownValues, nodeConfigSchema } from '.';
 import { ColourMode, GasSourcesMode } from '@/enums';
 import { ColourOptions, EditorPages, EntitiesOptions, EnergyFlowCardExtConfig, HomeConfig, GlobalOptions, HomeOptions } from '@/config';
+import { DEFAULT_CONFIG, DEFAULT_HOME_CONFIG, getConfigValue } from '@/config/config';
 
-export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaConfig: HomeConfig | undefined): any[] {
-  return nodeConfigSchema(config, config?.[EditorPages.Home], undefined)
+export function homeSchema(config: EnergyFlowCardExtConfig, schemaConfig: HomeConfig): any[] {
+  return nodeConfigSchema(config, getConfigValue([config, DEFAULT_CONFIG], EditorPages.Home))
     .concat(
       {
-        type: 'expandable',
+        key: EntitiesOptions,
         name: EntitiesOptions.Colours,
+        type: 'expandable',
         schema: [
           {
             type: 'grid',
@@ -37,25 +39,22 @@ export function homeSchema(config: EnergyFlowCardExtConfig | undefined, schemaCo
         ]
       },
       {
-        type: 'expandable',
+        key: GlobalOptions,
         name: GlobalOptions.Options,
+        type: 'expandable',
         schema: [
-          { name: HomeOptions.Subtract_Consumers, selector: { boolean: {} } },
-          { name: HomeOptions.Gas_Sources, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(GasSourcesMode) } } },
+          { key: HomeOptions, name: HomeOptions.Subtract_Consumers, selector: { boolean: {} } },
+          { key: HomeOptions, name: HomeOptions.Gas_Sources, required: true, selector: { select: { mode: 'dropdown', options: getDropdownValues(GasSourcesMode) } } },
           dynamicHomeOptionsSchema(schemaConfig)
         ]
       }
     );
 }
 
-const dynamicHomeOptionsSchema = (schemaConfig: HomeConfig | undefined): {} => {
-  if (schemaConfig?.[GlobalOptions.Options]?.[HomeOptions.Gas_Sources] !== GasSourcesMode.Automatic) {
+const dynamicHomeOptionsSchema = (schemaConfig: HomeConfig): {} => {
+  if (getConfigValue([schemaConfig, DEFAULT_HOME_CONFIG], [GlobalOptions.Options, HomeOptions.Gas_Sources]) !== GasSourcesMode.Automatic) {
     return {};
   }
 
-  return {
-    name: HomeOptions.Gas_Sources_Threshold,
-    required: true,
-    selector: { number: { mode: 'box', min: 0, max: 100, step: 1 } }
-  };
+  return { key: HomeOptions, name: HomeOptions.Gas_Sources_Threshold, required: true, selector: { number: { mode: 'box', min: 0, max: 100, step: 1 } } };
 }

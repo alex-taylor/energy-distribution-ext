@@ -5,11 +5,27 @@ import { ValueState } from "@/states/state";
 import { HELPTEXT_SUFFIX } from "@/const";
 
 export function computeLabelCallback(schema: any): string {
-  return localize(`editor.${schema?.name}`);
+  if (!schema) {
+    return "";
+  }
+
+  if (schema.key && schema.key.name) {
+    return localize(`${schema.key.name}.${schema.name}`);
+  }
+
+  return localize(`editor.${schema.name}`);
 }
 
 export function computeHelperCallback(schema: any): string {
-  return localize(`editor.${schema?.name}${HELPTEXT_SUFFIX}`, "");
+  if (!schema) {
+    return "";
+  }
+
+  if (schema.key && schema.key.name) {
+    return localize(`${schema.key.name}.${schema.name}${HELPTEXT_SUFFIX}`, "");
+  }
+
+  return localize(`editor.${schema.name}${HELPTEXT_SUFFIX}`, "");
 }
 
 export enum Status {

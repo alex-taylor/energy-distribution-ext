@@ -16,7 +16,7 @@ import { getEnergyDataCollection } from "@/energy";
 import { ValueState } from "./state";
 import { Flows, States } from ".";
 import { UNIT_CONVERSIONS } from "./unit-conversions";
-import { DEFAULT_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
+import { DEFAULT_CONFIG, DEFAULT_GAS_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
 
 const ENERGY_DATA_TIMEOUT: number = 10000;
 const ENERGY_DATA_POLL: number = 100;
@@ -74,17 +74,17 @@ export class EntityStates {
     const configs: EnergyFlowCardExtConfig[] = [config, DEFAULT_CONFIG];
 
     this.hass = hass;
-    this._displayMode = getConfigValue(configs, [GlobalOptions.Display_Mode]);
+    this._displayMode = getConfigValue(configs, GlobalOptions.Display_Mode);
 
     const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
-    this._energyUnits = getConfigValue(energyUnitsConfig, [EnergyUnitsOptions.Electric_Units], value => checkEnumValue(value, EnergyUnits));
-    this._volumeUnits = getConfigValue(energyUnitsConfig, [EnergyUnitsOptions.Gas_Units], value => checkEnumValue(value, VolumeUnits));
+    this._energyUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
+    this._volumeUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
 
     if (this._volumeUnits === VolumeUnits.Same_As_Electric) {
       this._volumeUnits = VolumeUnits.Cubic_Metres;
     }
 
-    this._gasCalorificValue = getConfigValue(energyUnitsConfig, [EnergyUnitsOptions.Gas_Calorific_Value]);
+    this._gasCalorificValue = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Calorific_Value);
     this._useHourlyStats = getConfigValue(configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Use_Hourly_Stats]);
   }
 
@@ -211,10 +211,17 @@ export class EntityStates {
         const nextFetch: Date = new Date();
 
         if (nextFetch.getMinutes() >= 20) {
+          if (nextFetch.getHours() === 23) {
+            nextFetch.setMinutes(0, 0, 0);
+          } else {
+            nextFetch.setMinutes(20, 0, 0);
+          }
+
           nextFetch.setHours(nextFetch.getHours() + 1);
+        } else {
+          nextFetch.setMinutes(20, 0, 0);
         }
 
-        nextFetch.setMinutes(20, 0, 0);
         refresh = setTimeout(() => loadStatistics(), nextFetch.getTime() - Date.now());
       };
 
@@ -248,20 +255,21 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private async _loadConfig(hass: HomeAssistant, config: EnergyFlowCardExtConfig): Promise<void> {
+    const configs: EnergyFlowCardExtConfig[] = [config, DEFAULT_CONFIG];
     let energySources: EnergySource[] = [];
 
-    if (getConfigValue([config, DEFAULT_CONFIG], [GlobalOptions.Use_HASS_Config])) {
+    if (getConfigValue(configs, GlobalOptions.Use_HASS_Config)) {
       const prefs: EnergyPreferences = await this._getEnergyPreferences(hass);
       energySources = prefs?.energy_sources;
     }
 
-    this.battery = new BatteryState(hass, config?.[EditorPages.Battery], energySources);
-    this.gas = new GasState(hass, config?.[EditorPages.Gas], energySources);
-    this.grid = new GridState(hass, config?.[EditorPages.Grid], energySources);
-    this.home = new HomeState(hass, config?.[EditorPages.Home]);
-    this.lowCarbon = new LowCarbonState(hass, config?.[EditorPages.Low_Carbon]);
-    this.solar = new SolarState(hass, config?.[EditorPages.Solar], energySources);
-    this.devices = config?.[EditorPages.Devices]?.flatMap(device => new DeviceState(hass, device)) || [];
+    this.battery = new BatteryState(hass, getConfigValue(configs, EditorPages.Battery), energySources);
+    this.gas = new GasState(hass, getConfigValue(configs, EditorPages.Gas), energySources);
+    this.grid = new GridState(hass, getConfigValue(configs, EditorPages.Grid), energySources);
+    this.home = new HomeState(hass, getConfigValue(configs, EditorPages.Home));
+    this.lowCarbon = new LowCarbonState(hass, getConfigValue(configs, EditorPages.Low_Carbon));
+    this.solar = new SolarState(hass, getConfigValue(configs, EditorPages.Solar), energySources);
+    this.devices = (getConfigValue(configs, EditorPages.Devices) || []).flatMap(device => new DeviceState(hass, device));
     this._populateEntityArrays();
     this._inferEntityModes();
     this._isLoaded = true;
@@ -305,12 +313,12 @@ export class EntityStates {
     const highCarbonDelta: number = this.lowCarbon.isPresent ? gridImportDelta * Number(this.hass.states[this.lowCarbon.firstImportEntity!].state) / 100 : 0;
     states.highCarbon += highCarbonDelta;
 
-    states.batterySecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.battery.secondary.importEntities, getConfigValue([this.battery.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
-    states.gasSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.gas.secondary.importEntities, getConfigValue([this.gas.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
-    states.gridSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.grid.secondary.importEntities, getConfigValue([this.grid.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
-    states.homeSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.home.secondary.importEntities, getConfigValue([this.home.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
-    states.lowCarbonSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.lowCarbon.secondary.importEntities, getConfigValue([this.lowCarbon.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
-    states.solarSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.solar.secondary.importEntities, getConfigValue([this.solar.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
+    states.batterySecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.battery.secondary.importEntities, getConfigValue(this.battery.secondary.config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
+    states.gasSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.gas.secondary.importEntities, getConfigValue(this.gas.secondary.config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
+    states.gridSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.grid.secondary.importEntities, getConfigValue(this.grid.secondary.config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
+    states.homeSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.home.secondary.importEntities, getConfigValue(this.home.secondary.config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
+    states.lowCarbonSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.lowCarbon.secondary.importEntities, getConfigValue(this.lowCarbon.secondary.config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
+    states.solarSecondary += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, this.solar.secondary.importEntities, getConfigValue(this.solar.secondary.config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
     this.devices.forEach((device, index) => states.devicesSecondary[index] += this._getStateDelta(periodStart, periodEnd, this._secondaryStatistics, device.secondary.importEntities, this._energyUnits));
   }
 
@@ -543,8 +551,8 @@ export class EntityStates {
     }
 
     if (this.gas.isPresent) {
-      this.gas.state.import = this._getDirectEntityStates(this.gas.config, this.gas.importEntities, this._energyUnits);
-      this.gas.state.importVolume = this._getDirectEntityStates(this.gas.config, this.gas.importEntities, this._volumeUnits);
+      this.gas.state.import = this._getDirectEntityStates([this.gas.config, DEFAULT_GAS_CONFIG], this.gas.importEntities, this._energyUnits);
+      this.gas.state.importVolume = this._getDirectEntityStates([this.gas.config, DEFAULT_GAS_CONFIG], this.gas.importEntities, this._volumeUnits);
     } else {
       this.gas.state.import = 0;
       this.gas.state.importVolume = 0;
@@ -574,7 +582,7 @@ export class EntityStates {
       return;
     }
 
-    state.secondary.state = this._getEntityStates(this._secondaryStatistics!, state.secondary.firstImportEntity!, getConfigValue([state.secondary.config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
+    state.secondary.state = this._getEntityStates(this._secondaryStatistics!, state.secondary.firstImportEntity!, getConfigValue(state.secondary.config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]));
   }
 
   //================================================================================================================================================================================//
@@ -618,8 +626,8 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private _getDirectEntityStates(config: any, entityIds: string[] | undefined = [], requestedUnits: string): number {
-    const configUnits: string | undefined = getConfigValue([config], [EntitiesOptions.Entities, SecondaryInfoOptions.Units]);
+  private _getDirectEntityStates(config: any[], entityIds: string[] | undefined = [], requestedUnits: string): number {
+    const configUnits: string | undefined = getConfigValue(config, [EntitiesOptions.Entities, SecondaryInfoOptions.Units]);
     let stateSum: number = 0;
 
     entityIds.forEach(entityId => {

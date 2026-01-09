@@ -46,10 +46,10 @@ export abstract class State {
   public rawEntities: string[] = [];
   public firstImportEntity?: string;
 
-  protected constructor(config: any, importEntities: string[] = [], defaultIcon: string) {
+  protected constructor(config: any[], importEntities: string[], defaultIcon: string) {
     this.importEntities = importEntities;
     this.isPresent = importEntities.length !== 0;
     this.firstImportEntity = this.isPresent ? importEntities[0] : undefined;
-    this.icon = getConfigValue([config], [EntitiesOptions.Overrides, OverridesOptions.Icon]) || defaultIcon;
+    this.icon = getConfigValue(config, [EntitiesOptions.Overrides, OverridesOptions.Icon]) || defaultIcon;
   }
 }

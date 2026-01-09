@@ -3,6 +3,7 @@ import { ColourOptions, EntitiesOptions, HomeConfig } from "@/config";
 import { ColourMode } from "@/enums";
 import { ValueState } from "./state";
 import { HomeAssistant } from "custom-card-helpers";
+import { DEFAULT_HOME_CONFIG, getConfigValue } from "@/config/config";
 
 export class HomeState extends ValueState {
   state: {
@@ -11,14 +12,14 @@ export class HomeState extends ValueState {
     fromBattery: number;
   };
 
-  colorIcon?: ColourMode;
+  colorIcon: ColourMode;
 
-  public constructor(hass: HomeAssistant, config: HomeConfig | undefined) {
+  public constructor(hass: HomeAssistant, config: HomeConfig) {
     super(
       hass,
-      config,
-      undefined,
-      localize("editor.home"),
+      [config, DEFAULT_HOME_CONFIG],
+      [],
+      localize("EditorPages.home"),
       "mdi:home"
     );
 
@@ -28,6 +29,6 @@ export class HomeState extends ValueState {
       fromBattery: 0
     };
 
-    this.colorIcon = config?.[EntitiesOptions.Colours]?.[ColourOptions.Icon];
+    this.colorIcon = getConfigValue(config, [EntitiesOptions.Colours, ColourOptions.Icon]);
   }
 }

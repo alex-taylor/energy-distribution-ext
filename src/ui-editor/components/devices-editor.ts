@@ -74,7 +74,7 @@ export class DevicesEditor extends LitElement {
               class="navigation-icon"
               @click=${() => (this._editDevice(this._indexBeingEdited - 1))}
             ></ha-icon-button>
-            <h4>${localize("editor.device")} ${this._indexBeingEdited + 1} / ${this._devices.length}</h4>
+            <h4>${localize("EditorPages.device")} ${this._indexBeingEdited + 1} / ${this._devices.length}</h4>
             <ha-icon-button
               .label=${localize("editor.next")}
               .path=${mdiArrowRight}

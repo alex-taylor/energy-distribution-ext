@@ -1,5 +1,5 @@
 import { any, assign, boolean, integer, number, object, optional, string, array } from 'superstruct';
-import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
+import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
 
 const baseLovelaceCardConfigStruct = object({
   type: string(),
@@ -130,7 +130,7 @@ const gridConfigStruct = object({
   ...dualValueNodeConfig,
   [EntitiesOptions.Overrides]: optional(overridesConfigStruct),
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct),
-  [PowerOutageOptions.Power_Outage]: optional(powerOutageConfigStruct)
+  [GridOptions.Power_Outage]: optional(powerOutageConfigStruct)
 });
 
 const homeOptionsConfigStruct = object({

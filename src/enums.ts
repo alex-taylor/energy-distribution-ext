@@ -1,4 +1,4 @@
-namespace NamedEnums {
+namespace Enums {
   export const ColourMode = {
     Do_Not_Colour: "none",
     Flow: "flow",
@@ -98,36 +98,36 @@ namespace NamedEnums {
   } as const satisfies Record<string, string>;
 }
 
-export const ColourMode = NamedEnums.ColourMode;
+export const ColourMode = Enums.ColourMode;
 export type ColourMode = typeof ColourMode[keyof typeof ColourMode];
-export const DisplayMode = NamedEnums.DisplayMode;
+export const DisplayMode = Enums.DisplayMode;
 export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
-export const EnergyDirection = NamedEnums.EnergyDirection;
+export const EnergyDirection = Enums.EnergyDirection;
 export type EnergyDirection = typeof EnergyDirection[keyof typeof EnergyDirection];
-export const EnergyType = NamedEnums.EnergyType;
+export const EnergyType = Enums.EnergyType;
 export type EnergyType = typeof EnergyType[keyof typeof EnergyType];
-export const EnergyUnits = NamedEnums.EnergyUnits;
+export const EnergyUnits = Enums.EnergyUnits;
 export type EnergyUnits = typeof EnergyUnits[keyof typeof EnergyUnits];
-export const GasSourcesMode = NamedEnums.GasSourcesMode;
+export const GasSourcesMode = Enums.GasSourcesMode;
 export type GasSourcesMode = typeof GasSourcesMode[keyof typeof GasSourcesMode];
-export const InactiveFlowsMode = NamedEnums.InactiveFlowsMode;
+export const InactiveFlowsMode = Enums.InactiveFlowsMode;
 export type InactiveFlowsMode = typeof InactiveFlowsMode[keyof typeof InactiveFlowsMode];
-export const LowCarbonDisplayMode = NamedEnums.LowCarbonDisplayMode;
+export const LowCarbonDisplayMode = Enums.LowCarbonDisplayMode;
 export type LowCarbonDisplayMode = typeof LowCarbonDisplayMode[keyof typeof LowCarbonDisplayMode];
-export const PrefixThreshold = NamedEnums.PrefixThreshold;
+export const PrefixThreshold = Enums.PrefixThreshold;
 export type PrefixThreshold = typeof PrefixThreshold[keyof typeof PrefixThreshold];
-export const Scale = NamedEnums.Scale;
+export const Scale = Enums.Scale;
 export type Scale = typeof Scale[keyof typeof Scale];
-export const UnitPosition = NamedEnums.UnitPosition;
+export const UnitPosition = Enums.UnitPosition;
 export type UnitPosition = typeof UnitPosition[keyof typeof UnitPosition];
-export const UnitPrefixes = NamedEnums.UnitPrefixes;
+export const UnitPrefixes = Enums.UnitPrefixes;
 export type UnitPrefixes = typeof UnitPrefixes[keyof typeof UnitPrefixes];
-export const VolumeUnits = NamedEnums.VolumeUnits;
+export const VolumeUnits = Enums.VolumeUnits;
 export type VolumeUnits = typeof VolumeUnits[keyof typeof VolumeUnits];
 
 (() => {
-  Object.keys(NamedEnums).forEach(e => {
-    const type = NamedEnums[e];
+  Object.keys(Enums).forEach(e => {
+    const type = Enums[e];
 
     Object.defineProperty(type, "name", {
       value: e,

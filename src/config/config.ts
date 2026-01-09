@@ -19,10 +19,19 @@ export const DEFAULT_HOME_CONFIG: HomeConfig = getDefaultHomeConfig();
 export const DEFAULT_BATTERY_CONFIG: BatteryConfig = getDefaultBatteryConfig();
 export const DEFAULT_GRID_CONFIG: GridConfig = getDefaultGridConfig();
 export const DEFAULT_SECONDARY_INFO_CONFIG: SecondaryInfoConfig = getDefaultSecondaryInfoConfig();
+export const DEFAULT_DEVICE_CONFIG: DeviceConfig = getDefaultDeviceConfig([], []);
 
 //================================================================================================================================================================================//
 
-export function getConfigValue(configs: any[], path: string[], validator: ((value: any) => boolean) | undefined = _ => true): any {
+export function getConfigValue(configs: any[] | any, path: string[] | string, validator: ((value: any) => boolean) | undefined = _ => true): any {
+  if (!(configs instanceof Array)) {
+    configs = [configs];
+  }
+
+  if (!(path instanceof Array)) {
+    path = [path];
+  }
+
   for (let c: number = 0; c < configs.length; c++) {
     let obj = configs[c];
 
@@ -47,8 +56,8 @@ export function getConfigValue(configs: any[], path: string[], validator: ((valu
 
 //================================================================================================================================================================================//
 
-export function getConfigObjects(configs: any[], path: string[]): any[] {
-  return configs.map(config => getConfigValue([config], path));
+export function getConfigObjects(configs: any[], path: string[] | string): any[] {
+  return configs.map(config => getConfigValue(config, path));
 }
 
 //================================================================================================================================================================================//
