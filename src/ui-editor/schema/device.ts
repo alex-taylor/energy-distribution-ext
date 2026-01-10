@@ -1,4 +1,4 @@
-import { ColourOptions, DeviceConfig, DeviceOptions, EntitiesOptions, EntityOptions } from '@/config';
+import { ColourOptions, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from '@/config';
 import { colourSchema, dropdownSelector, getDropdownValues, SchemaTypes, secondaryInfoSchema } from '.';
 import { ColourMode, EnergyDirection, EnergyType } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';

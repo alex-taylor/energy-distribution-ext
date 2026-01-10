@@ -1,10 +1,12 @@
 import { colourSchema, dropdownSelector, getDropdownValues, nodeConfigSchema, SchemaTypes, SelectorModes } from '.';
 import { ColourMode, GasSourcesMode } from '@/enums';
-import { ColourOptions, EntitiesOptions, HomeConfig, GlobalOptions, HomeOptions } from '@/config';
+import { ColourOptions, EntitiesOptions, HomeConfig, GlobalOptions, HomeOptions, EnergyFlowCardExtConfig, EditorPages } from '@/config';
 import { DEFAULT_HOME_CONFIG, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
 
-export const homeSchema = memoizeOne((schemaConfig: HomeConfig): any[] => {
+export const homeSchema = memoizeOne((config: EnergyFlowCardExtConfig): any[] => {
+  const homeConfig: HomeConfig = getConfigValue([config, DEFAULT_HOME_CONFIG], EditorPages.Home);
+
   return nodeConfigSchema()
     .concat(
       {
@@ -16,22 +18,22 @@ export const homeSchema = memoizeOne((schemaConfig: HomeConfig): any[] => {
             type: SchemaTypes.Grid,
             schema: [
               ...colourSchema(
-                schemaConfig,
+                homeConfig,
                 ColourOptions.Circle,
                 getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               ),
               ...colourSchema(
-                schemaConfig,
+                homeConfig,
                 ColourOptions.Value,
                 getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               ),
               ...colourSchema(
-                schemaConfig,
+                homeConfig,
                 ColourOptions.Icon,
                 getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               ),
               ...colourSchema(
-                schemaConfig,
+                homeConfig,
                 ColourOptions.Secondary,
                 getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
               )
@@ -46,7 +48,7 @@ export const homeSchema = memoizeOne((schemaConfig: HomeConfig): any[] => {
         schema: [
           { key: HomeOptions, name: HomeOptions.Subtract_Consumers, selector: { boolean: {} } },
           { key: HomeOptions, name: HomeOptions.Gas_Sources, required: true, selector: dropdownSelector(GasSourcesMode) },
-          dynamicHomeOptionsSchema(schemaConfig)
+          dynamicHomeOptionsSchema(homeConfig)
         ]
       }
     );

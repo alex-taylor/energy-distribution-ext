@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DisplayMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits } from '@/enums';
+import { ColourMode, DisplayMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange } from '@/enums';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -21,7 +21,7 @@ namespace ConfigKeys {
     Segment_Gaps: "segment_gaps",
     Show_Zero_States: "show_zero_states",
     Use_HASS_Style: "use_hass_style"
-  } as const ;
+  } as const satisfies Record<string, string>;
 
   export const ColourOptions = {
     Circle: "circle_mode",
@@ -42,14 +42,14 @@ namespace ConfigKeys {
     Value_Export_Colour: "value_export_colour",
     Value_Import: "value_import_mode",
     Value_Import_Colour: "value_import_colour"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const DeviceOptions = {
     Energy_Direction: "energy_direction",
     Energy_Type: "energy_type",
     Icon: "icon",
     Name: "name"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const EditorPages = {
     Appearance: "appearance",
@@ -60,7 +60,7 @@ namespace ConfigKeys {
     Home: "home",
     Low_Carbon: "low_carbon_energy",
     Solar: "solar"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const EnergyUnitsOptions = {
     Electric_Units: "electric_units",
@@ -73,7 +73,7 @@ namespace ConfigKeys {
     Gas_Unit_Prefixes: "gas_unit_prefixes",
     Prefix_Threshold: "prefix_threshold",
     Unit_Position: "unit_position"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const EntitiesOptions = {
     Colours: "colours",
@@ -82,57 +82,60 @@ namespace ConfigKeys {
     Import_Entities: "import_entities",
     Overrides: "overrides",
     Secondary_Info: "secondary_info"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const EntityOptions = {
     Entity_Id: "entity_id",
     Entity_Ids: "entity_ids"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const FlowsOptions = {
     Animation: "animation",
     Inactive_Flows: "inactive_flows",
     Scale: "scale",
     Use_Hourly_Stats: "use_hourly_stats"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const GlobalOptions = {
+    Date_Range: "date_range",
+    Date_Range_From: "date_range_from",
+    Date_Range_To: "date_range_to",
     Display_Mode: "display_mode",
     Options: "options",
     Title: "title",
     Use_HASS_Config: "use_hass_config"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const GridOptions = {
     Power_Outage: "power_outage"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const HomeOptions = {
     Gas_Sources: "gas_sources",
     Gas_Sources_Threshold: "gas_sources_threshold",
     Subtract_Consumers: "subtract_consumers"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const LowCarbonOptions = {
     Low_Carbon_Mode: "low_carbon_mode"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const OverridesOptions = {
     Icon: "icon",
     Name: "name"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const PowerOutageOptions = {
     Alert_Icon: "alert_icon",
     Alert_State: "alert_state"
-  } as const;
+  } as const satisfies Record<string, string>;
 
   export const SecondaryInfoOptions = {
     Display_Precision: "display_precision",
     Icon: "icon",
     Units: "units",
     Unit_Position: "unit_position"
-  } as const;
+  } as const satisfies Record<string, string>;
 }
 
 export const AppearanceOptions = ConfigKeys.AppearanceOptions;
@@ -184,6 +187,9 @@ export type SecondaryInfoOptions = typeof SecondaryInfoOptions[keyof typeof Seco
 export interface EnergyFlowCardExtConfig extends LovelaceCardConfig {
   [GlobalOptions.Title]?: string;
   [GlobalOptions.Display_Mode]?: DisplayMode;
+  [GlobalOptions.Date_Range]?: DateRange;
+  [GlobalOptions.Date_Range_From]?: string;
+  [GlobalOptions.Date_Range_To]?: string;
   [GlobalOptions.Use_HASS_Config]?: boolean,
   [EditorPages.Appearance]?: AppearanceConfig;
   [EditorPages.Grid]?: GridConfig;

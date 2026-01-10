@@ -26,7 +26,7 @@ export abstract class SingleValueState extends ValueState {
     super(
       hass,
       config,
-      filterPrimaryEntities(hass, [...hassEntityIds, ...(getConfigValue(config, [EntitiesOptions.Entities, EntityOptions.Entity_Ids]))], deviceClasses),
+      filterPrimaryEntities(hass, [...hassEntityIds, ...(getConfigValue(config, [EntitiesOptions.Entities, EntityOptions.Entity_Ids])) || []], deviceClasses),
       defaultName,
       defaultIcon
     );
@@ -36,7 +36,7 @@ export abstract class SingleValueState extends ValueState {
       importVolume: 0
     };
 
-    this.rawEntities.push(...(getConfigValue(config, [EntitiesOptions.Entities, EntityOptions.Entity_Ids])));
+    this.rawEntities.push(...(getConfigValue(config, [EntitiesOptions.Entities, EntityOptions.Entity_Ids])) || []);
     this.hassConfigPresent = hassEntityIds.length !== 0;
   }
 }
@@ -49,14 +49,14 @@ export abstract class DualValueState extends ValueState {
     super(
       hass,
       config,
-      filterPrimaryEntities(hass, [...hassImportEntityIds, ...(getConfigValue(config, [EntitiesOptions.Import_Entities, EntityOptions.Entity_Ids]))], ELECTRIC_ENTITY_CLASSES),
+      filterPrimaryEntities(hass, [...hassImportEntityIds, ...(getConfigValue(config, [EntitiesOptions.Import_Entities, EntityOptions.Entity_Ids])) || []], ELECTRIC_ENTITY_CLASSES),
       defaultName,
       defaultIcon
     );
 
-    const exportEntities: string[] = getConfigValue(config, [EntitiesOptions.Export_Entities, EntityOptions.Entity_Ids]);
+    const exportEntities: string[] = getConfigValue(config, [EntitiesOptions.Export_Entities, EntityOptions.Entity_Ids]) || [];
 
-    this.rawEntities.push(...(getConfigValue(config, [EntitiesOptions.Import_Entities, EntityOptions.Entity_Ids])));
+    this.rawEntities.push(...(getConfigValue(config, [EntitiesOptions.Import_Entities, EntityOptions.Entity_Ids])) || []);
     this.rawEntities.push(...exportEntities);
     this.exportEntities = filterPrimaryEntities(hass, [...hassExportEntityIds, ...exportEntities], ELECTRIC_ENTITY_CLASSES);
     this.firstExportEntity = this.exportEntities.length !== 0 ? this.exportEntities[0] : undefined;

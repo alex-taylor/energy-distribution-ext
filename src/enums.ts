@@ -16,6 +16,20 @@ namespace Enums {
     Default: "default"
   } as const satisfies Record<string, string>;
 
+  export const DateRange = {
+    Today: "today",
+    Yesterday: "yesterday",
+    This_Week: "this_week",
+    This_Month: "this_month",
+    This_Quarter: "this_quarter",
+    This_Year: "this_year",
+    Last_7_Days: "now-7d",
+    Last_30_Days: "now-30d",
+    Last_12_Months: "now-12m",
+    Custom: "custom",
+    From_Date_Picker: "from_date_picker"
+  } as const satisfies Record<string, string>;
+
   export const DisplayMode = {
     Today: "today",
     History: "history",
@@ -100,6 +114,8 @@ namespace Enums {
 
 export const ColourMode = Enums.ColourMode;
 export type ColourMode = typeof ColourMode[keyof typeof ColourMode];
+export const DateRange = Enums.DateRange;
+export type DateRange = typeof DateRange[keyof typeof DateRange];
 export const DisplayMode = Enums.DisplayMode;
 export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
 export const EnergyDirection = Enums.EnergyDirection;

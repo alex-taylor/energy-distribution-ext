@@ -1,8 +1,8 @@
 import { LitElement, css, html, nothing, TemplateResult, CSSResultGroup } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { assert } from 'superstruct';
-import { EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, HomeConfig } from '@/config';
+import { EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, GlobalOptions, HomeConfig } from '@/config';
 import { appearanceSchema, generalConfigSchema } from './schema';
 import { localize } from '@/localize/localize';
 import { gridSchema } from './schema/grid';
@@ -25,6 +25,7 @@ import { BatteryState } from '@/states/battery';
 import { LowCarbonState } from '@/states/low-carbon';
 import { HomeState } from '@/states/home';
 import { DeviceState } from '@/states/device';
+import { endOfToday, startOfToday, formatDate } from 'date-fns';
 
 //================================================================================================================================================================================//
 
@@ -107,9 +108,10 @@ const CONFIG_PAGES: {
 
 @customElement(EDITOR_ELEMENT_NAME)
 export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardEditor {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  public hass!: HomeAssistant;
+
   @state() private _config?: EnergyFlowCardExtConfig;
-  @state() private _currentConfigPage: EditorPages | null = null;
+  @state() private _currentConfigPage?: EditorPages;
 
   public async setConfig(config: EnergyFlowCardExtConfig): Promise<void> {
     assert(config, cardConfigStruct);
@@ -122,21 +124,21 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
     }
 
     const config: EnergyFlowCardExtConfig = this._config;
+    const currentConfigPage: EditorPages | undefined = this._currentConfigPage;
 
-    if (this._currentConfigPage) {
-      const currentPage: string = this._currentConfigPage;
-      const schema = CONFIG_PAGES.find(page => page.page === currentPage)?.schema;
-      const icon: string | undefined = CONFIG_PAGES.find((page) => page.page === currentPage)?.icon;
+    if (currentConfigPage) {
+      const schema = CONFIG_PAGES.find(page => page.page === currentConfigPage)?.schema;
+      const icon: string | undefined = CONFIG_PAGES.find((page) => page.page === currentConfigPage)?.icon;
 
-      if (!config[currentPage]) {
-        config[currentPage] = CONFIG_PAGES.find(page => page.page === currentPage)?.createConfig();
+      if (!config[currentConfigPage]) {
+        config[currentConfigPage] = CONFIG_PAGES.find(page => page.page === currentConfigPage)?.createConfig();
       }
 
-      const configForPage: any = config[currentPage];
+      const configForPage: any = config[currentConfigPage];
 
       return html`
-        <energy-flow-card-ext-page-header @go-back=${this._goBack} icon="${icon}" label=${localize(`EditorPages.${currentPage}`)}></energy-flow-card-ext-page-header>
-        ${this._currentConfigPage === EditorPages.Devices
+        <energy-flow-card-ext-page-header @go-back=${this._goBack} icon="${icon}" label=${localize(`EditorPages.${currentConfigPage}`)}></energy-flow-card-ext-page-header>
+        ${currentConfigPage === EditorPages.Devices
           ? html`
             <energy-flow-card-ext-devices-editor
               .hass=${this.hass}
@@ -148,7 +150,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
             <ha-form
               .hass=${this.hass}
               .data=${configForPage}
-              .schema=${schema(config, configForPage)}
+              .schema=${schema(config)}
               .computeLabel=${computeLabelCallback}
               .computeHelper=${computeHelperCallback}
               .error=${this._validateConfig(config)}
@@ -158,6 +160,17 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
         }
       `;
     }
+
+    // TODO: work out the actual values based on the setting of Date_Range
+    const startDateValue: string = getConfigValue(config, [GlobalOptions.Date_Range_From]);
+    const endDateValue: string = getConfigValue(config, [GlobalOptions.Date_Range_To]);
+
+    const startDate: Date = startDateValue ? new Date(startDateValue) : startOfToday();
+    const endDate: Date = endDateValue ? new Date(endDateValue) : endOfToday();
+
+    const ranges: {} = {
+      "today": [startOfToday(), endOfToday()]
+    };
 
     return html`
       <div class="card-config">
@@ -169,9 +182,31 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
           .computeHelper=${computeHelperCallback}
           @value-changed=${this._valueChanged}
         ></ha-form>
+
+        <div style="display: flex;">
+          <span style="font-size: var(--ha-font-size-xl)">
+            ${formatDate(startDate, "d MMM")} - ${formatDate(endDate, "d MMM")}
+          </span>
+
+        <ha-date-range-picker
+          .hass=${this.hass}
+          .startDate=${startDate}
+          .endDate=${endDate}
+          .ranges=${ranges}
+          minimal
+          @preset-selected=${this.dateRangePreset}
+          @value-changed=${this.dateRangeChanged}
+        ></ha-date-range-picker>
+
+        </div>
+
         ${this._renderPageLinks()}
       </div>
     `;
+  }
+
+  private dateRangePreset(ev: any) {
+    console.log(ev.detail.index);
   }
 
   //================================================================================================================================================================================//
@@ -183,7 +218,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
   //================================================================================================================================================================================//
 
   private _goBack(): void {
-    this._currentConfigPage = null;
+    this._currentConfigPage = undefined;
   }
 
   //================================================================================================================================================================================//
@@ -230,6 +265,30 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
     }
 
     fireEvent(this, 'config-changed', { config: cleanupConfig(config) });
+  }
+
+  //================================================================================================================================================================================//
+
+  private dateRangeChanged(ev: any): void {
+    ev.stopPropagation();
+
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    const config: EnergyFlowCardExtConfig = {
+      ...this._config,
+      [GlobalOptions.Date_Range_From]: this._formatDate(ev.detail.value.startDate as Date),
+      [GlobalOptions.Date_Range_To]: this._formatDate(ev.detail.value.endDate as Date)
+    };
+
+    fireEvent(this, 'config-changed', { config: cleanupConfig(config) });
+  }
+
+  //================================================================================================================================================================================//
+
+  private _formatDate = (date: Date): string => {
+    return formatDate(date, "yyyy-MM-dd");
   }
 
   //================================================================================================================================================================================//

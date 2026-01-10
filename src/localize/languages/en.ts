@@ -160,6 +160,9 @@ export default {
   },
 
   "GlobalOptions": {
+    [GlobalOptions.Date_Range]: "Date range",
+    [GlobalOptions.Date_Range_From]: "From",
+    [GlobalOptions.Date_Range_To]: "To",
     [GlobalOptions.Display_Mode]: "Display mode",
     [GlobalOptions.Display_Mode + HELPTEXT_SUFFIX]: "History and Hybrid modes require an energy-date-selection card to be present in the View",
     [GlobalOptions.Options]: "Options",

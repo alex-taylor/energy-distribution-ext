@@ -9,7 +9,7 @@ import { HomeState } from "./home";
 import { LowCarbonState } from "./low-carbon";
 import { SolarState } from "./solar";
 import { DeviceState } from "./device";
-import { addDays, addHours, differenceInDays, endOfDay, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfDay } from "date-fns";
+import { addDays, addHours, differenceInDays, endOfToday, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfToday } from "date-fns";
 import { DisplayMode, EnergyUnits, EnergyUnitPrefix, EntityMode, VolumeUnits, checkEnumValue } from "@/enums";
 import { logDebug } from "@/logging";
 import { getEnergyDataCollection } from "@/energy";
@@ -205,10 +205,10 @@ export class EntityStates {
       let refresh: NodeJS.Timeout;
 
       const loadStatistics = () => {
-        const periodEnd: Date = endOfDay(new Date());
-        const periodStart: Date = startOfDay(periodEnd);
-        this._loadStatistics(periodStart, periodEnd);
         const nextFetch: Date = new Date();
+        const periodStart: Date = startOfToday();
+        const periodEnd: Date = endOfToday();
+        this._loadStatistics(periodStart, periodEnd);
 
         if (nextFetch.getMinutes() >= 20) {
           if (nextFetch.getHours() === 23) {
@@ -245,7 +245,7 @@ export class EntityStates {
     };
 
     return new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
-      .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => this._loadStatistics(data.start, data.end || new Date())))
+      .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => this._loadStatistics(data.start, data.end || endOfToday())))
       .catch(err => {
         logDebug(err);
         return (): void => { };
@@ -355,6 +355,9 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private async _loadStatistics(periodStart: Date, periodEnd: Date): Promise<void> {
+    this._primaryStatistics = undefined;
+    this._secondaryStatistics = undefined;
+
     this._periodStart = periodStart;
     this._periodEnd = periodEnd;
 
@@ -395,7 +398,7 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private async _inferEntityModes(): Promise<void> {
-    const statistics: Statistics = await this._fetchStatistics(addDays(startOfDay(new Date()), -1), startOfDay(new Date()), [...this._primaryEntityIds, ...this._secondaryEntityIds], Period.Day);
+    const statistics: Statistics = await this._fetchStatistics(addDays(startOfToday(), -1), startOfToday(), [...this._primaryEntityIds, ...this._secondaryEntityIds], Period.Day);
 
     for (const entity in statistics) {
       if (statistics[entity].length !== 0) {
@@ -735,7 +738,7 @@ export class EntityStates {
       if (!entityStats || entityStats.length === 0 || entityStats[0].start > periodStart.getTime()) {
         let dummyStat: StatisticValue;
 
-        if (previousStatistics && previousStatistics[entity]?.length !== 0) {
+        if (previousStatistics && previousStatistics[entity] && previousStatistics[entity]?.length !== 0) {
           // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate the
           // Live/Hybrid-mode state-delta at midnight on the current date (ie, before the first stat of the new day has been generated) so we do
           // not want to include its values in the stats calculations.
