@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { assert } from 'superstruct';
 import { EditorPages, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions, GlobalOptions, HomeConfig } from '@/config';
-import { appearanceSchema, generalConfigSchema } from './schema';
+import { appearanceSchema, dateRangeSchema, generalConfigSchema } from './schema';
 import { localize } from '@/localize/localize';
 import { gridSchema } from './schema/grid';
 import { solarSchema } from './schema/solar';
@@ -11,12 +11,13 @@ import { batterySchema } from './schema/battery';
 import { lowCarbonSchema } from './schema/low-carbon';
 import { homeSchema } from './schema/home';
 import { gasSchema } from './schema/gas';
+import "./components/date-range-picker";
 import "./components/page-header";
 import "./components/devices-editor";
 import { CARD_NAME, ELECTRIC_ENTITY_CLASSES, GAS_ENTITY_CLASSES } from '@/const';
 import { cardConfigStruct } from '@/config/validation';
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from '.';
-import { getDefaultLowCarbonConfig, cleanupConfig, getDefaultAppearanceConfig, getDefaultGridConfig, getDefaultGasConfig, getDefaultSolarConfig, getDefaultBatteryConfig, getDefaultHomeConfig, getCo2SignalEntity, getConfigValue } from '@/config/config';
+import { getDefaultLowCarbonConfig, cleanupConfig, getDefaultAppearanceConfig, getDefaultGridConfig, getDefaultGasConfig, getDefaultSolarConfig, getDefaultBatteryConfig, getDefaultHomeConfig, getCo2SignalEntity, getConfigValue, DEFAULT_CONFIG } from '@/config/config';
 import { GasState } from '@/states/gas';
 import { getEnergyDataCollection } from '@/energy';
 import { GridState } from '@/states/grid';
@@ -25,7 +26,8 @@ import { BatteryState } from '@/states/battery';
 import { LowCarbonState } from '@/states/low-carbon';
 import { HomeState } from '@/states/home';
 import { DeviceState } from '@/states/device';
-import { endOfToday, startOfToday, formatDate } from 'date-fns';
+import { DateRange } from '@/enums';
+import { endOfToday, formatDate, startOfToday } from 'date-fns';
 
 //================================================================================================================================================================================//
 
@@ -137,13 +139,18 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
       const configForPage: any = config[currentConfigPage];
 
       return html`
-        <energy-flow-card-ext-page-header @go-back=${this._goBack} icon="${icon}" label=${localize(`EditorPages.${currentConfigPage}`)}></energy-flow-card-ext-page-header>
+        <energy-flow-card-ext-page-header
+          icon="${icon}"
+          label=${localize(`EditorPages.${currentConfigPage}`)}
+          @go-back=${this._onGoBack}
+        ></energy-flow-card-ext-page-header>
+
         ${currentConfigPage === EditorPages.Devices
           ? html`
             <energy-flow-card-ext-devices-editor
               .hass=${this.hass}
               .config=${this._config}
-              @value-changed=${this._valueChanged}
+              @value-changed=${this._onValueChanged}
             ></energy-flow-card-ext-devices-editor>
           `
           : html`
@@ -154,23 +161,18 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
               .computeLabel=${computeLabelCallback}
               .computeHelper=${computeHelperCallback}
               .error=${this._validateConfig(config)}
-              @value-changed=${this._valueChanged}
+              @value-changed=${this._onValueChanged}
             ></ha-form>
           `
         }
       `;
     }
 
-    // TODO: work out the actual values based on the setting of Date_Range
-    const startDateValue: string = getConfigValue(config, [GlobalOptions.Date_Range_From]);
-    const endDateValue: string = getConfigValue(config, [GlobalOptions.Date_Range_To]);
-
+    // TODO: work out the actual values based on the setting of Date_Range?
+    const startDateValue: string = getConfigValue(config, GlobalOptions.Date_Range_From);
+    const endDateValue: string = getConfigValue(config, GlobalOptions.Date_Range_To);
     const startDate: Date = startDateValue ? new Date(startDateValue) : startOfToday();
     const endDate: Date = endDateValue ? new Date(endDateValue) : endOfToday();
-
-    const ranges: {} = {
-      "today": [startOfToday(), endOfToday()]
-    };
 
     return html`
       <div class="card-config">
@@ -180,33 +182,38 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
           .schema=${generalConfigSchema()}
           .computeLabel=${computeLabelCallback}
           .computeHelper=${computeHelperCallback}
-          @value-changed=${this._valueChanged}
+          @value-changed=${this._onValueChanged}
         ></ha-form>
 
-        <div style="display: flex;">
-          <span style="font-size: var(--ha-font-size-xl)">
-            ${formatDate(startDate, "d MMM")} - ${formatDate(endDate, "d MMM")}
-          </span>
+        <hr width="100%"/>
 
-        <ha-date-range-picker
-          .hass=${this.hass}
-          .startDate=${startDate}
-          .endDate=${endDate}
-          .ranges=${ranges}
-          minimal
-          @preset-selected=${this.dateRangePreset}
-          @value-changed=${this.dateRangeChanged}
-        ></ha-date-range-picker>
-
+        <div class="date-picker">
+          <p class="primary">${computeLabelCallback({ key: GlobalOptions, name: GlobalOptions.Date_Range })}</p>
+          <energy-flow-card-ext-date-range-picker
+            class="date-picker-control"
+            .hass=${this.hass}
+            .range=${getConfigValue([config, DEFAULT_CONFIG], GlobalOptions.Date_Range)}
+            .startDate=${startDate}
+            .endDate=${endDate}
+            @date-range-changed=${this._onDateRangeChanged}
+          >
+          </energy-flow-card-ext-date-range-picker>
         </div>
+
+        <ha-form
+          .hass=${this.hass}
+          .data=${config}
+          .schema=${dateRangeSchema()}
+          .computeLabel=${computeLabelCallback}
+          .computeHelper=${computeHelperCallback}
+          @value-changed=${this._onValueChanged}
+        ></ha-form>
+
+        <hr width="100%"/>
 
         ${this._renderPageLinks()}
       </div>
     `;
-  }
-
-  private dateRangePreset(ev: any) {
-    console.log(ev.detail.index);
   }
 
   //================================================================================================================================================================================//
@@ -217,11 +224,6 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
 
   //================================================================================================================================================================================//
 
-  private _goBack(): void {
-    this._currentConfigPage = undefined;
-  }
-
-  //================================================================================================================================================================================//
 
   private _renderPageLinks = (): TemplateResult[] => {
     return CONFIG_PAGES.map(page => this._renderPageLink(page.page, page.icon, page.statusIcon(this._config, this.hass)));
@@ -239,7 +241,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
         <ha-icon class="page-icon" .icon=${icon}></ha-icon>
         <div class="page-label">
           ${localize(`EditorPages.${page}`)}
-          ${statusIcon !== Status.NotConfigured ? html`<ha-icon class="${STATUS_CLASSES[statusIcon]}" .icon=${STATUS_ICONS[statusIcon]}></ha-icon>` : ``}
+          ${statusIcon !== Status.NotConfigured ? html`<ha-icon class="${STATUS_CLASSES[statusIcon]}" .icon=${STATUS_ICONS[statusIcon]}></ha-icon>` : nothing}
         </div>
         <ha-icon .icon=${"mdi:chevron-right"}></ha-icon>
       </ha-control-button>
@@ -248,14 +250,56 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
 
   //================================================================================================================================================================================//
 
-  private _valueChanged(ev: any): void {
+  private _formatDate = (date: Date): string => {
+    return formatDate(date, "yyyy-MM-dd");
+  }
+
+  //================================================================================================================================================================================//
+
+  private _onGoBack(): void {
+    this._currentConfigPage = undefined;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _onDateRangeChanged(ev: any): void {
     ev.stopPropagation();
 
     if (!this._config || !this.hass) {
       return;
     }
 
-    let config = ev.detail.value || "";
+    let config: EnergyFlowCardExtConfig;
+
+    if (ev.detail.range === DateRange.Custom) {
+      config = {
+        ...this._config,
+        [GlobalOptions.Date_Range]: DateRange.Custom,
+        [GlobalOptions.Date_Range_From]: this._formatDate(ev.detail.start as Date),
+        [GlobalOptions.Date_Range_To]: this._formatDate(ev.detail.end as Date)
+      };
+    } else {
+      config = {
+        ...this._config,
+        [GlobalOptions.Date_Range]: ev.detail.range,
+        [GlobalOptions.Date_Range_From]: undefined,
+        [GlobalOptions.Date_Range_To]: undefined
+      };
+    }
+
+    fireEvent(this, "config-changed", { config: cleanupConfig(config) });
+  }
+
+  //================================================================================================================================================================================//
+
+  private _onValueChanged(ev: any): void {
+    ev.stopPropagation();
+
+    if (!this._config || !this.hass || !ev.detail.value) {
+      return;
+    }
+
+    let config = ev.detail.value;
 
     if (this._currentConfigPage) {
       config = {
@@ -264,31 +308,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
       };
     }
 
-    fireEvent(this, 'config-changed', { config: cleanupConfig(config) });
-  }
-
-  //================================================================================================================================================================================//
-
-  private dateRangeChanged(ev: any): void {
-    ev.stopPropagation();
-
-    if (!this._config || !this.hass) {
-      return;
-    }
-
-    const config: EnergyFlowCardExtConfig = {
-      ...this._config,
-      [GlobalOptions.Date_Range_From]: this._formatDate(ev.detail.value.startDate as Date),
-      [GlobalOptions.Date_Range_To]: this._formatDate(ev.detail.value.endDate as Date)
-    };
-
-    fireEvent(this, 'config-changed', { config: cleanupConfig(config) });
-  }
-
-  //================================================================================================================================================================================//
-
-  private _formatDate = (date: Date): string => {
-    return formatDate(date, "yyyy-MM-dd");
+    fireEvent(this, "config-changed", { config: cleanupConfig(config) });
   }
 
   //================================================================================================================================================================================//
@@ -370,6 +390,22 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
         .page-error {
           padding-left: 1rem;
           color: red;
+        }
+
+        .date-picker {
+          cursor: default;
+          display: inline-grid;
+          margin-bottom: calc(24px - 1rem);
+        }
+
+        .primary {
+          margin: 0;
+        }
+
+        .date-picker-control {
+          background-color: var(--mdc-select-fill-color);
+          min-height: 4rem;
+          align-content: center;
         }
       `
     ];

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { mdiArrowLeft, mdiArrowRight, mdiDelete, mdiDrag, mdiPlus } from "@mdi/js";
 import { HomeAssistant, fireEvent } from "custom-card-helpers";
-import { css, CSSResultGroup, html, LitElement, TemplateResult } from "lit";
+import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property, state } from "lit-element";
 import { CARD_NAME, ELECTRIC_ENTITY_CLASSES } from "@/const";
 import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from "@/config";
@@ -9,7 +9,7 @@ import { deviceSchema } from "../schema/device";
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from "..";
 import { repeat } from "lit/directives/repeat.js";
 import { localize } from "@/localize/localize";
-import { getDefaultDeviceConfig } from '@/config/config';
+import { getConfigValue, getDefaultDeviceConfig } from '@/config/config';
 import { DeviceState } from '@/states/device';
 
 //================================================================================================================================================================================//
@@ -35,13 +35,15 @@ const DEVICE_COLOURS = [
 
 const DEVICES_EDITOR_ELEMENT_NAME = CARD_NAME + "-devices-editor";
 
+//================================================================================================================================================================================//
+
 @customElement(DEVICES_EDITOR_ELEMENT_NAME)
 export class DevicesEditor extends LitElement {
   public hass!: HomeAssistant;
   @property({ attribute: false }) public config!: EnergyFlowCardExtConfig;
   @state() private _indexBeingEdited: number = -1;
 
-  private _devices?: DeviceConfig[];
+  private _devices: DeviceConfig[] = [];
   private _entityKeys = new WeakMap<DeviceConfig, string>();
   private _nextDeviceColour: number = 0;
 
@@ -64,7 +66,7 @@ export class DevicesEditor extends LitElement {
             .label=${localize("editor.go_back")}
             .path=${mdiArrowLeft}
             class="remove-icon"
-            @click=${() => (this._editDevice(-1))}
+            @click=${() => (this._onEditDevice(-1))}
           ></ha-icon-button>
           <div class="device-navigation">
             <ha-icon-button
@@ -72,7 +74,7 @@ export class DevicesEditor extends LitElement {
               .path=${mdiArrowLeft}
               .disabled=${this._indexBeingEdited == 0}
               class="navigation-icon"
-              @click=${() => (this._editDevice(this._indexBeingEdited - 1))}
+              @click=${() => (this._onEditDevice(this._indexBeingEdited - 1))}
             ></ha-icon-button>
             <h4>${localize("EditorPages.device")} ${this._indexBeingEdited + 1} / ${this._devices.length}</h4>
             <ha-icon-button
@@ -80,19 +82,19 @@ export class DevicesEditor extends LitElement {
               .path=${mdiArrowRight}
               .disabled=${this._indexBeingEdited == this._devices.length - 1}
               class="navigation-icon"
-              @click=${() => (this._editDevice(this._indexBeingEdited + 1))}
+              @click=${() => (this._onEditDevice(this._indexBeingEdited + 1))}
             ></ha-icon-button>
             <ha-icon-button
               .label=${localize("editor.add_device")}
               .path=${mdiPlus}
               class="navigation-icon"
-              @click=${this._addDevice}
+              @click=${this._onAddDevice}
             ></ha-icon-button>
             <ha-icon-button
               .label=${localize("editor.remove_device")}
               .path=${mdiDelete}
               class="navigation-icon"
-              @click=${this._removeDevice}
+              @click=${this._onRemoveDevice}
             ></ha-icon-button>
           </div>
         </div>
@@ -103,13 +105,13 @@ export class DevicesEditor extends LitElement {
           .computeLabel=${computeLabelCallback}
           .computeHelper=${computeHelperCallback}
           .error=${this._validateConfig(this._devices[this._indexBeingEdited])}
-          @value-changed=${this._valueChanged}
+          @value-changed=${this._onValueChanged}
         ></ha-form>
       `;
     }
 
     return html`
-      <ha-sortable handle-selector=".handle" @item-moved=${this._moveDevice}>
+      <ha-sortable handle-selector=".handle" @item-moved=${this._onMoveDevice}>
       <div>
         ${repeat(
       this._devices,
@@ -122,11 +124,11 @@ export class DevicesEditor extends LitElement {
             <div class="handle">
               <ha-svg-icon .path=${mdiDrag}></ha-svg-icon>
             </div>
-            <ha-control-button class="device-button" @click=${() => this._editDevice(index)}>
+            <ha-control-button class="device-button" @click=${() => this._onEditDevice(index)}>
               <div class="device-label">
                 <ha-icon class="device-icon" .icon=${deviceConf?.[DeviceOptions.Icon] || 'blank'}></ha-icon>
-                ${deviceConf?.[DeviceOptions.Name]}
-                ${statusIcon !== Status.NotConfigured ? html`<ha-icon class="${STATUS_CLASSES[statusIcon]}" .icon=${STATUS_ICONS[statusIcon]}></ha-icon>` : ``}
+                ${getConfigValue(deviceConf, DeviceOptions.Name)}
+                ${statusIcon !== Status.NotConfigured ? html`<ha-icon class="${STATUS_CLASSES[statusIcon]}" .icon=${STATUS_ICONS[statusIcon]}></ha-icon>` : nothing}
               </div>
               <ha-icon .icon=${"mdi:chevron-right"}></ha-icon>
             </ha-control-button>
@@ -135,14 +137,14 @@ export class DevicesEditor extends LitElement {
               .label=${localize("editor.remove_device")}
               .path=${mdiDelete}
               .index=${index}
-              @click=${this._removeDevice}
+              @click=${this._onRemoveDevice}
             ></ha-icon-button>
           </div>
         `}
     )}
       </div>
       </ha-sortable>
-      <ha-control-button class="add-device" @click="${this._addDevice}">${localize("editor.add_device")}</ha-control-button>
+      <ha-control-button class="add-device" @click="${this._onAddDevice}">${localize("editor.add_device")}</ha-control-button>
     `;
   }
 
@@ -178,11 +180,11 @@ export class DevicesEditor extends LitElement {
 
   //================================================================================================================================================================================//
 
-  private _addDevice(): void {
+  private _onAddDevice(): void {
     const newDevice: DeviceConfig = getDefaultDeviceConfig(DEVICE_COLOURS[this._nextDeviceColour++], DEVICE_COLOURS[this._nextDeviceColour++]);
     const updatedDevices: DeviceConfig[] = this._devices!.concat(newDevice);
-    this._updateConfig(updatedDevices);
-    this._editDevice(updatedDevices.length - 1);
+    this._onUpdateConfig(updatedDevices);
+    this._onEditDevice(updatedDevices.length - 1);
 
     if (this._nextDeviceColour === DEVICE_COLOURS.length) {
       this._nextDeviceColour = 0;
@@ -191,7 +193,7 @@ export class DevicesEditor extends LitElement {
 
   //================================================================================================================================================================================//
 
-  private _moveDevice(ev: CustomEvent): void {
+  private _onMoveDevice(ev: CustomEvent): void {
     ev.stopPropagation();
 
     if (ev.detail.oldIndex === ev.detail.newIndex) {
@@ -200,12 +202,12 @@ export class DevicesEditor extends LitElement {
 
     const updatedDevices = this._devices!.concat();
     updatedDevices.splice(ev.detail.newIndex!, 0, updatedDevices.splice(ev.detail.oldIndex!, 1)[0]);
-    this._updateConfig(updatedDevices);
+    this._onUpdateConfig(updatedDevices);
   }
 
   //================================================================================================================================================================================//
 
-  private _removeDevice(ev: CustomEvent): void {
+  private _onRemoveDevice(ev: CustomEvent): void {
     ev.stopPropagation();
 
     const index = (ev.currentTarget as any).index;
@@ -213,17 +215,17 @@ export class DevicesEditor extends LitElement {
     updatedDevices.splice(index, 1);
 
     if (updatedDevices.length === 0) {
-      this._editDevice(-1);
+      this._onEditDevice(-1);
     } else if (updatedDevices.length <= this._indexBeingEdited) {
-      this._editDevice(updatedDevices.length - 1);
+      this._onEditDevice(updatedDevices.length - 1);
     }
 
-    this._updateConfig(updatedDevices);
+    this._onUpdateConfig(updatedDevices);
   }
 
   //================================================================================================================================================================================//
 
-  private _valueChanged(ev: CustomEvent): void {
+  private _onValueChanged(ev: CustomEvent): void {
     ev.stopPropagation();
 
     if (!this.config || !this.hass) {
@@ -234,18 +236,18 @@ export class DevicesEditor extends LitElement {
     const updatedDevices = this._devices!.concat();
 
     updatedDevices[this._indexBeingEdited] = value;
-    this._updateConfig(updatedDevices);
+    this._onUpdateConfig(updatedDevices);
   }
 
   //================================================================================================================================================================================//
 
-  private _editDevice(index: number): void {
+  private _onEditDevice(index: number): void {
     this._indexBeingEdited = index;
   }
 
   //================================================================================================================================================================================//
 
-  private _updateConfig(updatedDevices: DeviceConfig[]): void {
+  private _onUpdateConfig(updatedDevices: DeviceConfig[]): void {
     fireEvent(this, 'value-changed', { value: updatedDevices });
   }
 

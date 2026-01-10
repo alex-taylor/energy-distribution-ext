@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, DualValueNodeConfig, EnergyUnitsConfig, SingleValueNodeConfig, LowCarbonConfig } from '@/config';
-import { ColourMode, DisplayMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes } from '@/enums';
+import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
 import { localize } from '@/localize/localize';
 import { getConfigValue } from '@/config/config';
@@ -22,10 +22,18 @@ export interface DropdownValue {
 
 //================================================================================================================================================================================//
 
+export const dateRangeSchema = memoizeOne((): any[] => {
+  return [
+    { key: GlobalOptions, name: GlobalOptions.Date_Range_Live, selector: { boolean: {} } },
+    { key: GlobalOptions, name: GlobalOptions.Date_Range_Display, required: true, selector: dropdownSelector(DateRangeDisplayMode) }
+  ];
+});
+
+//================================================================================================================================================================================//
+
 export const generalConfigSchema = memoizeOne((): any[] => {
   return [
     { key: GlobalOptions, name: GlobalOptions.Title, selector: { text: {} }, },
-    { key: GlobalOptions, name: GlobalOptions.Display_Mode, required: true, selector: dropdownSelector(DisplayMode) },
     { key: GlobalOptions, name: GlobalOptions.Use_HASS_Config, selector: { boolean: {} } }
   ];
 });

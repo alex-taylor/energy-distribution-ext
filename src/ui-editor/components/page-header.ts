@@ -5,7 +5,11 @@ import { customElement, property } from "lit-element";
 import { CARD_NAME } from "@/const";
 import { localize } from "@/localize/localize";
 
+//================================================================================================================================================================================//
+
 const PAGE_HEADER_ELEMENT_NAME = CARD_NAME + "-page-header";
+
+//================================================================================================================================================================================//
 
 @customElement(PAGE_HEADER_ELEMENT_NAME)
 export class PageHeader extends LitElement {
@@ -16,7 +20,7 @@ export class PageHeader extends LitElement {
     return html`
       <div class="header">
         <div class="back-title">
-          <ha-icon-button .label=${localize("editor.go_back")} .path=${mdiArrowLeft} @click=${this._goBack}></ha-icon-button>
+          <ha-icon-button .label=${localize("editor.go_back")} .path=${mdiArrowLeft} @click=${this._onGoBack}></ha-icon-button>
           <ha-icon icon=${this.icon} class="icon"></ha-icon>
           <span>${this.label}</span>
         </div>
@@ -24,9 +28,13 @@ export class PageHeader extends LitElement {
     `;
   }
 
-  private _goBack(): void {
+  //================================================================================================================================================================================//
+
+  private _onGoBack(): void {
     fireEvent(this, "go-back");
   }
+
+  //================================================================================================================================================================================//
 
   static get styles(): CSSResultGroup {
     return [
@@ -47,13 +55,17 @@ export class PageHeader extends LitElement {
         .icon {
           padding-right: 0.5rem;
         }
-    `
+      `
     ];
   }
 }
+
+//================================================================================================================================================================================//
 
 declare global {
   interface HASSDomEvents {
     "go-back": undefined;
   }
 }
+
+//================================================================================================================================================================================//

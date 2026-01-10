@@ -1,4 +1,4 @@
-import { any, assign, boolean, integer, number, object, optional, string, array, date } from 'superstruct';
+import { any, assign, boolean, integer, number, object, optional, string, array } from 'superstruct';
 import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
 
 const baseLovelaceCardConfigStruct = object({
@@ -203,10 +203,11 @@ export const cardConfigStruct = assign(
   baseLovelaceCardConfigStruct,
   object({
     [GlobalOptions.Title]: optional(string()),
-    [GlobalOptions.Display_Mode]: optional(string()),
     [GlobalOptions.Date_Range]: optional(string()),
     [GlobalOptions.Date_Range_From]: optional(string()),
     [GlobalOptions.Date_Range_To]: optional(string()),
+    [GlobalOptions.Date_Range_Live]: optional(boolean()),
+    [GlobalOptions.Date_Range_Display]: optional(string()),
     [GlobalOptions.Use_HASS_Config]: optional(boolean()),
     [EditorPages.Appearance]: optional(appearanceConfigStruct),
     [EditorPages.Battery]: optional(batteryConfigStruct),

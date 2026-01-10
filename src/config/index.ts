@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, DisplayMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange } from '@/enums';
+import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode } from '@/enums';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -100,7 +100,8 @@ namespace ConfigKeys {
     Date_Range: "date_range",
     Date_Range_From: "date_range_from",
     Date_Range_To: "date_range_to",
-    Display_Mode: "display_mode",
+    Date_Range_Live: "date_range_live",
+    Date_Range_Display: "date_range_display",
     Options: "options",
     Title: "title",
     Use_HASS_Config: "use_hass_config"
@@ -186,10 +187,11 @@ export type SecondaryInfoOptions = typeof SecondaryInfoOptions[keyof typeof Seco
 
 export interface EnergyFlowCardExtConfig extends LovelaceCardConfig {
   [GlobalOptions.Title]?: string;
-  [GlobalOptions.Display_Mode]?: DisplayMode;
   [GlobalOptions.Date_Range]?: DateRange;
   [GlobalOptions.Date_Range_From]?: string;
   [GlobalOptions.Date_Range_To]?: string;
+  [GlobalOptions.Date_Range_Live]?: boolean;
+  [GlobalOptions.Date_Range_Display]?: DateRangeDisplayMode;
   [GlobalOptions.Use_HASS_Config]?: boolean,
   [EditorPages.Appearance]?: AppearanceConfig;
   [EditorPages.Grid]?: GridConfig;

@@ -99,6 +99,9 @@
     <TypeScriptCompile Include="src\states\unit-conversions.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ui-editor\components\date-range-picker.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\ui-editor\components\devices-editor.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

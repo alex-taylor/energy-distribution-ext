@@ -9,8 +9,8 @@ import { HomeState } from "./home";
 import { LowCarbonState } from "./low-carbon";
 import { SolarState } from "./solar";
 import { DeviceState } from "./device";
-import { addDays, addHours, differenceInDays, endOfToday, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfToday } from "date-fns";
-import { DisplayMode, EnergyUnits, EnergyUnitPrefix, EntityMode, VolumeUnits, checkEnumValue } from "@/enums";
+import { addDays, addHours, differenceInDays, endOfDay, endOfMonth, endOfQuarter, endOfToday, endOfWeek, endOfYear, endOfYesterday, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfDay, startOfMonth, startOfQuarter, startOfToday, startOfWeek, startOfYear, startOfYesterday, subDays, subMonths } from "date-fns";
+import { EnergyUnits, EnergyUnitPrefix, EntityMode, VolumeUnits, checkEnumValue, DateRange } from "@/enums";
 import { logDebug } from "@/logging";
 import { getEnergyDataCollection } from "@/energy";
 import { ValueState } from "./state";
@@ -44,6 +44,14 @@ export class EntityStates {
     return this._isLoaded;
   }
 
+  public get periodStart(): Date | undefined {
+    return this._periodStart;
+  }
+
+  public get periodEnd(): Date | undefined {
+    return this._periodEnd;
+  }
+
   public battery!: BatteryState;
   public gas!: GasState;
   public grid!: GridState;
@@ -56,7 +64,8 @@ export class EntityStates {
   private _isDatePickerPresent: boolean = false;
   private _periodStart: Date | undefined = undefined;
   private _periodEnd: Date | undefined = undefined;
-  private _displayMode: DisplayMode;
+  private _dateRange: DateRange;
+  private _dateRangeLive: boolean;
   private _primaryEntityIds: string[] = [];
   private _secondaryEntityIds: string[] = [];
   private _primaryStatistics?: Statistics;
@@ -74,7 +83,8 @@ export class EntityStates {
     const configs: EnergyFlowCardExtConfig[] = [config, DEFAULT_CONFIG];
 
     this.hass = hass;
-    this._displayMode = getConfigValue(configs, GlobalOptions.Display_Mode);
+    this._dateRange = getConfigValue(configs, GlobalOptions.Date_Range);
+    this._dateRangeLive = getConfigValue(configs, GlobalOptions.Date_Range_Live);
 
     const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
     this._energyUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
@@ -201,55 +211,64 @@ export class EntityStates {
   public async subscribe(config: EnergyFlowCardExtConfig): Promise<UnsubscribeFunc> {
     await this._loadConfig(this.hass, config);
 
-    if (this._displayMode === DisplayMode.Today) {
-      let refresh: NodeJS.Timeout;
+    if (this._dateRange === DateRange.From_Date_Picker) {
+      const pollStartTime: number = Date.now();
 
-      const loadStatistics = () => {
-        const nextFetch: Date = new Date();
-        const periodStart: Date = startOfToday();
-        const periodEnd: Date = endOfToday();
-        this._loadStatistics(periodStart, periodEnd);
+      const getEnergyDataCollectionPoll = (resolve: (value: EnergyCollection) => void, reject: (reason: Error) => void) => {
+        const energyCollection = getEnergyDataCollection(this.hass);
 
-        if (nextFetch.getMinutes() >= 20) {
-          if (nextFetch.getHours() === 23) {
-            nextFetch.setMinutes(0, 0, 0);
-          } else {
-            nextFetch.setMinutes(20, 0, 0);
-          }
+        if (energyCollection) {
+          this._isDatePickerPresent = true;
+          resolve(energyCollection);
+        } else if (Date.now() - pollStartTime > ENERGY_DATA_TIMEOUT) {
+          reject(new Error(`No energy data received after ${ENERGY_DATA_TIMEOUT}ms. Is there a type:energy-date-selection card on this screen?`));
+        } else {
+          setTimeout(() => getEnergyDataCollectionPoll(resolve, reject), ENERGY_DATA_POLL);
+        }
+      };
 
-          nextFetch.setHours(nextFetch.getHours() + 1);
+      return new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
+        .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => this._loadStatistics(data.start, data.end || endOfToday())))
+        .catch(err => {
+          logDebug(err);
+          return (): void => { };
+        });
+    }
+
+    let refresh: NodeJS.Timeout;
+
+    const loadStatistics = () => {
+      // TODO: other date-ranges
+      const nextFetch: Date = new Date();
+      let periodStart: Date;
+      let periodEnd: Date;
+
+      if (this._dateRange === DateRange.Custom) {
+        periodStart = getConfigValue(config, GlobalOptions.Date_Range_From) || startOfToday();
+        periodEnd = getConfigValue(config, GlobalOptions.Date_Range_To) || endOfToday();
+      } else {
+        [periodStart, periodEnd] = this._calculateDateRange(this._dateRange);
+      }
+
+      this._loadStatistics(periodStart, periodEnd);
+
+      if (nextFetch.getMinutes() >= 20) {
+        if (nextFetch.getHours() === 23) {
+          nextFetch.setMinutes(0, 0, 0);
         } else {
           nextFetch.setMinutes(20, 0, 0);
         }
 
-        refresh = setTimeout(() => loadStatistics(), nextFetch.getTime() - Date.now());
-      };
-
-      loadStatistics();
-      return (): void => clearTimeout(refresh);
-    }
-
-    const pollStartTime: number = Date.now();
-
-    const getEnergyDataCollectionPoll = (resolve: (value: EnergyCollection) => void, reject: (reason: Error) => void) => {
-      const energyCollection = getEnergyDataCollection(this.hass);
-
-      if (energyCollection) {
-        this._isDatePickerPresent = true;
-        resolve(energyCollection);
-      } else if (Date.now() - pollStartTime > ENERGY_DATA_TIMEOUT) {
-        reject(new Error(`No energy data received after ${ENERGY_DATA_TIMEOUT}ms. Is there a type:energy-date-selection card on this screen?`));
+        nextFetch.setHours(nextFetch.getHours() + 1);
       } else {
-        setTimeout(() => getEnergyDataCollectionPoll(resolve, reject), ENERGY_DATA_POLL);
+        nextFetch.setMinutes(20, 0, 0);
       }
+
+      refresh = setTimeout(() => loadStatistics(), nextFetch.getTime() - Date.now());
     };
 
-    return new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
-      .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => this._loadStatistics(data.start, data.end || endOfToday())))
-      .catch(err => {
-        logDebug(err);
-        return (): void => { };
-      });
+    loadStatistics();
+    return (): void => clearTimeout(refresh);
   }
 
   //================================================================================================================================================================================//
@@ -278,7 +297,7 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _addStateDeltas(states: States): void {
-    if (this._displayMode === DisplayMode.History) {
+    if (!this._dateRangeLive) {
       return;
     }
 
@@ -903,6 +922,40 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _isPowerOutage = (): boolean => this.grid.powerOutage.isPresent ? this.hass.states[this.grid.powerOutage.entity_id].state === this.grid.powerOutage.state : false;
+
+  //================================================================================================================================================================================//
+
+  private _calculateDateRange = (range: DateRange): [Date, Date] => {
+    const now: Date = new Date();
+
+    switch (range) {
+      case DateRange.Yesterday:
+        return [startOfYesterday(), endOfYesterday()];
+
+      case DateRange.This_Week:
+        return [startOfWeek(now), endOfWeek(now)];
+
+      case DateRange.This_Month:
+        return [startOfMonth(now), endOfMonth(now)];
+
+      case DateRange.This_Quarter:
+        return [startOfQuarter(now), endOfQuarter(now)];
+
+      case DateRange.This_Year:
+        return [startOfYear(now), endOfYear(now)];
+
+      case DateRange.Last_7_Days:
+        return [startOfDay(subDays(now, 7)), endOfDay(now)];
+
+      case DateRange.Last_30_Days:
+        return [startOfDay(subDays(now, 30)), endOfDay(now)];
+
+      case DateRange.Last_12_Months:
+        return [startOfDay(startOfMonth(subMonths(now, 12))), endOfMonth(subMonths(now, 1))];
+    }
+
+    return [startOfToday(), endOfToday()];
+  }
 
   //================================================================================================================================================================================//
 }

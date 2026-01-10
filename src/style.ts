@@ -344,6 +344,16 @@ export const styles: CSSResult = css`
     animation-iteration-count: infinite;
   }
 
+  .separator {
+    margin-bottom: 24px;
+    width: 100%;
+  }
+
+  .date-label {
+    cursor: default;
+    font-size: var(--ha-font-size-l);
+  }
+
   @keyframes gridBatteryAnim {
     0% { stroke: var(--flow-export-grid-color); }
     50% { stroke: var(--flow-export-battery-color); }

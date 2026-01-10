@@ -11,20 +11,6 @@ Code:
   - unit-testing
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
 
-Config:
-    - more modes:
-    - current month
-    - current year
-    - perhaps a user-supplied date-range?
-    - could display this as a title?
-    - so the options might be:
-      - Date picker
-      - Today
-      - This month
-      - This year
-      - Custom
-    - and we then have a boolean for 'include latest readings' or some such
-    - rename 'display mode' to 'date range'
 
 Display:
   - Home:
@@ -46,6 +32,7 @@ Under consideration
 -------------------
 
   - may be able to remove pruneConfig() now
+    - or not: if 'overrides' is cleared, you get an empty object in the config...
     - but see if it can be used to filter out 'bad' config rather than forcing the user into YAML mode
       - or failing that - is there any way to find out from validation what the bad config is so we can at least *tell* the user?
         - looks like it - see superstruct
@@ -76,6 +63,3 @@ Before release
   - README and CHANGELOG updates
   - add license
   - reinstate terser in rollup.config.js
-  - test localisation by disabling EN and checking that all strings revert to their keys
-    - also check that there aren't any redundant keys!
-      - if all keys are enums, this should be simple

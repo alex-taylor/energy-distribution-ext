@@ -30,10 +30,11 @@ namespace Enums {
     From_Date_Picker: "from_date_picker"
   } as const satisfies Record<string, string>;
 
-  export const DisplayMode = {
-    Today: "today",
-    History: "history",
-    Hybrid: "hybrid"
+  export const DateRangeDisplayMode = {
+    Do_Not_Show: "do_not_show",
+    Preset_Name: "label",
+    Dates: "dates",
+    Both: "both"
   } as const satisfies Record<string, string>;
 
   export const EnergyDirection = {
@@ -116,8 +117,8 @@ export const ColourMode = Enums.ColourMode;
 export type ColourMode = typeof ColourMode[keyof typeof ColourMode];
 export const DateRange = Enums.DateRange;
 export type DateRange = typeof DateRange[keyof typeof DateRange];
-export const DisplayMode = Enums.DisplayMode;
-export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
+export const DateRangeDisplayMode = Enums.DateRangeDisplayMode;
+export type DateRangeDisplayMode = typeof DateRangeDisplayMode[keyof typeof DateRangeDisplayMode];
 export const EnergyDirection = Enums.EnergyDirection;
 export type EnergyDirection = typeof EnergyDirection[keyof typeof EnergyDirection];
 export const EnergyType = Enums.EnergyType;

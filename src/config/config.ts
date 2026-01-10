@@ -1,4 +1,4 @@
-import { ColourMode, DisplayMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange } from "@/enums";
+import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
 import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
@@ -65,8 +65,9 @@ export function getConfigObjects(configs: any[], path: string[] | string): any[]
 export function getMinimalConfig(hass: HomeAssistant | undefined = undefined): EnergyFlowCardExtConfig {
   return {
     type: 'custom:' + CARD_NAME,
-    [GlobalOptions.Display_Mode]: getEnergyDataCollection(hass) ? DisplayMode.History : DisplayMode.Today,
     [GlobalOptions.Date_Range]: getEnergyDataCollection(hass) ? DateRange.From_Date_Picker : DateRange.Today,
+    [GlobalOptions.Date_Range_Live]: false,
+    [GlobalOptions.Date_Range_Display]: DateRangeDisplayMode.Do_Not_Show,
     [GlobalOptions.Use_HASS_Config]: true
   };
 }
@@ -91,18 +92,27 @@ function getDefaultConfig(hass: HomeAssistant | undefined = undefined): EnergyFl
 export function cleanupConfig(config: EnergyFlowCardExtConfig): EnergyFlowCardExtConfig {
   //pruneConfig(config);
 
-  config = {
-    ...config,
-    [GlobalOptions.Use_HASS_Config]: config?.[GlobalOptions.Use_HASS_Config] ?? true
-  };
+  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig();
 
-  config = updateConfig(config, EditorPages.Appearance, getDefaultAppearanceConfig());
-  config = updateConfig(config, EditorPages.Battery, getDefaultBatteryConfig());
-  config = updateConfig(config, EditorPages.Gas, getDefaultGasConfig());
-  config = updateConfig(config, EditorPages.Grid, getDefaultGridConfig());
-  config = updateConfig(config, EditorPages.Home, getDefaultHomeConfig());
-  config = updateConfig(config, EditorPages.Low_Carbon, getDefaultLowCarbonConfig());
-  config = updateConfig(config, EditorPages.Solar, getDefaultSolarConfig());
+  config = { ...config };
+
+  Object.keys(defaultConfig).forEach(key => {
+    if (config[key] === undefined) {
+      if (typeof defaultConfig[key] !== "object") {
+        config[key] = defaultConfig[key];
+      }
+    } else {
+      if (typeof config[key] === "object") {
+        if (equal(config[key], defaultConfig[key])) {
+          delete config[key];
+        } else {
+          setDefaultsRecursively(config[key], defaultConfig[key]);
+          config[key] = defaultConfig[key];
+        }
+      }
+    }
+  });
+
   return config;
 }
 
@@ -132,25 +142,6 @@ function pruneConfig(config: any): void {
       }
     }
   }
-}
-
-//================================================================================================================================================================================//
-
-function updateConfig(config: EnergyFlowCardExtConfig, key: EditorPages, defaultConfig: any): EnergyFlowCardExtConfig {
-  if (!config[key]) {
-    return config;
-  }
-
-  if (equal(config[key], defaultConfig)) {
-    config = { ...config };
-    delete config[key];
-    return config;
-  }
-
-  setDefaultsRecursively(config[key], defaultConfig);
-  config = { ...config };
-  config[key] = defaultConfig;
-  return config;
 }
 
 //================================================================================================================================================================================//
@@ -390,7 +381,7 @@ export function getCo2SignalEntity(hass: HomeAssistant): string {
     }
   }
 
-  return co2SignalEntity ?? "";
+  return co2SignalEntity || "";
 }
 
 //================================================================================================================================================================================//

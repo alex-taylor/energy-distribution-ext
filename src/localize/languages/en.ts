@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, EntityOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from "@/config";
-import { ColourMode, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
+import { ColourMode, DateRangeDisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
 import { HELPTEXT_SUFFIX } from "@/const";
 
 export default {
@@ -17,6 +17,7 @@ export default {
 
   "editor": {
     "add_device": "Add Device",
+    "from_date_picker": "Use Energy Dashboard Date Selector",
     "go_back": "Go Back",
     "invalid_primary_entity": "is not an energy sensor of type Total or Total_Increasing",
     "invalid_secondary_entity": "is not of type Total or Total_Increasing",
@@ -82,10 +83,11 @@ export default {
     [DeviceOptions.Name]: "Name"
   },
 
-  "DisplayMode": {
-    [DisplayMode.Today]: "Today",
-    [DisplayMode.History]: "History",
-    [DisplayMode.Hybrid]: "Hybrid"
+  "DateRangeDisplayMode": {
+    [DateRangeDisplayMode.Do_Not_Show]: "Do not show",
+    [DateRangeDisplayMode.Preset_Name]: "Preset name",
+    [DateRangeDisplayMode.Dates]: "Dates",
+    [DateRangeDisplayMode.Both]: "Preset name and dates"
   },
 
   "EditorPages": {
@@ -160,11 +162,12 @@ export default {
   },
 
   "GlobalOptions": {
-    [GlobalOptions.Date_Range]: "Date range",
+    [GlobalOptions.Date_Range]: "Date range to show",
     [GlobalOptions.Date_Range_From]: "From",
     [GlobalOptions.Date_Range_To]: "To",
-    [GlobalOptions.Display_Mode]: "Display mode",
-    [GlobalOptions.Display_Mode + HELPTEXT_SUFFIX]: "History and Hybrid modes require an energy-date-selection card to be present in the View",
+    [GlobalOptions.Date_Range_Live]: "Include live sensor data",
+    [GlobalOptions.Date_Range_Live + HELPTEXT_SUFFIX]: "If the selected date range includes the current day, use the latest values from the entities",
+    [GlobalOptions.Date_Range_Display]: "Show the date range on the card",
     [GlobalOptions.Options]: "Options",
     [GlobalOptions.Title]: "Title",
     [GlobalOptions.Use_HASS_Config]: "Use the Energy Dashboard configuration",
