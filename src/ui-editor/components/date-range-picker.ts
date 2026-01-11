@@ -1,10 +1,10 @@
 import { fireEvent, HomeAssistant } from "custom-card-helpers";
 import { css, CSSResultGroup, html, LitElement, PropertyValues, TemplateResult } from "lit";
-import { customElement, property } from "lit-element";
 import { CARD_NAME } from "@/const";
 import { endOfToday, startOfToday } from "date-fns";
 import { DateRange } from "@/enums";
 import { renderDateRange, getRangePresetName } from "@/ui-helpers/renderers";
+import { customElement, property } from "lit/decorators.js";
 
 //================================================================================================================================================================================//
 
@@ -40,6 +40,7 @@ export class DateRangePicker extends LitElement {
         <div class="control">
           <ha-date-range-picker
             .hass=${this.hass}
+            .openingDirection=${"right"}
             .startDate=${this.startDate}
             .endDate=${this.endDate}
             .ranges=${this._ranges}

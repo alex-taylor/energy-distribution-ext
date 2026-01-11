@@ -68,6 +68,9 @@
     <TypeScriptCompile Include="src\config\validation.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="src\dates.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\states\entity-states.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

@@ -1,7 +1,7 @@
 import { mdiArrowLeft } from "@mdi/js";
 import { fireEvent } from "custom-card-helpers";
 import { css, CSSResultGroup, html, LitElement, TemplateResult } from "lit";
-import { customElement, property } from "lit-element";
+import { customElement, property } from "lit/decorators.js";
 import { CARD_NAME } from "@/const";
 import { localize } from "@/localize/localize";
 

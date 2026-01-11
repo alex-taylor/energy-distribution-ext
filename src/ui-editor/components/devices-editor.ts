@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { mdiArrowLeft, mdiArrowRight, mdiDelete, mdiDrag, mdiPlus } from "@mdi/js";
 import { HomeAssistant, fireEvent } from "custom-card-helpers";
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
-import { customElement, property, state } from "lit-element";
+import { customElement, property, state } from "lit/decorators.js";
 import { CARD_NAME, ELECTRIC_ENTITY_CLASSES } from "@/const";
 import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from "@/config";
 import { deviceSchema } from "../schema/device";

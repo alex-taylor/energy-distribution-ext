@@ -9,7 +9,7 @@ import { HomeState } from "./home";
 import { LowCarbonState } from "./low-carbon";
 import { SolarState } from "./solar";
 import { DeviceState } from "./device";
-import { addDays, addHours, differenceInDays, endOfDay, endOfMonth, endOfQuarter, endOfToday, endOfWeek, endOfYear, endOfYesterday, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfDay, startOfMonth, startOfQuarter, startOfToday, startOfWeek, startOfYear, startOfYesterday, subDays, subMonths } from "date-fns";
+import { addDays, addHours, differenceInDays, endOfToday, getHours, isFirstDayOfMonth, isLastDayOfMonth, startOfToday } from "date-fns";
 import { EnergyUnits, EnergyUnitPrefix, EntityMode, VolumeUnits, checkEnumValue, DateRange } from "@/enums";
 import { logDebug } from "@/logging";
 import { getEnergyDataCollection } from "@/energy";
@@ -17,6 +17,7 @@ import { ValueState } from "./state";
 import { Flows, States } from ".";
 import { UNIT_CONVERSIONS } from "./unit-conversions";
 import { DEFAULT_CONFIG, DEFAULT_GAS_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
+import { calculateDateRange } from "@/dates";
 
 const ENERGY_DATA_TIMEOUT: number = 10000;
 const ENERGY_DATA_POLL: number = 100;
@@ -238,7 +239,6 @@ export class EntityStates {
     let refresh: NodeJS.Timeout;
 
     const loadStatistics = () => {
-      // TODO: other date-ranges
       const nextFetch: Date = new Date();
       let periodStart: Date;
       let periodEnd: Date;
@@ -247,7 +247,7 @@ export class EntityStates {
         periodStart = getConfigValue(config, GlobalOptions.Date_Range_From) || startOfToday();
         periodEnd = getConfigValue(config, GlobalOptions.Date_Range_To) || endOfToday();
       } else {
-        [periodStart, periodEnd] = this._calculateDateRange(this._dateRange);
+        [periodStart, periodEnd] = calculateDateRange(this.hass, this._dateRange);
       }
 
       this._loadStatistics(periodStart, periodEnd);
@@ -922,40 +922,6 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _isPowerOutage = (): boolean => this.grid.powerOutage.isPresent ? this.hass.states[this.grid.powerOutage.entity_id].state === this.grid.powerOutage.state : false;
-
-  //================================================================================================================================================================================//
-
-  private _calculateDateRange = (range: DateRange): [Date, Date] => {
-    const now: Date = new Date();
-
-    switch (range) {
-      case DateRange.Yesterday:
-        return [startOfYesterday(), endOfYesterday()];
-
-      case DateRange.This_Week:
-        return [startOfWeek(now), endOfWeek(now)];
-
-      case DateRange.This_Month:
-        return [startOfMonth(now), endOfMonth(now)];
-
-      case DateRange.This_Quarter:
-        return [startOfQuarter(now), endOfQuarter(now)];
-
-      case DateRange.This_Year:
-        return [startOfYear(now), endOfYear(now)];
-
-      case DateRange.Last_7_Days:
-        return [startOfDay(subDays(now, 7)), endOfDay(now)];
-
-      case DateRange.Last_30_Days:
-        return [startOfDay(subDays(now, 30)), endOfDay(now)];
-
-      case DateRange.Last_12_Months:
-        return [startOfDay(startOfMonth(subMonths(now, 12))), endOfMonth(subMonths(now, 1))];
-    }
-
-    return [startOfToday(), endOfToday()];
-  }
 
   //================================================================================================================================================================================//
 }
