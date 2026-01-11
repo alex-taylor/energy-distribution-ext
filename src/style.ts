@@ -247,6 +247,10 @@ export const styles: CSSResult = css`
     color: var(--value-import-battery-color);
   }
 
+  .device .circle {
+    border-color: red;
+  }
+
   path.inactive {
     stroke: var(--inactive-flow-color) !important;
   }

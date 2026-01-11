@@ -171,7 +171,9 @@ export enum CssClass {
   Hidden_Circle = "hidden-circle",
   Hidden_Path = "hidden-path",
   Grid_Battery_Anim = "grid-battery-anim",
-  Grid_To_Home_Anim = "grid-to-home-anim"
+  Grid_To_Home_Anim = "grid-to-home-anim",
+  Top_Row = "top-row",
+  Bottom_Row = "bottom-row"
 }
 
 export enum EnergyUnitPrefix {

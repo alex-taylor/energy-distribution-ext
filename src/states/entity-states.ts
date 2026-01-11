@@ -229,7 +229,9 @@ export class EntityStates {
       };
 
       return new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
-        .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => this._loadStatistics(data.start, data.end || endOfToday())))
+        .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => {
+          this._loadStatistics(data.start, data.end || endOfToday())
+        }))
         .catch(err => {
           logDebug(err);
           return (): void => { };
@@ -374,8 +376,10 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private async _loadStatistics(periodStart: Date, periodEnd: Date): Promise<void> {
-    this._primaryStatistics = undefined;
-    this._secondaryStatistics = undefined;
+    if (periodStart !== this.periodStart || periodEnd !== this.periodEnd) {
+      this._primaryStatistics = undefined;
+      this._secondaryStatistics = undefined;
+    }
 
     this._periodStart = periodStart;
     this._periodEnd = periodEnd;
@@ -831,7 +835,7 @@ export class EntityStates {
       end_time: periodEnd.toISOString(),
       statistic_ids: entityIds,
       period: period,
-      types: ["sum", "state", "change"]
+      types: ["state", "change"]
     });
   }
 

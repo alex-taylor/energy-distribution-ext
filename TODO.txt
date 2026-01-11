@@ -10,16 +10,37 @@ Code:
       - this could be done using the secondary, although then we'd need to know that it was a SoC in order to manage the main icon
     - see what else should be changed/hidden
   - unit-testing
-  - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
 
+Editor:
+  - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
+    - also for Devices, where 'export' ('consumption') and 'import' ('production') will be confusing!
+  - Devices page-link not showing its status-icon
+
+Config:
+  - import Devices from the ED config
+    - only those which do not have a parent
+    - import entity and name
+  - for Devices, have a flag which specifies when it was imported from the Energy Dashboard config?
+    - this would have several effects:
+      - the name and entity would not be editable
+      - if the ED config were changed to remove the device, we could reflect that change here too
+        - although that might be confusing, so it might be better to give the user the option
+    - if the ED config's entity is changed, though, there's no way to detect that - it would appear as a 'delete' and an 'add', which loses the card's config
+    - usefully, the ED config does not allow the same entity to be specified twice
+    - might not be all that useful, though:
+      - we can't detect changes, only add/remove
+      - without the flag, we just pick up the new devices
 
 Display:
   - Home:
     - include producing devices in the segment arrays
     - if 'subtract' is set, subtract consuming devices from the appropriate total
   - Devices:
-    - see if the Energy Dashboard's devices can be detected and loaded
-    - first attempt to expand to the right
+    - if there is exactly one device:
+      - if there is no Gas configured, draw it in the upper-right
+      - else draw it in the lower-right (removing the 'Home' label)
+    - if there are exactly two devices and Gas is not configured, draw upper/lower right
+    - otherwise attempt to expand to the right
     - if there is not enough space for the required number of columns, expand below instead
     - for rightwards, draw the bus out from the Home circle and position devices above/below it
       - could try to get clever and stop the bus one column from the end so we can fit three devices in a column
@@ -53,7 +74,7 @@ Under consideration
         - for HASS the 'producer' might be [Solar,Battery,Grid] and 'consumer' [Battery,Grid,House]
         - whereas for a more realistic approach the 'consumer' would be [House,Battery,Grid]
         - we can give the user some degree of control here if/as required, but the basic algo should cope with any setup
-
+  - redesign the render code so that it's static, only refreshing on a config/layout change, and the states/css/etc are poked into it on a data-update
 
 
 Before release
@@ -64,3 +85,5 @@ Before release
   - README and CHANGELOG updates
   - add license
   - reinstate terser in rollup.config.js
+  - check against the Plus cards for missing/broken functionality
+  - check against the Plus issue-lists for features which might be worth adding

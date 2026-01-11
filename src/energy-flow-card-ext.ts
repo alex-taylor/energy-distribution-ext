@@ -25,6 +25,10 @@ import { LowCarbonState } from "@/states/low-carbon";
 import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight, mdiFlash, mdiFire } from "@mdi/js";
 import { GasState } from "@/states/gas";
 import { titleCase } from "title-case";
+import { range } from "lit/directives/range.js";
+import { map } from "lit/directives/map.js";
+
+let NUM_DEVICES = 3;
 
 //================================================================================================================================================================================//
 
@@ -56,6 +60,7 @@ registerCustomCard({
 
 //================================================================================================================================================================================//
 
+const NUM_DEFAULT_COLUMNS: number = 3;
 const CIRCLE_SIZE_MIN: number = 80;
 const DOT_DIAMETER: number = DOT_RADIUS * 2;
 const FLOW_LINE_SPACING: number = DOT_DIAMETER + 5;
@@ -67,6 +72,13 @@ const NODE_SPACER: TemplateResult = html`<div class="node-spacer"></div>`;
 const HORIZ_SPACER: TemplateResult = html`<div class="horiz-spacer"></div>`;
 
 const MAP_URL: string = "https://app.electricitymaps.com";
+
+enum DevicesLayout {
+  Inline_Above,
+  Inline_Below,
+  Horizontal,
+  Vertical
+}
 
 //================================================================================================================================================================================//
 
@@ -133,6 +145,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   private _inactiveFlowsCss: string = CssClass.Inactive;
   private _circleSize: number = CIRCLE_SIZE_MIN;
+  private _devicesLayout: DevicesLayout = DevicesLayout.Inline_Above;
 
   //================================================================================================================================================================================//
 
@@ -257,6 +270,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
             <!-- top right -->
             ${this._renderGasNode(states, gasUnitPrefix)}
+            ${this._devicesLayout === DevicesLayout.Inline_Above && NUM_DEVICES !== 0 ? this._renderDeviceNode(0, CssClass.Top_Row) : nothing}
+
+            <!-- devices -->
+            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(0, CssClass.Top_Row) : nothing}
 
           </div>
 
@@ -276,6 +293,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             <!-- middle right -->
             ${this._renderHomeNode(states, electricUnitPrefix, gasUnitPrefix)}
 
+            <!-- padding -->
+            ${this._devicesLayout === DevicesLayout.Horizontal ? map(range(this._getNumDeviceColumns()), _ => html`${HORIZ_SPACER}${NODE_SPACER}`) : nothing}
+
           </div>
 
           <!-- bottom row -->
@@ -292,7 +312,16 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             ${HORIZ_SPACER}
 
             <!-- bottom right -->
-            ${NODE_SPACER}
+            ${NUM_DEVICES !== 0
+        ? this._devicesLayout === DevicesLayout.Inline_Below
+          ? this._renderDeviceNode(0, CssClass.Bottom_Row)
+          : this._devicesLayout === DevicesLayout.Inline_Above && NUM_DEVICES === 2
+            ? this._renderDeviceNode(1, CssClass.Bottom_Row)
+            : html`${NODE_SPACER}`
+        : html`${NODE_SPACER}`}
+
+            <!-- devices -->
+            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(1, CssClass.Bottom_Row) : nothing}
 
           </div>
         </div>
@@ -300,19 +329,20 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         <!-- dashboard link -->
         ${this._dashboardLink && (this._dashboardLinkLabel || this._dashboardLinkTitle)
         ? html`
-          <div class="card-actions">
-            <a href=${this._dashboardLink}>
-              <mwc-button>
-                ${this._dashboardLinkLabel || localize("common.go_to_dashboard").replace("{title}", this._dashboardLinkTitle!)}
-              </mwc-button>
-            </a>
-          </div>
-          `
-        : nothing}
+              <div class="card-actions">
+                <a href=${this._dashboardLink}>
+                  <mwc-button>
+                    ${this._dashboardLinkLabel || localize("common.go_to_dashboard").replace("{title}", this._dashboardLinkTitle!)}
+                  </mwc-button>
+                </a>
+              </div>
+              `
+        : nothing
+      }
       </ha-card>
 
-      <!-- error overlays -->
-      ${!this._entityStates.isDatePickerPresent && this._dateRange === DateRange.From_Date_Picker
+    <!--error overlays -->
+    ${!this._entityStates.isDatePickerPresent && this._dateRange === DateRange.From_Date_Picker
         ? html`
           <div class="overlay">
             <hr>
@@ -328,8 +358,38 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
               <hr>
             </div>
           `
-          : nothing}
-    `;
+          : nothing
+      }
+`;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _renderDeviceNodesHorizontally(start: number, cssClass: CssClass): TemplateResult {
+    return html`
+      ${map(range(start, NUM_DEVICES + NUM_DEVICES % 2, 2), index => {
+      if (index === NUM_DEVICES) {
+        return html`${HORIZ_SPACER}${NODE_SPACER}`;
+      }
+
+      return html`${HORIZ_SPACER}${this._renderDeviceNode(index, cssClass)}`;
+    })
+      }
+`;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _renderDeviceNode(index: number, cssClass: CssClass): TemplateResult {
+    return html`
+      <div class="node ${cssClass} device">
+        ${cssClass === CssClass.Top_Row ? html`<span class="label">Device ${index}</span>` : nothing}
+        <div class="circle background">
+        <div class="circle"></div>
+      </div>
+      ${cssClass !== CssClass.Top_Row ? html`<span class="label">Device ${index}</span>` : nothing}
+    </div>
+  `;
   }
 
   //================================================================================================================================================================================//
@@ -345,7 +405,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const co2State: HassEntity = this.hass.states[getCo2SignalEntity(this.hass)];
 
     if (co2State?.attributes.country_code) {
-      electricityMapUrl += `/zone/${co2State?.attributes.country_code}`;
+      electricityMapUrl += `/zone/${co2State?.attributes.country_code} `;
     }
 
     const mode: LowCarbonDisplayMode = getConfigValue(this._configs, [EditorPages.Low_Carbon, GlobalOptions.Options, LowCarbonOptions.Low_Carbon_Mode]);
@@ -907,11 +967,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const entityId: string = secondary.firstImportEntity!;
 
     return html`
-        <span class="secondary-info ${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
-          ${secondary.icon ? html`<ha-icon class="secondary-info small ${cssClass}" .icon=${secondary.icon}></ha-icon>` : nothing}
-          ${this._renderState(secondary.config, entityId, state)}
-        </span>
-      `;
+      <span class="secondary-info ${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
+        ${secondary.icon ? html`<ha-icon class="secondary-info small ${cssClass}" .icon=${secondary.icon}></ha-icon>` : nothing}
+        ${this._renderState(secondary.config, entityId, state)}
+      </span>
+    `;
   };
 
   //================================================================================================================================================================================//
@@ -1072,8 +1132,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         const fontSize: number = dummy.getBoundingClientRect().height;
         dummy.remove();
 
-        const numColumns: number = this._getNumColumns();
-        const maxCircleSize: number = Math.max(CIRCLE_SIZE_MIN, Math.floor((width - (numColumns - 1) * getColSpacing(CIRCLE_SIZE_MIN).min) / numColumns));
+        const maxCircleSize: number = Math.max(CIRCLE_SIZE_MIN, Math.floor((width - (NUM_DEFAULT_COLUMNS - 1) * getColSpacing(CIRCLE_SIZE_MIN).min) / NUM_DEFAULT_COLUMNS));
         const circleSize: number = Math.min(maxCircleSize, this._calculateCircleSize(fontSize));
         this._circleSize = circleSize;
         setLayout(this.style, circleSize);
@@ -1081,6 +1140,20 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         const labelHeight: number = fontSize * this._getPropertyValue(".lines", "--ha-line-height-normal");
 
         const colSpacing: MinMax = getColSpacing(circleSize);
+
+        const numDeviceColumns: number = this._getNumDeviceColumns();
+        const maxDeviceColumns: number = Math.floor((width - circleSize) / (circleSize + colSpacing.min)) - 2;
+
+        this._devicesLayout = numDeviceColumns === 0
+          ? this._entityStates.gas.isPresent
+            ? DevicesLayout.Inline_Below
+            : DevicesLayout.Inline_Above
+          : numDeviceColumns <= maxDeviceColumns
+            ? DevicesLayout.Horizontal
+            : DevicesLayout.Vertical;
+
+        const numColumns: number = NUM_DEFAULT_COLUMNS + (this._devicesLayout === DevicesLayout.Horizontal ? numDeviceColumns : 0);
+
 
         const rowSpacing: number = Math.round(circleSize * 3 / 8);
         const flowLineCurved: number = circleSize / 2 + rowSpacing - FLOW_LINE_SPACING;
@@ -1147,9 +1220,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _getNumColumns = (): number => {
-    // TODO: devices
-    return 3;
+  private _getNumDeviceColumns = (): number => {
+    if (NUM_DEVICES <= 1 || (NUM_DEVICES === 2 && !this._entityStates.gas.isPresent)) {
+      return 0;
+    }
+
+    return Math.ceil(NUM_DEVICES / 2);
   }
 
   //================================================================================================================================================================================//
@@ -1251,7 +1327,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const textLineHeight: number = fontSize + ICON_PADDING;
     const numTextLines: number = 1 + this._hasSecondPrimaryState() + this._hasSecondaryState();
 
-    const width: number = (numChars * fontSize * 60 / 100) + fontSize + ICON_PADDING;
+    const width: number = (numChars * fontSize * 50 / 100) + fontSize + ICON_PADDING;
     const height: number = Math.ceil(numTextLines * textLineHeight + fontSize * 2 + ICON_PADDING * 2);
 
     return Math.max(CIRCLE_SIZE_MIN, Math.ceil(Math.sqrt(width * width + height * height)) + CIRCLE_STROKE_WIDTH_SEGMENTS * 2);
