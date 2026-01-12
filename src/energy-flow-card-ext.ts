@@ -27,8 +27,7 @@ import { GasState } from "@/states/gas";
 import { titleCase } from "title-case";
 import { range } from "lit/directives/range.js";
 import { map } from "lit/directives/map.js";
-
-let NUM_DEVICES = 3;
+import { DeviceState } from "@/states/device";
 
 //================================================================================================================================================================================//
 
@@ -246,6 +245,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const electricUnitPrefix: EnergyUnitPrefix | undefined = states && this._electricUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue)) : undefined;
     const gasUnitPrefix: EnergyUnitPrefix | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestGasValue)) : undefined;
     const animationDurations: AnimationDurations | undefined = states ? this._calculateAnimationDurations(states) : undefined;
+    const numDevices: number = this._entityStates.devices.length;
 
     return html`
       <ha-card .header=${getConfigValue(this._configs, GlobalOptions.Title)}>
@@ -270,10 +270,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
             <!-- top right -->
             ${this._renderGasNode(states, gasUnitPrefix)}
-            ${this._devicesLayout === DevicesLayout.Inline_Above && NUM_DEVICES !== 0 ? this._renderDeviceNode(0, CssClass.Top_Row) : nothing}
+            ${this._devicesLayout === DevicesLayout.Inline_Above && numDevices !== 0 ? this._renderDeviceNode(this._entityStates.devices[0], CssClass.Top_Row) : nothing}
 
             <!-- devices -->
-            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(0, CssClass.Top_Row) : nothing}
+            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(0, this._entityStates.devices, CssClass.Top_Row) : nothing}
 
           </div>
 
@@ -312,21 +312,21 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             ${HORIZ_SPACER}
 
             <!-- bottom right -->
-            ${NUM_DEVICES !== 0
+            ${numDevices !== 0
         ? this._devicesLayout === DevicesLayout.Inline_Below
-          ? this._renderDeviceNode(0, CssClass.Bottom_Row)
-          : this._devicesLayout === DevicesLayout.Inline_Above && NUM_DEVICES === 2
-            ? this._renderDeviceNode(1, CssClass.Bottom_Row)
+          ? this._renderDeviceNode(this._entityStates.devices[0], CssClass.Bottom_Row)
+          : this._devicesLayout === DevicesLayout.Inline_Above && numDevices === 2
+            ? this._renderDeviceNode(this._entityStates.devices[1], CssClass.Bottom_Row)
             : html`${NODE_SPACER}`
         : html`${NODE_SPACER}`}
 
             <!-- devices -->
-            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(1, CssClass.Bottom_Row) : nothing}
+            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(1, this._entityStates.devices, CssClass.Bottom_Row) : nothing}
 
           </div>
 
             <!-- devices -->
-          ${this._devicesLayout === DevicesLayout.Vertical ? this._renderDeviceNodesVertically() : nothing}
+          ${this._devicesLayout === DevicesLayout.Vertical ? this._renderDeviceNodesVertically(this._entityStates.devices) : nothing}
         </div>
 
         <!-- dashboard link -->
@@ -368,37 +368,38 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderDeviceNodesHorizontally(start: number, cssClass: CssClass): TemplateResult {
+  private _renderDeviceNodesHorizontally(start: number, devices: DeviceState[], cssClass: CssClass): TemplateResult {
+    const numDevices: number = devices.length;
+
     return html`
-      ${map(range(start, NUM_DEVICES + NUM_DEVICES % 2, 2), index => {
-      if (index === NUM_DEVICES) {
+      ${map(range(start, numDevices + numDevices % 2, 2), index => {
+      if (index === numDevices) {
         return html`${HORIZ_SPACER}${NODE_SPACER}`;
       }
 
-      return html`${HORIZ_SPACER}${this._renderDeviceNode(index, cssClass)}`;
+      return html`${HORIZ_SPACER}${this._renderDeviceNode(devices[index], cssClass)}`;
     })}
     `;
   }
 
   //================================================================================================================================================================================//
 
-  private _renderDeviceNodesVertically(): TemplateResult {
-    const rows: number = Math.ceil(NUM_DEVICES / 2);
-    const lastRowIndex: number = rows - 1;
+  private _renderDeviceNodesVertically(devices: DeviceState[]): TemplateResult {
+    const numDevices: number = devices.length;
+    const rows: number = Math.ceil(numDevices / 2);
     let nodeIndex: number = 0;
 
     // TODO: insert spacing at the start to allow for the device-bus
     return html`
       ${map(range(rows), rowIndex => {
-      const cssClass: CssClass = rowIndex === lastRowIndex ? CssClass.Bottom_Row : CssClass.None;
 
       return html`
           <div class="row">
-            ${this._renderDeviceNode(nodeIndex++, cssClass)}
+            ${this._renderDeviceNode(devices[nodeIndex++], CssClass.Bottom_Row)}
             ${HORIZ_SPACER}
             ${NODE_SPACER}
             ${HORIZ_SPACER}
-            ${nodeIndex === NUM_DEVICES ? html`${NODE_SPACER}` : this._renderDeviceNode(nodeIndex++, cssClass)}
+            ${nodeIndex === numDevices ? html`${NODE_SPACER}` : this._renderDeviceNode(devices[nodeIndex++], CssClass.Bottom_Row)}
           </div>
         `;
     })}
@@ -407,14 +408,18 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderDeviceNode(index: number, cssClass: CssClass): TemplateResult {
+  private _renderDeviceNode(device: DeviceState, cssClass: CssClass): TemplateResult {
+    const inactiveCss: string = "";
+
     return html`
       <div class="node ${cssClass} device">
-        ${cssClass === CssClass.Top_Row ? html`<span class="label">Device ${index}</span>` : nothing}
+        ${cssClass === CssClass.Top_Row ? html`<span class="label">${device.name}</span>` : nothing}
         <div class="circle background">
-        <div class="circle"></div>
+        <div class="circle" style="border-color: blue;">
+            <ha-icon class="entity-icon ${inactiveCss}" .icon=${device.icon}></ha-icon>
+        </div>
       </div>
-      ${cssClass !== CssClass.Top_Row ? html`<span class="label">Device ${index}</span>` : nothing}
+      ${cssClass !== CssClass.Top_Row ? html`<span class="label">${device.name}</span>` : nothing}
     </div>
   `;
   }
@@ -1248,11 +1253,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _getNumDeviceColumns = (): number => {
-    if (NUM_DEVICES <= 1 || (NUM_DEVICES === 2 && !this._entityStates.gas.isPresent)) {
+    const numDevices: number = this._entityStates.devices.length;
+
+    if (numDevices <= 1 || (numDevices === 2 && !this._entityStates.gas.isPresent)) {
       return 0;
     }
 
-    return Math.ceil(NUM_DEVICES / 2);
+    return Math.ceil(numDevices / 2);
   }
 
   //================================================================================================================================================================================//

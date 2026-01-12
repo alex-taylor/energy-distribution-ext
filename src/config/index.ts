@@ -285,23 +285,8 @@ export interface DeviceConfig {
   [DeviceOptions.Energy_Direction]?: EnergyDirection;
   [EntitiesOptions.Import_Entities]?: EntityConfig;
   [EntitiesOptions.Export_Entities]?: EntityConfig;
-  [EntitiesOptions.Colours]?: DeviceColourConfig;
+  [EntitiesOptions.Colours]?: DualValueColourConfig;
   [EntitiesOptions.Secondary_Info]?: SecondaryInfoConfig;
-};
-
-export interface DeviceColourConfig {
-  [ColourOptions.Circle]?: ColourMode;
-  [ColourOptions.Circle_Colour]?: number[];
-  [ColourOptions.Flow_Import_Colour]?: number[];
-  [ColourOptions.Flow_Export_Colour]?: number[];
-  [ColourOptions.Icon]?: ColourMode;
-  [ColourOptions.Icon_Colour]?: number[];
-  [ColourOptions.Secondary]?: ColourMode;
-  [ColourOptions.Secondary_Colour]?: number[];
-  [ColourOptions.Value_Import]?: ColourMode;
-  [ColourOptions.Value_Export_Colour]?: number[];
-  [ColourOptions.Value_Export]?: ColourMode;
-  [ColourOptions.Value_Import_Colour]?: number[];
 };
 
 export interface NodeConfig {
@@ -320,8 +305,8 @@ export interface SingleValueNodeConfig extends NodeConfig {
 };
 
 export interface DualValueNodeConfig extends NodeConfig {
-  [EntitiesOptions.Import_Entities]?: EntityConfig;
   [EntitiesOptions.Export_Entities]?: EntityConfig;
+  [EntitiesOptions.Import_Entities]?: EntityConfig;
   [EntitiesOptions.Colours]?: DualValueColourConfig;
 };
 
@@ -341,18 +326,18 @@ export interface SingleValueColourConfig {
 export interface DualValueColourConfig {
   [ColourOptions.Circle]?: ColourMode;
   [ColourOptions.Circle_Colour]?: number[];
-  [ColourOptions.Flow_Import]?: ColourMode;
-  [ColourOptions.Flow_Import_Colour]?: number[];
   [ColourOptions.Flow_Export]?: ColourMode;
   [ColourOptions.Flow_Export_Colour]?: number[];
+  [ColourOptions.Flow_Import]?: ColourMode;
+  [ColourOptions.Flow_Import_Colour]?: number[];
   [ColourOptions.Icon]?: ColourMode;
   [ColourOptions.Icon_Colour]?: number[];
   [ColourOptions.Secondary]?: ColourMode;
   [ColourOptions.Secondary_Colour]?: number[];
-  [ColourOptions.Value_Import]?: ColourMode;
-  [ColourOptions.Value_Export_Colour]?: number[];
   [ColourOptions.Value_Export]?: ColourMode;
   [ColourOptions.Value_Import_Colour]?: number[];
+  [ColourOptions.Value_Import]?: ColourMode;
+  [ColourOptions.Value_Export_Colour]?: number[];
 };
 
 export interface EntityConfig {

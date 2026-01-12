@@ -1,8 +1,8 @@
-import { ColourOptions, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from '@/config';
+import { ColourOptions, DeviceConfig, DeviceOptions, EntitiesOptions, EntityOptions } from '@/config';
 import { colourSchema, dropdownSelector, getDropdownValues, SchemaTypes, secondaryInfoSchema } from '.';
 import { ColourMode, EnergyDirection, EnergyType } from '@/enums';
 import { DEVICE_CLASS_ENERGY } from '@/const';
-import { DEFAULT_DEVICE_CONFIG, getConfigValue } from '@/config/config';
+import { BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, DEFAULT_DEVICE_CONFIG, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
 
 export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig): any[] => {
@@ -71,7 +71,15 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig): any[] => {
       ...colourSchema(
         schemaConfig,
         ColourOptions.Circle,
-        getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Do_Not_Colour, ColourMode.Custom])
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+      )
+    );
+  } else {
+    colourSchemas.push(
+      ...colourSchema(
+        schemaConfig,
+        ColourOptions.Circle,
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       )
     );
   }
@@ -81,7 +89,7 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig): any[] => {
       ...colourSchema(
         schemaConfig,
         ColourOptions.Value_Import,
-        getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       )
     );
   }
@@ -91,23 +99,38 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig): any[] => {
       ...colourSchema(
         schemaConfig,
         ColourOptions.Value_Export,
-        getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       )
     );
   }
 
-  colourSchemas.push(
-    ...colourSchema(
-      schemaConfig,
-      ColourOptions.Icon,
-      getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
-    ),
-    ...colourSchema(
-      schemaConfig,
-      ColourOptions.Secondary,
-      getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
-    )
-  );
+  if (energyDirection === EnergyDirection.Both) {
+    colourSchemas.push(
+      ...colourSchema(
+        schemaConfig,
+        ColourOptions.Icon,
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+      ),
+      ...colourSchema(
+        schemaConfig,
+        ColourOptions.Secondary,
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+      )
+    );
+  } else {
+    colourSchemas.push(
+      ...colourSchema(
+        schemaConfig,
+        ColourOptions.Icon,
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
+      ),
+      ...colourSchema(
+        schemaConfig,
+        ColourOptions.Secondary,
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
+      )
+    );
+  }
 
   return result;
 });

@@ -4,13 +4,14 @@ import { HomeAssistant, fireEvent } from "custom-card-helpers";
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { CARD_NAME, ELECTRIC_ENTITY_CLASSES } from "@/const";
-import { DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from "@/config";
+import { ColourOptions, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, EntitiesOptions, EntityOptions } from "@/config";
 import { deviceSchema } from "../schema/device";
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from "..";
 import { repeat } from "lit/directives/repeat.js";
 import { localize } from "@/localize/localize";
-import { getConfigValue, getDefaultDeviceConfig } from '@/config/config';
+import { BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue, getDefaultDeviceConfig } from '@/config/config';
 import { DeviceState } from '@/states/device';
+import { ColourMode, EnergyDirection } from '../../enums';
 
 //================================================================================================================================================================================//
 
@@ -235,6 +236,10 @@ export class DevicesEditor extends LitElement {
     const value = ev.detail.value;
     const updatedDevices = this._devices!.concat();
 
+    this._fixInvalidColourValues(value, ColourOptions.Circle);
+    this._fixInvalidColourValues(value, ColourOptions.Icon);
+    this._fixInvalidColourValues(value, ColourOptions.Secondary);
+
     updatedDevices[this._indexBeingEdited] = value;
     this._onUpdateConfig(updatedDevices);
   }
@@ -249,6 +254,22 @@ export class DevicesEditor extends LitElement {
 
   private _onUpdateConfig(updatedDevices: DeviceConfig[]): void {
     fireEvent(this, 'value-changed', { value: updatedDevices });
+  }
+
+  //================================================================================================================================================================================//
+
+  private _fixInvalidColourValues(config: DeviceConfig, option: ColourOptions): void {
+    const circleMode: ColourMode = getConfigValue(config, [EntitiesOptions.Colours, option]);
+
+    if (circleMode) {
+      if (getConfigValue(config, DeviceOptions.Energy_Direction) == EnergyDirection.Both) {
+        if (!BASIC_COLOUR_MODES_DUAL.includes(circleMode)) {
+          config[EntitiesOptions.Colours]![option] = ColourMode.Larger_Value;
+        }
+      } else if (!BASIC_COLOUR_MODES_SINGLE.includes(circleMode)) {
+        config[EntitiesOptions.Colours]![option] = ColourMode.Flow;
+      }
+    }
   }
 
   //================================================================================================================================================================================//

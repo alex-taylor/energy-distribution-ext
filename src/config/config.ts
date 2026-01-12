@@ -23,6 +23,11 @@ export const DEFAULT_DEVICE_CONFIG: DeviceConfig = getDefaultDeviceConfig([], []
 
 //================================================================================================================================================================================//
 
+export const BASIC_COLOUR_MODES_SINGLE: ColourMode[] = [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom];
+export const BASIC_COLOUR_MODES_DUAL: ColourMode[] = [ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Do_Not_Colour, ColourMode.Custom];
+
+//================================================================================================================================================================================//
+
 export function getConfigValue(configs: any[] | any, path: string[] | string, validator: ((value: any) => boolean) | undefined = _ => true): any {
   if (!(configs instanceof Array)) {
     configs = [configs];
@@ -337,9 +342,11 @@ export function getDefaultDeviceConfig(importColour: number[], exportColour: num
       [EntityOptions.Entity_Ids]: []
     },
     [EntitiesOptions.Colours]: {
+      [ColourOptions.Flow_Import]: ColourMode.Default,
       [ColourOptions.Flow_Import_Colour]: importColour,
+      [ColourOptions.Flow_Export]: ColourMode.Default,
       [ColourOptions.Flow_Export_Colour]: exportColour,
-      [ColourOptions.Circle]: ColourMode.Do_Not_Colour,
+      [ColourOptions.Circle]: ColourMode.Flow,
       [ColourOptions.Icon]: ColourMode.Do_Not_Colour,
       [ColourOptions.Value_Import]: ColourMode.Do_Not_Colour,
       [ColourOptions.Value_Export]: ColourMode.Do_Not_Colour,

@@ -154,7 +154,6 @@ export type VolumeUnits = typeof VolumeUnits[keyof typeof VolumeUnits];
 })();
 
 export enum CssClass {
-  None = "",
   Battery = "battery",
   Battery_Export = "export-battery",
   Battery_Import = "import-battery",

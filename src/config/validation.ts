@@ -111,9 +111,7 @@ const dualValueNodeConfig = {
 };
 
 const batteryConfigStruct = object({
-  ...dualValueNodeConfig,
-  [EntitiesOptions.Overrides]: optional(overridesConfigStruct),
-  [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
+  ...dualValueNodeConfig
 });
 
 const gasConfigStruct = object({
@@ -128,8 +126,6 @@ const powerOutageConfigStruct = object({
 
 const gridConfigStruct = object({
   ...dualValueNodeConfig,
-  [EntitiesOptions.Overrides]: optional(overridesConfigStruct),
-  [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct),
   [GridOptions.Power_Outage]: optional(powerOutageConfigStruct)
 });
 
@@ -161,31 +157,13 @@ const lowCarbonOptionsConfig = object({
 });
 
 const lowCarbonConfigStruct = object({
-  ...singleValueNodeConfig,
-  [EntitiesOptions.Overrides]: optional(overridesConfigStruct),
-  [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct),
+  ...nodeConfig,
+  [EntitiesOptions.Colours]: optional(singleValueColoursConfigStruct),
   [GlobalOptions.Options]: optional(lowCarbonOptionsConfig)
 });
 
 const solarConfigStruct = object({
-  ...singleValueNodeConfig,
-  [EntitiesOptions.Overrides]: optional(overridesConfigStruct),
-  [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
-});
-
-const deviceColoursConfigStruct = object({
-  [ColourOptions.Circle]: optional(string()),
-  [ColourOptions.Circle_Colour]: optional(array()),
-  [ColourOptions.Flow_Import_Colour]: optional(array()),
-  [ColourOptions.Flow_Export_Colour]: optional(array()),
-  [ColourOptions.Icon]: optional(string()),
-  [ColourOptions.Icon_Colour]: optional(array()),
-  [ColourOptions.Secondary]: optional(string()),
-  [ColourOptions.Secondary_Colour]: optional(array()),
-  [ColourOptions.Value_Import]: optional(string()),
-  [ColourOptions.Value_Import_Colour]: optional(array()),
-  [ColourOptions.Value_Export]: optional(string()),
-  [ColourOptions.Value_Export_Colour]: optional(array())
+  ...singleValueNodeConfig
 });
 
 const deviceConfigStruct = object({
@@ -195,7 +173,7 @@ const deviceConfigStruct = object({
   [DeviceOptions.Energy_Direction]: optional(string()),
   [EntitiesOptions.Import_Entities]: optional(entitiesConfigStruct),
   [EntitiesOptions.Export_Entities]: optional(entitiesConfigStruct),
-  [EntitiesOptions.Colours]: optional(deviceColoursConfigStruct),
+  [EntitiesOptions.Colours]: optional(dualValueColoursConfigStruct),
   [EntitiesOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
 });
 
