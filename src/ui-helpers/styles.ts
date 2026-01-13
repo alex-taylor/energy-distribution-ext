@@ -19,7 +19,7 @@ const COLOUR_MAPPINGS: Map<ColourMode, CssClass> = new Map(
   ]
 );
 
-const STYLE_PRIMARY_TEXT_COLOR: string = "var(--primary-text-color)";
+export const STYLE_PRIMARY_TEXT_COLOR: string = "var(--primary-text-color)";
 const STYLE_ENERGY_BATTERY_IMPORT_COLOR: string = "var(--energy-battery-out-color)";
 const STYLE_ENERGY_BATTERY_EXPORT_COLOR: string = "var(--energy-battery-in-color)";
 const STYLE_ENERGY_GRID_IMPORT_COLOR: string = "var(--energy-grid-consumption-color)";
@@ -259,7 +259,7 @@ export function setDualValueNodeDynamicStyles(configs: DualValueNodeConfig[], cs
 
 //================================================================================================================================================================================//
 
-const convertColourListToHex = (colourList: number[] | undefined = []): string => {
+export const convertColourListToHex = (colourList: number[] | undefined = []): string => {
   if (colourList.length !== 3) {
     return STYLE_PRIMARY_TEXT_COLOR;
   }

@@ -13,7 +13,7 @@ import { SecondaryInfoState } from "@/states/secondary-info";
 import { States, Flows } from "@/states";
 import { EntityStates } from "@/states/entity-states";
 import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
-import { ColourMode, LowCarbonDisplayMode, UnitPosition, UnitPrefixes, CssClass, EnergyUnitPrefix, InactiveFlowsMode, GasSourcesMode, Scale, PrefixThreshold, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode } from "@/enums";
+import { ColourMode, LowCarbonDisplayMode, UnitPosition, UnitPrefixes, CssClass, EnergyUnitPrefix, InactiveFlowsMode, GasSourcesMode, Scale, PrefixThreshold, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, EnergyDirection } from "@/enums";
 import { HomeState } from "@/states/home";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DEVICE_CLASS_ENERGY, DEVICE_CLASS_MONETARY, DOT_RADIUS, ICON_PADDING } from "@/const";
@@ -270,10 +270,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
             <!-- top right -->
             ${this._renderGasNode(states, gasUnitPrefix)}
-            ${this._devicesLayout === DevicesLayout.Inline_Above && numDevices !== 0 ? this._renderDeviceNode(this._entityStates.devices[0], CssClass.Top_Row) : nothing}
+            ${this._devicesLayout === DevicesLayout.Inline_Above && numDevices !== 0 ? this._renderDeviceNode(this._entityStates.devices[0], CssClass.Top_Row, mdiArrowDown, mdiArrowUp, electricUnitPrefix, gasUnitPrefix) : nothing}
 
             <!-- devices -->
-            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(0, this._entityStates.devices, CssClass.Top_Row) : nothing}
+            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(0, this._entityStates.devices, CssClass.Top_Row, mdiArrowDown, mdiArrowUp, electricUnitPrefix, gasUnitPrefix) : nothing}
 
           </div>
 
@@ -314,19 +314,19 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
             <!-- bottom right -->
             ${numDevices !== 0
         ? this._devicesLayout === DevicesLayout.Inline_Below
-          ? this._renderDeviceNode(this._entityStates.devices[0], CssClass.Bottom_Row)
+          ? this._renderDeviceNode(this._entityStates.devices[0], CssClass.Bottom_Row, mdiArrowUp, mdiArrowDown, electricUnitPrefix, gasUnitPrefix)
           : this._devicesLayout === DevicesLayout.Inline_Above && numDevices === 2
-            ? this._renderDeviceNode(this._entityStates.devices[1], CssClass.Bottom_Row)
+            ? this._renderDeviceNode(this._entityStates.devices[1], CssClass.Bottom_Row, mdiArrowUp, mdiArrowDown, electricUnitPrefix, gasUnitPrefix)
             : html`${NODE_SPACER}`
         : html`${NODE_SPACER}`}
 
             <!-- devices -->
-            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(1, this._entityStates.devices, CssClass.Bottom_Row) : nothing}
+            ${this._devicesLayout === DevicesLayout.Horizontal ? this._renderDeviceNodesHorizontally(1, this._entityStates.devices, CssClass.Bottom_Row, mdiArrowUp, mdiArrowDown, electricUnitPrefix, gasUnitPrefix) : nothing}
 
           </div>
 
             <!-- devices -->
-          ${this._devicesLayout === DevicesLayout.Vertical ? this._renderDeviceNodesVertically(this._entityStates.devices) : nothing}
+          ${this._devicesLayout === DevicesLayout.Vertical ? this._renderDeviceNodesVertically(this._entityStates.devices, electricUnitPrefix, gasUnitPrefix) : nothing}
         </div>
 
         <!-- dashboard link -->
@@ -368,7 +368,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderDeviceNodesHorizontally(start: number, devices: DeviceState[], cssClass: CssClass): TemplateResult {
+  private _renderDeviceNodesHorizontally(start: number, devices: DeviceState[], cssClass: CssClass, importIcon: string, exportIcon: string, overrideElectricPrefix?: EnergyUnitPrefix, overrideGasPrefix?: EnergyUnitPrefix): TemplateResult {
     const numDevices: number = devices.length;
 
     return html`
@@ -377,14 +377,14 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         return html`${HORIZ_SPACER}${NODE_SPACER}`;
       }
 
-      return html`${HORIZ_SPACER}${this._renderDeviceNode(devices[index], cssClass)}`;
+      return html`${HORIZ_SPACER}${this._renderDeviceNode(devices[index], cssClass, importIcon, exportIcon, overrideElectricPrefix, overrideGasPrefix)}`;
     })}
     `;
   }
 
   //================================================================================================================================================================================//
 
-  private _renderDeviceNodesVertically(devices: DeviceState[]): TemplateResult {
+  private _renderDeviceNodesVertically(devices: DeviceState[], overrideElectricPrefix?: EnergyUnitPrefix, overrideGasPrefix?: EnergyUnitPrefix): TemplateResult {
     const numDevices: number = devices.length;
     const rows: number = Math.ceil(numDevices / 2);
     let nodeIndex: number = 0;
@@ -395,11 +395,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
       return html`
           <div class="row">
-            ${this._renderDeviceNode(devices[nodeIndex++], CssClass.Bottom_Row)}
+            ${this._renderDeviceNode(devices[nodeIndex++], CssClass.Bottom_Row, mdiArrowRight, mdiArrowLeft, overrideElectricPrefix, overrideGasPrefix)}
             ${HORIZ_SPACER}
             ${NODE_SPACER}
             ${HORIZ_SPACER}
-            ${nodeIndex === numDevices ? html`${NODE_SPACER}` : this._renderDeviceNode(devices[nodeIndex++], CssClass.Bottom_Row)}
+            ${nodeIndex === numDevices ? html`${NODE_SPACER}` : this._renderDeviceNode(devices[nodeIndex++], CssClass.Bottom_Row, mdiArrowLeft, mdiArrowRight, overrideElectricPrefix, overrideGasPrefix)}
           </div>
         `;
     })}
@@ -408,18 +408,23 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderDeviceNode(device: DeviceState, cssClass: CssClass): TemplateResult {
+  private _renderDeviceNode(device: DeviceState, cssClass: CssClass, importIcon: string, exportIcon: string, overrideElectricPrefix?: EnergyUnitPrefix, overrideGasPrefix?: EnergyUnitPrefix): TemplateResult {
+    // TODO
     const inactiveCss: string = "";
+    const prefix: EnergyUnitPrefix | undefined = device.type === EnergyType.Electric ? overrideElectricPrefix : overrideGasPrefix;
 
     return html`
       <div class="node ${cssClass} device">
         ${cssClass === CssClass.Top_Row ? html`<span class="label">${device.name}</span>` : nothing}
         <div class="circle background">
-        <div class="circle" style="border-color: blue;">
-            <ha-icon class="entity-icon ${inactiveCss}" .icon=${device.icon}></ha-icon>
+        <div class="circle ${inactiveCss}" style="border-color: ${device.colours.circle.value};">
+          ${this._renderSecondarySpan(device.secondary, 0, inactiveCss, device.colours.secondary.value)}
+          <ha-icon class="entity-icon ${inactiveCss}" .icon=${device.icon} style="color: ${device.colours.icon.value}"></ha-icon>
+          ${device.direction !== EnergyDirection.Source ? this._renderEnergyStateSpan(inactiveCss, this._energyUnits, device.firstExportEntity, device.direction === EnergyDirection.Both ? exportIcon : undefined, 1000, prefix, device.colours.exportValue.value) : nothing}
+          ${device.direction !== EnergyDirection.Consumer ? this._renderEnergyStateSpan(inactiveCss, this._energyUnits, device.firstImportEntity, device.direction === EnergyDirection.Both ? importIcon : undefined, 2000, prefix, device.colours.importValue.value) : nothing}
         </div>
       </div>
-      ${cssClass !== CssClass.Top_Row ? html`<span class="label">${device.name}</span>` : nothing}
+      ${cssClass !== CssClass.Top_Row ? html`<span class="label ${inactiveCss}">${device.name || html`&nbsp;`}</span>` : nothing}
     </div>
   `;
   }
@@ -839,13 +844,15 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderEnergyStateSpan = (cssClass: string, units: string, entityId?: string, icon?: string, state?: number, overridePrefix?: EnergyUnitPrefix): TemplateResult => {
+  private _renderEnergyStateSpan = (cssClass: string, units: string, entityId?: string, icon?: string, state?: number, overridePrefix?: EnergyUnitPrefix, colour?: string): TemplateResult => {
     if (state === undefined || (state === 0 && !this._showZeroStates)) {
       return html``;
     }
 
+    const style: string = colour ? `color:${colour};` : "";
+
     return html`
-      <span class="value ${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${this._handleKeyDown(entityId)}>
+      <span class="value ${cssClass}" style="${style}" @click=${this._handleClick(entityId)} @keyDown=${this._handleKeyDown(entityId)}>
         <ha-svg-icon class="small ${icon ? "" : "hidden"}" .path=${icon}></ha-svg-icon>
         ${this._renderEnergyState(state, units, overridePrefix)}
       </span>
@@ -991,15 +998,16 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderSecondarySpan(secondary: SecondaryInfoState, state: number | undefined = undefined, cssClass: string): TemplateResult {
+  private _renderSecondarySpan(secondary: SecondaryInfoState, state: number | undefined = undefined, cssClass: string, colour: string | undefined = undefined): TemplateResult {
     if (!secondary.isPresent || state === undefined || (state === 0 && !this._showZeroStates)) {
       return html``;
     }
 
     const entityId: string = secondary.firstImportEntity!;
+    const style: string = colour ? `color:${colour};` : "";
 
     return html`
-      <span class="secondary-info ${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
+      <span class="secondary-info ${cssClass}" style="${style}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
         ${secondary.icon ? html`<ha-icon class="secondary-info small ${cssClass}" .icon=${secondary.icon}></ha-icon>` : nothing}
         ${this._renderState(secondary.config, entityId, state)}
       </span>

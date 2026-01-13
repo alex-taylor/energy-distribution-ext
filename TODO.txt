@@ -30,6 +30,7 @@ Code:
 Editor:
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
     - also for Devices, where 'export' ('consumption') and 'import' ('production') will be confusing!
+      - and the main colours should be 'Flow'
     - it's too much work to change the underlying config fields, so this is strictly a cosmetic thing in the UK
   - Devices page-link not showing its status-icon
 

@@ -1,6 +1,11 @@
 import { EntitiesOptions, OverridesOptions } from "@/config";
 import { getConfigValue } from "@/config/config";
 
+export type BiDiState = {
+  import: number;
+  export: number;
+};
+
 export interface Flows {
   solarToHome: number;
   solarToGrid: number;
@@ -33,8 +38,8 @@ export interface States {
   lowCarbonSecondary: number;
   solarImport: number;
   solarSecondary: number;
-  devices: number[];
-  devicesSecondary: any[];
+  devices: BiDiState[];
+  devicesSecondary: number[];
   flows: Flows;
 };
 
