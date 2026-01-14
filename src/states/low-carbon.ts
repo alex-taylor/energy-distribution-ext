@@ -19,6 +19,6 @@ export class LowCarbonState extends State {
   public constructor(hass: HomeAssistant, config: LowCarbonConfig) {
     super(hass, [config, DEFAULT_LOW_CARBON_CONFIG], [DeviceClasses.None], [getCo2SignalEntity(hass)]);
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_LOW_CARBON_CONFIG], NodeOptions.Colours);
-    this.colours = new Colours(coloursConfig, EnergyDirection.Source, {}, "var(--energy-non-fossil-color)");
+    this.colours = new Colours(coloursConfig, EnergyDirection.Source, undefined, "var(--energy-non-fossil-color)");
   }
 }

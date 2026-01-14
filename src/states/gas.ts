@@ -40,7 +40,7 @@ export class GasState extends State {
     };
 
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_GAS_CONFIG], NodeOptions.Colours);
-    this.colours = new Colours(coloursConfig, EnergyDirection.Source, this.state, "var(--energy-gas-color)");
+    this.colours = new Colours(coloursConfig, EnergyDirection.Source, undefined, "var(--energy-gas-color)");
   }
 
   private static _getHassEntities = (energySources: EnergySource[]): string[] => {

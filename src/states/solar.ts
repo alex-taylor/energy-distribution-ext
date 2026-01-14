@@ -34,7 +34,7 @@ export class SolarState extends State {
     };
 
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_SOLAR_CONFIG], NodeOptions.Colours);
-    this.colours = new Colours(coloursConfig, EnergyDirection.Source, this.state, "var(--energy-solar-color)");
+    this.colours = new Colours(coloursConfig, EnergyDirection.Source, undefined, "var(--energy-solar-color)");
 }
 
   private static _getHassEntities = (energySources: EnergySource[]): string[] => {

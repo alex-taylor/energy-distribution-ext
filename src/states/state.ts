@@ -4,6 +4,7 @@ import { SecondaryInfoState } from "./secondary-info";
 import { getConfigValue } from "@/config/config";
 import { COLOUR_MAPPINGS, convertColourListToHex, STYLE_PRIMARY_TEXT_COLOR } from "@/ui-helpers/styles";
 import { ColourMode, DeviceClasses, EnergyDirection } from "@/enums";
+import { BiDiState } from ".";
 
 //================================================================================================================================================================================//
 
@@ -81,11 +82,11 @@ export class Colours {
 
   private _config: ColoursConfig[];
   private _direction: EnergyDirection;
-  private _state: any;
+  private _state: BiDiState | undefined;
   private _defaultImportColour: string
   private _defaultExportColour: string
 
-  public constructor(config: ColoursConfig[], direction: EnergyDirection, state: any, defaultImportColour: string = STYLE_PRIMARY_TEXT_COLOR, defaultExportColour: string = STYLE_PRIMARY_TEXT_COLOR) {
+  public constructor(config: ColoursConfig[], direction: EnergyDirection, state: BiDiState | undefined = undefined, defaultImportColour: string = STYLE_PRIMARY_TEXT_COLOR, defaultExportColour: string = STYLE_PRIMARY_TEXT_COLOR) {
     this._config = config;
     this._direction = direction;
     this._state = state;
@@ -115,7 +116,6 @@ export class Colours {
             return this._defaultExportColour;
 
           default:
-            // TODO
             return STYLE_PRIMARY_TEXT_COLOR;
         }
 
@@ -149,7 +149,7 @@ export class Colours {
         return this.importFlow;
 
       case ColourMode.Larger_Value:
-        return this._state.import >= this._state.export ? this.importFlow : this.exportFlow;
+        return this._state!.import >= this._state!.export ? this.importFlow : this.exportFlow;
 
       case ColourMode.Custom:
       default:
