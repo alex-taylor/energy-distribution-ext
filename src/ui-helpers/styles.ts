@@ -57,40 +57,7 @@ export function setCssVariables(style: CSSStyleDeclaration, state: State): void 
 
 //================================================================================================================================================================================//
 
-export function setHomeNodeStaticStyles(configs: HomeConfig[], style: CSSStyleDeclaration): void {
-  const colourConfig: ColoursConfig[] = getConfigObjects(configs, NodeOptions.Colours);
-
-  HOME_UI_ELEMENTS.forEach(options => {
-    const mode: ColourMode = getConfigValue(colourConfig, options);
-
-    let colour: string;
-
-    switch (mode) {
-      case ColourMode.Do_Not_Colour:
-        colour = STYLE_PRIMARY_TEXT_COLOR;
-        break;
-
-      case ColourMode.Custom:
-        colour = convertColourListToHex(getConfigValue(colourConfig, options.replace("mode", "colour"))) || STYLE_PRIMARY_TEXT_COLOR;
-        break;
-
-      default:
-        colour = `var(--flow-${COLOUR_MAPPINGS.get(mode)}-color)`;
-        break;
-    }
-
-    if (options === ColourOptions.Value_Export) {
-      style.setProperty(`--value-electric-home-color`, colour);
-      style.setProperty(`--value-gas-home-color`, colour);
-    } else {
-      style.setProperty(`--${options.replace("_mode", "")}-home-color`, colour);
-    }
-  });
-}
-
-//================================================================================================================================================================================//
-
-export function setHomeNodeDynamicStyles(configs: HomeConfig[], states: States, style: CSSStyleDeclaration): void {
+export function setHomeNodeCssVariables(configs: HomeConfig[], states: States, style: CSSStyleDeclaration): void {
   if (states.homeElectric <= 0) {
     style.setProperty("--circle-home-color", STYLE_PRIMARY_TEXT_COLOR);
     style.setProperty("--icon-home-color", STYLE_PRIMARY_TEXT_COLOR);

@@ -3,33 +3,20 @@ import { HomeAssistant } from "custom-card-helpers";
 import { DEFAULT_SECONDARY_INFO_CONFIG, getConfigValue } from "@/config/config";
 
 export class SecondaryInfoState {
+  public readonly entity: string | undefined;
+  public readonly configEntity: string | undefined;
+  public readonly icon: string | undefined;
+  public readonly isPresent: boolean;
+
   config: SecondaryInfoConfig[];
   state: number;
-
-  public get isPresent(): boolean {
-    return this._entity !== undefined;
-  }
-
-  public get entity(): string | undefined {
-    return this._entity
-  }
-  private _entity?: string;
-
-  public get configEntity(): string | undefined {
-    return this._configEntity
-  }
-  private _configEntity?: string;
-
-  public get icon(): string | undefined {
-    return this._icon;
-  }
-  private _icon?: string;
 
   public constructor(hass: HomeAssistant, config: SecondaryInfoConfig) {
     this.config = [config, DEFAULT_SECONDARY_INFO_CONFIG];
     this.state = 0;
-    this._configEntity = getConfigValue(config, SecondaryInfoOptions.Entity_Id);
-    this._entity = isValidSecondaryEntity(hass, this._configEntity) ? this._configEntity : undefined;
-    this._icon = getConfigValue([config, DEFAULT_SECONDARY_INFO_CONFIG], SecondaryInfoOptions.Icon);
+    this.configEntity = getConfigValue(config, SecondaryInfoOptions.Entity_Id);
+    this.entity = isValidSecondaryEntity(hass, this.configEntity) ? this.configEntity : undefined;
+    this.icon = getConfigValue([config, DEFAULT_SECONDARY_INFO_CONFIG], SecondaryInfoOptions.Icon);
+    this.isPresent = this.entity !== undefined;
   }
 }

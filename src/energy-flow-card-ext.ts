@@ -18,7 +18,7 @@ import { HomeState } from "@/states/home";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, NodeOptions, GlobalOptions, FlowsOptions, ColourOptions, EnergyUnitsOptions, EnergyUnitsConfig, SecondaryInfoConfig, SecondaryInfoOptions, HomeOptions, NodeConfig, LowCarbonOptions, HomeConfig, EntitiesOptions } from "@/config";
-import { getColSpacing, MinMax, setHomeNodeDynamicStyles, setHomeNodeStaticStyles, setLayout, setCssVariables } from "@/ui-helpers/styles";
+import { getColSpacing, MinMax, setLayout, setCssVariables, setHomeNodeCssVariables } from "@/ui-helpers/styles";
 import { getRangePresetName, renderDateRange, renderFlowLines, renderSegmentedCircle } from "@/ui-helpers/renderers";
 import { AnimationDurations, FlowLine, getGasSourcesMode, PathScaleFactors, SegmentGroup } from "@/ui-helpers";
 import { LowCarbonState } from "@/states/low-carbon";
@@ -28,7 +28,7 @@ import { titleCase } from "title-case";
 import { range } from "lit/directives/range.js";
 import { map } from "lit/directives/map.js";
 import { DeviceState } from "@/states/device";
-import { Colours, State } from "./states/state";
+import { repeat } from "lit/directives/repeat.js";
 
 //================================================================================================================================================================================//
 
@@ -250,11 +250,32 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this.style.setProperty("--flow-non-fossil-color", this._entityStates.lowCarbon.colours.importFlow);
     this.style.setProperty("--flow-solar-color", this._entityStates.solar.colours.importFlow);
 
+    this._entityStates.devices.forEach((device, index) => {
+      this.style.setProperty(`--flow-import-device-${index}-color`, device.colours.importFlow);
+      this.style.setProperty(`--flow-export-device-${index}-color`, device.colours.exportFlow);
+    });
+
     return html`
       <style>
-        .flow-device-0-color {
-          color: red;
+        ${repeat(this._entityStates.devices, _ => _, (_, index) => {
+      return `
+        .device-${index} .circle {
+          color: var(--circle-device-${index}-color);
         }
+        .device-${index} ha-icon {
+          color: var(--icon-device-${index}-color);
+        }
+        .device-${index}.secondary-info {
+          color: var(--secondary-device-${index}-color);
+        }
+        .export-device-${index}.value {
+          color: var(--exportValue-device-${index}-color);
+        }
+        .import-device-${index}.value {
+          color: var(--importValue-device-${index}-color);
+        }
+      `;
+    })}
       </style>
 
       <ha-card .header=${getConfigValue(this._configs, GlobalOptions.Title)}>
@@ -401,7 +422,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     // TODO: insert spacing at the start to allow for the device-bus
     return html`
-      ${map(range(rows), rowIndex => {
+      ${map(range(rows), _ => {
 
       return html`
           <div class="row">
@@ -418,23 +439,28 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderDeviceNode(device: DeviceState, cssClass: CssClass, importIcon: string, exportIcon: string, overrideElectricPrefix?: EnergyUnitPrefix, overrideGasPrefix?: EnergyUnitPrefix): TemplateResult {
+  private _renderDeviceNode(state: DeviceState, nodeClass: CssClass, importIcon: string, exportIcon: string, overrideElectricPrefix?: EnergyUnitPrefix, overrideGasPrefix?: EnergyUnitPrefix): TemplateResult {
     // TODO
-    const inactiveCss: string = "";
-    const prefix: EnergyUnitPrefix | undefined = device.type === EnergyType.Electric ? overrideElectricPrefix : overrideGasPrefix;
+    const inactiveCss: string = "";// !states || (states.batteryImport === 0 && states.batteryExport === 0) ? this._inactiveFlowsCss : "";
+    const importCss: string = "import-" + state.cssClass + " ";// + (!states || states.batteryImport === 0 ? inactiveCss : "");
+    const exportCss: string = "export-" + state.cssClass + " ";// + (!states || states.batteryExport === 0 ? inactiveCss : "");
+    const secondaryCss: string = state.cssClass + " " + inactiveCss;
+    const prefix: EnergyUnitPrefix | undefined = state.type === EnergyType.Electric ? overrideElectricPrefix : overrideGasPrefix;
+
+    setCssVariables(this.style, state);
 
     return html`
-      <div class="node ${cssClass} device">
-        ${cssClass === CssClass.Top_Row ? html`<span class="label">${device.name}</span>` : nothing}
+      <div class="node ${nodeClass} ${state.cssClass}">
+        ${nodeClass === CssClass.Top_Row ? html`<span class="label">${state.name || html`&nbsp;`}</span>` : nothing}
         <div class="circle background">
-        <div class="circle ${inactiveCss}" style="border-color: ${device.colours.circle};">
-          ${this._renderSecondarySpan(device.secondary, 0, inactiveCss, device.colours.secondary)}
-          <ha-icon class="entity-icon ${inactiveCss}" .icon=${device.icon} style="color: ${device.colours.icon}"></ha-icon>
-          ${device.direction !== EnergyDirection.Source ? this._renderEnergyStateSpan(inactiveCss, this._energyUnits, device.firstExportEntity, device.direction === EnergyDirection.Both ? exportIcon : undefined, 1000, prefix, device.colours.exportValue) : nothing}
-          ${device.direction !== EnergyDirection.Consumer ? this._renderEnergyStateSpan(inactiveCss, this._energyUnits, device.firstImportEntity, device.direction === EnergyDirection.Both ? importIcon : undefined, 2000, prefix, device.colours.importValue) : nothing}
+        <div class="circle ${inactiveCss}">
+          ${this._renderSecondarySpan(state.secondary, 0, secondaryCss)}
+          <ha-icon class="entity-icon ${inactiveCss}" .icon=${state.icon}></ha-icon>
+          ${state.direction !== EnergyDirection.Source ? this._renderEnergyStateSpan(exportCss, this._energyUnits, state.firstExportEntity, state.direction === EnergyDirection.Both ? exportIcon : undefined, 1000, prefix) : nothing}
+          ${state.direction !== EnergyDirection.Consumer ? this._renderEnergyStateSpan(importCss, this._energyUnits, state.firstImportEntity, state.direction === EnergyDirection.Both ? importIcon : undefined, 2000, prefix) : nothing}
         </div>
       </div>
-      ${cssClass !== CssClass.Top_Row ? html`<span class="label ${inactiveCss}">${device.name || html`&nbsp;`}</span>` : nothing}
+      ${nodeClass !== CssClass.Top_Row ? html`<span class="label ${inactiveCss}">${state.name || html`&nbsp;`}</span>` : nothing}
     </div>
   `;
   }
@@ -770,6 +796,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     let electricTotal: number | undefined = states?.homeElectric;
     let gasTotal: number | undefined;
 
+    setCssVariables(this.style, state);
+
+    if (getConfigValue(homeConfig, [NodeOptions.Colours, ColourOptions.Value_Export]) !== ColourMode.Largest_Value) {
+      this.style.setProperty(`--value-electric-home-color`, state.colours.exportValue);
+      this.style.setProperty(`--value-gas-home-color`, state.colours.exportValue);
+    }
+
     if (states) {
       // TODO: gas-producing devices
       const gasSourcesMode: GasSourcesMode = states && this._entityStates.gas.isPresent ? getGasSourcesMode(homeConfig, states) : GasSourcesMode.Do_Not_Show;
@@ -831,7 +864,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           electricIcon = gasIcon = undefined;
           break;
       }
-    } else {
+
+      setHomeNodeCssVariables(homeConfig, states, this.style);
     }
 
     const inactiveCss: string = !states || states.homeElectric === 0 ? this._inactiveFlowsCss : "";
@@ -858,15 +892,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderEnergyStateSpan = (cssClass: string, units: string, entityId?: string, icon?: string, state?: number, overridePrefix?: EnergyUnitPrefix, colour?: string): TemplateResult => {
+  private _renderEnergyStateSpan = (cssClass: string, units: string, entityId?: string, icon?: string, state?: number, overridePrefix?: EnergyUnitPrefix): TemplateResult => {
     if (state === undefined || (state === 0 && !this._showZeroStates)) {
       return html``;
     }
 
-    const style: string = colour ? `color:${colour};` : "";
-
     return html`
-      <span class="value ${cssClass}" style="${style}" @click=${this._handleClick(entityId)} @keyDown=${this._handleKeyDown(entityId)}>
+      <span class="value ${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${this._handleKeyDown(entityId)}>
         <ha-svg-icon class="small ${icon ? "" : "hidden"}" .path=${icon}></ha-svg-icon>
         ${this._renderEnergyState(state, units, overridePrefix)}
       </span>
@@ -1012,16 +1044,15 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _renderSecondarySpan(secondary: SecondaryInfoState, state: number | undefined = undefined, cssClass: string, colour: string | undefined = undefined): TemplateResult {
+  private _renderSecondarySpan(secondary: SecondaryInfoState, state: number | undefined = undefined, cssClass: string): TemplateResult {
     if (!secondary.isPresent || state === undefined || (state === 0 && !this._showZeroStates)) {
       return html``;
     }
 
     const entityId: string = secondary.entity!;
-    const style: string = colour ? `color:${colour};` : "";
 
     return html`
-      <span class="secondary-info ${cssClass}" style="${style}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
+      <span class="secondary-info ${cssClass}" @click=${this._handleClick(entityId)} @keyDown=${(this._handleKeyDown(entityId))}>
         ${secondary.icon ? html`<ha-icon class="secondary-info small ${cssClass}" .icon=${secondary.icon}></ha-icon>` : nothing}
         ${this._renderState(secondary.config, entityId, state)}
       </span>

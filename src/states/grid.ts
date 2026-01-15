@@ -9,6 +9,8 @@ import { CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection } from "@/enums";
 export class GridState extends State {
   public readonly colours: Colours;
   public readonly cssClass: CssClass = CssClass.Grid;
+  protected readonly defaultName: string = localize("EditorPages.grid");
+  protected readonly defaultIcon: string = "mdi:transmission-tower";
 
   state: {
     import: number;
@@ -25,14 +27,6 @@ export class GridState extends State {
     state: string;
     entity_id: string;
   };
-
-  protected get defaultName(): string {
-    return localize("EditorPages.grid");
-  }
-
-  protected get defaultIcon(): string {
-    return "mdi:transmission-tower";
-  }
 
   public constructor(hass: HomeAssistant, config: GridConfig, energySources: EnergySource[]) {
     super(

@@ -9,6 +9,8 @@ import { CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection } from "@/enums";
 export class BatteryState extends State {
   public readonly colours: Colours;
   public readonly cssClass: CssClass = CssClass.Battery;
+  protected readonly defaultName: string = localize("EditorPages.battery");
+  protected readonly defaultIcon: string = "mdi:battery-high";
 
   state: {
     import: number;
@@ -16,14 +18,6 @@ export class BatteryState extends State {
     fromSolar: number;
     fromGrid: number;
   };
-
-  protected get defaultName(): string {
-    return localize("EditorPages.battery");
-  }
-
-  protected get defaultIcon(): string {
-    return "mdi:battery-high";
-  }
 
   public constructor(hass: HomeAssistant, config: BatteryConfig, energySources: EnergySource[]) {
     super(

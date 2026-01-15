@@ -118,7 +118,7 @@ export class DevicesEditor extends LitElement {
       this._devices,
       deviceConf => this._getKey(deviceConf),
       (deviceConf, index) => {
-        const statusIcon: Status = getStatusIcon(this.hass, new DeviceState(this.hass, deviceConf), ELECTRIC_ENTITY_CLASSES, true, true);
+        const statusIcon: Status = getStatusIcon(this.hass, new DeviceState(this.hass, deviceConf, index), ELECTRIC_ENTITY_CLASSES, true, true);
 
         return html`
           <div class="devices">

@@ -8,14 +8,8 @@ import { CssClass, DeviceClasses, EnergyDirection } from "@/enums";
 export class LowCarbonState extends State {
   public readonly colours: Colours;
   public readonly cssClass: CssClass = CssClass.Low_Carbon;
-
-  protected get defaultName(): string {
-    return localize("common.low_carbon");
-  }
-
-  protected get defaultIcon(): string {
-    return "mdi:leaf";
-  }
+  protected readonly defaultName: string = localize("common.low_carbon");
+  protected readonly defaultIcon: string = "mdi:leaf";
 
   public constructor(hass: HomeAssistant, config: LowCarbonConfig) {
     super(hass, [config, DEFAULT_LOW_CARBON_CONFIG], [DeviceClasses.None], [getCo2SignalEntity(hass)]);

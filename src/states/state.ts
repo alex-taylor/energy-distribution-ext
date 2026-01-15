@@ -19,6 +19,8 @@ export abstract class State {
   public readonly secondary: SecondaryInfoState;
   public abstract readonly colours: Colours;
   public abstract readonly cssClass: CssClass;
+  protected abstract readonly defaultName: string;
+  protected abstract readonly defaultIcon: string;
 
   public get name(): string {
     return this._name || this.defaultName;
@@ -29,9 +31,6 @@ export abstract class State {
     return this._icon || this.defaultIcon;
   }
   private _icon?: string;
-
-  protected abstract get defaultName(): string;
-  protected abstract get defaultIcon(): string;
 
   protected constructor(hass: HomeAssistant, config: any[], deviceClasses: DeviceClasses[] = [], hassImportEntities: string[] = [], hassExportEntities: string[] = []) {
     const importEntities: string[] = getConfigValue(config, [NodeOptions.Import_Entities, EntitiesOptions.Entity_Ids]) || [];
@@ -122,6 +121,7 @@ export class Colours {
         }
 
       case ColourMode.Do_Not_Colour:
+      case ColourMode.Largest_Value:
         return STYLE_PRIMARY_TEXT_COLOR;
 
       case ColourMode.Dynamic:

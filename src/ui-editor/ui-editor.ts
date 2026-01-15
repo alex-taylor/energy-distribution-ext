@@ -102,7 +102,7 @@ const CONFIG_PAGES: {
       icon: "mdi:devices",
       createConfig: () => { },
       statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status =>
-        getConfigValue(config, EditorPages.Devices)?.map(device => getStatusIcon(hass, new DeviceState(hass, device), ELECTRIC_ENTITY_CLASSES)).reduce((previous, current) => current > previous ? current : previous) || Status.NotConfigured
+        getConfigValue(config, EditorPages.Devices)?.map((device, index) => getStatusIcon(hass, new DeviceState(hass, device, index), ELECTRIC_ENTITY_CLASSES)).reduce((previous, current) => current > previous ? current : previous) || Status.NotConfigured
     }
   ];
 

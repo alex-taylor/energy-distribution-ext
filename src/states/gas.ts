@@ -9,6 +9,8 @@ import { DEFAULT_GAS_CONFIG, getConfigObjects } from "@/config/config";
 export class GasState extends State {
   public readonly colours: Colours;
   public readonly cssClass: CssClass = CssClass.Gas;
+  protected readonly defaultName: string = localize("EditorPages.gas");
+  protected readonly defaultIcon: string = "mdi:fire";
 
   public state: {
     import: number;
@@ -16,14 +18,6 @@ export class GasState extends State {
   };
 
   config: GasConfig;
-
-  protected get defaultName(): string {
-    return localize("EditorPages.gas");
-  }
-
-  protected get defaultIcon(): string {
-    return "mdi:fire";
-  }
 
   public constructor(hass: HomeAssistant, config: GasConfig, energySources: EnergySource[]) {
     super(

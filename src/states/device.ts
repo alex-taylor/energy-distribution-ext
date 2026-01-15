@@ -8,7 +8,7 @@ import { convertColourListToHex } from "@/ui-helpers/styles";
 
 export class DeviceState extends State {
   public readonly colours: Colours;
-  public readonly cssClass: CssClass = CssClass.Device;
+  public readonly cssClass: CssClass;
   public readonly state: BiDiState;
   public readonly type: EnergyType;
   public readonly direction: EnergyDirection;
@@ -23,12 +23,14 @@ export class DeviceState extends State {
   }
   private _defaultIcon: string;
 
-  public constructor(hass: HomeAssistant, config: DeviceConfig) {
+  public constructor(hass: HomeAssistant, config: DeviceConfig, index: number) {
     super(
       hass,
       [config, DEFAULT_DEVICE_CONFIG],
       getConfigValue([config, DEFAULT_DEVICE_CONFIG], DeviceOptions.Energy_Type) === EnergyType.Gas ? GAS_ENTITY_CLASSES : ELECTRIC_ENTITY_CLASSES
     );
+
+    this.cssClass = `${CssClass.Device}-${index}` as CssClass;
 
     this.state = {
       import: 0,

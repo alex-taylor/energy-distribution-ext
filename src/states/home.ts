@@ -8,20 +8,14 @@ import { CssClass, EnergyDirection } from "@/enums";
 export class HomeState extends State {
   public readonly colours: Colours;
   public readonly cssClass: CssClass = CssClass.Home;
+  protected readonly defaultName: string = localize("EditorPages.home");
+  protected readonly defaultIcon: string = "mdi:home";
 
   state: {
     fromSolar: number;
     fromGrid: number;
     fromBattery: number;
   };
-
-  protected get defaultName(): string {
-    return localize("EditorPages.home");
-  }
-
-  protected get defaultIcon(): string {
-    return "mdi:home";
-  }
 
   public constructor(hass: HomeAssistant, config: HomeConfig) {
     super(hass, [config, DEFAULT_HOME_CONFIG]);

@@ -9,17 +9,11 @@ import { DEFAULT_SOLAR_CONFIG, getConfigObjects } from "@/config/config";
 export class SolarState extends State {
   public readonly colours: Colours;
   public readonly cssClass: CssClass = CssClass.Solar;
+  protected readonly defaultName: string = localize("EditorPages.solar");
+  protected readonly defaultIcon: string = "mdi:solar-power";
 
   state: {
     import: number;
-  }
-
-  protected get defaultName(): string {
-    return localize("EditorPages.solar");
-  }
-
-  protected get defaultIcon(): string {
-    return "mdi:solar-power";
   }
 
   public constructor(hass: HomeAssistant, config: SolarConfig, energySources: EnergySource[]) {

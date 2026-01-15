@@ -290,7 +290,7 @@ export class EntityStates {
     this.home = new HomeState(hass, getConfigValue(configs, EditorPages.Home));
     this.lowCarbon = new LowCarbonState(hass, getConfigValue(configs, EditorPages.Low_Carbon));
     this.solar = new SolarState(hass, getConfigValue(configs, EditorPages.Solar), energySources);
-    this.devices = (getConfigValue(configs, EditorPages.Devices) || []).flatMap(device => new DeviceState(hass, device));
+    this.devices = (getConfigValue(configs, EditorPages.Devices) || []).flatMap((device, index) => new DeviceState(hass, device, index));
     this._populateEntityArrays();
     this._inferEntityModes();
     this._isLoaded = true;
