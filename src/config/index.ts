@@ -130,7 +130,6 @@ namespace ConfigKeys {
     Display_Precision: "display_precision",
     Entity_Id: "entity_id",
     Icon: "icon",
-    Units: "units",
     Unit_Position: "unit_position"
   } as const satisfies Record<string, string>;
 }
@@ -285,7 +284,6 @@ export interface PowerOutageConfig {
 
 export interface SecondaryInfoConfig {
   [SecondaryInfoOptions.Entity_Id]?: string;
-  [SecondaryInfoOptions.Units]?: string;
   [SecondaryInfoOptions.Unit_Position]?: UnitPosition;
   [SecondaryInfoOptions.Display_Precision]?: number;
   [SecondaryInfoOptions.Icon]?: string;

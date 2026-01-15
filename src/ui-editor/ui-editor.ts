@@ -52,7 +52,7 @@ const CONFIG_PAGES: {
       icon: "mdi:transmission-tower",
       schema: gridSchema,
       createConfig: getDefaultGridConfig,
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, new GridState(hass, getConfigValue(config, EditorPages.Grid), getEnergyDataCollection(hass)?.prefs?.energy_sources || []), ELECTRIC_ENTITY_CLASSES)
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, new GridState(hass, getConfigValue(config, EditorPages.Grid), undefined, getEnergyDataCollection(hass)?.prefs?.energy_sources || []), ELECTRIC_ENTITY_CLASSES)
     },
     {
       page: EditorPages.Gas,
@@ -73,7 +73,7 @@ const CONFIG_PAGES: {
       icon: "mdi:battery-high",
       schema: batterySchema,
       createConfig: getDefaultBatteryConfig,
-      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, new BatteryState(hass, getConfigValue(config, EditorPages.Battery), getEnergyDataCollection(hass)?.prefs?.energy_sources || []), ELECTRIC_ENTITY_CLASSES)
+      statusIcon: (config: EnergyFlowCardExtConfig, hass: HomeAssistant): Status => getStatusIcon(hass, new BatteryState(hass, getConfigValue(config, EditorPages.Battery), undefined, getEnergyDataCollection(hass)?.prefs?.energy_sources || []), ELECTRIC_ENTITY_CLASSES)
     },
     {
       page: EditorPages.Low_Carbon,

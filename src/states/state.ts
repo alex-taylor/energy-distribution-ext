@@ -87,7 +87,7 @@ export class Colours {
   private _defaultImportColour: string
   private _defaultExportColour: string
 
-  public constructor(config: ColoursConfig[], direction: EnergyDirection, state: BiDiState | undefined = undefined, defaultImportColour: string = STYLE_PRIMARY_TEXT_COLOR, defaultExportColour: string = STYLE_PRIMARY_TEXT_COLOR) {
+  public constructor(config: ColoursConfig[], direction: EnergyDirection, state: BiDiState = { import: 0, export: 0 }, defaultImportColour: string = STYLE_PRIMARY_TEXT_COLOR, defaultExportColour: string = STYLE_PRIMARY_TEXT_COLOR) {
     this._config = config;
     this._direction = direction;
     this._state = state;

@@ -27,6 +27,8 @@ Code:
   - editor:
     - refactor out the dropdown options lists, there's a lot of duplication going on!
   - BUG: clicking on the low-carbon secondary opens both the entity viewer and the map...
+  - BUG: in 'dimmed' mode, the paths are noticeably brighter than the node circles!
+  - BUG: both Grid and Gas are reporting a missing entity on the editor page when a secondary is present
 
 Editor:
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
@@ -102,6 +104,7 @@ Before release
 
   - rename to 'Energy Distribution Extended' (energy-distribution-ext) for consistency with the built-in card
     - or something else, given Power support as well
+  - look into better default colours for devices which work in both light and dark modes
   - README and CHANGELOG updates
   - add license
   - reinstate terser in rollup.config.js

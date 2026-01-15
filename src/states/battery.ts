@@ -5,6 +5,7 @@ import { HomeAssistant } from "custom-card-helpers";
 import { EnergySource } from "@/hass";
 import { DEFAULT_BATTERY_CONFIG, getConfigObjects } from "@/config/config";
 import { CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection } from "@/enums";
+import { BiDiState } from ".";
 
 export class BatteryState extends State {
   public readonly colours: Colours;
@@ -12,14 +13,7 @@ export class BatteryState extends State {
   protected readonly defaultName: string = localize("EditorPages.battery");
   protected readonly defaultIcon: string = "mdi:battery-high";
 
-  state: {
-    import: number;
-    export: number;
-    fromSolar: number;
-    fromGrid: number;
-  };
-
-  public constructor(hass: HomeAssistant, config: BatteryConfig, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, config: BatteryConfig, state: BiDiState = { import: 0, export: 0 }, energySources: EnergySource[]) {
     super(
       hass,
       [config, DEFAULT_BATTERY_CONFIG],
@@ -28,15 +22,8 @@ export class BatteryState extends State {
       BatteryState._getHassExportEntities(energySources)
     );
 
-    this.state = {
-      import: 0,
-      export: 0,
-      fromSolar: 0,
-      fromGrid: 0
-    };
-
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_BATTERY_CONFIG], NodeOptions.Colours);
-    this.colours = new Colours(coloursConfig, EnergyDirection.Both, this.state, "var(--energy-battery-out-color)", "var(--energy-battery-in-color)");
+    this.colours = new Colours(coloursConfig, EnergyDirection.Both, state, "var(--energy-battery-out-color)", "var(--energy-battery-in-color)");
   }
 
   private static _getHassImportEntities = (energySources: EnergySource[]): string[] => {

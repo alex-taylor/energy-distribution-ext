@@ -216,10 +216,11 @@ export default {
 
   "SecondaryInfoOptions": {
     [SecondaryInfoOptions.Display_Precision]: "Override display precision",
+    [SecondaryInfoOptions.Display_Precision + HELPTEXT_SUFFIX]: "Not used if the entity is energy",
     [SecondaryInfoOptions.Entity_Id]: "Entity",
     [SecondaryInfoOptions.Icon]: "Icon",
-    [SecondaryInfoOptions.Units]: "Override units",
-    [SecondaryInfoOptions.Unit_Position]: "Show units"
+    [SecondaryInfoOptions.Unit_Position]: "Show units",
+    [SecondaryInfoOptions.Unit_Position + HELPTEXT_SUFFIX]: "Not used if the entity is energy"
   },
 
   "UnitPosition": {

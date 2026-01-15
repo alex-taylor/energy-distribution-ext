@@ -12,10 +12,6 @@ export class SolarState extends State {
   protected readonly defaultName: string = localize("EditorPages.solar");
   protected readonly defaultIcon: string = "mdi:solar-power";
 
-  state: {
-    import: number;
-  }
-
   public constructor(hass: HomeAssistant, config: SolarConfig, energySources: EnergySource[]) {
     super(
       hass,
@@ -23,10 +19,6 @@ export class SolarState extends State {
       ELECTRIC_ENTITY_CLASSES,
       SolarState._getHassEntities(energySources)
     );
-
-    this.state = {
-      import: 0,
-    };
 
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_SOLAR_CONFIG], NodeOptions.Colours);
     this.colours = new Colours(coloursConfig, EnergyDirection.Source, undefined, "var(--energy-solar-color)");

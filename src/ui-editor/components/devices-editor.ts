@@ -18,8 +18,8 @@ import { ColourMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection } from '@/enums';
 const DEVICE_COLOURS = [
   // yellow
   [0xFF, 0xFF, 0x00],
-  // blue
-  [0x00, 0x00, 0xFF],
+  // dodger blue
+  [0x1E, 0x90, 0xFF],
   // chocolate
   [0xD2, 0x69, 0x1E],
   // cornflower blue
@@ -95,7 +95,7 @@ export class DevicesEditor extends LitElement {
               .label=${localize("editor.remove_device")}
               .path=${mdiDelete}
               class="navigation-icon"
-              @click=${this._onRemoveDevice}
+              @click=${ev => this._onRemoveDevice(ev, this._indexBeingEdited)}
             ></ha-icon-button>
           </div>
         </div>
@@ -138,7 +138,7 @@ export class DevicesEditor extends LitElement {
               .label=${localize("editor.remove_device")}
               .path=${mdiDelete}
               .index=${index}
-              @click=${this._onRemoveDevice}
+              @click=${ev => this._onRemoveDevice(ev, index)}
             ></ha-icon-button>
           </div>
         `}
@@ -208,10 +208,9 @@ export class DevicesEditor extends LitElement {
 
   //================================================================================================================================================================================//
 
-  private _onRemoveDevice(ev: CustomEvent): void {
+  private _onRemoveDevice(ev: CustomEvent, index: number): void {
     ev.stopPropagation();
 
-    const index = (ev.currentTarget as any).index;
     const updatedDevices = this._devices!.concat();
     updatedDevices.splice(index, 1);
 

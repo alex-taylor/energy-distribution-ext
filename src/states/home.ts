@@ -11,21 +11,8 @@ export class HomeState extends State {
   protected readonly defaultName: string = localize("EditorPages.home");
   protected readonly defaultIcon: string = "mdi:home";
 
-  state: {
-    fromSolar: number;
-    fromGrid: number;
-    fromBattery: number;
-  };
-
   public constructor(hass: HomeAssistant, config: HomeConfig) {
     super(hass, [config, DEFAULT_HOME_CONFIG]);
-
-    this.state = {
-      fromSolar: 0,
-      fromGrid: 0,
-      fromBattery: 0
-    };
-
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_HOME_CONFIG], NodeOptions.Colours);
     this.colours = new Colours(coloursConfig, EnergyDirection.Consumer);
   }

@@ -12,13 +12,6 @@ export class GasState extends State {
   protected readonly defaultName: string = localize("EditorPages.gas");
   protected readonly defaultIcon: string = "mdi:fire";
 
-  public state: {
-    import: number;
-    importVolume: number;
-  };
-
-  config: GasConfig;
-
   public constructor(hass: HomeAssistant, config: GasConfig, energySources: EnergySource[]) {
     super(
       hass,
@@ -26,13 +19,6 @@ export class GasState extends State {
       GAS_ENTITY_CLASSES,
       GasState._getHassEntities(energySources)
     );
-
-    this.config = config;
-
-    this.state = {
-      import: 0,
-      importVolume: 0
-    };
 
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_GAS_CONFIG], NodeOptions.Colours);
     this.colours = new Colours(coloursConfig, EnergyDirection.Source, undefined, "var(--energy-gas-color)");

@@ -73,7 +73,6 @@ const overridesConfigStruct = object({
 
 const secondaryInfoConfigStruct = object({
   [SecondaryInfoOptions.Entity_Id]: optional(string()),
-  [SecondaryInfoOptions.Units]: optional(string()),
   [SecondaryInfoOptions.Unit_Position]: optional(string()),
   [SecondaryInfoOptions.Display_Precision]: optional(number()),
   [SecondaryInfoOptions.Icon]: optional(string())

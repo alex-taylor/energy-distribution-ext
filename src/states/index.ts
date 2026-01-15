@@ -16,14 +16,12 @@ export interface Flows {
 export interface States {
   largestElectricValue: number;
   largestGasValue: number;
-  batteryImport: number;
-  batteryExport: number;
+  battery: BiDiState;
   batterySecondary: number;
   gasImport: number;
   gasImportVolume: number;
   gasSecondary: number;
-  gridImport: number;
-  gridExport: number;
+  grid: BiDiState;
   gridSecondary: number;
   highCarbon: number;
   homeElectric: number;
@@ -36,6 +34,7 @@ export interface States {
   solarImport: number;
   solarSecondary: number;
   devices: BiDiState[];
+  devicesVolume: BiDiState[];
   devicesSecondary: number[];
   flows: Flows;
 }

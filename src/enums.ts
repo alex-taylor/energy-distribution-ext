@@ -187,7 +187,7 @@ export enum CssClass {
   Bottom_Row = "bottom-row"
 }
 
-export enum EnergyUnitPrefix {
+export enum SIUnitPrefixes {
   None = "",
   Kilo = "k",
   Mega = "M",

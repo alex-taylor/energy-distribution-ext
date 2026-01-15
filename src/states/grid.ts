@@ -5,20 +5,13 @@ import { HomeAssistant } from "custom-card-helpers";
 import { DEFAULT_GRID_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
 import { EnergySource } from "@/hass";
 import { CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection } from "@/enums";
+import { BiDiState } from ".";
 
 export class GridState extends State {
   public readonly colours: Colours;
   public readonly cssClass: CssClass = CssClass.Grid;
   protected readonly defaultName: string = localize("EditorPages.grid");
   protected readonly defaultIcon: string = "mdi:transmission-tower";
-
-  state: {
-    import: number;
-    export: number;
-    highCarbon: number;
-    fromBattery: number;
-    fromSolar: number;
-  };
 
   powerOutage: {
     isPresent: boolean;
@@ -28,7 +21,7 @@ export class GridState extends State {
     entity_id: string;
   };
 
-  public constructor(hass: HomeAssistant, config: GridConfig, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, config: GridConfig, state: BiDiState = { import: 0, export: 0 }, energySources: EnergySource[]) {
     super(
       hass,
       [config, DEFAULT_GRID_CONFIG],
@@ -36,14 +29,6 @@ export class GridState extends State {
       GridState._getHassImportEntities(energySources),
       GridState._getHassExportEntities(energySources)
     );
-
-    this.state = {
-      import: 0,
-      export: 0,
-      highCarbon: 0,
-      fromBattery: 0,
-      fromSolar: 0
-    };
 
     const powerOutageConfig: PowerOutageConfig[] = getConfigObjects([config, DEFAULT_GRID_CONFIG], GridOptions.Power_Outage);
 
@@ -56,7 +41,7 @@ export class GridState extends State {
     };
 
     const coloursConfig: ColoursConfig[] = getConfigObjects([config, DEFAULT_GRID_CONFIG], NodeOptions.Colours);
-    this.colours = new Colours(coloursConfig, EnergyDirection.Both, this.state, "var(--energy-grid-consumption-color)", "var(--energy-grid-return-color)");
+    this.colours = new Colours(coloursConfig, EnergyDirection.Both, state, "var(--energy-grid-consumption-color)", "var(--energy-grid-return-color)");
   }
 
   private static _getHassImportEntities = (energySources: EnergySource[]): string[] => {

@@ -313,7 +313,6 @@ export const secondaryInfoSchema = memoizeOne((): {} => {
         column_min_width: '150px',
         schema: [
           { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Unit_Position, required: true, selector: dropdownSelector(UnitPosition) },
-          { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Units, selector: { text: {} } },
           { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Display_Precision, selector: displayPrecisionSelector() },
           { key: SecondaryInfoOptions, name: SecondaryInfoOptions.Icon, selector: { icon: {} } }
         ]
