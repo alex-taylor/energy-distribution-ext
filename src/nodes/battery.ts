@@ -14,7 +14,6 @@ import { SegmentGroup } from "@/ui-helpers";
 
 export class BatteryNode extends Node<BatteryConfig> {
   public readonly colours: Colours;
-  public readonly cssClass: CssClass = CssClass.Battery;
   public exportIcon: string = "";
   public importIcon: string = "";
 
@@ -25,24 +24,29 @@ export class BatteryNode extends Node<BatteryConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, state: BiDiState = { import: 0, export: 0 }, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, state: BiDiState = { import: 0, export: 0 }, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,
+      style,
       EditorPages.Battery,
+      CssClass.Battery,
       undefined,
       ELECTRIC_ENTITY_CLASSES,
       BatteryNode._getHassImportEntities(energySources),
       BatteryNode._getHassExportEntities(energySources)
     );
 
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Both, state, "var(--energy-battery-out-color)", "var(--energy-battery-in-color)");
     this._circleMode = getConfigValue(this.cardConfigs, [EditorPages.Battery, NodeOptions.Colours, ColourOptions.Circle]);
-  }
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Both, state, "var(--energy-battery-out-color)", "var(--energy-battery-in-color)");
+    this.setCssVariables(this.style);
+    this.style.setProperty("--flow-export-battery-color", this.colours.exportFlow);
+    this.style.setProperty("--flow-import-battery-color", this.colours.importFlow);
+}
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, style: CSSStyleDeclaration, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
     const segmentGroups: SegmentGroup[] = [];
 
     if (states) {
@@ -91,17 +95,17 @@ export class BatteryNode extends Node<BatteryConfig> {
           );
         }
       }
+
+      this.setCssVariables(this.style);
     }
 
     const importState: number | undefined = states && this.firstImportEntity ? states.battery.import : undefined;
     const exportState: number | undefined = states && this.firstExportEntity ? states.battery.export : undefined;
-    const inactiveCss: string = !states || (states.battery.import === 0 && states.battery.export === 0) ? this.inactiveFlowsCss : CssClass.None;
-    const importCss: string = CssClass.Battery_Import + " " + (!states || states.battery.import === 0 ? inactiveCss : CssClass.None);
-    const exportCss: string = CssClass.Battery_Export + " " + (!states || states.battery.export === 0 ? inactiveCss : CssClass.None);
+    const inactiveCss: string = !states || (!states.battery.import && !states.battery.export) ? this.inactiveFlowsCss : CssClass.None;
+    const importCss: string = CssClass.Battery_Import + " " + (!states || !states.battery.import ? inactiveCss : CssClass.None);
+    const exportCss: string = CssClass.Battery_Export + " " + (!states || !states.battery.export ? inactiveCss : CssClass.None);
     const secondaryCss: string = CssClass.Battery + " " + inactiveCss;
-    const borderCss: string = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : "";
-
-    this.setCssVariables(style);
+    const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">

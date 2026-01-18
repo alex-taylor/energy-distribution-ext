@@ -17,7 +17,7 @@ import { repeat } from "lit/directives/repeat.js";
 const INTER_GROUP_ARC: number = 7.5;
 const INTER_SEGMENT_ARC: number = INTER_GROUP_ARC / 3;
 
-export type NodeContentRenderFn = ((target: LitElement, style: CSSStyleDeclaration, circleSize: number, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes) => TemplateResult) | undefined;
+export type NodeContentRenderFn = ((target: LitElement, circleSize: number, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes) => TemplateResult) | undefined;
 
 //================================================================================================================================================================================//
 
@@ -30,10 +30,7 @@ export abstract class Node<T> {
   public readonly firstImportEntity: string | undefined;
   public readonly firstExportEntity: string | undefined;
   public readonly secondary: SecondaryInfo;
-  public abstract readonly colours: Colours;
-  public abstract readonly cssClass: CssClass;
-  protected abstract readonly defaultName: string;
-  protected abstract readonly defaultIcon: string;
+  public readonly cssClass: CssClass;
 
   public get name(): string {
     return this._name || this.defaultName;
@@ -54,6 +51,11 @@ export abstract class Node<T> {
   protected readonly showSegmentGaps: boolean;
   protected readonly useHassStyles: boolean;
   protected readonly hass: HomeAssistant;
+  protected readonly style: CSSStyleDeclaration;
+
+  protected abstract readonly colours: Colours;
+  protected abstract readonly defaultName: string;
+  protected abstract readonly defaultIcon: string;
 
   private _showZeroStates: boolean;
   private _clickableEntities: boolean;
@@ -70,13 +72,17 @@ export abstract class Node<T> {
   protected constructor(
     hass: HomeAssistant,
     cardConfig: EnergyFlowCardExtConfig,
+    style: CSSStyleDeclaration,
     node: EditorPages,
+    nodeClass: CssClass,
     index: number | undefined = undefined,
     deviceClasses: DeviceClasses[] = [],
     hassImportEntities: string[] = [],
     hassExportEntities: string[] = []) {
 
     this.hass = hass;
+    this.style = style;
+    this.cssClass = nodeClass;
     this.cardConfigs = [cardConfig, DEFAULT_CONFIG];
 
     if (index === undefined) {

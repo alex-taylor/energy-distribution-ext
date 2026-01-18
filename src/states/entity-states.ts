@@ -207,8 +207,8 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  public async subscribe(cardConfig: EnergyFlowCardExtConfig): Promise<UnsubscribeFunc> {
-    await this._loadConfig(this.hass, cardConfig);
+  public async subscribe(cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration): Promise<UnsubscribeFunc> {
+    await this._loadConfig(this.hass, cardConfig, style);
 
     if (this._dateRange === DateRange.From_Date_Picker) {
       const pollStartTime: number = Date.now();
@@ -273,7 +273,7 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private async _loadConfig(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig): Promise<void> {
+  private async _loadConfig(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration): Promise<void> {
     const configs: EnergyFlowCardExtConfig[] = [cardConfig, DEFAULT_CONFIG];
     let energySources: EnergySource[] = [];
 
@@ -282,14 +282,16 @@ export class EntityStates {
       energySources = prefs?.energy_sources;
     }
 
-    this._battery = new BatteryNode(hass, cardConfig, this._states.battery, energySources);
-    this._gas = new GasNode(hass, cardConfig, energySources);
-    this._grid = new GridNode(hass, cardConfig, this._states.grid, energySources);
-    this._home = new HomeNode(hass, cardConfig);
-    this._lowCarbon = new LowCarbonNode(hass, cardConfig);
-    this._solar = new SolarNode(hass, cardConfig, energySources);
+    this._battery = new BatteryNode(hass, cardConfig, style, this._states.battery, energySources);
+    this._gas = new GasNode(hass, cardConfig, style, energySources);
+    this._grid = new GridNode(hass, cardConfig, style, this._states.grid, energySources);
+    this._home = new HomeNode(hass, cardConfig, style);
+    this._lowCarbon = new LowCarbonNode(hass, cardConfig, style);
+    this._solar = new SolarNode(hass, cardConfig, style, energySources);
     const deviceConfigs: DeviceConfig[] = getConfigValue(configs, EditorPages.Devices) || [];
-    this._devices = deviceConfigs.flatMap((_, index) => new DeviceNode(hass, cardConfig, index));
+
+    this._devices = deviceConfigs.flatMap((_, index) => new DeviceNode(hass, cardConfig, style, index, this._states.devicesElectric, this._states.devicesGas));
+
     this._populateEntityArrays();
     this._inferEntityModes();
     this._isConfigPresent = true;

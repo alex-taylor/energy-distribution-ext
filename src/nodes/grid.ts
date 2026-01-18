@@ -15,7 +15,6 @@ import { mdiArrowLeft, mdiArrowRight } from "@mdi/js";
 
 export class GridNode extends Node<GridConfig> {
   public readonly colours: Colours;
-  public readonly cssClass: CssClass = CssClass.Grid;
 
   public readonly powerOutage: {
     isPresent: boolean;
@@ -32,11 +31,13 @@ export class GridNode extends Node<GridConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, state: BiDiState = { import: 0, export: 0 }, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, state: BiDiState = { import: 0, export: 0 }, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,
+      style,
       EditorPages.Grid,
+      CssClass.Grid,
       undefined,
       ELECTRIC_ENTITY_CLASSES,
       GridNode._getHassImportEntities(energySources),
@@ -53,13 +54,16 @@ export class GridNode extends Node<GridConfig> {
       entity_id: getConfigValue(powerOutageConfig, PowerOutageOptions.Entity_Id)
     };
 
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Both, state, "var(--energy-grid-consumption-color)", "var(--energy-grid-return-color)");
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Both, state, "var(--energy-grid-consumption-color)", "var(--energy-grid-return-color)");
+    this.setCssVariables(style);
+    this.style.setProperty("--flow-export-grid-color", this.colours.exportFlow);
+    this.style.setProperty("--flow-import-grid-color", this.colours.importFlow);
   }
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, style: CSSStyleDeclaration, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
     const segmentGroups: SegmentGroup[] = [];
 
     if (states) {
@@ -108,19 +112,19 @@ export class GridNode extends Node<GridConfig> {
           );
         }
       }
+
+      this.setCssVariables(this.style);
     }
 
-    const inactiveCss: string = !states || (states.grid.import === 0 && states.grid.export) === 0 ? this.inactiveFlowsCss : CssClass.None;
-    const importCss: string = CssClass.Grid_Import + " " + (!states || states.grid.import === 0 ? inactiveCss : CssClass.None);
-    const exportCss: string = CssClass.Grid_Export + " " + (!states || states.grid.export === 0 ? inactiveCss : CssClass.None);
+    const inactiveCss: string = !states || (!states.grid.import  && !states.grid.export) ? this.inactiveFlowsCss : CssClass.None;
+    const importCss: string = CssClass.Grid_Import + " " + (!states || !states.grid.import ? inactiveCss : CssClass.None);
+    const exportCss: string = CssClass.Grid_Export + " " + (!states || !states.grid.export ? inactiveCss : CssClass.None);
     const secondaryCss: string = CssClass.Grid + " " + inactiveCss;
-    const borderCss: string = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
+    const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
     const importState: number | undefined = states && this.firstImportEntity ? states.grid.import : undefined;
     const exportState: number | undefined = states && this.firstExportEntity ? states.grid.export : undefined;
     const isOutage: boolean = this.powerOutage.isOutage;
     const icon: string = isOutage ? this.powerOutage.icon : this.icon;
-
-    this.setCssVariables(style);
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">

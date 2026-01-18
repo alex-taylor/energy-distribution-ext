@@ -12,29 +12,32 @@ import { Colours } from "./colours";
 
 export class GasNode extends Node<GasConfig> {
   public readonly colours: Colours;
-  public readonly cssClass: CssClass = CssClass.Gas;
 
   protected readonly defaultName: string = localize("EditorPages.gas");
   protected readonly defaultIcon: string = "mdi:fire";
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,
+      style,
       EditorPages.Gas,
+      CssClass.Gas,
       undefined,
       GAS_ENTITY_CLASSES,
       GasNode._getHassEntities(energySources)
     );
 
     this.colours = new Colours(this.coloursConfigs, EnergyDirection.Source_Only, undefined, "var(--energy-gas-color)");
+    this.setCssVariables(style);
+    this.style.setProperty("--flow-gas-color", this.colours.importFlow);
   }
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, style: CSSStyleDeclaration, circleSize: number, states?: States, _?, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, circleSize: number, states?: States, _?, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
     let units: string;
     let primaryState: number | undefined;
 
@@ -46,10 +49,8 @@ export class GasNode extends Node<GasConfig> {
       units = this.volumeUnits;
     }
 
-    const inactiveCss: CssClass = !states || primaryState === 0 ? this.inactiveFlowsCss : CssClass.None;
+    const inactiveCss: CssClass = !states || !primaryState ? this.inactiveFlowsCss : CssClass.None;
     const valueCss: string = CssClass.Gas + " " + inactiveCss;
-
-    this.setCssVariables(style);
 
     return html`
       <div class="circle ${inactiveCss}">

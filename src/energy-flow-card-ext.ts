@@ -163,7 +163,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   public hassSubscribe(): Promise<UnsubscribeFunc>[] {
     this._entityStates = new EntityStates(this.hass, this._config);
-    return [this._entityStates.subscribe(this._config)];
+    return [this._entityStates.subscribe(this._config, this.style)];
   }
 
   //================================================================================================================================================================================//
@@ -236,56 +236,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const gasUnitPrefix: SIUnitPrefixes | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestGasValue)) : undefined;
     const animationDurations: AnimationDurations | undefined = states ? this._calculateAnimationDurations(states) : undefined;
 
-    this.style.setProperty("--flow-export-battery-color", entityStates.battery.colours.exportFlow);
-    this.style.setProperty("--flow-export-grid-color", entityStates.grid.colours.exportFlow);
-    this.style.setProperty("--flow-gas-color", entityStates.gas.colours.importFlow);
-    this.style.setProperty("--flow-import-battery-color", entityStates.battery.colours.importFlow);
-    this.style.setProperty("--flow-import-grid-color", entityStates.grid.colours.importFlow);
-    this.style.setProperty("--flow-non-fossil-color", entityStates.lowCarbon.colours.importFlow);
-    this.style.setProperty("--flow-solar-color", entityStates.solar.colours.importFlow);
-
-    entityStates.devices.forEach((device, index) => {
-      this.style.setProperty(`--flow-import-device-${index}-color`, device.colours.importFlow);
-      this.style.setProperty(`--flow-export-device-${index}-color`, device.colours.exportFlow);
-    });
-
     return html`
-      <style>
-        ${repeat(entityStates.devices, _ => _, (_, index) => {
-      return `
-        .device-${index} .circle {
-          color: var(--circle-device-${index}-color);
-        }
-        .device-${index} ha-icon {
-          color: var(--icon-device-${index}-color);
-        }
-        .device-${index}.secondary-info {
-          color: var(--secondary-device-${index}-color);
-        }
-        .export-device-${index}.value {
-          color: var(--exportValue-device-${index}-color);
-        }
-        .import-device-${index}.value {
-          color: var(--importValue-device-${index}-color);
-        }
-        circle.import-device-${index} {
-          fill: var(--flow-import-device-${index}-color);
-          stroke: var(--flow-import-device-${index}-color);
-        }
-        circle.export-device-${index} {
-          fill: var(--flow-export-device-${index}-color);
-          stroke: var(--flow-export-device-${index}-color);
-        }
-        path.export-device-${index} {
-          stroke: var(--flow-export-device-${index}-color);
-        }
-        path.import-device-${index} {
-          stroke: var(--flow-import-device-${index}-color);
-        }
-      `;
-    })}
-      </style>
-
       <ha-card .header=${getConfigValue(this._configs, GlobalOptions.Title)}>
         <div class="card-content" id=${CARD_NAME}>
           <!-- date-range -->
@@ -360,7 +311,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       <div class="node ${nodeClass} ${rowClass}">
         ${nodeClass === CssClass.Top_Row ? html`<span class="label">${nodeLabel || html`&nbsp;`}</span>` : nothing}
         <div class="circle background">
-          ${nodeContentRenderFn!(this, this.style, this._circleSize, states, overrideElectricPrefix, overrideGasPrefix)}
+          ${nodeContentRenderFn!(this, this._circleSize, states, overrideElectricPrefix, overrideGasPrefix)}
         </div>
         ${nodeClass !== CssClass.Top_Row ? html`<span class="label">${nodeLabel || html`&nbsp;`}</span>` : nothing}
       </div>
@@ -768,7 +719,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       const device: DeviceNode = entityStates.devices[deviceIndex];
       device.exportIcon = exportIcon;
       device.importIcon = importIcon;
-      return this._getNodeRenderFn(device.cssClass, device.name, (target, style, circleSize, states, overrideElectricPrefix, overrideGasPrefix) => device.render(target, style, circleSize, states, overrideElectricPrefix, overrideGasPrefix))
+      return this._getNodeRenderFn(device.cssClass, device.name, (target, circleSize, states, overrideElectricPrefix, overrideGasPrefix) => device.render(target, circleSize, states, overrideElectricPrefix, overrideGasPrefix))
     }
 
     switch (devicesLayout) {

@@ -14,7 +14,6 @@ import { SegmentGroup } from "@/ui-helpers";
 
 export class SolarNode extends Node<SolarConfig> {
   public readonly colours: Colours;
-  public readonly cssClass: CssClass = CssClass.Solar;
 
   protected readonly defaultName: string = localize("EditorPages.solar");
   protected readonly defaultIcon: string = "mdi:solar-power";
@@ -23,23 +22,27 @@ export class SolarNode extends Node<SolarConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,
+      style,
       EditorPages.Solar,
+      CssClass.Solar,
       undefined,
       ELECTRIC_ENTITY_CLASSES,
       SolarNode._getHassEntities(energySources)
     );
 
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Source_Only, undefined, "var(--energy-solar-color)");
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Source_Only, undefined, "var(--energy-solar-color)");
+    this.setCssVariables(style);
+    this.style.setProperty("--flow-solar-color", this.colours.importFlow);
   }
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, style: CSSStyleDeclaration, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
     const segmentGroups: SegmentGroup[] = [];
 
     if (states) {
@@ -69,11 +72,9 @@ export class SolarNode extends Node<SolarConfig> {
     }
 
     const primaryState: number | undefined = states && states.solarImport;
-    const inactiveCss: CssClass = primaryState === 0 ? this.inactiveFlowsCss : CssClass.None;
+    const inactiveCss: CssClass = !primaryState ? this.inactiveFlowsCss : CssClass.None;
     const valueCss: string = CssClass.Solar + " " + inactiveCss;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
-
-    this.setCssVariables(style);
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">

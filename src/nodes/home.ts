@@ -9,8 +9,6 @@ import { Flows, States } from ".";
 import { getConfigValue } from "@/config/config";
 import { getGasSourcesMode, SegmentGroup } from "@/ui-helpers";
 import { mdiFire, mdiFlash } from "@mdi/js";
-import { EntityStates } from "../states/entity-states";
-import { DeviceNode } from "./device";
 
 //================================================================================================================================================================================//
 
@@ -20,7 +18,6 @@ const HOME_UI_ELEMENTS: ColourOptions[] = [ColourOptions.Circle, ColourOptions.I
 
 export class HomeNode extends Node<HomeConfig> {
   public readonly colours: Colours;
-  public readonly cssClass: CssClass = CssClass.Home;
 
   protected readonly defaultName: string = localize("EditorPages.home");
   protected readonly defaultIcon: string = "mdi:home";
@@ -29,26 +26,26 @@ export class HomeNode extends Node<HomeConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig) {
-    super(hass, cardConfig, EditorPages.Home);
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Consumer_only);
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration) {
+    super(hass, cardConfig, style, EditorPages.Home, CssClass.Home);
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Consumer_only);
   }
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, style: CSSStyleDeclaration, circleSize: number, states?: States, overrideElectricUnitPrefix?: SIUnitPrefixes, overrideGasUnitPrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, circleSize: number, states?: States, overrideElectricUnitPrefix?: SIUnitPrefixes, overrideGasUnitPrefix?: SIUnitPrefixes): TemplateResult => {
     const segmentGroups: SegmentGroup[] = [];
     let electricIcon: string | undefined;
     let gasIcon: string | undefined;
     let electricTotal: number | undefined = states?.homeElectric;
     let gasTotal: number | undefined;
 
-    this.setCssVariables(style);
+    this.setCssVariables(this.style);
 
     if (getConfigValue(this.coloursConfigs, ColourOptions.Value_Export) !== ColourMode.Largest_Value) {
-      style.setProperty(`--value-electric-home-color`, this.colours.exportValue);
-      style.setProperty(`--value-gas-home-color`, this.colours.exportValue);
+      this.style.setProperty(`--value-electric-home-color`, this.colours.exportValue);
+      this.style.setProperty(`--value-gas-home-color`, this.colours.exportValue);
     }
 
     if (states) {
@@ -126,7 +123,7 @@ export class HomeNode extends Node<HomeConfig> {
           break;
       }
 
-      this._setHomeNodeCssVariables(states, style);
+      this._setHomeNodeCssVariables(states, this.style);
     }
 
     const inactiveCss: string = !states || states.homeElectric === 0 ? this.inactiveFlowsCss : CssClass.None;

@@ -17,7 +17,6 @@ const MAP_URL: string = "https://app.electricitymaps.com";
 
 export class LowCarbonNode extends Node<LowCarbonConfig> {
   public readonly colours: Colours;
-  public readonly cssClass: CssClass = CssClass.Low_Carbon;
 
   protected readonly defaultName: string = localize("common.low_carbon");
   protected readonly defaultIcon: string = "mdi:leaf";
@@ -26,15 +25,27 @@ export class LowCarbonNode extends Node<LowCarbonConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig) {
-    super(hass, cardConfig, EditorPages.Low_Carbon, undefined, [DeviceClasses.None], [getCo2SignalEntity(hass)]);
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Source_Only, undefined, "var(--energy-non-fossil-color)");
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration) {
+    super(
+      hass,
+      cardConfig,
+      style,
+      EditorPages.Low_Carbon,
+      CssClass.Low_Carbon,
+      undefined,
+      [DeviceClasses.None],
+      [getCo2SignalEntity(hass)]
+    );
+
     this._displayMode = getConfigValue(this.nodeConfigs, [GlobalOptions.Options, LowCarbonOptions.Low_Carbon_Mode]);
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Source_Only, undefined, "var(--energy-non-fossil-color)");
+    this.setCssVariables(style);
+    this.style.setProperty("--flow-non-fossil-color", this.colours.importFlow);
   }
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, style: CSSStyleDeclaration, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
     let electricityMapUrl: string = MAP_URL;
     const co2State: HassEntity = this.hass.states[getCo2SignalEntity(this.hass)];
 
@@ -46,8 +57,6 @@ export class LowCarbonNode extends Node<LowCarbonConfig> {
     const energyPercentage: number | undefined = !states || this._displayMode === LowCarbonDisplayMode.Energy ? undefined : states.grid.import === 0 ? 0 : round(states.lowCarbonPercentage, 1);
     const inactiveCss: CssClass = !energyState && !energyPercentage ? this.inactiveFlowsCss : CssClass.None;
     const valueCss: string = CssClass.Low_Carbon + " " + inactiveCss;
-
-    this.setCssVariables(style);
 
     //    <a class="circle background" href = ${ electricityMapUrl } target = "_blank" rel = "noopener noreferrer" >
 
