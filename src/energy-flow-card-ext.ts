@@ -15,16 +15,17 @@ import { UnsubscribeFunc } from "home-assistant-js-websocket";
 import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, PrefixThreshold, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, NodeOptions, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, SecondaryInfoConfig, HomeOptions, NodeConfig, LowCarbonOptions, EntitiesOptions } from "@/config";
+import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
 import { getRangePresetName, renderDateRange } from "@/ui-helpers/date-fns";
 import { AnimationDurations, FlowLine, getGasSourcesMode, PathScaleFactors } from "@/ui-helpers";
 import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight } from "@mdi/js";
 import { titleCase } from "title-case";
 import { repeat } from "lit/directives/repeat.js";
-import { NodeContentRenderFn } from "@/nodes/node";
-import { DeviceNode } from "./nodes/device";
+import { Node, NodeContentRenderFn } from "@/nodes/node";
+import { DeviceNode } from "@/nodes/device";
 import equal from "fast-deep-equal";
 import memoizeOne from "memoize-one";
+import { SecondaryInfo } from "@/nodes/secondary-info";
 
 //================================================================================================================================================================================//
 
@@ -266,8 +267,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const gasUnitPrefix: SIUnitPrefixes | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestGasValue)) : undefined;
     const animationDurations: AnimationDurations | undefined = states ? this._calculateAnimationDurations(states) : undefined;
 
-    console.log("rendering, grid-size=" + this._layoutGrid.length);
-
     return html`
       <ha-card .header=${getConfigValue(this._configs, GlobalOptions.Title)}>
         <div class="card-content" id=${CARD_NAME}>
@@ -487,6 +486,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
+    // TODO: device flows
+
     const inactiveFlowsMode: InactiveFlowsMode = getConfigValue(this._configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Inactive_Flows]);
     const animationEnabled: boolean = getConfigValue(this._configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Animation]);
 
@@ -658,6 +659,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
         pathScaleFactors.batteryToGrid = -pathScaleFactors.gridToBattery;
         pathScaleFactors.lowCarbonToGrid = topRowLineLength / maxLineLength;
+
+        // TODO device flows
       }
     }
   }
@@ -890,47 +893,33 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       return 1;
     }
 
-    const dualPrimaries: NodeConfig[] = [
-      getConfigValue(this._configs, EditorPages.Battery),
-      getConfigValue(this._configs, EditorPages.Grid),
+    const entityStates: EntityStates = this._entityStates;
 
-      // TODO: devices
+    const dualPrimaries: Node<any>[] = [
+      entityStates.battery,
+      entityStates.grid,
+      ...entityStates.devices
     ];
 
-    for (let n: number = 0; n < dualPrimaries.length; n++) {
-      const dualPrimary: NodeConfig = dualPrimaries[n]!;
-      const importEntities: string[] = getConfigValue(dualPrimary, [NodeOptions.Import_Entities, EntitiesOptions.Entity_Ids]);
-      const exportEntities: string[] = getConfigValue(dualPrimary, [NodeOptions.Export_Entities, EntitiesOptions.Entity_Ids]);
-
-      if (importEntities.length !== 0 && exportEntities.length !== 0) {
-        return 1;
-      }
-    }
-
-    return 0;
+    return dualPrimaries.filter(primary => primary.firstExportEntity && primary.firstImportEntity).length !== 0 ? 1 : 0;
   }
 
   //================================================================================================================================================================================//
 
   private _hasSecondaryState(): number {
-    const secondaries: SecondaryInfoConfig[] = [
-      getConfigValue(this._configs, [EditorPages.Battery, NodeOptions.Secondary_Info]),
-      getConfigValue(this._configs, [EditorPages.Gas, NodeOptions.Secondary_Info]),
-      getConfigValue(this._configs, [EditorPages.Grid, NodeOptions.Secondary_Info]),
-      getConfigValue(this._configs, [EditorPages.Home, NodeOptions.Secondary_Info]),
-      getConfigValue(this._configs, [EditorPages.Low_Carbon, NodeOptions.Secondary_Info]),
-      getConfigValue(this._configs, [EditorPages.Solar, NodeOptions.Secondary_Info]),
+    const entityStates: EntityStates = this._entityStates;
 
-      // TODO: devices
+    const secondaries: SecondaryInfo[] = [
+      entityStates.battery.secondary,
+      entityStates.gas.secondary,
+      entityStates.grid.secondary,
+      entityStates.home.secondary,
+      entityStates.lowCarbon.secondary,
+      entityStates.solar.secondary,
+      ...entityStates.devices.map(device => device.secondary)
     ];
 
-    for (let n: number = 0; n < secondaries.length; n++) {
-      if (secondaries[n]) {
-        return 1;
-      }
-    }
-
-    return 0;
+    return secondaries.filter(secondary => secondary.isPresent).length !== 0 ? 1 : 0;
   }
 
   //================================================================================================================================================================================//
