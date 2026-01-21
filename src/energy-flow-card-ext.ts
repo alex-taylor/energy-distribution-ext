@@ -18,7 +18,7 @@ import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } fro
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
 import { getRangePresetName, renderDateRange } from "@/ui-helpers/date-fns";
 import { AnimationDurations, FlowLine, getGasSourcesMode, PathScaleFactors } from "@/ui-helpers";
-import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight, mdiDevTo } from "@mdi/js";
+import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight } from "@mdi/js";
 import { titleCase } from "title-case";
 import { repeat } from "lit/directives/repeat.js";
 import { Node, NodeContentRenderFn } from "@/nodes/node";
@@ -656,6 +656,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         const solarImport: boolean = this._entityStates.solar.isPresent;
 
         const rowPitch: number = circleSize + rowSpacing;
+        const colPitch: number = circleSize + columnSpacing;
         const topRowHeight: number = labelHeight + rowPitch;
 
         const col1X: number = circleSize - DOT_DIAMETER;
@@ -699,26 +700,29 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
         const deviceLineLengths: number[] = [];
         const homeX: number = this._devicesLayout === DevicesLayout.Vertical ? col2X : col3X - DOT_DIAMETER + circleSize / 2;
-        const homeY: number = this._devicesLayout === DevicesLayout.Vertical ? row3Y - DOT_DIAMETER + circleSize / 2 : row2Y;
+        const homeY: number = this._devicesLayout === DevicesLayout.Vertical ? row3Y - DOT_DIAMETER * 2 + circleSize : row2Y;
 
         entityStates.devices.forEach((device, index) => {
-          let deviceX: number;
-          let deviceY: number;
-
           if (this._devicesLayout === DevicesLayout.Vertical) {
-            const row: number = Math.floor(index / 2) + 1;
+            if (index % 2 !== 1) {
+              const row: number = index / 2 + 1;
+              const control1 = 25;
+              const control2 = 37.5 + row * 12.5;
+              let startX = circleSize - DOT_DIAMETER;
+              const startY = row3Y - DOT_DIAMETER + circleSize / 2 + rowPitch * row;
+              const endX: number = homeX - startX;
+              const endY: number = homeY - startY;
 
-            deviceX = circleSize + (index % 2 === 1 ? columnSpacing * 2 + circleSize : 0);
-            deviceY = homeY + rowPitch * row;
+              this._devicePaths[index] = `M${startX},${startY} c${control1},0 ${control2},0 ${endX},${endY}`;
+
+              startX = colPitch * 2 + DOT_DIAMETER;
+              this._devicePaths[index + 1] = `M${startX},${startY} c${-control1},0 ${-control2},0 ${homeX - startX},${endY}`;
+
+              deviceLineLengths[index] = deviceLineLengths[index + 1] = this._cubicBezierLength({ x: 0, y: 0 }, { x: control1, y: 0 }, { x: control2, y: 0 }, { x: endX, y: endY });
+            }
           } else {
-            deviceX = 0;
-            deviceY = 0;
+            // TODO: horizontal and inline layouts
           }
-
-          const endX: number = homeX - deviceX;
-          const endY: number = homeY - deviceY;
-          this._devicePaths[index] = `M${deviceX},${deviceY} l${endX},${endY}`;
-          deviceLineLengths.push(Math.sqrt((endX * endX) + (endY * endY)));
         });
 
         const lineLengths: number[] = [topRowLineLength, horizLineLength, vertLineLength, curvedLineLength, colLineLength, ...deviceLineLengths];
@@ -738,6 +742,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           pathScaleFactors.solarToHome = vertLineLength / maxLineLength;
           pathScaleFactors.gridToBattery = horizLineLength / maxLineLength;
           pathScaleFactors.gasToHome = colLineLength / maxLineLength;
+
+          deviceLineLengths.forEach((length, index) => {
+            pathScaleFactors.devices[index] = length / maxLineLength;
+          });
         } else {
           this._solarToBatteryPath = vertLine;
           this._gridToHomePath = horizLine;
@@ -750,6 +758,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
           pathScaleFactors.solarToBattery = vertLineLength / maxLineLength;
           pathScaleFactors.gridToHome = horizLineLength / maxLineLength;
           pathScaleFactors.gasToHome = topRowLineLength / maxLineLength;
+
+          // TODO: devices, including horizontal and inline layouts
         }
 
         entityStates.devices.forEach((device, index) => {
@@ -921,7 +931,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       total = Math.log(total);
     }
 
-    return round(FLOW_RATE_MIN + (1 - (value / total)) * (FLOW_RATE_MAX - FLOW_RATE_MIN) * scale, 1);
+    return round((FLOW_RATE_MIN + (1 - (value / total)) * (FLOW_RATE_MAX - FLOW_RATE_MIN)) * scale, 1);
   };
 
   //================================================================================================================================================================================//

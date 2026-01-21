@@ -14,7 +14,6 @@ Code:
   - layout:
     - eliminate empty columns
     - draw three devices in the last column/row to save space
-  - investigate animation speeds, there's something distinctly odd going on
   - editor:
     - refactor out the dropdown options lists, there's a lot of duplication going on!
   - BUG: clicking on the low-carbon secondary opens both the entity viewer and the map...
