@@ -1,7 +1,7 @@
 TODO
 ----
 
-Code:
+Card:
   - add support for Power
     - new 'mode' option: 'Energy' / 'Power'
     - single-entities for Grid/Battery/Devices
@@ -9,25 +9,28 @@ Code:
     - sensor types are now Power and Measurement
     - support State-of-Charge for Battery
       - this could be done using the secondary, although then we'd need to know that it was a SoC in order to manage the main icon
+        - we could check its device_class: if "battery" then it's a SoC
     - see what else should be changed/hidden
-  - unit-testing
   - layout:
     - eliminate empty columns
     - draw three devices in the last column/row to save space
-  - editor:
-    - refactor out the dropdown options lists, there's a lot of duplication going on!
   - BUG: clicking on the low-carbon secondary opens both the entity viewer and the map...
   - BUG: in 'dimmed' mode, the paths are noticeably brighter than the node circles!
-  - BUG: both Grid and Gas are reporting a missing entity on the editor page when a secondary is present
   - BUG: the dots are being rendered at the (0,0) of the lines panel
+    - may now be fixed?
   - BUG: the 'Loading' message appears over a very short card, looks like while the lines are being rendered the nodes are not
+    - may now be fixed?
+  - flows: see if there is a way to do this based on velocity rather than duration
+    - this would need to be a new animation mode, since we want to keep the HASS algo as well
 
 Editor:
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
     - also for Devices, where 'export' ('consumption') and 'import' ('production') will be confusing!
       - and the main colours should be 'Flow'
     - it's too much work to change the underlying config fields, so this is strictly a cosmetic thing in the UK
-  - Devices page-link not showing its status-icon
+  - refactor out the dropdown options lists, there's a lot of duplication going on!
+  - BUG: Devices page-link not showing its status-icon
+  - BUG: both Grid and Gas are reporting a missing entity on the editor page when a secondary is present
 
 
 
@@ -65,6 +68,7 @@ Before release
     - or something else, given Power support as well
   - look into better default colours for devices which work in both light and dark modes
   - README and CHANGELOG updates
+  - unit-testing
   - add license
   - reinstate terser in rollup.config.js
   - check against the Plus cards for missing/broken functionality

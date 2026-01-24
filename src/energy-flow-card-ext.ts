@@ -17,7 +17,7 @@ import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
 import { getRangePresetName, renderDateRange } from "@/ui-helpers/date-fns";
-import { AnimationDurations, FlowLine, getGasSourcesMode, PathScaleFactors } from "@/ui-helpers";
+import { AnimationDurations, FlowLine, getGasSourcesMode } from "@/ui-helpers";
 import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight } from "@mdi/js";
 import { titleCase } from "title-case";
 import { repeat } from "lit/directives/repeat.js";
@@ -107,7 +107,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config!: EnergyFlowCardExtConfig;
 
-  private _width: number = 0;
   private _gridToHomePath: string = "";
   private _solarToBatteryPath: string = "";
   private _solarToHomePath: string = "";
@@ -117,19 +116,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _gasToHomePath: string = "";
   private _lowCarbonToGridPath: string = "";
   private _devicePaths: string[] = [];
-  private _pathScaleFactors: PathScaleFactors = {
-    batteryToGrid: 0,
-    batteryToHome: 0,
-    gridToBattery: 0,
-    gridToHome: 0,
-    solarToBattery: 0,
-    solarToGrid: 0,
-    solarToHome: 0,
-    lowCarbonToGrid: 0,
-    gasToHome: 0,
-    devices: []
-  };
-
   private _layoutGrid: NodeRenderFn[][] = [];
 
   private _configs!: EnergyFlowCardExtConfig[];
@@ -178,7 +164,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       throw new Error(localize("common.invalid_configuration"));
     }
 
-    this._width = 0;
     this._render.clear();
     this._config = cleanupConfig(config);
     this._configs = [this._config, DEFAULT_CONFIG];
@@ -235,8 +220,27 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       return html`<ha-card style="padding: 2rem">${localize("common.initialising")}</ha-card>`;
     }
 
+    const padding: number = this._getPropertyValue("ha-card", "--ha-space-4");
+    const width: number = this._getPropertyValue("ha-card", "width") - padding * 2;
+    this._getDashboardTitle(this._dashboardLink);
+
     return html`
-      ${this._render(entityStates.getStates())}
+      <ha-card .header=${getConfigValue(this._configs, GlobalOptions.Title)}>
+        ${this._render(width, entityStates.getStates())}
+
+        <!-- dashboard link -->
+        ${this._dashboardLink && (this._dashboardLinkLabel || this._dashboardLinkTitle)
+        ? html`
+          <div class="card-actions">
+            <a href=${this._dashboardLink}>
+              <mwc-button>
+                ${this._dashboardLinkLabel || localize("common.go_to_dashboard").replace("{title}", this._dashboardLinkTitle!)}
+              </mwc-button>
+            </a>
+          </div>
+        `
+        : nothing}
+      </ha-card>
 
       <!--error overlays -->
       ${!entityStates.isDatePickerPresent && this._dateRange === DateRange.From_Date_Picker
@@ -261,44 +265,30 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _render = memoizeOne(states => {
-    this._calculateLayout();
-    this._getDashboardTitle(this._dashboardLink);
+  private _render = memoizeOne((width: number, states?: States): TemplateResult => {
+    this._calculateLayout(width);
 
     const electricUnitPrefix: SIUnitPrefixes | undefined = states && this._electricUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue)) : undefined;
     const gasUnitPrefix: SIUnitPrefixes | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestGasValue)) : undefined;
     const animationDurations: AnimationDurations | undefined = states ? this._calculateAnimationDurations(states) : undefined;
 
     return html`
-      <ha-card .header=${getConfigValue(this._configs, GlobalOptions.Title)}>
-        <div class="card-content" id=${CARD_NAME}>
-          <!-- date-range -->
-          ${this._renderDateRange()}
+      <div class="card-content" id=${CARD_NAME}>
+        <!-- date-range -->
+        ${this._renderDateRange()}
 
-          <!-- flow lines -->
-          ${this._renderFlowLines(states, animationDurations)}
+        <!-- flow lines -->
+        ${this._renderFlowLines(states, animationDurations)}
 
-          <!-- nodes -->
-          ${this._renderGrid(states, electricUnitPrefix, gasUnitPrefix)}
-        </div>
-
-        <!-- dashboard link -->
-        ${this._dashboardLink && (this._dashboardLinkLabel || this._dashboardLinkTitle)
-        ? html`
-          <div class="card-actions">
-            <a href=${this._dashboardLink}>
-              <mwc-button>
-                ${this._dashboardLinkLabel || localize("common.go_to_dashboard").replace("{title}", this._dashboardLinkTitle!)}
-              </mwc-button>
-            </a>
-          </div>
-        `
-        : nothing}
-      </ha-card>
+        <!-- nodes -->
+        ${this._renderGrid(states, electricUnitPrefix, gasUnitPrefix)}
+      </div>
     `;
   },
     (newInputs: unknown[], lastInputs: unknown[]): boolean => {
-      return this._layoutGrid.length !== 0 && newInputs[0] !== undefined && equal(newInputs[0], lastInputs[0]);
+      return this._layoutGrid.length !== 0 &&
+        newInputs[0] === lastInputs[0] &&
+        newInputs[1] !== undefined && equal(newInputs[1], lastInputs[1]);
     }
   );
 
@@ -573,7 +563,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     } else if (!active2To1 && active1To2) {
       css1To2Path = cssNode2Export;
     } else if (this._animationEnabled) {
-      this.style.setProperty(cssAnimVariable, `${Math.max(durationNode1ToNode2, durationNode2ToNode1) * 2}s`);
+      this.style.setProperty(cssAnimVariable, `${Math.max(Math.abs(durationNode1ToNode2), Math.abs(durationNode2ToNode1)) * 2}s`);
       css1To2Path = cssAnim;
       css2To1Path = CssClass.Hidden_Path
     } else {
@@ -597,179 +587,224 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: css2To1Dot,
         path: path,
         active: active2To1,
-        animDuration: durationNode2ToNode1
+        animDuration: -durationNode2ToNode1
       });
     }
   }
 
   //================================================================================================================================================================================//
 
-  private _calculateLayout(): void {
-    const width: number = this._getPropertyValue(".lines", "width");
+  private _getFontSize(): number {
+    const dummy = this.shadowRoot?.ownerDocument.createElement("div")!;
+    this.shadowRoot?.ownerDocument.body.append(dummy);
+    dummy.style.height = "var(--ha-font-size-s)";
+    const fontSize: number = dummy.getBoundingClientRect().height;
+    dummy.remove();
+    return fontSize;
+  }
 
-    if (width !== this._width) {
-      this._width = width;
+  //================================================================================================================================================================================//
 
-      if (width > 0) {
-        const dummy = this.shadowRoot?.ownerDocument.createElement("div")!;
-        this.shadowRoot?.ownerDocument.body.append(dummy);
-        dummy.style.height = "var(--ha-font-size-s)";
-        const fontSize: number = dummy.getBoundingClientRect().height;
-        dummy.remove();
+  private _doDeviceLayout(width: number, circleSize: number, minColSpacing: number): number {
+    const entityStates: EntityStates = this._entityStates;
+    const numDeviceColumns: number = this._getNumDeviceColumns();
+    const maxDeviceColumns: number = Math.floor((width - circleSize) / (circleSize + minColSpacing)) - 2;
 
-        const entityStates: EntityStates = this._entityStates;
-        const maxCircleSize: number = Math.max(CIRCLE_SIZE_MIN, Math.floor((width - (NUM_DEFAULT_COLUMNS - 1) * this._getColSpacing(CIRCLE_SIZE_MIN).min) / NUM_DEFAULT_COLUMNS));
-        const circleSize: number = Math.min(maxCircleSize, this._calculateCircleSize(fontSize));
-        this._circleSize = circleSize;
-        this._setLayout(this.style, circleSize);
+    const devicesLayout: DevicesLayout = entityStates.devices.length === 0
+      ? DevicesLayout.None
+      : numDeviceColumns === 0
+        ? entityStates.gas.isPresent
+          ? DevicesLayout.Inline_Below
+          : DevicesLayout.Inline_Above
+        : numDeviceColumns <= maxDeviceColumns
+          ? DevicesLayout.Horizontal
+          : DevicesLayout.Vertical;
 
-        const labelHeight: number = fontSize * this._getPropertyValue(".lines", "--ha-line-height-normal");
+    this._devicesLayout = devicesLayout;
+    return NUM_DEFAULT_COLUMNS + (devicesLayout === DevicesLayout.Horizontal ? numDeviceColumns : 0);
+  }
 
-        const colSpacing: MinMax = this._getColSpacing(circleSize);
+  //================================================================================================================================================================================//
 
-        const numDeviceColumns: number = this._getNumDeviceColumns();
-        const maxDeviceColumns: number = Math.floor((width - circleSize) / (circleSize + colSpacing.min)) - 2;
+  private _calculateLayout(cardWidth: number): void {
+    const entityStates: EntityStates = this._entityStates;
+    const fontSize: number = this._getFontSize();
+    const labelHeight: number = fontSize * this._getPropertyValue("ha-card", "--ha-line-height-normal");
+    const circleSize: number = this._calculateCircleSize(fontSize, cardWidth);
+    this._circleSize = circleSize;
 
-        this._devicesLayout = entityStates.devices.length === 0
-          ? DevicesLayout.None
-          : numDeviceColumns === 0
-            ? this._entityStates.gas.isPresent
-              ? DevicesLayout.Inline_Below
-              : DevicesLayout.Inline_Above
-            : numDeviceColumns <= maxDeviceColumns
-              ? DevicesLayout.Horizontal
-              : DevicesLayout.Vertical;
+    const columnSpacingRange: MinMax = this._getColSpacing(circleSize);
+    const numColumns: number = this._doDeviceLayout(cardWidth, circleSize, columnSpacingRange.min);
+    this._setLayout(this.style, circleSize, numColumns);
 
-        this._buildLayoutGrid(this._devicesLayout);
+    const devicesLayout = this._devicesLayout;
+    this._buildLayoutGrid(devicesLayout);
 
-        const numColumns: number = NUM_DEFAULT_COLUMNS + (this._devicesLayout === DevicesLayout.Horizontal ? numDeviceColumns : 0);
+    const maxContentWidth: number = circleSize + (circleSize + columnSpacingRange.max) * numColumns;
+    const layoutWidth: number = Math.min(cardWidth, maxContentWidth);
 
-        const rowSpacing: number = Math.round(circleSize * 3 / 8);
-        const flowLineCurved: number = circleSize / 2 + rowSpacing - FLOW_LINE_SPACING;
-        const flowLineCurvedControl: number = Math.round(flowLineCurved / 3);
+    const rowSpacing: number = this._getRowSpacing(circleSize);
+    const colSpacing: number = Math.max(columnSpacingRange.min, (layoutWidth - numColumns * circleSize) / (numColumns - 1));
 
-        const isTopRowPresent: boolean = (this._entityStates.lowCarbon.isPresent && this._entityStates.grid.isPresent) || this._entityStates.solar.isPresent || this._entityStates.gas.isPresent;
-        const columnSpacing: number = Math.max(colSpacing.min, (width - numColumns * circleSize) / (numColumns - 1));
+    const colPitch: number = circleSize + colSpacing;
+    const col1: number = circleSize / 2;
+    const col2: number = col1 + colPitch;
+    const col3: number = col2 + colPitch;
 
-        const batteryExport: boolean = !!this._entityStates.battery.firstExportEntity;
-        const gridImport: boolean = !!this._entityStates.grid.firstImportEntity;
-        const solarImport: boolean = this._entityStates.solar.isPresent;
+    const rowPitch: number = circleSize + rowSpacing;
+    const isTopRowPresent: boolean = (entityStates.lowCarbon.isPresent && entityStates.grid.isPresent) || entityStates.solar.isPresent || entityStates.gas.isPresent || devicesLayout === DevicesLayout.Horizontal || devicesLayout === DevicesLayout.Inline_Above;
+    const row1: number = (isTopRowPresent ? labelHeight : 0) + circleSize / 2;
+    const row2: number = row1 + rowPitch;
+    const row3: number = row2 + rowPitch;
 
-        const rowPitch: number = circleSize + rowSpacing;
-        const colPitch: number = circleSize + columnSpacing;
-        const topRowHeight: number = labelHeight + rowPitch;
+    const lineInset: number = circleSize / 2 - DOT_DIAMETER;
+    const rowToRowLineLength: number = Math.round(row2 - row1 - lineInset * 2);
+    const colToColLineLength: number = Math.round(col2 - col1 - lineInset * 2);
+    const horizLineLength: number = Math.round(col3 - col1 - lineInset * 2);
+    const vertLineLength: number = Math.round(row3 - row1 - lineInset * 2);
 
-        const col1X: number = circleSize - DOT_DIAMETER;
-        const col2X: number = circleSize + columnSpacing + circleSize / 2;
-        const col3X: number = circleSize + columnSpacing + circleSize + columnSpacing + DOT_DIAMETER;
+    const flowLineCurved: number = circleSize / 2 + rowSpacing - FLOW_LINE_SPACING;
+    const flowLineCurvedControl: number = Math.round(flowLineCurved / 3);
 
-        const row1Y: number = labelHeight + circleSize - DOT_DIAMETER;
-        const row2Y: number = (isTopRowPresent ? topRowHeight : 0) + circleSize / 2;
-        const row3Y: number = (isTopRowPresent ? topRowHeight : 0) + rowPitch + DOT_DIAMETER;
+    const curvedLineLength: number =
+      // vertical
+      (row2 - flowLineCurved) - (row1 + lineInset)
+      // curve
+      + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: flowLineCurved }, { x: flowLineCurvedControl, y: flowLineCurved }, { x: flowLineCurved, y: flowLineCurved })
+      // horizontal
+      + (col2 - flowLineCurved) - (col1 + lineInset);
 
-        const topRowLineLength: number = Math.round((row2Y - circleSize / 2 + DOT_DIAMETER) - row1Y);
-        const colLineLength: number = Math.round((col2X - circleSize / 2 + DOT_DIAMETER) - col1X);
-        const horizLineLength: number = Math.round(col3X - col1X);
-        const vertLineLength: number = Math.round(row3Y - row1Y);
-        const curvedLineLength: number = row2Y - flowLineCurved - FLOW_LINE_SPACING * (gridImport ? 1 : batteryExport ? 0.5 : 0) - row1Y
-          + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: flowLineCurved }, { x: flowLineCurvedControl, y: flowLineCurved }, { x: flowLineCurved, y: flowLineCurved })
-          + col3X - flowLineCurved - (col2X + FLOW_LINE_SPACING * (batteryExport ? 1 : gridImport ? 0.5 : 0));
+    let horizLinePresent: boolean;
+    let vertLinePresent: boolean;
+    let upperLeftLinePresent: boolean;
+    let upperRightLinePresent: boolean;
+    let lowerLeftLinePresent: boolean;
+    let lowerRightLinePresent: boolean;
 
-        this._lowCarbonToGridPath = `M${circleSize / 2},${row1Y} v${topRowLineLength}`;
-
-        const horizLine: string = `M${col1X},${row2Y} h${horizLineLength}`;
-        const vertLine: string = `M${col2X},${row1Y} v${vertLineLength}`;
-        const upperLeftLine: string = `M${col2X - FLOW_LINE_SPACING * (batteryExport ? 1 : 0.5)},${row1Y}
-                               V${row2Y - flowLineCurved - FLOW_LINE_SPACING}
-                               c0,${flowLineCurved} ${-flowLineCurvedControl},${flowLineCurved} ${-flowLineCurved},${flowLineCurved}
-                               H${col1X}`;
-        const upperRightLine: string = `M${col2X + FLOW_LINE_SPACING * (batteryExport ? 1 : gridImport ? 0.5 : 0)},${row1Y}
-                               V${row2Y - flowLineCurved - FLOW_LINE_SPACING * (gridImport ? 1 : batteryExport ? 0.5 : 0)}
-                               c0,${flowLineCurved} ${flowLineCurvedControl},${flowLineCurved} ${flowLineCurved},${flowLineCurved}
-                               H${col3X}`;
-        const lowerLeftLine: string = `M${col1X},${row2Y + FLOW_LINE_SPACING}
-                                 H${col2X - flowLineCurved - FLOW_LINE_SPACING * (solarImport ? 1 : 0.5)}
-                                 c${flowLineCurvedControl * 2},0 ${flowLineCurved},0 ${flowLineCurved},${flowLineCurved}
-                                 V${row3Y}`;
-        const lowerRightLine: string = `M${col2X + FLOW_LINE_SPACING * (solarImport ? 1 : gridImport ? 0.5 : 0)},${row3Y}
-                                 V${row2Y + flowLineCurved + FLOW_LINE_SPACING * (gridImport ? 1 : solarImport ? 0.5 : 0)}
-                                 c0,${-flowLineCurved} ${flowLineCurvedControl},${-flowLineCurved} ${flowLineCurved},${-flowLineCurved}
-                                 H${col3X}`;
-
-        this._solarToGridPath = upperLeftLine;
-
-        const deviceLineLengths: number[] = [];
-        const homeX: number = this._devicesLayout === DevicesLayout.Vertical ? col2X : col3X - DOT_DIAMETER + circleSize / 2;
-        const homeY: number = this._devicesLayout === DevicesLayout.Vertical ? row3Y - DOT_DIAMETER * 2 + circleSize : row2Y;
-
-        entityStates.devices.forEach((device, index) => {
-          if (this._devicesLayout === DevicesLayout.Vertical) {
-            if (index % 2 !== 1) {
-              const row: number = index / 2 + 1;
-              const control1 = 25;
-              const control2 = 37.5 + row * 12.5;
-              let startX = circleSize - DOT_DIAMETER;
-              const startY = row3Y - DOT_DIAMETER + circleSize / 2 + rowPitch * row;
-              const endX: number = homeX - startX;
-              const endY: number = homeY - startY;
-
-              this._devicePaths[index] = `M${startX},${startY} c${control1},0 ${control2},0 ${endX},${endY}`;
-
-              startX = colPitch * 2 + DOT_DIAMETER;
-              this._devicePaths[index + 1] = `M${startX},${startY} c${-control1},0 ${-control2},0 ${homeX - startX},${endY}`;
-
-              deviceLineLengths[index] = deviceLineLengths[index + 1] = this._cubicBezierLength({ x: 0, y: 0 }, { x: control1, y: 0 }, { x: control2, y: 0 }, { x: endX, y: endY });
-            }
-          } else {
-            // TODO: horizontal and inline layouts
-          }
-        });
-
-        const lineLengths: number[] = [topRowLineLength, horizLineLength, vertLineLength, curvedLineLength, colLineLength, ...deviceLineLengths];
-        const maxLineLength: number = Math.max(...lineLengths);
-        const pathScaleFactors: PathScaleFactors = this._pathScaleFactors;
-
-        if (this._devicesLayout === DevicesLayout.Vertical) {
-          this._solarToBatteryPath = upperRightLine;
-          this._gridToHomePath = lowerLeftLine;
-          this._solarToHomePath = vertLine;
-          this._batteryToHomePath = lowerRightLine;
-          this._gridToBatteryPath = horizLine;
-          this._gasToHomePath = `M${col1X},${row2Y + rowPitch} h${colLineLength}`;
-
-          pathScaleFactors.gridToHome = pathScaleFactors.solarToGrid = pathScaleFactors.solarToBattery = curvedLineLength / maxLineLength;
-          pathScaleFactors.batteryToHome = -pathScaleFactors.gridToHome;
-          pathScaleFactors.solarToHome = vertLineLength / maxLineLength;
-          pathScaleFactors.gridToBattery = horizLineLength / maxLineLength;
-          pathScaleFactors.gasToHome = colLineLength / maxLineLength;
-
-          deviceLineLengths.forEach((length, index) => {
-            pathScaleFactors.devices[index] = length / maxLineLength;
-          });
-        } else {
-          this._solarToBatteryPath = vertLine;
-          this._gridToHomePath = horizLine;
-          this._solarToHomePath = upperRightLine;
-          this._batteryToHomePath = lowerRightLine;
-          this._gridToBatteryPath = lowerLeftLine;
-          this._gasToHomePath = `M${circleSize + columnSpacing + circleSize + columnSpacing + circleSize / 2},${row1Y} v${topRowLineLength}`;
-
-          pathScaleFactors.gridToBattery = pathScaleFactors.batteryToHome = pathScaleFactors.solarToGrid = pathScaleFactors.solarToHome = curvedLineLength / maxLineLength;
-          pathScaleFactors.solarToBattery = vertLineLength / maxLineLength;
-          pathScaleFactors.gridToHome = horizLineLength / maxLineLength;
-          pathScaleFactors.gasToHome = topRowLineLength / maxLineLength;
-
-          // TODO: devices, including horizontal and inline layouts
-        }
-
-        entityStates.devices.forEach((device, index) => {
-          pathScaleFactors.devices[index] = deviceLineLengths[index] / maxLineLength;
-        });
-
-        pathScaleFactors.batteryToGrid = -pathScaleFactors.gridToBattery;
-        pathScaleFactors.lowCarbonToGrid = topRowLineLength / maxLineLength;
-      }
+    if (devicesLayout === DevicesLayout.Vertical) {
+      horizLinePresent = !!entityStates.battery.firstImportEntity && !!entityStates.grid.firstExportEntity;
+      vertLinePresent = entityStates.solar.isPresent;
+      upperLeftLinePresent = entityStates.solar.isPresent && !!entityStates.grid.firstExportEntity;
+      upperRightLinePresent = entityStates.solar.isPresent && !!entityStates.battery.firstExportEntity;
+      lowerLeftLinePresent = !!entityStates.grid.firstImportEntity;
+      lowerRightLinePresent = !!entityStates.battery.firstImportEntity;
+    } else {
+      horizLinePresent = !!entityStates.grid.firstImportEntity;
+      vertLinePresent = entityStates.solar.isPresent && !!entityStates.battery.firstExportEntity;
+      upperLeftLinePresent = entityStates.solar.isPresent && !!entityStates.grid.firstExportEntity;
+      upperRightLinePresent = entityStates.solar.isPresent;
+      lowerLeftLinePresent = !!entityStates.battery.firstImportEntity && !!entityStates.grid.firstExportEntity;
+      lowerRightLinePresent = !!entityStates.battery.firstImportEntity;
     }
+
+    const horizLine: string = `M${col1 + lineInset},${row2} h${horizLineLength}`;
+    const vertLine: string = `M${col2},${row1 + lineInset} v${vertLineLength}`;
+
+    const upperLeftLine: string = `M${col2 - FLOW_LINE_SPACING * (vertLinePresent ? 1 : upperRightLinePresent ? 0.5 : 0)},${row1 + lineInset}
+                               V${row2 - flowLineCurved - FLOW_LINE_SPACING * (horizLinePresent ? 1 : lowerLeftLinePresent ? 0.5 : 0)}
+                               c0,${flowLineCurved} ${-flowLineCurvedControl},${flowLineCurved} ${-flowLineCurved},${flowLineCurved}
+                               H${col1 + lineInset}`;
+
+    const upperRightLine: string = `M${col2 + FLOW_LINE_SPACING * (vertLinePresent ? 1 : upperLeftLinePresent ? 0.5 : 0)},${row1 + lineInset}
+                               V${row2 - flowLineCurved - FLOW_LINE_SPACING * (horizLinePresent ? 1 : lowerRightLinePresent ? 0.5 : 0)}
+                               c0,${flowLineCurved} ${flowLineCurvedControl},${flowLineCurved} ${flowLineCurved},${flowLineCurved}
+                               H${col3 - lineInset}`;
+
+    const lowerLeftLine: string = `M${col2 - FLOW_LINE_SPACING * (vertLinePresent ? 1 : lowerRightLinePresent ? 0.5 : 0)},${row3 - lineInset}
+                                 V${row2 + flowLineCurved + FLOW_LINE_SPACING * (horizLinePresent ? 1 : upperLeftLinePresent ? 0.5 : 0)}
+                                 c0,${-flowLineCurved} ${-flowLineCurvedControl},${-flowLineCurved} ${-flowLineCurved},${-flowLineCurved}
+                                 H${col1 + lineInset}`;
+
+    const lowerRightLine: string = `M${col2 + FLOW_LINE_SPACING * (vertLinePresent ? 1 : lowerLeftLinePresent ? 0.5 : 0)},${row3 - lineInset}
+                                 V${row2 + flowLineCurved + FLOW_LINE_SPACING * (horizLinePresent ? 1 : upperRightLinePresent ? 0.5 : 0)}
+                                 c0,${-flowLineCurved} ${flowLineCurvedControl},${-flowLineCurved} ${flowLineCurved},${-flowLineCurved}
+                                 H${col3 - lineInset}`;
+
+    // TODO: do something with this?
+    const deviceLineLengths: number[] = this._calculateDeviceFlowLines(lineInset, col1, col2, col3, row1, row2, row3, colPitch, rowPitch, rowToRowLineLength);
+    const lineLengths: number[] = [rowToRowLineLength, horizLineLength, vertLineLength, curvedLineLength, colToColLineLength, ...deviceLineLengths];
+
+    if (devicesLayout === DevicesLayout.Vertical) {
+      this._solarToBatteryPath = upperRightLine;
+      this._gridToHomePath = lowerLeftLine;
+      this._solarToHomePath = vertLine;
+      this._batteryToHomePath = lowerRightLine;
+      this._gridToBatteryPath = horizLine;
+      this._gasToHomePath = `M${col1 + lineInset},${isTopRowPresent ? row3 : row2} h${colToColLineLength}`;
+    } else {
+      this._solarToBatteryPath = vertLine;
+      this._gridToHomePath = horizLine;
+      this._solarToHomePath = upperRightLine;
+      this._batteryToHomePath = lowerRightLine;
+      this._gridToBatteryPath = lowerLeftLine;
+      this._gasToHomePath = `M${col3},${row1 + lineInset} v${rowToRowLineLength}`;
+    }
+
+    this._lowCarbonToGridPath = `M${col1},${row1 + lineInset} v${rowToRowLineLength}`;
+    this._solarToGridPath = upperLeftLine;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _calculateDeviceFlowLines(lineInset: number, col1: number, col2: number, col3: number, row1: number, row2: number, row3: number, colPitch: number, rowPitch: number, rowToRowLineLength: number): number[] {
+    const deviceLineLengths: number[] = [];
+
+    switch (this._devicesLayout) {
+      case DevicesLayout.Inline_Above:
+        this._devicePaths[0] = `M${col3},${row1 + lineInset} v${rowToRowLineLength}`;
+        deviceLineLengths[0] = rowToRowLineLength;
+
+        if (this._entityStates.devices.length > 1) {
+          this._devicePaths[1] = `M${col3},${row3 - lineInset} v${-rowToRowLineLength}`;
+          deviceLineLengths[1] = rowToRowLineLength;
+        }
+        break;
+
+      case DevicesLayout.Inline_Below:
+        this._devicePaths[0] = `M${col3},${row3 - lineInset} v${-rowToRowLineLength}`;
+        deviceLineLengths[0] = rowToRowLineLength;
+        break;
+
+      case DevicesLayout.Vertical:
+        for (let index: number = 0; index < this._entityStates.devices.length; index += 2) {
+          const row: number = Math.floor(index / 2) + 1;
+          const control1 = 25;
+          const control2 = 37.5 + row * 12.5;
+          let startX: number = col1 + lineInset;
+          const startY = row3 + rowPitch * row;
+          const endX: number = col2 - startX;
+          const endY: number = row3 - startY;
+
+          this._devicePaths[index] = `M${startX},${startY} c${control1},0 ${control2},0 ${endX},${endY}`;
+
+          startX = col3 - lineInset;
+          this._devicePaths[index + 1] = `M${startX},${startY} c${-control1},0 ${-control2},0 ${col2 - startX},${endY}`;
+
+          deviceLineLengths[index] = deviceLineLengths[index + 1] = this._cubicBezierLength({ x: 0, y: 0 }, { x: control1, y: 0 }, { x: control2, y: 0 }, { x: endX, y: endY });
+        }
+        break;
+
+      case DevicesLayout.Horizontal:
+        for (let index: number = 0; index < this._entityStates.devices.length; index += 2) {
+          const col: number = Math.floor(index / 2) + 1;
+          const control1 = 25;
+          const control2 = 37.5 + col * 12.5;
+          const startX: number = col3 + colPitch * col;
+          let startY: number = row1 + lineInset;
+          const endX: number = col3 - startX;
+          const endY: number = row2 - startY;
+
+          this._devicePaths[index] = `M${startX},${startY} c0,${control1} 0,${control2} ${endX},${endY}`;
+
+          startY = row3 - lineInset;
+          this._devicePaths[index + 1] = `M${startX},${startY} c0,${-control1} 0,${-control2} ${col3 - startX},${-endY}`;
+
+          deviceLineLengths[index] = deviceLineLengths[index + 1] = this._cubicBezierLength({ x: 0, y: 0 }, { x: control1, y: 0 }, { x: control2, y: 0 }, { x: endX, y: endY });
+        }
+        break;
+    }
+
+    return deviceLineLengths;
   }
 
   //================================================================================================================================================================================//
@@ -823,7 +858,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         ? entityStates.battery.isPresent
           ? this._getNodeRenderFn(entityStates.battery.cssClass, entityStates.battery.name, entityStates.battery.render)
           : undefined
-        : this._getNodeRenderFn(entityStates.home.cssClass, entityStates.home.name, entityStates.home.render)
+        : this._getNodeRenderFn(entityStates.home.cssClass,
+          devicesLayout === DevicesLayout.Inline_Below || (devicesLayout === DevicesLayout.Inline_Above && entityStates.devices.length > 1)
+            ? ""
+            : entityStates.home.name,
+          entityStates.home.render)
     ];
 
     layoutGrid[2] = [
@@ -895,15 +934,15 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       + (gasSourceMode !== GasSourcesMode.Do_Not_Show ? states.homeGas : 0);
 
     const durations: AnimationDurations = {
-      batteryToGrid: this._calculateDotRate(flows.batteryToGrid ?? 0, totalFlows, this._pathScaleFactors.batteryToGrid),
-      batteryToHome: this._calculateDotRate(flows.batteryToHome ?? 0, totalFlows, this._pathScaleFactors.batteryToHome),
-      gridToBattery: this._calculateDotRate(flows.gridToBattery ?? 0, totalFlows, this._pathScaleFactors.gridToBattery),
-      gridToHome: this._calculateDotRate(flows.gridToHome, totalFlows, this._pathScaleFactors.gridToHome),
-      solarToBattery: this._calculateDotRate(flows.solarToBattery ?? 0, totalFlows, this._pathScaleFactors.solarToBattery),
-      solarToGrid: this._calculateDotRate(flows.solarToGrid ?? 0, totalFlows, this._pathScaleFactors.solarToGrid),
-      solarToHome: this._calculateDotRate(flows.solarToHome ?? 0, totalFlows, this._pathScaleFactors.solarToHome),
-      lowCarbon: this._calculateDotRate(states.lowCarbon ?? 0, totalFlows, this._pathScaleFactors.lowCarbonToGrid),
-      gas: this._calculateDotRate(states.gasImport ?? 0, totalFlows + (gasSourceMode === GasSourcesMode.Do_Not_Show ? states.homeGas : 0), this._pathScaleFactors.gasToHome),
+      batteryToGrid: this._calculateDotRate(flows.batteryToGrid ?? 0, totalFlows),
+      batteryToHome: this._calculateDotRate(flows.batteryToHome ?? 0, totalFlows),
+      gridToBattery: this._calculateDotRate(flows.gridToBattery ?? 0, totalFlows),
+      gridToHome: this._calculateDotRate(flows.gridToHome, totalFlows),
+      solarToBattery: this._calculateDotRate(flows.solarToBattery ?? 0, totalFlows),
+      solarToGrid: this._calculateDotRate(flows.solarToGrid ?? 0, totalFlows),
+      solarToHome: this._calculateDotRate(flows.solarToHome ?? 0, totalFlows),
+      lowCarbon: this._calculateDotRate(states.lowCarbon ?? 0, totalFlows),
+      gas: this._calculateDotRate(states.gasImport ?? 0, totalFlows + (gasSourceMode === GasSourcesMode.Do_Not_Show ? states.homeGas : 0)),
       devicesToHomeElectric: [],
       devicesToHomeGas: [],
       homeToDevicesElectric: [],
@@ -911,13 +950,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     };
 
     states.devicesElectric.forEach((device, index) => {
-      durations.devicesToHomeElectric[index] = this._calculateDotRate(device.import ?? 0, totalFlows, this._pathScaleFactors.devices[index]);
-      durations.homeToDevicesElectric[index] = this._calculateDotRate(device.export ?? 0, totalFlows, -this._pathScaleFactors.devices[index]);
+      durations.devicesToHomeElectric[index] = this._calculateDotRate(device.import ?? 0, totalFlows);
+      durations.homeToDevicesElectric[index] = this._calculateDotRate(device.export ?? 0, totalFlows);
     });
 
     states.devicesGas.forEach((device, index) => {
-      durations.devicesToHomeGas[index] = this._calculateDotRate(device.import ?? 0, totalFlows, this._pathScaleFactors.devices[index]);
-      durations.homeToDevicesGas[index] = this._calculateDotRate(device.export ?? 0, totalFlows, -this._pathScaleFactors.devices[index]);
+      durations.devicesToHomeGas[index] = this._calculateDotRate(device.import ?? 0, totalFlows);
+      durations.homeToDevicesGas[index] = this._calculateDotRate(device.export ?? 0, totalFlows);
     });
 
     return durations;
@@ -925,13 +964,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _calculateDotRate(value: number, total: number, scale: number): number {
+  private _calculateDotRate(value: number, total: number): number {
     if (this._scale === Scale.Logarithmic) {
       value = Math.log(value);
       total = Math.log(total);
     }
 
-    return round((FLOW_RATE_MIN + (1 - (value / total)) * (FLOW_RATE_MAX - FLOW_RATE_MIN)) * scale, 1);
+    return round(FLOW_RATE_MAX - (value / total) * (FLOW_RATE_MAX - FLOW_RATE_MIN), 1);
   };
 
   //================================================================================================================================================================================//
@@ -977,7 +1016,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _calculateCircleSize(fontSize: number): number {
+  private _calculateCircleSize(fontSize: number, cardWidth: number): number {
     if (this._useHassStyles) {
       return CIRCLE_SIZE_MIN;
     }
@@ -998,7 +1037,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const width: number = (numChars * fontSize * 50 / 100) + fontSize + ICON_PADDING;
     const height: number = Math.ceil(numTextLines * textLineHeight + fontSize * 2 + ICON_PADDING * 2);
 
-    return Math.max(CIRCLE_SIZE_MIN, Math.ceil(Math.sqrt(width * width + height * height)) + CIRCLE_STROKE_WIDTH_SEGMENTS * 2);
+    const maxCircleSize: number = Math.max(CIRCLE_SIZE_MIN, Math.floor((cardWidth - (NUM_DEFAULT_COLUMNS - 1) * this._getColSpacing(CIRCLE_SIZE_MIN).min) / NUM_DEFAULT_COLUMNS));
+    return Math.min(maxCircleSize, Math.max(CIRCLE_SIZE_MIN, Math.ceil(Math.sqrt(width * width + height * height)) + CIRCLE_STROKE_WIDTH_SEGMENTS * 2));
   }
 
   //================================================================================================================================================================================//
@@ -1154,11 +1194,18 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _setLayout(style: CSSStyleDeclaration, circleSize: number): void {
+  private _getRowSpacing(circleSize: number): number {
+    return Math.round(circleSize * 3 / 8);
+  }
+
+  //================================================================================================================================================================================//
+
+  private _setLayout(style: CSSStyleDeclaration, circleSize: number, numColumns: number = NUM_DEFAULT_COLUMNS): void {
     const colSpacing = this._getColSpacing(circleSize);
-    const rowSpacing: number = Math.round(circleSize * 3 / 8);
+    const rowSpacing: number = this._getRowSpacing(circleSize);
 
     style.setProperty("--circle-size", circleSize + "px");
+    style.setProperty("--num-columns", numColumns.toString());
     style.setProperty("--row-spacing", rowSpacing + "px");
     style.setProperty("--col-spacing-max", colSpacing.max + "px");
     style.setProperty("--col-spacing-min", colSpacing.min + "px");

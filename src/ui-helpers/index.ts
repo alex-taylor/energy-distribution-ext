@@ -37,19 +37,6 @@ export interface AnimationDurations {
   homeToDevicesGas: number[];
 }
 
-export interface PathScaleFactors {
-  batteryToGrid: number;
-  batteryToHome: number;
-  gridToBattery: number;
-  gridToHome: number;
-  solarToBattery: number;
-  solarToHome: number;
-  solarToGrid: number;
-  lowCarbonToGrid: number;
-  gasToHome: number;
-  devices: number[];
-}
-
 export function getGasSourcesMode(configs: HomeConfig[], states: States): GasSourcesMode {
   const gasSourcesMode: GasSourcesMode = getConfigValue(configs, [GlobalOptions.Options, HomeOptions.Gas_Sources]);
   const gasThreshold: number = getConfigValue(configs, [GlobalOptions.Options, HomeOptions.Gas_Sources_Threshold]);

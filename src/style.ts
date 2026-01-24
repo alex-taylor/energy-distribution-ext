@@ -10,7 +10,7 @@ export const styles: CSSResult = css`
   .card-content {
     position: relative;
     direction: ltr;
-    max-width: calc(var(--circle-size) * 5 + var(--col-spacing-max) * 4);
+    max-width: calc(var(--circle-size) + (var(--col-spacing-max) + var(--circle-size)) * var(--num-columns));
     margin: 0 auto;
   }
 
