@@ -1,4 +1,10 @@
 namespace Enums {
+  export const AnimationMode = {
+    System_Setting: "system_setting",
+    Enabled: "enabled",
+    Disabled: "disabled"
+  } as const satisfies Record<string, string>;
+
   export const ColourMode = {
     Do_Not_Colour: "none",
     Flow: "flow",
@@ -120,6 +126,8 @@ namespace Enums {
   } as const satisfies Record<string, string>;
 }
 
+export const AnimationMode = Enums.AnimationMode;
+export type AnimationMode = typeof AnimationMode[keyof typeof AnimationMode];
 export const ColourMode = Enums.ColourMode;
 export type ColourMode = typeof ColourMode[keyof typeof ColourMode];
 export const DateRange = Enums.DateRange;

@@ -12,7 +12,7 @@ import { SolarNode } from "@/nodes/solar";
 import { States, Flows } from "@/nodes";
 import { DataStatus, EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, PrefixThreshold, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType } from "@/enums";
+import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, PrefixThreshold, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
@@ -128,6 +128,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _volumeUnits!: string;
   private _gasUnitPrefixes!: UnitPrefixes;
   private _useHassStyles!: boolean;
+  private _animationMode!: AnimationMode;
   private _animationEnabled!: boolean;
   private _scale!: Scale;
   private _dashboardLink!: string;
@@ -180,7 +181,21 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const flowsConfig: FlowsOptions[] = getConfigObjects(this._configs, [EditorPages.Appearance, AppearanceOptions.Flows]);
     this._scale = getConfigValue(flowsConfig, FlowsOptions.Scale, value => checkEnumValue(value, Scale));
-    this._animationEnabled = getConfigValue(flowsConfig, FlowsOptions.Animation);
+    this._animationMode = getConfigValue(flowsConfig, FlowsOptions.Animation);
+
+    switch (this._animationMode) {
+      case AnimationMode.System_Setting:
+        this._animationEnabled = !matchMedia("(prefers-reduced-motion)").matches;
+        break;
+
+      case AnimationMode.Enabled:
+        this._animationEnabled = true;
+        break;
+
+      case AnimationMode.Disabled:
+        this._animationEnabled = false;
+        break;
+    }
 
     switch (getConfigValue(flowsConfig, FlowsOptions.Inactive_Flows)) {
       case InactiveFlowsMode.Dimmed:
@@ -223,6 +238,15 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const padding: number = this._getPropertyValue("ha-card", "--ha-space-4");
     const width: number = this._getPropertyValue("ha-card", "width") - padding * 2;
     this._getDashboardTitle(this._dashboardLink);
+
+    if (this._animationMode === AnimationMode.System_Setting) {
+      const animationEnabled: boolean = !matchMedia("(prefers-reduced-motion)").matches;
+
+      if (this._animationEnabled !== animationEnabled) {
+        this._animationEnabled = animationEnabled;
+        this._render.clear();
+      }
+    }
 
     return html`
       <ha-card .header=${getConfigValue(this._configs, GlobalOptions.Title)}>
@@ -484,9 +508,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       );
     });
 
-    const inactiveFlowsMode: InactiveFlowsMode = getConfigValue(this._configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Inactive_Flows]);
-    const animationEnabled: boolean = getConfigValue(this._configs, [EditorPages.Appearance, AppearanceOptions.Flows, FlowsOptions.Animation]);
-
     return html`
       <svg class="lines" xmlns="http://www.w3.org/2000/svg">
       ${repeat(lines, _ => undefined, (_, index) => {
@@ -494,21 +515,13 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       let cssLine: string = line.cssLine;
 
       if (!line.active && cssLine !== CssClass.Hidden_Path) {
-        switch (inactiveFlowsMode) {
-          case InactiveFlowsMode.Dimmed:
-            cssLine += " " + CssClass.Dimmed;
-            break;
-
-          case InactiveFlowsMode.Greyed:
-            cssLine = CssClass.Inactive;
-            break;
-        }
+        cssLine += " " + this._inactiveFlowsCss;
       }
 
       return svg`<path class="${cssLine}" d="${line.path}" style="fill: none !important;"></path>`;
     })}
 
-      ${animationEnabled ?
+      ${this._animationEnabled ?
         repeat(lines, _ => undefined, (_, index) => {
           const line: FlowLine = lines[index];
 

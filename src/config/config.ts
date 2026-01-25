@@ -1,4 +1,4 @@
-import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode, PrefixThreshold } from "@/enums";
+import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode, PrefixThreshold, AnimationMode } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
 import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
@@ -205,7 +205,7 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
     },
     [AppearanceOptions.Flows]: {
       [FlowsOptions.Use_Hourly_Stats]: false,
-      [FlowsOptions.Animation]: true,
+      [FlowsOptions.Animation]: AnimationMode.System_Setting,
       [FlowsOptions.Inactive_Flows]: InactiveFlowsMode.Normal,
       [FlowsOptions.Scale]: Scale.Linear
     }

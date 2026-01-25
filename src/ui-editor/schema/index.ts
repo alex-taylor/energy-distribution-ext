@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig, isValidSecondaryEntity } from '@/config';
-import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses } from '@/enums';
+import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode } from '@/enums';
 import { localize } from '@/localize/localize';
 import { getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
@@ -92,7 +92,7 @@ const flowsOptionsSchema = memoizeOne((): any[] => {
       type: SchemaTypes.Grid,
       schema: [
         { key: FlowsOptions, name: FlowsOptions.Use_Hourly_Stats, selector: { boolean: {} } },
-        { key: FlowsOptions, name: FlowsOptions.Animation, selector: { boolean: {} } },
+        { key: FlowsOptions, name: FlowsOptions.Animation, required: true, selector: dropdownSelector(AnimationMode) },
         { key: FlowsOptions, name: FlowsOptions.Inactive_Flows, required: true, selector: dropdownSelector(InactiveFlowsMode) },
         { key: FlowsOptions, name: FlowsOptions.Scale, required: true, selector: dropdownSelector(Scale) }
       ]

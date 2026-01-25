@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, PrefixThreshold, DeviceClasses } from '@/enums';
+import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, PrefixThreshold, DeviceClasses, AnimationMode } from '@/enums';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -228,7 +228,7 @@ export interface EnergyUnitsConfig {
 
 export interface FlowsConfig {
   [FlowsOptions.Use_Hourly_Stats]?: boolean;
-  [FlowsOptions.Animation]?: boolean;
+  [FlowsOptions.Animation]?: AnimationMode;
   [FlowsOptions.Inactive_Flows]?: InactiveFlowsMode;
   [FlowsOptions.Scale]?: Scale;
 };

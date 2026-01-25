@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from "@/config";
-import { ColourMode, DateRangeDisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
+import { AnimationMode, ColourMode, DateRangeDisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
 import { HELPTEXT_SUFFIX } from "@/const";
 
 export default {
@@ -26,6 +26,12 @@ export default {
     "next": "Next",
     "previous": "Previous",
     "remove_device": "Remove Device"
+  },
+
+  "AnimationMode": {
+    [AnimationMode.System_Setting]: "Use system setting",
+    [AnimationMode.Enabled]: "Enabled",
+    [AnimationMode.Disabled]: "Disabled"
   },
 
   "AppearanceOptions": {

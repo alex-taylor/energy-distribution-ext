@@ -34,7 +34,7 @@ const energyUnitsOptionsConfigStruct = object({
 
 const flowsOptionsConfigStruct = object({
   [FlowsOptions.Use_Hourly_Stats]: optional(boolean()),
-  [FlowsOptions.Animation]: optional(boolean()),
+  [FlowsOptions.Animation]: optional(string()),
   [FlowsOptions.Inactive_Flows]: optional(string()),
   [FlowsOptions.Scale]: optional(string())
 });
