@@ -67,6 +67,9 @@ const CIRCLE_SIZE_MIN: number = 80;
 const DOT_DIAMETER: number = DOT_RADIUS * 2;
 const FLOW_LINE_SPACING: number = DOT_DIAMETER + 5;
 
+const DEVICE_CONTROL_1: number = 25;
+const DEVICE_CONTROL_2 = (value: number): number => 30 + value * 10;
+
 const FLOW_RATE_MIN: number = 1;
 const FLOW_RATE_MAX: number = 6;
 
@@ -745,6 +748,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _calculateDeviceFlowLines(lineInset: number, col1: number, col2: number, col3: number, row1: number, row2: number, row3: number, colPitch: number, rowPitch: number): void {
+    const spacing: number = FLOW_LINE_SPACING / this._entityStates.devices.length * 2;
+
     switch (this._devicesLayout) {
       case DevicesLayout.Inline_Above:
         this._devicePaths[0] = `M${col3},${row1 + lineInset} V${row2 - lineInset}`;
@@ -759,36 +764,34 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         break;
 
       case DevicesLayout.Vertical:
-        for (let index: number = 0; index < this._entityStates.devices.length; index += 2) {
+        for (let index: number = 0, offset: number = FLOW_LINE_SPACING; index < this._entityStates.devices.length; index += 2, offset -= spacing) {
           const row: number = Math.floor(index / 2) + 1;
-          const control1 = 25;
-          const control2 = 37.5 + row * 12.5;
-          let startX: number = col1 + lineInset;
           const startY = row3 + rowPitch * row;
-          const endX: number = col2 - startX;
-          const endY: number = row3 - startY;
+          const endY: number = row3 + lineInset - startY;
 
-          this._devicePaths[index] = `M${startX},${startY} c${control1},0 ${control2},0 ${endX},${endY}`;
+          let startX: number = col1 + lineInset;
+          let endX: number = col2 - startX - offset;
+          this._devicePaths[index] = `M${startX},${startY} c${DEVICE_CONTROL_1},0 ${DEVICE_CONTROL_2(row)},0 ${endX},${endY}`;
 
           startX = col3 - lineInset;
-          this._devicePaths[index + 1] = `M${startX},${startY} c${-control1},0 ${-control2},0 ${col2 - startX},${endY}`;
+          endX = col2 - startX + offset;
+          this._devicePaths[index + 1] = `M${startX},${startY} c${-DEVICE_CONTROL_1},0 ${-DEVICE_CONTROL_2(row)},0 ${endX},${endY}`;
         }
         break;
 
       case DevicesLayout.Horizontal:
-        for (let index: number = 0; index < this._entityStates.devices.length; index += 2) {
+        for (let index: number = 0, offset: number = FLOW_LINE_SPACING; index < this._entityStates.devices.length; index += 2, offset -= spacing) {
           const col: number = Math.floor(index / 2) + 1;
-          const control1 = 25;
-          const control2 = 37.5 + col * 12.5;
           const startX: number = col3 + colPitch * col;
-          let startY: number = row1 + lineInset;
-          const endX: number = col3 - startX;
-          const endY: number = row2 - startY;
+          const endX: number = col3 + lineInset - startX;
 
-          this._devicePaths[index] = `M${startX},${startY} c0,${control1} 0,${control2} ${endX},${endY}`;
+          let startY: number = row1 + lineInset;
+          let endY: number = row2 - startY - offset;
+          this._devicePaths[index] = `M${startX},${startY} c0,${DEVICE_CONTROL_1} 0,${DEVICE_CONTROL_2(col)} ${endX},${endY}`;
 
           startY = row3 - lineInset;
-          this._devicePaths[index + 1] = `M${startX},${startY} c0,${-control1} 0,${-control2} ${col3 - startX},${-endY}`;
+          endY = row2 - startY + offset;
+          this._devicePaths[index + 1] = `M${startX},${startY} c0,${-DEVICE_CONTROL_1} 0,${-DEVICE_CONTROL_2(col)} ${endX},${endY}`;
         }
         break;
     }

@@ -13,8 +13,6 @@ Card:
     - see what else should be changed/hidden
   - layout:
     - draw three devices in the last column/row to save space
-    - 'spread' the lines going into Home:
-      - start at centre-FLOW_LINE_SPACING, and then move in by increments where the increment is FLOW_LINE_SPACING/(numDevices/2)
   - BUG: clicking on the low-carbon secondary opens both the entity viewer and the map...
   - BUG: in 'dimmed' mode, the paths are noticeably brighter than the node circles!
   - BUG: the dots are being rendered at the (0,0) of the lines panel
