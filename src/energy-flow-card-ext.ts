@@ -658,21 +658,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const row3: number = row2 + rowPitch;
 
     const lineInset: number = circleSize / 2 - DOT_DIAMETER;
-    const rowToRowLineLength: number = Math.round(row2 - row1 - lineInset * 2);
-    const colToColLineLength: number = Math.round(col2 - col1 - lineInset * 2);
-    const horizLineLength: number = Math.round(col3 - col1 - lineInset * 2);
-    const vertLineLength: number = Math.round(row3 - row1 - lineInset * 2);
-
     const flowLineCurved: number = circleSize / 2 + rowSpacing - FLOW_LINE_SPACING;
     const flowLineCurvedControl: number = Math.round(flowLineCurved / 3);
-
-    const curvedLineLength: number =
-      // vertical
-      (row2 - flowLineCurved) - (row1 + lineInset)
-      // curve
-      + this._cubicBezierLength({ x: 0, y: 0 }, { x: 0, y: flowLineCurved }, { x: flowLineCurvedControl, y: flowLineCurved }, { x: flowLineCurved, y: flowLineCurved })
-      // horizontal
-      + (col2 - flowLineCurved) - (col1 + lineInset);
 
     let horizLinePresent: boolean;
     let vertLinePresent: boolean;
@@ -697,8 +684,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       lowerRightLinePresent = !!entityStates.battery.firstImportEntity;
     }
 
-    const horizLine: string = `M${col1 + lineInset},${row2} h${horizLineLength}`;
-    const vertLine: string = `M${col2},${row1 + lineInset} v${vertLineLength}`;
+    const horizLine: string = `M${col1 + lineInset},${row2} H${col3 - lineInset}`;
+    const vertLine: string = `M${col2},${row1 + lineInset} V${row3 - lineInset}`;
 
     const upperLeftLine: string = `M${col2 - FLOW_LINE_SPACING * (vertLinePresent ? 1 : upperRightLinePresent ? 0.5 : 0)},${row1 + lineInset}
                                V${row2 - flowLineCurved - FLOW_LINE_SPACING * (horizLinePresent ? 1 : lowerLeftLinePresent ? 0.5 : 0)}
@@ -720,9 +707,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
                                  c0,${-flowLineCurved} ${flowLineCurvedControl},${-flowLineCurved} ${flowLineCurved},${-flowLineCurved}
                                  H${col3 - lineInset}`;
 
-    // TODO: do something with this?
-    const deviceLineLengths: number[] = this._calculateDeviceFlowLines(lineInset, col1, col2, col3, row1, row2, row3, colPitch, rowPitch, rowToRowLineLength);
-    const lineLengths: number[] = [rowToRowLineLength, horizLineLength, vertLineLength, curvedLineLength, colToColLineLength, ...deviceLineLengths];
+    this._calculateDeviceFlowLines(lineInset, col1, col2, col3, row1, row2, row3, colPitch, rowPitch);
 
     if (devicesLayout === DevicesLayout.Vertical) {
       this._solarToBatteryPath = upperRightLine;
@@ -730,39 +715,34 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       this._solarToHomePath = vertLine;
       this._batteryToHomePath = lowerRightLine;
       this._gridToBatteryPath = horizLine;
-      this._gasToHomePath = `M${col1 + lineInset},${isTopRowPresent ? row3 : row2} h${colToColLineLength}`;
+      this._gasToHomePath = `M${col1 + lineInset},${isTopRowPresent ? row3 : row2} H${col2 - lineInset}`;
     } else {
       this._solarToBatteryPath = vertLine;
       this._gridToHomePath = horizLine;
       this._solarToHomePath = upperRightLine;
       this._batteryToHomePath = lowerRightLine;
       this._gridToBatteryPath = lowerLeftLine;
-      this._gasToHomePath = `M${col3},${row1 + lineInset} v${rowToRowLineLength}`;
+      this._gasToHomePath = `M${col3},${row1 + lineInset} V${row2 - lineInset}`;
     }
 
-    this._lowCarbonToGridPath = `M${col1},${row1 + lineInset} v${rowToRowLineLength}`;
+    this._lowCarbonToGridPath = `M${col1},${row1 + lineInset} V${row2 - lineInset}`;
     this._solarToGridPath = upperLeftLine;
   }
 
   //================================================================================================================================================================================//
 
-  private _calculateDeviceFlowLines(lineInset: number, col1: number, col2: number, col3: number, row1: number, row2: number, row3: number, colPitch: number, rowPitch: number, rowToRowLineLength: number): number[] {
-    const deviceLineLengths: number[] = [];
-
+  private _calculateDeviceFlowLines(lineInset: number, col1: number, col2: number, col3: number, row1: number, row2: number, row3: number, colPitch: number, rowPitch: number): void {
     switch (this._devicesLayout) {
       case DevicesLayout.Inline_Above:
-        this._devicePaths[0] = `M${col3},${row1 + lineInset} v${rowToRowLineLength}`;
-        deviceLineLengths[0] = rowToRowLineLength;
+        this._devicePaths[0] = `M${col3},${row1 + lineInset} V${row2 - lineInset}`;
 
         if (this._entityStates.devices.length > 1) {
-          this._devicePaths[1] = `M${col3},${row3 - lineInset} v${-rowToRowLineLength}`;
-          deviceLineLengths[1] = rowToRowLineLength;
+          this._devicePaths[1] = `M${col3},${row3 - lineInset} V${row2 + lineInset}`;
         }
         break;
 
       case DevicesLayout.Inline_Below:
-        this._devicePaths[0] = `M${col3},${row3 - lineInset} v${-rowToRowLineLength}`;
-        deviceLineLengths[0] = rowToRowLineLength;
+        this._devicePaths[0] = `M${col3},${row3 - lineInset} V${row2 + lineInset}`;
         break;
 
       case DevicesLayout.Vertical:
@@ -779,8 +759,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
           startX = col3 - lineInset;
           this._devicePaths[index + 1] = `M${startX},${startY} c${-control1},0 ${-control2},0 ${col2 - startX},${endY}`;
-
-          deviceLineLengths[index] = deviceLineLengths[index + 1] = this._cubicBezierLength({ x: 0, y: 0 }, { x: control1, y: 0 }, { x: control2, y: 0 }, { x: endX, y: endY });
         }
         break;
 
@@ -798,13 +776,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
           startY = row3 - lineInset;
           this._devicePaths[index + 1] = `M${startX},${startY} c0,${-control1} 0,${-control2} ${col3 - startX},${-endY}`;
-
-          deviceLineLengths[index] = deviceLineLengths[index + 1] = this._cubicBezierLength({ x: 0, y: 0 }, { x: control1, y: 0 }, { x: control2, y: 0 }, { x: endX, y: endY });
         }
         break;
     }
-
-    return deviceLineLengths;
   }
 
   //================================================================================================================================================================================//
@@ -972,47 +946,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     return round(FLOW_RATE_MAX - (value / total) * (FLOW_RATE_MAX - FLOW_RATE_MIN), 1);
   };
-
-  //================================================================================================================================================================================//
-
-  // Source - https://stackoverflow.com/a
-  // Posted by herrstrietzel, modified by community. See post 'Timeline' for change history
-  // Retrieved 2025-12-22, License - CC BY-SA 4.0
-
-  /**
-   * Based on snap.svg bezlen() function
-   * https://github.com/adobe-webplatform/Snap.svg/blob/master/dist/snap.svg.js#L5786
-   */
-  private _cubicBezierLength(p0: { x: number, y: number }, cp1: { x: number, y: number }, cp2: { x: number, y: number }, p1: { x: number, y: number }, t: number = 1): number {
-    if (t === 0) {
-      return 0;
-    }
-
-    const base3 = (t, p1, p2, p3, p4): number => {
-      const t1: number = -3 * p1 + 9 * p2 - 9 * p3 + 3 * p4;
-      const t2: number = t * t1 + 6 * p1 - 12 * p2 + 6 * p3;
-      return t * t2 - 3 * p1 + 3 * p2;
-    };
-
-    t = t > 1 ? 1 : t < 0 ? 0 : t;
-
-    const t2: number = t / 2;
-    const tValues: number[] = [-.1252, .1252, -.3678, .3678, -.5873, .5873, -.7699, .7699, -.9041, .9041, -.9816, .9816];
-    const cValues: number[] = [0.2491, 0.2491, 0.2335, 0.2335, 0.2032, 0.2032, 0.1601, 0.1601, 0.1069, 0.1069, 0.0472, 0.0472];
-
-    const n: number = tValues.length;
-    let sum: number = 0;
-
-    for (let i: number = 0; i < n; i++) {
-      const ct: number = t2 * tValues[i] + t2;
-      const xbase: number = base3(ct, p0.x, cp1.x, cp2.x, p1.x);
-      const ybase: number = base3(ct, p0.y, cp1.y, cp2.y, p1.y);
-      const comb: number = xbase * xbase + ybase * ybase;
-      sum += cValues[i] * Math.sqrt(comb);
-    }
-
-    return t2 * sum;
-  }
 
   //================================================================================================================================================================================//
 
