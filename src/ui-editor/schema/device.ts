@@ -19,7 +19,7 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
         { key: DeviceOptions, name: DeviceOptions.Energy_Direction, required: true, selector: dropdownSelector(EnergyDirection) }
       ]
     },
-    energyDirection !== EnergyDirection.Consumer_only ?
+    energyDirection !== EnergyDirection.Consumer_Only ?
       {
         key: NodeOptions,
         name: NodeOptions.Import_Entities,
@@ -50,7 +50,7 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
       );
       break;
 
-    case EnergyDirection.Consumer_only:
+    case EnergyDirection.Consumer_Only:
       colourSchemas.push(
         { key: ColourOptions, name: ColourOptions.Flow_Export_Colour, selector: { color_rgb: {} } },
         {}
@@ -83,7 +83,7 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
     );
   }
 
-  if (energyDirection !== EnergyDirection.Consumer_only) {
+  if (energyDirection !== EnergyDirection.Consumer_Only) {
     colourSchemas.push(
       ...colourSchema(
         schemaConfig,

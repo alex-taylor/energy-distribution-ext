@@ -337,7 +337,7 @@ export class EntityStates {
 
     this.devices.forEach((device, index) => {
       if (device.type === EnergyType.Gas) {
-        if (device.direction !== EnergyDirection.Consumer_only) {
+        if (device.direction !== EnergyDirection.Consumer_Only) {
           states.devicesGas[index].import += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.importEntities, energyUnits)
           states.devicesGasVolume[index].import += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.importEntities, volumeUnits)
         }
@@ -347,7 +347,7 @@ export class EntityStates {
           states.devicesGasVolume[index].export += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.exportEntities, volumeUnits)
         }
       } else {
-        if (device.direction !== EnergyDirection.Consumer_only) {
+        if (device.direction !== EnergyDirection.Consumer_Only) {
           states.devicesElectric[index].import += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.importEntities, energyUnits)
         }
 
@@ -651,7 +651,7 @@ export class EntityStates {
       states.devicesGasVolume[index] = { export: 0, import: 0 };
 
       if (device.type === EnergyType.Gas) {
-        if (device.direction !== EnergyDirection.Consumer_only) {
+        if (device.direction !== EnergyDirection.Consumer_Only) {
           states.devicesGas[index].import = this._getHomeFlowEntityStates(device.importEntities, this._energyUnits);
           states.devicesGasVolume[index].export = this._getHomeFlowEntityStates(device.exportEntities, this._volumeUnits);
         }
@@ -659,7 +659,7 @@ export class EntityStates {
         if (device.direction !== EnergyDirection.Source_Only) {
         }
       } else {
-        if (device.direction !== EnergyDirection.Consumer_only) {
+        if (device.direction !== EnergyDirection.Consumer_Only) {
           states.devicesElectric[index].import = this._getHomeFlowEntityStates(device.importEntities, this._energyUnits);
         }
 

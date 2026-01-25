@@ -12,7 +12,7 @@ import { SolarNode } from "@/nodes/solar";
 import { States, Flows } from "@/nodes";
 import { DataStatus, EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, PrefixThreshold, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode } from "@/enums";
+import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, PrefixThreshold, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode, EnergyDirection } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
@@ -480,8 +480,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       let flow2: number | undefined;
       let duration1: number | undefined;
       let duration2: number | undefined;
-      const cssImport: CssClass = `import-${device.cssClass}` as CssClass;
-      const cssExport: CssClass = `export-${device.cssClass}` as CssClass;
+      const cssImport: CssClass = device.direction !== EnergyDirection.Consumer_Only ? `import-${device.cssClass}` as CssClass : CssClass.None;
+      const cssExport: CssClass = device.direction !== EnergyDirection.Source_Only ? `export-${device.cssClass}` as CssClass : CssClass.None;
 
       if (device.type === EnergyType.Electric) {
         flow1 = states?.devicesElectric[index].import;
@@ -561,6 +561,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     cssAnimVariable: string
   ): void {
 
+    const enabled1To2: boolean = cssNode1Import !== CssClass.None && cssNode2Export !== CssClass.None;
+    const enabled2To1: boolean = cssNode1Export !== CssClass.None && cssNode2Import !== CssClass.None;
     const active1To2: boolean = flowNode1ToNode2 > 0;
     const active2To1: boolean = flowNode2ToNode1 > 0;
 
@@ -570,7 +572,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     let css2To1Dot: CssClass = cssNode1Export;
 
     if (!active1To2 && !active2To1) {
-      css1To2Path = CssClass.Inactive;
+      css1To2Path = css2To1Path = enabled1To2 && enabled2To1 ? CssClass.Inactive : enabled1To2 ? cssNode1Import : cssNode1Export;
     } else if (this._useHassStyles) {
       css1To2Path = css2To1Path = active2To1 ? cssNode1Export : cssNode1Import;
       css1To2Dot = cssNode1Import;
@@ -587,7 +589,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       css2To1Path = CssClass.Hidden_Path
     }
 
-    if (css1To2Path && cssNode1Import !== CssClass.None && cssNode2Export !== CssClass.None) {
+    if (css1To2Path && enabled1To2) {
       lines.push({
         cssLine: css1To2Path,
         cssDot: css1To2Dot,
@@ -597,7 +599,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
-    if (css2To1Path && cssNode2Import !== CssClass.None && cssNode1Export != CssClass.None) {
+    if (css2To1Path && enabled2To1) {
       lines.push({
         cssLine: css2To1Path,
         cssDot: css2To1Dot,

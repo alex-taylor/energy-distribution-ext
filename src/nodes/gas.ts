@@ -50,13 +50,12 @@ export class GasNode extends Node<GasConfig> {
     }
 
     const inactiveCss: CssClass = !states || !primaryState ? this.inactiveFlowsCss : CssClass.None;
-    const valueCss: string = CssClass.Gas + " " + inactiveCss;
 
     return html`
       <div class="circle ${inactiveCss}">
-        ${this.renderSecondarySpan(target, this.secondary, states?.gasSecondary, valueCss)}
-        <ha-icon class="entity-icon ${inactiveCss}" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, valueCss, units, this.firstImportEntity, undefined, primaryState, overrideGasPrefix)}
+        ${this.renderSecondarySpan(target, this.secondary, states?.gasSecondary, CssClass.Gas)}
+        <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
+        ${this.renderEnergyStateSpan(target, CssClass.Gas, units, this.firstImportEntity, undefined, primaryState, overrideGasPrefix)}
       </div>
     `;
   }

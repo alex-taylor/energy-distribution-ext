@@ -112,7 +112,7 @@ export class Colours {
           case ColourOptions.Circle:
           case ColourOptions.Icon:
           case ColourOptions.Secondary:
-            return this._direction === EnergyDirection.Consumer_only ? this.exportFlow : this.importFlow;
+            return this._direction === EnergyDirection.Consumer_Only ? this.exportFlow : this.importFlow;
 
           case ColourOptions.Value_Export:
             return this.exportFlow;

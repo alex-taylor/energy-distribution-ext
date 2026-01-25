@@ -356,7 +356,7 @@ export function getDefaultDeviceConfig(importColour: number[], exportColour: num
     [DeviceOptions.Name]: localize("common.new_device"),
     [DeviceOptions.Icon]: "mdi:devices",
     [DeviceOptions.Energy_Type]: EnergyType.Electric,
-    [DeviceOptions.Energy_Direction]: EnergyDirection.Consumer_only
+    [DeviceOptions.Energy_Direction]: EnergyDirection.Consumer_Only
   };
 }
 

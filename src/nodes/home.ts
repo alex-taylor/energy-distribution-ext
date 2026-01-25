@@ -29,7 +29,7 @@ export class HomeNode extends Node<HomeConfig> {
   public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration) {
     super(hass, cardConfig, style, EditorPages.Home, CssClass.Home);
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Consumer_only);
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Consumer_Only);
   }
 
   //================================================================================================================================================================================//
@@ -126,16 +126,15 @@ export class HomeNode extends Node<HomeConfig> {
     }
 
     const inactiveCss: string = !states || states.homeElectric === 0 ? this.inactiveFlowsCss : CssClass.None;
-    const electricCss: string = CssClass.Home + " " + CssClass.Electric + " " + inactiveCss;
-    const gasCss: string = CssClass.Home + " " + CssClass.Gas + " " + inactiveCss;
-    const secondaryCss: string = CssClass.Home + " " + inactiveCss;
+    const electricCss: string = CssClass.Home + " " + CssClass.Electric;
+    const gasCss: string = CssClass.Home + " " + CssClass.Gas;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
-        ${this.renderSecondarySpan(target, this.secondary, states?.homeSecondary, secondaryCss)}
-        <ha-icon class="entity-icon ${inactiveCss}" .icon=${this.icon}></ha-icon>
+        ${this.renderSecondarySpan(target, this.secondary, states?.homeSecondary, CssClass.Home)}
+        <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
         ${this.renderEnergyStateSpan(target, electricCss, this.energyUnits, undefined, electricIcon, electricTotal, overrideElectricUnitPrefix)}
         ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasTotal, overrideGasUnitPrefix)}
       </div>

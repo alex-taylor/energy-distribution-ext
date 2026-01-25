@@ -284,7 +284,7 @@ export abstract class Node<T> {
 
           switch (this._inactiveFlowsMode) {
             case InactiveFlowsMode.Dimmed:
-              cssFlow += " " + CssClass.Dimmed;
+//              cssFlow += " " + CssClass.Dimmed;
               break;
 
             case InactiveFlowsMode.Greyed:

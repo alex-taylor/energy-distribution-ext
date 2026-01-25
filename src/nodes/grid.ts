@@ -116,10 +116,7 @@ export class GridNode extends Node<GridConfig> {
       this.setCssVariables(this.style);
     }
 
-    const inactiveCss: string = !states || (!states.grid.import  && !states.grid.export) ? this.inactiveFlowsCss : CssClass.None;
-    const importCss: string = CssClass.Grid_Import + " " + (!states || !states.grid.import ? inactiveCss : CssClass.None);
-    const exportCss: string = CssClass.Grid_Export + " " + (!states || !states.grid.export ? inactiveCss : CssClass.None);
-    const secondaryCss: string = CssClass.Grid + " " + inactiveCss;
+    const inactiveCss: string = !states || (!states.grid.import && !states.grid.export) ? this.inactiveFlowsCss : CssClass.None;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
     const importState: number | undefined = states && this.firstImportEntity ? states.grid.import : undefined;
     const exportState: number | undefined = states && this.firstExportEntity ? states.grid.export : undefined;
@@ -129,13 +126,13 @@ export class GridNode extends Node<GridConfig> {
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 270, this.showSegmentGaps) : nothing}
-        ${this.renderSecondarySpan(target, this.secondary, states?.gridSecondary, secondaryCss)}
-        <ha-icon class="entity-icon ${inactiveCss}" .icon=${icon}></ha-icon>
+        ${this.renderSecondarySpan(target, this.secondary, states?.gridSecondary, CssClass.Grid)}
+        <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, exportCss, this.energyUnits, this.firstExportEntity, mdiArrowLeft, exportState, overridePrefix)
+        ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.energyUnits, this.firstExportEntity, mdiArrowLeft, exportState, overridePrefix)
         : html`<span class="${CssClass.Grid} power-outage">${localize("common.power_outage")}</span>`}
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, importCss, this.energyUnits, this.firstImportEntity, mdiArrowRight, importState, overridePrefix)
+        ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.energyUnits, this.firstImportEntity, mdiArrowRight, importState, overridePrefix)
         : nothing}
       </div>
     `;

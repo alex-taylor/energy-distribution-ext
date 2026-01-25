@@ -87,9 +87,8 @@ export class DeviceNode extends Node<DeviceConfig> {
     }
 
     const inactiveCss: CssClass = !states || (!importValue && !exportValue) ? this.inactiveFlowsCss : CssClass.None;
-    const importCss: string = "import-" + this.cssClass + " " + (!states || !importValue ? inactiveCss : CssClass.None);
-    const exportCss: string = "export-" + this.cssClass + " " + (!states || !exportValue ? inactiveCss : CssClass.None);
-    const secondaryCss: string = this.cssClass + " " + inactiveCss;
+    const importCss: string = "import-" + this.cssClass;
+    const exportCss: string = "export-" + this.cssClass;
     const prefix: SIUnitPrefixes | undefined = this.type === EnergyType.Electric ? overrideElectricPrefix : overrideGasPrefix;
 
     return html`
@@ -136,10 +135,10 @@ export class DeviceNode extends Node<DeviceConfig> {
       </style>
 
       <div class="circle ${inactiveCss}">
-        ${this.renderSecondarySpan(target, this.secondary, states?.devicesSecondary[index], secondaryCss)}
-        <ha-icon class="entity-icon ${inactiveCss}" .icon=${this.icon}></ha-icon>
+        ${this.renderSecondarySpan(target, this.secondary, states?.devicesSecondary[index], this.cssClass)}
+        <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
         ${this.direction !== EnergyDirection.Source_Only ? this.renderEnergyStateSpan(target, exportCss, units, this.firstExportEntity, this.direction === EnergyDirection.Both ? this.exportIcon : undefined, exportValue, prefix) : nothing}
-        ${this.direction !== EnergyDirection.Consumer_only ? this.renderEnergyStateSpan(target, importCss, units, this.firstImportEntity, this.direction === EnergyDirection.Both ? this.importIcon : undefined, importValue, prefix) : nothing}
+        ${this.direction !== EnergyDirection.Consumer_Only ? this.renderEnergyStateSpan(target, importCss, units, this.firstImportEntity, this.direction === EnergyDirection.Both ? this.importIcon : undefined, importValue, prefix) : nothing}
       </div>
     `;
   }

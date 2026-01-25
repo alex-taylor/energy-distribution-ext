@@ -102,18 +102,15 @@ export class BatteryNode extends Node<BatteryConfig> {
     const importState: number | undefined = states && this.firstImportEntity ? states.battery.import : undefined;
     const exportState: number | undefined = states && this.firstExportEntity ? states.battery.export : undefined;
     const inactiveCss: string = !states || (!states.battery.import && !states.battery.export) ? this.inactiveFlowsCss : CssClass.None;
-    const importCss: string = CssClass.Battery_Import + " " + (!states || !states.battery.import ? inactiveCss : CssClass.None);
-    const exportCss: string = CssClass.Battery_Export + " " + (!states || !states.battery.export ? inactiveCss : CssClass.None);
-    const secondaryCss: string = CssClass.Battery + " " + inactiveCss;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 180, this.showSegmentGaps) : nothing}
-        ${this.renderSecondarySpan(target, this.secondary, states?.batterySecondary, secondaryCss)}
-        <ha-icon class="entity-icon ${inactiveCss}" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, exportCss, this.energyUnits, this.firstExportEntity, this.exportIcon, exportState, overridePrefix)}
-        ${this.renderEnergyStateSpan(target, importCss, this.energyUnits, this.firstImportEntity, this.importIcon, importState, overridePrefix)}
+        ${this.renderSecondarySpan(target, this.secondary, states?.batterySecondary, CssClass.Battery)}
+        <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.energyUnits, this.firstExportEntity, this.exportIcon, exportState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.energyUnits, this.firstImportEntity, this.importIcon, importState, overridePrefix)}
       </div>
     `;
   }

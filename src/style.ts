@@ -144,7 +144,7 @@ export const styles: CSSResult = css`
   }
 
   .dimmed {
-    opacity: 40%;
+    opacity: 25%;
   }
 
   span {
