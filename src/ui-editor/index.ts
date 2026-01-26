@@ -11,6 +11,10 @@ export const computeLabelCallback = memoizeOne((schema: any): string => {
   }
 
   if (schema.key && schema.key.name) {
+    if (schema.page) {
+      return localize(`${schema.key.name}.${schema.name}.${schema.page}`);
+    }
+
     return localize(`${schema.key.name}.${schema.name}`);
   }
 

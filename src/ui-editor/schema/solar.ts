@@ -6,5 +6,5 @@ import memoizeOne from 'memoize-one';
 
 export const solarSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondaryEntities: string[]): any[] => {
   const solarConfig: SolarConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Solar);
-  return nodeConfigSchema(singleValueNodeSchema(solarConfig, ELECTRIC_ENTITY_CLASSES, true), secondaryEntities);
+  return nodeConfigSchema(singleValueNodeSchema(solarConfig, EditorPages.Solar, ELECTRIC_ENTITY_CLASSES, true), secondaryEntities);
 });

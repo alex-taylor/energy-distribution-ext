@@ -35,7 +35,7 @@ export class SolarNode extends Node<SolarConfig> {
     );
 
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Source_Only, undefined, "var(--energy-solar-color)");
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Producer_Only, undefined, "var(--energy-solar-color)");
     this.setCssVariables(style);
     this.style.setProperty("--flow-solar-color", this.colours.importFlow);
   }

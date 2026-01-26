@@ -481,7 +481,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       let duration1: number | undefined;
       let duration2: number | undefined;
       const cssImport: CssClass = device.direction !== EnergyDirection.Consumer_Only ? `import-${device.cssClass}` as CssClass : CssClass.None;
-      const cssExport: CssClass = device.direction !== EnergyDirection.Source_Only ? `export-${device.cssClass}` as CssClass : CssClass.None;
+      const cssExport: CssClass = device.direction !== EnergyDirection.Producer_Only ? `export-${device.cssClass}` as CssClass : CssClass.None;
 
       if (device.type === EnergyType.Electric) {
         flow1 = states?.devicesElectric[index].import;

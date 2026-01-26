@@ -137,7 +137,7 @@ export class DeviceNode extends Node<DeviceConfig> {
       <div class="circle ${inactiveCss}">
         ${this.renderSecondarySpan(target, this.secondary, states?.devicesSecondary[index], this.cssClass)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.direction !== EnergyDirection.Source_Only ? this.renderEnergyStateSpan(target, exportCss, units, this.firstExportEntity, this.direction === EnergyDirection.Both ? this.exportIcon : undefined, exportValue, prefix) : nothing}
+        ${this.direction !== EnergyDirection.Producer_Only ? this.renderEnergyStateSpan(target, exportCss, units, this.firstExportEntity, this.direction === EnergyDirection.Both ? this.exportIcon : undefined, exportValue, prefix) : nothing}
         ${this.direction !== EnergyDirection.Consumer_Only ? this.renderEnergyStateSpan(target, importCss, units, this.firstImportEntity, this.direction === EnergyDirection.Both ? this.importIcon : undefined, importValue, prefix) : nothing}
       </div>
     `;

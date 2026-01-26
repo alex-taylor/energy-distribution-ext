@@ -6,5 +6,5 @@ import memoizeOne from 'memoize-one';
 
 export const gasSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondaryEntities: string[]): any[] => {
   const gasConfig: GasConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Gas);
-  return nodeConfigSchema(singleValueNodeSchema(gasConfig, GAS_ENTITY_CLASSES), secondaryEntities);
+  return nodeConfigSchema(singleValueNodeSchema(gasConfig, EditorPages.Gas, GAS_ENTITY_CLASSES), secondaryEntities);
 });

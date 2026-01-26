@@ -5,5 +5,5 @@ import memoizeOne from 'memoize-one';
 
 export const batterySchema = memoizeOne((config: EnergyFlowCardExtConfig, secondaryEntities: string []): any[] => {
   const batteryConfig: BatteryConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Battery);
-  return nodeConfigSchema(dualValueNodeSchema(batteryConfig), secondaryEntities);
+  return nodeConfigSchema(dualValueNodeSchema(batteryConfig, EditorPages.Battery), secondaryEntities);
 });

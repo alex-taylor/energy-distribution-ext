@@ -7,7 +7,7 @@ import memoizeOne from 'memoize-one';
 export const lowCarbonSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondaryEntities: string[]): any[] => {
   const lowCarbonConfig: LowCarbonConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Low_Carbon);
 
-  return [singleValueColourSchema(lowCarbonConfig)]
+  return [singleValueColourSchema(lowCarbonConfig, EditorPages.Low_Carbon)]
     .concat(nodeConfigSchema([], secondaryEntities))
     .concat(
       {

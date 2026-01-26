@@ -1,4 +1,4 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig } from '@/config';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig, EditorPages } from '@/config';
 import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode } from '@/enums';
 import { localize } from '@/localize/localize';
 import { BASIC_COLOUR_MODES, BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue } from '@/config/config';
@@ -154,23 +154,24 @@ export const nodeConfigSchema = memoizeOne((entitySchema: any[] = [], secondaryE
 
 //================================================================================================================================================================================//
 
-export const singleValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, deviceClasses: string[], isSolarNode: boolean = false): any[] => {
+export const singleValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, page: EditorPages, deviceClasses: string[], isSolarNode: boolean = false): any[] => {
   return [
     {
       key: NodeOptions,
+      page: page,
       name: NodeOptions.Import_Entities,
       type: SchemaTypes.Expandable,
       schema: [
         { key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: deviceClasses } } }
       ]
     },
-    singleValueColourSchema(schemaConfig, isSolarNode)
+    singleValueColourSchema(schemaConfig, page, isSolarNode)
   ];
 });
 
 //================================================================================================================================================================================//
 
-export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, isSolarNode: boolean = false): {} => {
+export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, page: EditorPages, isSolarNode: boolean = false): {} => {
   return {
     key: NodeOptions,
     name: NodeOptions.Colours,
@@ -181,11 +182,13 @@ export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, isS
         schema: [
           ...colourSchema(
             schemaConfig,
+            page,
             ColourOptions.Flow_Import,
             getDropdownValues(ColourMode, BASIC_COLOUR_MODES),
           ),
           ...colourSchema(
             schemaConfig,
+            undefined,
             ColourOptions.Circle,
             isSolarNode
               ? getDropdownValues(ColourMode, [ColourMode.Dynamic, ...BASIC_COLOUR_MODES_SINGLE])
@@ -193,16 +196,19 @@ export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, isS
           ),
           ...colourSchema(
             schemaConfig,
+            page,
             ColourOptions.Value_Import,
             getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
           ),
           ...colourSchema(
             schemaConfig,
+            undefined,
             ColourOptions.Icon,
             getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
           ),
           ...colourSchema(
             schemaConfig,
+            undefined,
             ColourOptions.Secondary,
             getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
           )
@@ -214,10 +220,11 @@ export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, isS
 
 //================================================================================================================================================================================//
 
-export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig): any[] => {
+export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, page: EditorPages): any[] => {
   return [
     {
       key: NodeOptions,
+      page: page,
       name: NodeOptions.Import_Entities,
       type: SchemaTypes.Expandable,
       schema: [
@@ -226,6 +233,7 @@ export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig): any[] 
     },
     {
       key: NodeOptions,
+      page: page,
       name: NodeOptions.Export_Entities,
       type: SchemaTypes.Expandable,
       schema: [
@@ -242,38 +250,45 @@ export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig): any[] 
           schema: [
             ...colourSchema(
               schemaConfig,
+              page,
               ColourOptions.Flow_Import,
               getDropdownValues(ColourMode, BASIC_COLOUR_MODES)
             ),
             ...colourSchema(
               schemaConfig,
+              page,
               ColourOptions.Flow_Export,
               getDropdownValues(ColourMode, BASIC_COLOUR_MODES)
             ),
             ...colourSchema(
               schemaConfig,
+              undefined,
               ColourOptions.Circle,
-              getDropdownValues(ColourMode, [ColourMode.Dynamic, ...BASIC_COLOUR_MODES_DUAL])
+              getDropdownValues(ColourMode, [ColourMode.Dynamic, ...BASIC_COLOUR_MODES_DUAL], page)
             ),
             ...colourSchema(
               schemaConfig,
+              page,
               ColourOptions.Value_Import,
               getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
             ),
             ...colourSchema(
               schemaConfig,
+              page,
               ColourOptions.Value_Export,
               getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
             ),
             ...colourSchema(
               schemaConfig,
+              undefined,
               ColourOptions.Icon,
-              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL, page)
             ),
             ...colourSchema(
               schemaConfig,
+              undefined,
               ColourOptions.Secondary,
-              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL, page)
             )
           ]
         }
@@ -284,10 +299,11 @@ export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig): any[] 
 
 //================================================================================================================================================================================//
 
-export const colourSchema = memoizeOne((config: NodeConfig, name: ColourOptions, options: DropdownValue[]): any[] => {
+export const colourSchema = memoizeOne((config: NodeConfig, page: EditorPages | undefined, name: ColourOptions, options: DropdownValue[]): any[] => {
   return [
     {
       key: ColourOptions,
+      page: page,
       name: name,
       required: true,
       selector: {
@@ -297,7 +313,7 @@ export const colourSchema = memoizeOne((config: NodeConfig, name: ColourOptions,
         }
       }
     },
-    getConfigValue(config, [NodeOptions.Colours, name]) === ColourMode.Custom ? { key: ColourOptions, name: name.replace("mode", "colour"), selector: { color_rgb: {} } } : {}
+    getConfigValue(config, [NodeOptions.Colours, name]) === ColourMode.Custom ? { key: ColourOptions, page: page, name: name.replace("mode", "colour"), selector: { color_rgb: {} } } : {}
   ];
 });
 
@@ -331,13 +347,13 @@ const displayPrecisionSelector = memoizeOne((): {} => {
 
 //================================================================================================================================================================================//
 
-export const dropdownSelector = memoizeOne((type: any): {} => {
-  return { select: { mode: SelectorModes.Dropdown, options: getDropdownValues(type) } };
+export const dropdownSelector = memoizeOne((type: any, page?: EditorPages): {} => {
+  return { select: { mode: SelectorModes.Dropdown, options: getDropdownValues(type, [], page) } };
 });
 
 //================================================================================================================================================================================//
 
-export function getDropdownValues<T>(type: T, values: string[] = []): DropdownValue[] {
+export function getDropdownValues<T>(type: T, values: string[] = [], page?: EditorPages): DropdownValue[] {
   const enumValues: string[] = Object.values(type as any);
 
   if (values.length === 0) {
@@ -348,7 +364,7 @@ export function getDropdownValues<T>(type: T, values: string[] = []): DropdownVa
 
   return values.map(value => {
     return {
-      label: localize((type as any).name + "." + value),
+      label: localize((type as any).name + "." + value + (page ? "." + page : ""), "") || localize((type as any).name + "." + value),
       value: value
     }
   });

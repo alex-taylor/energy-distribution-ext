@@ -1,4 +1,4 @@
-import { ColourOptions, DeviceConfig, DeviceOptions, NodeOptions, EntitiesOptions } from '@/config';
+import { ColourOptions, DeviceConfig, DeviceOptions, NodeOptions, EntitiesOptions, EditorPages } from '@/config';
 import { colourSchema, dropdownSelector, getDropdownValues, SchemaTypes, secondaryInfoSchema } from '.';
 import { ColourMode, DeviceClasses, EnergyDirection, EnergyType } from '@/enums';
 import { BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, DEFAULT_DEVICE_CONFIG, getConfigValue } from '@/config/config';
@@ -22,13 +22,15 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
     energyDirection !== EnergyDirection.Consumer_Only ?
       {
         key: NodeOptions,
+        page: EditorPages.Devices,
         name: NodeOptions.Import_Entities,
         type: SchemaTypes.Expandable,
         schema: [{ key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Energy } } }]
       } : {},
-    energyDirection !== EnergyDirection.Source_Only ?
+    energyDirection !== EnergyDirection.Producer_Only ?
       {
         key: NodeOptions,
+        page: EditorPages.Devices,
         name: NodeOptions.Export_Entities,
         type: SchemaTypes.Expandable,
         schema: [{ key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Energy } } }]
@@ -45,21 +47,21 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
   switch (energyDirection) {
     case EnergyDirection.Both:
       colourSchemas.push(
-        { key: ColourOptions, name: ColourOptions.Flow_Import_Colour, selector: { color_rgb: {} } },
-        { key: ColourOptions, name: ColourOptions.Flow_Export_Colour, selector: { color_rgb: {} } }
+        { key: ColourOptions, page: EditorPages.Devices, name: ColourOptions.Flow_Import_Colour, selector: { color_rgb: {} } },
+        { key: ColourOptions, page: EditorPages.Devices, name: ColourOptions.Flow_Export_Colour, selector: { color_rgb: {} } }
       );
       break;
 
     case EnergyDirection.Consumer_Only:
       colourSchemas.push(
-        { key: ColourOptions, name: ColourOptions.Flow_Export_Colour, selector: { color_rgb: {} } },
+        { key: ColourOptions, page: EditorPages.Devices, name: ColourOptions.Flow_Export_Colour, selector: { color_rgb: {} } },
         {}
       );
       break;
 
-    case EnergyDirection.Source_Only:
+    case EnergyDirection.Producer_Only:
       colourSchemas.push(
-        { key: ColourOptions, name: ColourOptions.Flow_Import_Colour, selector: { color_rgb: {} } },
+        { key: ColourOptions, page: EditorPages.Devices, name: ColourOptions.Flow_Import_Colour, selector: { color_rgb: {} } },
         {}
       );
       break;
@@ -69,14 +71,16 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
     colourSchemas.push(
       ...colourSchema(
         schemaConfig,
+        undefined,
         ColourOptions.Circle,
-        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL, EditorPages.Devices)
       )
     );
   } else {
     colourSchemas.push(
       ...colourSchema(
         schemaConfig,
+        undefined,
         ColourOptions.Circle,
         getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       )
@@ -87,16 +91,18 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
     colourSchemas.push(
       ...colourSchema(
         schemaConfig,
+        EditorPages.Devices,
         ColourOptions.Value_Import,
         getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       )
     );
   }
 
-  if (energyDirection !== EnergyDirection.Source_Only) {
+  if (energyDirection !== EnergyDirection.Producer_Only) {
     colourSchemas.push(
       ...colourSchema(
         schemaConfig,
+        EditorPages.Devices,
         ColourOptions.Value_Export,
         getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       )
@@ -107,24 +113,28 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
     colourSchemas.push(
       ...colourSchema(
         schemaConfig,
+        undefined,
         ColourOptions.Icon,
-        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL, EditorPages.Devices)
       ),
       ...colourSchema(
         schemaConfig,
+        undefined,
         ColourOptions.Secondary,
-        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
+        getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL, EditorPages.Devices)
       )
     );
   } else {
     colourSchemas.push(
       ...colourSchema(
         schemaConfig,
+        undefined,
         ColourOptions.Icon,
         getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       ),
       ...colourSchema(
         schemaConfig,
+        undefined,
         ColourOptions.Secondary,
         getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
       )

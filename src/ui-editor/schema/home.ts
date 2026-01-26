@@ -21,21 +21,25 @@ export const homeSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondary
             schema: [
               ...colourSchema(
                 homeConfig,
+                undefined,
                 ColourOptions.Circle,
                 getDropdownValues(ColourMode, [ColourMode.Dynamic, ...COLOUR_MODES])
               ),
               ...colourSchema(
                 homeConfig,
+                EditorPages.Home,
                 ColourOptions.Value_Export,
                 getDropdownValues(ColourMode, COLOUR_MODES)
               ),
               ...colourSchema(
                 homeConfig,
+                undefined,
                 ColourOptions.Icon,
                 getDropdownValues(ColourMode, COLOUR_MODES)
               ),
               ...colourSchema(
                 homeConfig,
+                undefined,
                 ColourOptions.Secondary,
                 getDropdownValues(ColourMode, COLOUR_MODES)
               )

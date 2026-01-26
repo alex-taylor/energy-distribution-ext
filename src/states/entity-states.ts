@@ -342,7 +342,7 @@ export class EntityStates {
           states.devicesGasVolume[index].import += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.importEntities, volumeUnits)
         }
 
-        if (device.direction !== EnergyDirection.Source_Only) {
+        if (device.direction !== EnergyDirection.Producer_Only) {
           states.devicesGas[index].export += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.exportEntities, energyUnits)
           states.devicesGasVolume[index].export += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.exportEntities, volumeUnits)
         }
@@ -351,7 +351,7 @@ export class EntityStates {
           states.devicesElectric[index].import += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.importEntities, energyUnits)
         }
 
-        if (device.direction !== EnergyDirection.Source_Only) {
+        if (device.direction !== EnergyDirection.Producer_Only) {
           states.devicesElectric[index].export += this._getStateDelta(periodStart, periodEnd, primaryStatistics, device.exportEntities, energyUnits)
         }
       }
@@ -656,14 +656,14 @@ export class EntityStates {
           states.devicesGasVolume[index].export = this._getHomeFlowEntityStates(device.exportEntities, this._volumeUnits);
         }
 
-        if (device.direction !== EnergyDirection.Source_Only) {
+        if (device.direction !== EnergyDirection.Producer_Only) {
         }
       } else {
         if (device.direction !== EnergyDirection.Consumer_Only) {
           states.devicesElectric[index].import = this._getHomeFlowEntityStates(device.importEntities, this._energyUnits);
         }
 
-        if (device.direction !== EnergyDirection.Source_Only) {
+        if (device.direction !== EnergyDirection.Producer_Only) {
           states.devicesElectric[index].export = this._getHomeFlowEntityStates(device.importEntities, this._energyUnits);
         }
       }

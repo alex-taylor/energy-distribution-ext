@@ -50,8 +50,16 @@ export default {
     [ColourMode.Flow]: "Same as flow",
     [ColourMode.Larger_Value]: "Larger value",
     [ColourMode.Largest_Value]: "Largest value",
-    [ColourMode.Import]: "Import",
-    [ColourMode.Export]: "Export",
+    [ColourMode.Import]: {
+      [EditorPages.Battery]: "Discharge",
+      [EditorPages.Devices]: "Producer",
+      [EditorPages.Grid]: "Import"
+    },
+    [ColourMode.Export]: {
+      [EditorPages.Battery]: "Charge",
+      [EditorPages.Devices]: "Consumer",
+      [EditorPages.Grid]: "Export"
+    },
     [ColourMode.Dynamic]: "Color dynamically",
     [ColourMode.Solar]: "Solar",
     [ColourMode.High_Carbon]: "High-carbon",
@@ -65,18 +73,58 @@ export default {
   "ColourOptions": {
     [ColourOptions.Circle]: "Circle",
     [ColourOptions.Circle_Colour]: "Circle color",
-    [ColourOptions.Flow_Export]: "Export flow",
-    [ColourOptions.Flow_Export_Colour]: "Export color",
-    [ColourOptions.Flow_Import]: "Import flow",
-    [ColourOptions.Flow_Import_Colour]: "Import color",
+    [ColourOptions.Flow_Export]: {
+      [EditorPages.Battery]: "Charge flow",
+      [EditorPages.Devices]: "Consumer flow",
+      [EditorPages.Grid]: "Export flow"
+    },
+    [ColourOptions.Flow_Export_Colour]: {
+      [EditorPages.Battery]: "Charge color",
+      [EditorPages.Devices]: "Consumer color",
+      [EditorPages.Grid]: "Export color"
+    },
+    [ColourOptions.Flow_Import]: {
+      [EditorPages.Battery]: "Discharge flow",
+      [EditorPages.Devices]: "Producer flow",
+      [EditorPages.Gas]: "Flow",
+      [EditorPages.Grid]: "Import flow",
+      [EditorPages.Solar]: "Flow"
+    },
+    [ColourOptions.Flow_Import_Colour]: {
+      [EditorPages.Battery]: "Discharge color",
+      [EditorPages.Devices]: "Producer color",
+      [EditorPages.Gas]: "Flow color",
+      [EditorPages.Grid]: "Import color",
+      [EditorPages.Solar]: "Flow color"
+    },
     [ColourOptions.Icon]: "Icon",
     [ColourOptions.Icon_Colour]: "Icon color",
     [ColourOptions.Secondary]: "Secondary value",
     [ColourOptions.Secondary_Colour]: "Secondary value color",
-    [ColourOptions.Value_Export]: "Export value",
-    [ColourOptions.Value_Export_Colour]: "Export color",
-    [ColourOptions.Value_Import]: "Import value",
-    [ColourOptions.Value_Import_Colour]: "Import color"
+    [ColourOptions.Value_Export]: {
+      [EditorPages.Battery]: "Charge value",
+      [EditorPages.Devices]: "Consumer value",
+      [EditorPages.Grid]: "Export value"
+    },
+    [ColourOptions.Value_Export_Colour]: {
+      [EditorPages.Battery]: "Charge color",
+      [EditorPages.Devices]: "Consumer color",
+      [EditorPages.Grid]: "Export color"
+    },
+    [ColourOptions.Value_Import]: {
+      [EditorPages.Battery]: "Discharge value",
+      [EditorPages.Devices]: "Producer value",
+      [EditorPages.Gas]: "Value",
+      [EditorPages.Grid]: "Import value",
+      [EditorPages.Solar]: "Value"
+    },
+    [ColourOptions.Value_Import_Colour]: {
+      [EditorPages.Battery]: "Discharge color",
+      [EditorPages.Devices]: "Producer color",
+      [EditorPages.Gas]: "Value color",
+      [EditorPages.Grid]: "Import color",
+      [EditorPages.Solar]: "Value color"
+    }
   },
 
   "DeviceOptions": {
@@ -106,7 +154,7 @@ export default {
 
   "EnergyDirection": {
     [EnergyDirection.Consumer_Only]: "Consumer",
-    [EnergyDirection.Source_Only]: "Source",
+    [EnergyDirection.Producer_Only]: "Producer",
     [EnergyDirection.Both]: "Both"
   },
 
@@ -196,8 +244,18 @@ export default {
 
   "NodeOptions": {
     [NodeOptions.Colours]: "Colors",
-    [NodeOptions.Export_Entities]: "Export Entities",
-    [NodeOptions.Import_Entities]: "Import Entities",
+    [NodeOptions.Export_Entities]: {
+      [EditorPages.Battery]: "Charge Entities",
+      [EditorPages.Devices]: "Consumer Entities",
+      [EditorPages.Grid]: "Export Entities"
+    },
+    [NodeOptions.Import_Entities]: {
+      [EditorPages.Battery]: "Discharge Entities",
+      [EditorPages.Devices]: "Producer Entities",
+      [EditorPages.Gas]: "Entities",
+      [EditorPages.Grid]: "Import Entities",
+      [EditorPages.Solar]: "Entities"
+    },
     [NodeOptions.Overrides]: "Overrides",
     [NodeOptions.Secondary_Info]: "Secondary Info"
   },

@@ -6,7 +6,7 @@ import memoizeOne from 'memoize-one';
 export const gridSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondaryEntities: string[]): any[] => {
   const gridConfig: GridConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Grid);
 
-  return nodeConfigSchema(dualValueNodeSchema(gridConfig), secondaryEntities)
+  return nodeConfigSchema(dualValueNodeSchema(gridConfig, EditorPages.Grid), secondaryEntities)
     .concat(
       {
         key: GridOptions,

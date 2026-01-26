@@ -30,7 +30,7 @@ export class GasNode extends Node<GasConfig> {
       GasNode._getHassEntities(energySources)
     );
 
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Source_Only, undefined, "var(--energy-gas-color)");
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Producer_Only, undefined, "var(--energy-gas-color)");
     this.setCssVariables(style);
     this.style.setProperty("--flow-gas-color", this.colours.importFlow);
   }

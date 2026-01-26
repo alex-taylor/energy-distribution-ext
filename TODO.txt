@@ -11,17 +11,11 @@ Card:
       - this could be done using the secondary, although then we'd need to know that it was a SoC in order to manage the main icon
         - we could check its device_class: if "battery" then it's a SoC
     - see what else should be changed/hidden
+      - labelling in the UI will need to be dynamic, unless Power entities are in a separate field in the config
   - BUG: the dots are being rendered at the (0,0) of the lines panel
     - may now be fixed?
   - BUG: the 'Loading' message appears over a very short card, looks like while the lines are being rendered the nodes are not
     - may now be fixed?
-
-Editor:
-  - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
-    - also for Devices, where 'export' ('consumption') and 'import' ('production') will be confusing!
-      - and the main colours should be 'Flow'
-    - it's too much work to change the underlying config fields, so this is strictly a cosmetic thing in the UI
-    - this will also need to handle Power labelling, unless Power entities are in a separate field in the config
 
 
 

@@ -22,12 +22,16 @@ export function localize(key: string, fallback: string | undefined = undefined):
     translated = getTranslatedString(key, DEFAULT_LANGUAGE);
   }
 
-  if (lang === "en_GB") {
-    translated = translated?.replace("color", "colour");
-    translated = translated?.replace("Color", "Colour");
-    translated = translated?.replace("meter", "metre");
-    translated = translated?.replace("Liter", "Litre");
-    translated = translated?.replace("Initializing", "Initialising");
+  if (typeof translated !== "string") {
+    return fallback ?? key;
+  }
+
+  if (lang === "en_GB" && translated.replace) {
+    translated = translated.replace("color", "colour");
+    translated = translated.replace("Color", "Colour");
+    translated = translated.replace("meter", "metre");
+    translated = translated.replace("Liter", "Litre");
+    translated = translated.replace("Initializing", "Initialising");
   }
 
   return translated ?? fallback ?? key;
