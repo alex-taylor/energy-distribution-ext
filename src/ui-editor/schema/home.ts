@@ -4,6 +4,8 @@ import { ColourOptions, NodeOptions, HomeConfig, GlobalOptions, HomeOptions, Ene
 import { DEFAULT_HOME_CONFIG, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
 
+const COLOUR_MODES: ColourMode[] = [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom];
+
 export const homeSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondaryEntities: string[]): any[] => {
   const homeConfig: HomeConfig = getConfigValue([config, DEFAULT_HOME_CONFIG], EditorPages.Home);
 
@@ -20,22 +22,22 @@ export const homeSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondary
               ...colourSchema(
                 homeConfig,
                 ColourOptions.Circle,
-                getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
+                getDropdownValues(ColourMode, [ColourMode.Dynamic, ...COLOUR_MODES])
               ),
               ...colourSchema(
                 homeConfig,
                 ColourOptions.Value_Export,
-                getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
+                getDropdownValues(ColourMode, COLOUR_MODES)
               ),
               ...colourSchema(
                 homeConfig,
                 ColourOptions.Icon,
-                getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
+                getDropdownValues(ColourMode, COLOUR_MODES)
               ),
               ...colourSchema(
                 homeConfig,
                 ColourOptions.Secondary,
-                getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Largest_Value, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom])
+                getDropdownValues(ColourMode, COLOUR_MODES)
               )
             ]
           }

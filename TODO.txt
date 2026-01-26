@@ -22,7 +22,6 @@ Editor:
       - and the main colours should be 'Flow'
     - it's too much work to change the underlying config fields, so this is strictly a cosmetic thing in the UI
     - this will also need to handle Power labelling, unless Power entities are in a separate field in the config
-  - refactor out the dropdown options lists, there's a lot of duplication going on!
 
 
 

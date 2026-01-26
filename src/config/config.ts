@@ -23,6 +23,7 @@ export const DEFAULT_DEVICE_CONFIG: DeviceConfig = getDefaultDeviceConfig([], []
 
 //================================================================================================================================================================================//
 
+export const BASIC_COLOUR_MODES: ColourMode[] = [ColourMode.Default, ColourMode.Custom];
 export const BASIC_COLOUR_MODES_SINGLE: ColourMode[] = [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom];
 export const BASIC_COLOUR_MODES_DUAL: ColourMode[] = [ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Do_Not_Colour, ColourMode.Custom];
 

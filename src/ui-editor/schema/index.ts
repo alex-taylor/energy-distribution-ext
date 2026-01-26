@@ -1,10 +1,8 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig, isValidSecondaryEntity } from '@/config';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig } from '@/config';
 import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode } from '@/enums';
 import { localize } from '@/localize/localize';
-import { getConfigValue } from '@/config/config';
+import { BASIC_COLOUR_MODES, BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
-import { HomeAssistant } from 'custom-card-helpers';
-import { EntityRegistryEntry } from '../../hass';
 
 //================================================================================================================================================================================//
 
@@ -184,29 +182,29 @@ export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, isS
           ...colourSchema(
             schemaConfig,
             ColourOptions.Flow_Import,
-            getDropdownValues(ColourMode, [ColourMode.Default, ColourMode.Custom]),
+            getDropdownValues(ColourMode, BASIC_COLOUR_MODES),
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Circle,
             isSolarNode
-              ? getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
-              : getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+              ? getDropdownValues(ColourMode, [ColourMode.Dynamic, ...BASIC_COLOUR_MODES_SINGLE])
+              : getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Value_Import,
-            getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+            getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Icon,
-            getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+            getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
           ),
           ...colourSchema(
             schemaConfig,
             ColourOptions.Secondary,
-            getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+            getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
           )
         ]
       }
@@ -245,37 +243,37 @@ export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig): any[] 
             ...colourSchema(
               schemaConfig,
               ColourOptions.Flow_Import,
-              getDropdownValues(ColourMode, [ColourMode.Default, ColourMode.Custom])
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES)
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Flow_Export,
-              getDropdownValues(ColourMode, [ColourMode.Default, ColourMode.Custom])
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES)
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Circle,
-              getDropdownValues(ColourMode, [ColourMode.Dynamic, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Do_Not_Colour, ColourMode.Custom])
+              getDropdownValues(ColourMode, [ColourMode.Dynamic, ...BASIC_COLOUR_MODES_DUAL])
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Value_Import,
-              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Value_Export,
-              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Flow, ColourMode.Custom])
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_SINGLE)
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Icon,
-              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
             ),
             ...colourSchema(
               schemaConfig,
               ColourOptions.Secondary,
-              getDropdownValues(ColourMode, [ColourMode.Do_Not_Colour, ColourMode.Larger_Value, ColourMode.Import, ColourMode.Export, ColourMode.Custom])
+              getDropdownValues(ColourMode, BASIC_COLOUR_MODES_DUAL)
             )
           ]
         }
