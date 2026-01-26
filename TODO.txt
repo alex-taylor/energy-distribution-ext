@@ -20,7 +20,8 @@ Editor:
   - dynamic labelling for, eg, Battery's import ('discharge') and export ('charge') fields in the UI
     - also for Devices, where 'export' ('consumption') and 'import' ('production') will be confusing!
       - and the main colours should be 'Flow'
-    - it's too much work to change the underlying config fields, so this is strictly a cosmetic thing in the UK
+    - it's too much work to change the underlying config fields, so this is strictly a cosmetic thing in the UI
+    - this will also need to handle Power labelling, unless Power entities are in a separate field in the config
   - refactor out the dropdown options lists, there's a lot of duplication going on!
   - BUG: Devices page-link not showing its status-icon
   - BUG: both Grid and Gas are reporting a missing entity on the editor page when a secondary is present

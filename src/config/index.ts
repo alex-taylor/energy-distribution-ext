@@ -222,7 +222,7 @@ export interface EnergyUnitsConfig {
   [EnergyUnitsOptions.Display_Precision_Under_10]?: number;
   [EnergyUnitsOptions.Display_Precision_Under_100]?: number;
   [EnergyUnitsOptions.Display_Precision_Default]?: number;
-  [EnergyUnitsOptions.Prefix_Threshold]?: PrefixThreshold;
+  [EnergyUnitsOptions.Prefix_Threshold]?: number | string;
   [EnergyUnitsOptions.Gas_Calorific_Value]?: number;
 };
 

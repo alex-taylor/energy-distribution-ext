@@ -28,7 +28,7 @@ const energyUnitsOptionsConfigStruct = object({
   [EnergyUnitsOptions.Display_Precision_Under_10]: optional(integer()),
   [EnergyUnitsOptions.Display_Precision_Under_100]: optional(integer()),
   [EnergyUnitsOptions.Display_Precision_Default]: optional(integer()),
-  [EnergyUnitsOptions.Prefix_Threshold]: optional(string()),
+  [EnergyUnitsOptions.Prefix_Threshold]: optional(number()),
   [EnergyUnitsOptions.Gas_Calorific_Value]: optional(number())
 });
 
