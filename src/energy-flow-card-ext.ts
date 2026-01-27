@@ -115,7 +115,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _solarToHomePath: string = "";
   private _solarToGridPath: string = "";
   private _batteryToHomePath: string = "";
-  private _gridToBatteryPath: string = "";
+  private _batteryToGridPath: string = "";
   private _gasToHomePath: string = "";
   private _lowCarbonToGridPath: string = "";
   private _devicePaths: string[] = [];
@@ -441,15 +441,15 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     if (battery.isPresent && grid.isPresent) {
       this._renderBiDiFlowLine(
         lines,
-        this._gridToBatteryPath,
-        flows?.gridToBattery,
+        this._batteryToGridPath,
         flows?.batteryToGrid,
-        animationDurations?.gridToBattery,
+        flows?.gridToBattery,
         animationDurations?.batteryToGrid,
-        CssClass.Grid_Import,
-        CssClass.Grid_Export,
+        animationDurations?.gridToBattery,
         CssClass.Battery_Import,
         CssClass.Battery_Export,
+        CssClass.Grid_Import,
+        CssClass.Grid_Export,
         CssClass.Grid_Battery_Anim,
         "--grid-battery-anim-duration"
       );
@@ -572,12 +572,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     let css2To1Dot: CssClass = cssNode1Export;
 
     if (!active1To2 && !active2To1) {
-      css1To2Path = css2To1Path = enabled1To2 && enabled2To1 ? CssClass.Inactive : enabled1To2 ? cssNode1Import : cssNode1Export;
+      css1To2Path = css2To1Path = enabled1To2 && enabled2To1 ? CssClass.Inactive : enabled1To2 ? cssNode2Export : cssNode1Export;
     } else if (this._useHassStyles) {
-      css1To2Path = css2To1Path = active2To1 ? cssNode1Export : cssNode1Import;
-      css1To2Dot = cssNode1Import;
+      css1To2Path = css2To1Path = active2To1 ? cssNode2Export : cssNode2Import;
+      css1To2Dot = cssNode2Export;
     } else if (!active1To2 && active2To1) {
-      css2To1Path = cssNode2Export;
+      css2To1Path = cssNode1Export;
     } else if (!active2To1 && active1To2) {
       css1To2Path = cssNode2Export;
     } else if (this._animationEnabled) {
@@ -732,14 +732,14 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       this._gridToHomePath = lowerLeftLine;
       this._solarToHomePath = vertLine;
       this._batteryToHomePath = lowerRightLine;
-      this._gridToBatteryPath = horizLine;
+      this._batteryToGridPath = horizLine;
       this._gasToHomePath = `M${col1 + lineInset},${isTopRowPresent ? row3 : row2} H${col2 - lineInset}`;
     } else {
       this._solarToBatteryPath = vertLine;
       this._gridToHomePath = horizLine;
       this._solarToHomePath = upperRightLine;
       this._batteryToHomePath = lowerRightLine;
-      this._gridToBatteryPath = lowerLeftLine;
+      this._batteryToGridPath = lowerLeftLine;
       this._gasToHomePath = `M${col3},${row1 + lineInset} V${row2 - lineInset}`;
     }
 
