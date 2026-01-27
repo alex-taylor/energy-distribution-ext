@@ -1,9 +1,10 @@
 TODO
 ----
 
-Card:
+Code
+----
+
   - add support for Power
-    - new 'mode' option: 'Energy' / 'Power'
     - single-entities for Grid/Battery/Devices
     - no stats-gathering, just sensors
     - sensor types are now Power and Measurement
@@ -12,6 +13,19 @@ Card:
         - we could check its device_class: if "battery" then it's a SoC
     - see what else should be changed/hidden
       - labelling in the UI will need to be dynamic, unless Power entities are in a separate field in the config
+  - fix pruneConfig()
+    - if 'overrides' is cleared, you get an empty object in the config
+    - also need to filter out power-only and energy-only properties, depending on mode
+      - so we need either:
+        - not to do this at all until we are persisting the config
+        - two modes of operation: persist, and refresh the editor
+    - and do not filter out unknown keys, as these may come from HASS, CardMod, etc
+    - see if it can be used to filter out 'bad' config rather than forcing the user into YAML mode
+      - or failing that - is there any way to find out from validation what the bad config is so we can at least *tell* the user?
+        - looks like it - see superstruct
+      - should be able to detect invalid enum values: right now they are validated (because it accepts any string), but cannot be parsed which dumps the user into YAML mode with no way of knowing what caused this
+      - verify that validate does not blow up when unknown keys are encountered
+
   - BUG: the dots are being rendered at the (0,0) of the lines panel
     - may now be fixed?
   - BUG: the 'Loading' message appears over a very short card, looks like while the lines are being rendered the nodes are not
@@ -22,11 +36,6 @@ Card:
 Under consideration
 -------------------
 
-  - may be able to remove pruneConfig() now
-    - or not: if 'overrides' is cleared, you get an empty object in the config...
-    - but see if it can be used to filter out 'bad' config rather than forcing the user into YAML mode
-      - or failing that - is there any way to find out from validation what the bad config is so we can at least *tell* the user?
-        - looks like it - see superstruct
   - alternative flow algorithm which prioritises House->Battery->Grid
     - implementation:
       - define consts/enum for the four nodes: House, Grid, Battery, Solar

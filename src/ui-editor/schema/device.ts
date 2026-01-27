@@ -1,10 +1,10 @@
 import { ColourOptions, DeviceConfig, DeviceOptions, NodeOptions, EntitiesOptions, EditorPages } from '@/config';
 import { colourSchema, dropdownSelector, getDropdownValues, SchemaTypes, secondaryInfoSchema } from '.';
-import { ColourMode, DeviceClasses, EnergyDirection, EnergyType } from '@/enums';
+import { ColourMode, DeviceClasses, DisplayMode, EnergyDirection, EnergyType } from '@/enums';
 import { BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, DEFAULT_DEVICE_CONFIG, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
 
-export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEntities: string[]): any[] => {
+export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, mode: DisplayMode, secondaryEntities: string[]): any[] => {
   const deviceConfig: DeviceConfig[] = [schemaConfig, DEFAULT_DEVICE_CONFIG];
   const energyDirection: EnergyDirection = getConfigValue(deviceConfig, DeviceOptions.Energy_Direction);
   const colourSchemas: any[] = [];
@@ -16,10 +16,10 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
         { key: DeviceOptions, name: DeviceOptions.Name, required: true, selector: { text: {} } },
         { key: DeviceOptions, name: DeviceOptions.Icon, selector: { icon: {} } },
         { key: DeviceOptions, name: DeviceOptions.Energy_Type, required: true, selector: dropdownSelector(EnergyType) },
-        { key: DeviceOptions, name: DeviceOptions.Energy_Direction, required: true, selector: dropdownSelector(EnergyDirection) }
+        mode === DisplayMode.Energy ? { key: DeviceOptions, name: DeviceOptions.Energy_Direction, required: true, selector: dropdownSelector(EnergyDirection) } : {}
       ]
     },
-    energyDirection !== EnergyDirection.Consumer_Only ?
+    mode === DisplayMode.Energy && energyDirection !== EnergyDirection.Consumer_Only ?
       {
         key: NodeOptions,
         page: EditorPages.Devices,
@@ -27,13 +27,20 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, secondaryEnt
         type: SchemaTypes.Expandable,
         schema: [{ key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Energy } } }]
       } : {},
-    energyDirection !== EnergyDirection.Producer_Only ?
+    mode === DisplayMode.Energy && energyDirection !== EnergyDirection.Producer_Only ?
       {
         key: NodeOptions,
         page: EditorPages.Devices,
         name: NodeOptions.Export_Entities,
         type: SchemaTypes.Expandable,
         schema: [{ key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Energy } } }]
+      } : {},
+    mode === DisplayMode.Power ?
+      {
+        key: NodeOptions,
+        name: NodeOptions.Power_Entities,
+        type: SchemaTypes.Expandable,
+        schema: [{ key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Power } } }]
       } : {},
     {
       key: NodeOptions,

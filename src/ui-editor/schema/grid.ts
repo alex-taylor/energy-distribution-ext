@@ -2,11 +2,12 @@ import { EditorPages, PowerOutageOptions, EnergyFlowCardExtConfig, GridConfig, G
 import { dualValueNodeSchema, nodeConfigSchema, SchemaTypes } from '.';
 import { DEFAULT_CONFIG, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
+import { DisplayMode } from '@/enums';
 
-export const gridSchema = memoizeOne((config: EnergyFlowCardExtConfig, secondaryEntities: string[]): any[] => {
+export const gridSchema = memoizeOne((config: EnergyFlowCardExtConfig, mode: DisplayMode, secondaryEntities: string[]): any[] => {
   const gridConfig: GridConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Grid);
 
-  return nodeConfigSchema(dualValueNodeSchema(gridConfig, EditorPages.Grid), secondaryEntities)
+  return nodeConfigSchema(dualValueNodeSchema(gridConfig, mode, EditorPages.Grid), secondaryEntities)
     .concat(
       {
         key: GridOptions,

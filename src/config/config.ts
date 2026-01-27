@@ -1,4 +1,4 @@
-import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode, PrefixThreshold, AnimationMode } from "@/enums";
+import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode, PrefixThreshold, AnimationMode, DisplayMode } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
 import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
@@ -11,7 +11,7 @@ import { EntityRegistryEntry } from "@/hass";
 
 //================================================================================================================================================================================//
 
-export const DEFAULT_CONFIG: EnergyFlowCardExtConfig = getDefaultConfig();
+export const DEFAULT_CONFIG: EnergyFlowCardExtConfig = getDefaultConfig(0);
 export const DEFAULT_GAS_CONFIG: GasConfig = getDefaultGasConfig()!;
 export const DEFAULT_SOLAR_CONFIG: SolarConfig = getDefaultSolarConfig()!;
 export const DEFAULT_LOW_CARBON_CONFIG: LowCarbonConfig = getDefaultLowCarbonConfig();
@@ -74,22 +74,24 @@ export function getMinimalConfig(hass: HomeAssistant | undefined = undefined): E
     [GlobalOptions.Date_Range]: getEnergyDataCollection(hass) ? DateRange.From_Date_Picker : DateRange.Today,
     [GlobalOptions.Date_Range_Live]: false,
     [GlobalOptions.Date_Range_Display]: DateRangeDisplayMode.Do_Not_Show,
+    [GlobalOptions.Mode]: DisplayMode.Energy,
     [GlobalOptions.Use_HASS_Config]: true
   };
 }
 
 //================================================================================================================================================================================//
 
-function getDefaultConfig(hass: HomeAssistant | undefined = undefined): EnergyFlowCardExtConfig {
+function getDefaultConfig(numDevices: number): EnergyFlowCardExtConfig {
   return {
-    ...getMinimalConfig(hass),
+    ...getMinimalConfig(undefined),
     [EditorPages.Appearance]: getDefaultAppearanceConfig(),
     [EditorPages.Battery]: getDefaultBatteryConfig(),
     [EditorPages.Gas]: getDefaultGasConfig(),
     [EditorPages.Grid]: getDefaultGridConfig(),
     [EditorPages.Home]: getDefaultHomeConfig(),
     [EditorPages.Low_Carbon]: getDefaultLowCarbonConfig(),
-    [EditorPages.Solar]: getDefaultSolarConfig()
+    [EditorPages.Solar]: getDefaultSolarConfig(),
+    [EditorPages.Devices]: [...Array(numDevices).keys()].flatMap(_ => getDefaultDeviceConfig([0, 0, 0], [0, 0, 0]))
   };
 }
 
@@ -98,7 +100,7 @@ function getDefaultConfig(hass: HomeAssistant | undefined = undefined): EnergyFl
 export function cleanupConfig(config: EnergyFlowCardExtConfig): EnergyFlowCardExtConfig {
   //pruneConfig(config);
 
-  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig();
+  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig(config.devices?.length ?? 0);
 
   config = { ...config };
 
@@ -223,6 +225,9 @@ export function getDefaultGridConfig(): GridConfig {
     [NodeOptions.Export_Entities]: {
       [EntitiesOptions.Entity_Ids]: []
     },
+    [NodeOptions.Power_Entities]: {
+      [EntitiesOptions.Entity_Ids]: []
+    },
     [NodeOptions.Colours]: {
       [ColourOptions.Flow_Import]: ColourMode.Default,
       [ColourOptions.Flow_Export]: ColourMode.Default,
@@ -246,6 +251,9 @@ export function getDefaultBatteryConfig(): BatteryConfig {
     [NodeOptions.Export_Entities]: {
       [EntitiesOptions.Entity_Ids]: []
     },
+    [NodeOptions.Power_Entities]: {
+      [EntitiesOptions.Entity_Ids]: []
+    },
     [NodeOptions.Colours]: {
       [ColourOptions.Flow_Import]: ColourMode.Default,
       [ColourOptions.Flow_Export]: ColourMode.Default,
@@ -266,6 +274,9 @@ export function getDefaultSolarConfig(): SolarConfig {
     [NodeOptions.Import_Entities]: {
       [EntitiesOptions.Entity_Ids]: []
     },
+    [NodeOptions.Power_Entities]: {
+      [EntitiesOptions.Entity_Ids]: []
+    },
     [NodeOptions.Colours]: {
       [ColourOptions.Flow_Import]: ColourMode.Default,
       [ColourOptions.Circle]: ColourMode.Flow,
@@ -282,6 +293,9 @@ export function getDefaultSolarConfig(): SolarConfig {
 export function getDefaultGasConfig(): GasConfig {
   return {
     [NodeOptions.Import_Entities]: {
+      [EntitiesOptions.Entity_Ids]: []
+    },
+    [NodeOptions.Power_Entities]: {
       [EntitiesOptions.Entity_Ids]: []
     },
     [NodeOptions.Colours]: {
@@ -340,6 +354,9 @@ export function getDefaultDeviceConfig(importColour: number[], exportColour: num
       [EntitiesOptions.Entity_Ids]: []
     },
     [NodeOptions.Export_Entities]: {
+      [EntitiesOptions.Entity_Ids]: []
+    },
+    [NodeOptions.Power_Entities]: {
       [EntitiesOptions.Entity_Ids]: []
     },
     [NodeOptions.Colours]: {

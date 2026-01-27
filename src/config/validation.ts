@@ -83,6 +83,7 @@ const nodeConfig = {
   [NodeOptions.Export_Entities]: optional(entitiesConfigStruct),
   [NodeOptions.Colours]: optional(coloursConfigStruct),
   [NodeOptions.Overrides]: optional(overridesConfigStruct),
+  [NodeOptions.Power_Entities]: optional(entitiesConfigStruct),
   [NodeOptions.Secondary_Info]: optional(secondaryInfoConfigStruct)
 };
 
@@ -146,6 +147,7 @@ export const cardConfigStruct = assign(
     [GlobalOptions.Date_Range_To]: optional(string()),
     [GlobalOptions.Date_Range_Live]: optional(boolean()),
     [GlobalOptions.Date_Range_Display]: optional(string()),
+    [GlobalOptions.Mode]: optional(string()),
     [GlobalOptions.Use_HASS_Config]: optional(boolean()),
     [EditorPages.Appearance]: optional(appearanceConfigStruct),
     [EditorPages.Battery]: optional(batteryConfigStruct),

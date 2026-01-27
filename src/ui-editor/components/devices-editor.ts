@@ -11,7 +11,7 @@ import { repeat } from "lit/directives/repeat.js";
 import { localize } from "@/localize/localize";
 import { BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue, getDefaultDeviceConfig } from '@/config/config';
 import { DeviceNode } from '@/nodes/device';
-import { ColourMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection } from '@/enums';
+import { ColourMode, DisplayMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection } from '@/enums';
 
 //================================================================================================================================================================================//
 
@@ -42,6 +42,7 @@ const DEVICES_EDITOR_ELEMENT_NAME = CARD_NAME + "-devices-editor";
 export class DevicesEditor extends LitElement {
   public hass!: HomeAssistant;
   @property({ attribute: false }) public config!: EnergyFlowCardExtConfig;
+  @property({ attribute: false }) public mode!: DisplayMode;
   @state() private _indexBeingEdited: number = -1;
   private secondaryEntities: string[] = [];
 
@@ -103,7 +104,7 @@ export class DevicesEditor extends LitElement {
         <ha-form
           .hass=${this.hass}
           .data=${this._devices[this._indexBeingEdited]}
-          .schema=${deviceSchema(this._devices[this._indexBeingEdited], this.secondaryEntities)}
+          .schema=${deviceSchema(this._devices[this._indexBeingEdited], this.mode, this.secondaryEntities)}
           .computeLabel=${computeLabelCallback}
           .computeHelper=${computeHelperCallback}
           .error=${this._validateConfig(this._devices[this._indexBeingEdited])}

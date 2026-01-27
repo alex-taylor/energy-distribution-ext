@@ -47,7 +47,13 @@ namespace Enums {
     Energy: "energy",
     Gas: "gas",
     Monetary: "monetary",
+    Power: "power",
     None: ""
+  } as const satisfies Record<string, string>;
+
+  export const DisplayMode = {
+    Energy: "energy",
+    Power: "power"
   } as const satisfies Record<string, string>;
 
   export const EnergyDirection = {
@@ -136,6 +142,8 @@ export const DateRangeDisplayMode = Enums.DateRangeDisplayMode;
 export type DateRangeDisplayMode = typeof DateRangeDisplayMode[keyof typeof DateRangeDisplayMode];
 export const DeviceClasses = Enums.DeviceClasses;
 export type DeviceClasses = typeof DeviceClasses[keyof typeof DeviceClasses];
+export const DisplayMode = Enums.DisplayMode;
+export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
 export const EnergyDirection = Enums.EnergyDirection;
 export type EnergyDirection = typeof EnergyDirection[keyof typeof EnergyDirection];
 export const EnergyType = Enums.EnergyType;

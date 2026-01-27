@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, PrefixThreshold, DeviceClasses, AnimationMode } from '@/enums';
+import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, PrefixThreshold, DeviceClasses, AnimationMode, DisplayMode } from '@/enums';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -16,8 +16,9 @@ namespace ConfigKeys {
     Clickable_Entities: "clickable_entities",
     Dashboard_Link: "dashboard_link",
     Dashboard_Link_Label: "dashboard_link_label",
-    Energy_Units: "energy_units",
+    Energy_Units: "units",
     Flows: "flows",
+    Power_Units: "power_units",
     Segment_Gaps: "segment_gaps",
     Show_Zero_States: "show_zero_states",
     Use_HASS_Style: "use_hass_style"
@@ -88,6 +89,7 @@ namespace ConfigKeys {
     Date_Range_To: "date_range_to",
     Date_Range_Live: "date_range_live",
     Date_Range_Display: "date_range_display",
+    Mode: "mode",
     Options: "options",
     Title: "title",
     Use_HASS_Config: "use_hass_config"
@@ -112,6 +114,7 @@ namespace ConfigKeys {
     Export_Entities: "export_entities",
     Import_Entities: "import_entities",
     Overrides: "overrides",
+    Power_Entities: "power_entities",
     Secondary_Info: "secondary_info"
   } as const satisfies Record<string, string>;
 
@@ -187,6 +190,7 @@ export interface EnergyFlowCardExtConfig extends LovelaceCardConfig {
   [GlobalOptions.Date_Range_To]?: string;
   [GlobalOptions.Date_Range_Live]?: boolean;
   [GlobalOptions.Date_Range_Display]?: DateRangeDisplayMode;
+  [GlobalOptions.Mode]?: DisplayMode;
   [GlobalOptions.Use_HASS_Config]?: boolean,
   [EditorPages.Appearance]?: AppearanceConfig;
   [EditorPages.Grid]?: GridConfig;
@@ -247,6 +251,7 @@ export interface NodeConfig {
   [NodeOptions.Export_Entities]?: EntityConfig;
   [NodeOptions.Import_Entities]?: EntityConfig;
   [NodeOptions.Overrides]?: OverridesConfig;
+  [NodeOptions.Power_Entities]?: EntityConfig;
   [NodeOptions.Secondary_Info]?: SecondaryInfoConfig;
   [NodeOptions.Colours]?: ColoursConfig;
 };

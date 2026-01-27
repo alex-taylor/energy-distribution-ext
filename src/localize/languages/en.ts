@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from "@/config";
-import { AnimationMode, ColourMode, DateRangeDisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
+import { AnimationMode, ColourMode, DateRangeDisplayMode, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
 import { HELPTEXT_SUFFIX } from "@/const";
 
 export default {
@@ -40,6 +40,7 @@ export default {
     [AppearanceOptions.Dashboard_Link_Label]: "Dashboard link label",
     [AppearanceOptions.Energy_Units]: "Energy Units",
     [AppearanceOptions.Flows]: "Flows",
+    [AppearanceOptions.Power_Units]: "Power Units",
     [AppearanceOptions.Segment_Gaps]: "Show gaps between circle segments",
     [AppearanceOptions.Show_Zero_States]: "Show zero states",
     [AppearanceOptions.Use_HASS_Style]: "Use HASS-style layout and colors"
@@ -127,6 +128,13 @@ export default {
     }
   },
 
+  "DateRangeDisplayMode": {
+    [DateRangeDisplayMode.Do_Not_Show]: "Do not show",
+    [DateRangeDisplayMode.Preset_Name]: "Preset name",
+    [DateRangeDisplayMode.Dates]: "Dates",
+    [DateRangeDisplayMode.Both]: "Preset name and dates"
+  },
+
   "DeviceOptions": {
     [DeviceOptions.Energy_Direction]: "Direction",
     [DeviceOptions.Energy_Type]: "Type",
@@ -134,11 +142,9 @@ export default {
     [DeviceOptions.Name]: "Name"
   },
 
-  "DateRangeDisplayMode": {
-    [DateRangeDisplayMode.Do_Not_Show]: "Do not show",
-    [DateRangeDisplayMode.Preset_Name]: "Preset name",
-    [DateRangeDisplayMode.Dates]: "Dates",
-    [DateRangeDisplayMode.Both]: "Preset name and dates"
+  "DisplayMode": {
+    [DisplayMode.Energy]: "Energy",
+    [DisplayMode.Power]: "Power"
   },
 
   "EditorPages": {
@@ -209,6 +215,7 @@ export default {
     [GlobalOptions.Date_Range_Live]: "Include live sensor data",
     [GlobalOptions.Date_Range_Live + HELPTEXT_SUFFIX]: "If the selected date range includes the current day, use the latest values from the entities",
     [GlobalOptions.Date_Range_Display]: "Show the date range on the card",
+    [GlobalOptions.Mode]: "Mode",
     [GlobalOptions.Options]: "Options",
     [GlobalOptions.Title]: "Title",
     [GlobalOptions.Use_HASS_Config]: "Use the Energy Dashboard configuration",
@@ -257,6 +264,7 @@ export default {
       [EditorPages.Solar]: "Entities"
     },
     [NodeOptions.Overrides]: "Overrides",
+    [NodeOptions.Power_Entities]: "Entities",
     [NodeOptions.Secondary_Info]: "Secondary Info"
   },
 

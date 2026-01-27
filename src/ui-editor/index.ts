@@ -10,15 +10,17 @@ export const computeLabelCallback = memoizeOne((schema: any): string => {
     return "";
   }
 
+  const name: string = schema.label || schema.name;
+
   if (schema.key && schema.key.name) {
     if (schema.page) {
-      return localize(`${schema.key.name}.${schema.name}.${schema.page}`);
+      return localize(`${schema.key.name}.${name}.${schema.page}`);
     }
 
-    return localize(`${schema.key.name}.${schema.name}`);
+    return localize(`${schema.key.name}.${name}`);
   }
 
-  return localize(`editor.${schema.name}`);
+  return localize(`editor.${name}`);
 });
 
 export const computeHelperCallback = memoizeOne((schema: any): string => {

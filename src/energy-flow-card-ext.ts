@@ -424,7 +424,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: cssClass,
         path: this._gridToHomePath,
         active: (flows?.gridToHome ?? 0) > 0,
-        animDuration: animationDurations?.gridToHome ?? 0
+        animDuration: -(animationDurations?.gridToHome ?? 0)
       });
     }
 
@@ -434,7 +434,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         cssDot: CssClass.Battery_Import,
         path: this._batteryToHomePath,
         active: (flows?.batteryToHome ?? 0) > 0,
-        animDuration: animationDurations?.batteryToHome ?? 0
+        animDuration: this._devicesLayout === DevicesLayout.Vertical ? -(animationDurations?.batteryToHome ?? 0) : (animationDurations?.batteryToHome ?? 0)
       });
     }
 
@@ -702,7 +702,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       lowerRightLinePresent = !!entityStates.battery.firstImportEntity;
     }
 
-    const horizLine: string = `M${col1 + lineInset},${row2} H${col3 - lineInset}`;
+    const horizLine: string = `M${col3 - lineInset},${row2} H${col1 + lineInset}`;
     const vertLine: string = `M${col2},${row1 + lineInset} V${row3 - lineInset}`;
 
     const upperLeftLine: string = `M${col2 - FLOW_LINE_SPACING * (vertLinePresent ? 1 : upperRightLinePresent ? 0.5 : 0)},${row1 + lineInset}

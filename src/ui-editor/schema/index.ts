@@ -1,5 +1,5 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig, EditorPages } from '@/config';
-import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode } from '@/enums';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig, EditorPages, EnergyFlowCardExtConfig } from '@/config';
+import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode } from '@/enums';
 import { localize } from '@/localize/localize';
 import { BASIC_COLOUR_MODES, BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
@@ -34,6 +34,7 @@ export const dateRangeSchema = memoizeOne((): any[] => {
 
 export const generalConfigSchema = memoizeOne((): any[] => {
   return [
+    { key: GlobalOptions, name: GlobalOptions.Mode, selector: dropdownSelector(DisplayMode) },
     { key: GlobalOptions, name: GlobalOptions.Title, selector: { text: {} }, },
     { key: GlobalOptions, name: GlobalOptions.Use_HASS_Config, selector: { boolean: {} } }
   ];
@@ -41,7 +42,7 @@ export const generalConfigSchema = memoizeOne((): any[] => {
 
 //================================================================================================================================================================================//
 
-export const appearanceSchema = memoizeOne((schemaConfig: AppearanceConfig): any[] => {
+export const appearanceSchema = memoizeOne((schemaConfig: EnergyFlowCardExtConfig, mode: DisplayMode): any[] => {
   return [
     {
       key: GlobalOptions,
@@ -53,13 +54,14 @@ export const appearanceSchema = memoizeOne((schemaConfig: AppearanceConfig): any
       key: AppearanceOptions,
       name: AppearanceOptions.Flows,
       type: SchemaTypes.Expandable,
-      schema: flowsOptionsSchema()
+      schema: flowsOptionsSchema(mode)
     },
     {
       key: AppearanceOptions,
       name: AppearanceOptions.Energy_Units,
+      label: mode === DisplayMode.Energy ? AppearanceOptions.Energy_Units : AppearanceOptions.Power_Units,
       type: SchemaTypes.Expandable,
-      schema: energyUnitsOptionsSchema(getConfigValue(schemaConfig, AppearanceOptions.Energy_Units))
+      schema: energyUnitsOptionsSchema(getConfigValue(schemaConfig, [EditorPages.Appearance, AppearanceOptions.Energy_Units]), mode)
     }
   ];
 });
@@ -84,15 +86,15 @@ const appearanceOptionsSchema = memoizeOne((): any[] => {
 
 //================================================================================================================================================================================//
 
-const flowsOptionsSchema = memoizeOne((): any[] => {
+const flowsOptionsSchema = memoizeOne((mode: DisplayMode): any[] => {
   return [
     {
       type: SchemaTypes.Grid,
       schema: [
-        { key: FlowsOptions, name: FlowsOptions.Use_Hourly_Stats, selector: { boolean: {} } },
         { key: FlowsOptions, name: FlowsOptions.Animation, required: true, selector: dropdownSelector(AnimationMode) },
         { key: FlowsOptions, name: FlowsOptions.Inactive_Flows, required: true, selector: dropdownSelector(InactiveFlowsMode) },
-        { key: FlowsOptions, name: FlowsOptions.Scale, required: true, selector: dropdownSelector(Scale) }
+        { key: FlowsOptions, name: FlowsOptions.Scale, required: true, selector: dropdownSelector(Scale) },
+        mode === DisplayMode.Energy ? { key: FlowsOptions, name: FlowsOptions.Use_Hourly_Stats, selector: { boolean: {} } } : {}
       ]
     }
   ];
@@ -100,20 +102,21 @@ const flowsOptionsSchema = memoizeOne((): any[] => {
 
 //================================================================================================================================================================================//
 
-const energyUnitsOptionsSchema = memoizeOne((schemaConfig: EnergyUnitsConfig): any[] => {
+const energyUnitsOptionsSchema = memoizeOne((schemaConfig: EnergyUnitsConfig, mode: DisplayMode): any[] => {
   return [
     {
       type: SchemaTypes.Grid,
       schema: [
         { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Unit_Position, required: true, selector: dropdownSelector(UnitPosition) },
         { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Prefix_Threshold, required: true, selector: { select: { mode: SelectorModes.Dropdown, options: Object.values(PrefixThreshold) } } },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Electric_Units, required: true, selector: dropdownSelector(EnergyUnits) },
+        ...unitsOptionsSchema(schemaConfig, mode),
         { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Electric_Unit_Prefixes, required: true, selector: dropdownSelector(UnitPrefixes) },
-        { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Units, required: true, selector: dropdownSelector(VolumeUnits) },
         { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Unit_Prefixes, required: true, selector: dropdownSelector(UnitPrefixes) }
       ]
     },
-    getConfigValue(schemaConfig, EnergyUnitsOptions.Gas_Units) !== VolumeUnits.Same_As_Electric ? { type: SchemaTypes.Grid, schema: [{ key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: SelectorModes.Box, min: 0 } } }] } : {},
+    mode === DisplayMode.Energy && getConfigValue(schemaConfig, EnergyUnitsOptions.Gas_Units) !== VolumeUnits.Same_As_Electric
+      ? { type: SchemaTypes.Grid, schema: [{ key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Calorific_Value, selector: { number: { mode: SelectorModes.Box, min: 0 } } }] }
+      : {},
     {
       type: SchemaTypes.Grid,
       column_min_width: '67px',
@@ -124,6 +127,19 @@ const energyUnitsOptionsSchema = memoizeOne((schemaConfig: EnergyUnitsConfig): a
       ]
     }
   ];
+});
+
+//================================================================================================================================================================================//
+
+const unitsOptionsSchema = memoizeOne((schemaConfig: EnergyUnitsConfig, mode: DisplayMode): any[] => {
+  if (mode === DisplayMode.Energy) {
+    return [
+      { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Electric_Units, required: true, selector: dropdownSelector(EnergyUnits) },
+      { key: EnergyUnitsOptions, name: EnergyUnitsOptions.Gas_Units, required: true, selector: dropdownSelector(VolumeUnits) }
+    ];
+  }
+
+  return [];
 });
 
 //================================================================================================================================================================================//
@@ -154,15 +170,15 @@ export const nodeConfigSchema = memoizeOne((entitySchema: any[] = [], secondaryE
 
 //================================================================================================================================================================================//
 
-export const singleValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, page: EditorPages, deviceClasses: string[], isSolarNode: boolean = false): any[] => {
+export const singleValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, mode: DisplayMode, page: EditorPages, deviceClasses: string[], isSolarNode: boolean = false): any[] => {
   return [
     {
       key: NodeOptions,
-      page: page,
-      name: NodeOptions.Import_Entities,
+      page: mode === DisplayMode.Energy ? page : undefined,
+      name: mode === DisplayMode.Energy ? NodeOptions.Import_Entities : NodeOptions.Power_Entities,
       type: SchemaTypes.Expandable,
       schema: [
-        { key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: deviceClasses } } }
+        { key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: mode === DisplayMode.Energy ? deviceClasses : DeviceClasses.Power } } }
       ]
     },
     singleValueColourSchema(schemaConfig, page, isSolarNode)
@@ -220,26 +236,28 @@ export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, pag
 
 //================================================================================================================================================================================//
 
-export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, page: EditorPages): any[] => {
+export const dualValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, mode: DisplayMode, page: EditorPages): any[] => {
   return [
     {
       key: NodeOptions,
-      page: page,
-      name: NodeOptions.Import_Entities,
+      page: mode === DisplayMode.Energy ? page : undefined,
+      name: mode === DisplayMode.Energy ? NodeOptions.Import_Entities : NodeOptions.Power_Entities,
       type: SchemaTypes.Expandable,
       schema: [
-        { key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Energy } } }
+        { key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: mode === DisplayMode.Energy ? DeviceClasses.Energy : DeviceClasses.Power } } }
       ]
     },
-    {
-      key: NodeOptions,
-      page: page,
-      name: NodeOptions.Export_Entities,
-      type: SchemaTypes.Expandable,
-      schema: [
-        { key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Energy } } }
-      ]
-    },
+    mode === DisplayMode.Energy
+      ? {
+        key: NodeOptions,
+        page: page,
+        name: NodeOptions.Export_Entities,
+        type: SchemaTypes.Expandable,
+        schema: [
+          { key: EntitiesOptions, name: EntitiesOptions.Entity_Ids, selector: { entity: { multiple: true, reorder: true, device_class: DeviceClasses.Energy } } }
+        ]
+      }
+      : {},
     {
       key: NodeOptions,
       name: NodeOptions.Colours,
