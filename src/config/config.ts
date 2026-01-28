@@ -11,7 +11,7 @@ import { EntityRegistryEntry } from "@/hass";
 
 //================================================================================================================================================================================//
 
-export const DEFAULT_CONFIG: EnergyFlowCardExtConfig = getDefaultConfig(0);
+export const DEFAULT_CONFIG: EnergyFlowCardExtConfig = getDefaultConfig(0, undefined);
 export const DEFAULT_GAS_CONFIG: GasConfig = getDefaultGasConfig()!;
 export const DEFAULT_SOLAR_CONFIG: SolarConfig = getDefaultSolarConfig()!;
 export const DEFAULT_LOW_CARBON_CONFIG: LowCarbonConfig = getDefaultLowCarbonConfig();
@@ -68,7 +68,7 @@ export function getConfigObjects(configs: any[], path: string[] | string): any[]
 
 //================================================================================================================================================================================//
 
-export function getMinimalConfig(hass: HomeAssistant | undefined = undefined): EnergyFlowCardExtConfig {
+export function getMinimalConfig(hass: HomeAssistant | undefined): EnergyFlowCardExtConfig {
   return {
     type: 'custom:' + CARD_NAME,
     [GlobalOptions.Date_Range]: getEnergyDataCollection(hass) ? DateRange.From_Date_Picker : DateRange.Today,
@@ -81,9 +81,9 @@ export function getMinimalConfig(hass: HomeAssistant | undefined = undefined): E
 
 //================================================================================================================================================================================//
 
-function getDefaultConfig(numDevices: number): EnergyFlowCardExtConfig {
+function getDefaultConfig(numDevices: number, hass: HomeAssistant | undefined): EnergyFlowCardExtConfig {
   return {
-    ...getMinimalConfig(undefined),
+    ...getMinimalConfig(hass),
     [EditorPages.Appearance]: getDefaultAppearanceConfig(),
     [EditorPages.Battery]: getDefaultBatteryConfig(),
     [EditorPages.Gas]: getDefaultGasConfig(),
@@ -97,59 +97,40 @@ function getDefaultConfig(numDevices: number): EnergyFlowCardExtConfig {
 
 //================================================================================================================================================================================//
 
-export function cleanupConfig(config: EnergyFlowCardExtConfig): EnergyFlowCardExtConfig {
-  //pruneConfig(config);
-
-  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig(config.devices?.length ?? 0);
-
+export function removeConfigDefaults(config: EnergyFlowCardExtConfig, hass: HomeAssistant): EnergyFlowCardExtConfig {
+  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig(config.devices?.length ?? 0, hass);
   config = { ...config };
-
-  Object.keys(defaultConfig).forEach(key => {
-    if (config[key] === undefined) {
-      if (typeof defaultConfig[key] !== "object") {
-        config[key] = defaultConfig[key];
-      }
-    } else {
-      if (typeof config[key] === "object") {
-        if (equal(config[key], defaultConfig[key])) {
-          delete config[key];
-        } else {
-          setDefaultsRecursively(config[key], defaultConfig[key]);
-          config[key] = defaultConfig[key];
-        }
-      }
-    }
-  });
-
+  removeDefaultsRecursively(config, defaultConfig);
+  config.type = 'custom:' + CARD_NAME;
   return config;
 }
 
 //================================================================================================================================================================================//
 
-function pruneConfig(config: any): void {
-  for (const key in config) {
-    if (config[key] === undefined || config[key] === null) {
+function removeDefaultsRecursively(config: any, defaultConfig: any): void {
+  for (const key in defaultConfig) {
+    const currentNode: any = config[key];
+    const defaultNode: any = defaultConfig[key];
+
+    if (currentNode === undefined || Object.keys(currentNode).length === 0 || equal(currentNode, defaultNode)) {
       delete config[key];
-    } else if (config[key] instanceof Array) {
-      const array: any[] = config[key];
+    } else if (!(defaultNode instanceof Array) && typeof defaultNode === "object") {
+      removeDefaultsRecursively(currentNode, defaultNode);
 
-      array.forEach((entry, index) => {
-        if (!entry) {
-          array.splice(index, 1);
-        }
-      });
-
-      if (array.length === 0) {
-        delete config[key];
-      }
-    } else if (typeof config[key] === "object") {
-      pruneConfig(config[key]);
-
-      if (Object.keys(config[key]).length === 0) {
+      if (Object.keys(currentNode).length === 0) {
         delete config[key];
       }
     }
   }
+}
+
+//================================================================================================================================================================================//
+
+export function populateConfigDefaults(config: EnergyFlowCardExtConfig, hass: HomeAssistant): EnergyFlowCardExtConfig {
+  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig(config.devices?.length ?? 0, hass);
+  config = { ...config };
+  setDefaultsRecursively(config, defaultConfig);
+  return config;
 }
 
 //================================================================================================================================================================================//
@@ -157,29 +138,12 @@ function pruneConfig(config: any): void {
 function setDefaultsRecursively(config: any, defaultConfig: any): void {
   for (const key in defaultConfig) {
     const currentNode: any = config[key];
+    const defaultNode: any = defaultConfig[key];
 
-    if (currentNode) {
-      if (currentNode instanceof Array) {
-        defaultConfig[key] = [...currentNode];
-      } else {
-        const defaultNode: any = defaultConfig[key];
-
-        if (typeof defaultNode === "object") {
-          for (const childKey in currentNode) {
-            if (typeof currentNode[childKey] === "object") {
-              setDefaultsRecursively(currentNode, defaultNode);
-            } else {
-              defaultNode[childKey] = currentNode[childKey];
-            }
-          }
-        }
-      }
-    }
-  }
-
-  for (const key in config) {
-    if (!defaultConfig[key]) {
-      defaultConfig[key] = config[key];
+    if (currentNode === undefined) {
+      config[key] = defaultNode;
+    } else if (!(defaultNode instanceof Array) && typeof defaultNode === "object") {
+      setDefaultsRecursively(currentNode, defaultNode);
     }
   }
 }
@@ -203,7 +167,7 @@ export function getDefaultAppearanceConfig(): AppearanceConfig {
       [EnergyUnitsOptions.Display_Precision_Under_10]: 2,
       [EnergyUnitsOptions.Display_Precision_Under_100]: 1,
       [EnergyUnitsOptions.Display_Precision_Default]: 0,
-      [EnergyUnitsOptions.Prefix_Threshold]: PrefixThreshold.Threshold_1000,
+      [EnergyUnitsOptions.Prefix_Threshold]: 1000,
       [EnergyUnitsOptions.Gas_Calorific_Value]: 39,
     },
     [AppearanceOptions.Flows]: {

@@ -17,7 +17,7 @@ import "./components/devices-editor";
 import { CARD_NAME } from '@/const';
 import { cardConfigStruct } from '@/config/validation';
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from '.';
-import { getDefaultLowCarbonConfig, cleanupConfig, getDefaultAppearanceConfig, getDefaultGridConfig, getDefaultGasConfig, getDefaultSolarConfig, getDefaultBatteryConfig, getDefaultHomeConfig, getCo2SignalEntity, getConfigValue, DEFAULT_CONFIG } from '@/config/config';
+import { getDefaultLowCarbonConfig, getDefaultAppearanceConfig, getDefaultGridConfig, getDefaultGasConfig, getDefaultSolarConfig, getDefaultBatteryConfig, getDefaultHomeConfig, getCo2SignalEntity, getConfigValue, populateConfigDefaults, removeConfigDefaults } from '@/config/config';
 import { GasNode } from '@/nodes/gas';
 import { getEnergyDataCollection } from '@/energy';
 import { GridNode } from '@/nodes/grid';
@@ -162,7 +162,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
 
   public async setConfig(config: EnergyFlowCardExtConfig): Promise<void> {
     assert(config, cardConfigStruct);
-    this._config = cleanupConfig(config);
+    this._config = populateConfigDefaults(config, this.hass);
 
     if (this._config) {
       const threshold: number = getConfigValue(this._config, [EditorPages.Appearance, AppearanceOptions.Energy_Units, EnergyUnitsOptions.Prefix_Threshold]);
@@ -180,7 +180,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
 
     const config: EnergyFlowCardExtConfig = this._config;
     const currentConfigPage: EditorPages | undefined = this._currentConfigPage;
-    const mode: DisplayMode = getConfigValue([config, DEFAULT_CONFIG], GlobalOptions.Mode);
+    const mode: DisplayMode = getConfigValue(config, GlobalOptions.Mode);
 
     if (currentConfigPage) {
       const schema = CONFIG_PAGES.find(page => page.page === currentConfigPage)?.schema;
@@ -249,7 +249,7 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
             <energy-flow-card-ext-date-range-picker
               class="date-picker-control"
               .hass=${this.hass}
-              .range=${getConfigValue([config, DEFAULT_CONFIG], GlobalOptions.Date_Range)}
+              .range=${getConfigValue(config, GlobalOptions.Date_Range)}
               .startDate=${startDate}
               .endDate=${endDate}
               @date-range-changed=${this._onDateRangeChanged}
@@ -373,7 +373,8 @@ export class EnergyFlowCardExtEditor extends LitElement implements LovelaceCardE
   //================================================================================================================================================================================//
 
   private _cleanupConfig(config: EnergyFlowCardExtConfig): EnergyFlowCardExtConfig {
-    config = cleanupConfig(config);
+    config = removeConfigDefaults(config, this.hass);
+
     const threshold: string = getConfigValue(config, [EditorPages.Appearance, AppearanceOptions.Energy_Units, EnergyUnitsOptions.Prefix_Threshold]);
 
     if (threshold) {

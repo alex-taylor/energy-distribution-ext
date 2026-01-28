@@ -2,7 +2,7 @@ import { CSSResult, html, LitElement, nothing, PropertyValues, svg, TemplateResu
 import { HomeAssistant, LovelaceConfig, LovelaceViewConfig, Panel, round } from "custom-card-helpers";
 import { Decimal } from "decimal.js";
 import { customElement, property, state } from "lit/decorators.js";
-import { cleanupConfig, getConfigValue, DEFAULT_CONFIG, getMinimalConfig, getConfigObjects } from "@/config/config";
+import { getConfigValue, DEFAULT_CONFIG, getMinimalConfig, getConfigObjects } from "@/config/config";
 import { SubscribeMixin } from "@/energy/subscribe-mixin";
 import { localize } from "@/localize/localize";
 import { styles } from "@/style";
@@ -169,8 +169,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     this._render.clear();
-    this._config = cleanupConfig(config);
-    this._configs = [this._config, DEFAULT_CONFIG];
+    this._config = config;
+    this._configs = [config, DEFAULT_CONFIG];
     this.resetSubscriptions();
 
     this._dateRange = getConfigValue(this._configs, GlobalOptions.Date_Range);
@@ -219,7 +219,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this._electricUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
     this._volumeUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
     this._gasUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
-    this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold, value => checkEnumValue(value, PrefixThreshold)));
+    this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
 
     this.style.setProperty("--clickable-cursor", getConfigValue(appearanceConfig, AppearanceOptions.Clickable_Entities) ? "pointer" : "default");
     this.style.setProperty("--inactive-flow-color", this._useHassStyles && this._inactiveFlowsCss !== CssClass.Inactive ? "var(--primary-text-color)" : "var(--disabled-text-color)");
