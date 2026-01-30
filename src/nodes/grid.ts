@@ -129,10 +129,10 @@ export class GridNode extends Node<GridConfig> {
         ${this.renderSecondarySpan(target, this.secondary, states?.gridSecondary, CssClass.Grid)}
         <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.energyUnits, this.firstExportEntity, mdiArrowLeft, exportState, overridePrefix)
+        ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.electricUnits, this.firstExportEntity, mdiArrowLeft, exportState, overridePrefix)
         : html`<span class="${CssClass.Grid} power-outage">${localize("common.power_outage")}</span>`}
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.energyUnits, this.firstImportEntity, mdiArrowRight, importState, overridePrefix)
+        ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.electricUnits, this.firstImportEntity, mdiArrowRight, importState, overridePrefix)
         : nothing}
       </div>
     `;
@@ -141,7 +141,9 @@ export class GridNode extends Node<GridConfig> {
   //================================================================================================================================================================================//
 
   private static _getHassImportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources?.filter(source => source.type === "grid" && source.flow_from).flatMap(source => source.flow_from!.map(from => from!.stat_energy_from!));
+    return energySources?.filter(source => source.type === "grid" && (source.flow_from || source.power))
+      .flatMap(source => (source.flow_from ? source.flow_from.map(from => from.stat_energy_from) : [])
+        .concat(source.power ? source.power.map(from => from.stat_rate) : []));
   }
 
   //================================================================================================================================================================================//

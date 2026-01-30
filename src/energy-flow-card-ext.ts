@@ -12,7 +12,7 @@ import { SolarNode } from "@/nodes/solar";
 import { States, Flows } from "@/nodes";
 import { DataStatus, EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode, EnergyDirection } from "@/enums";
+import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode, EnergyDirection, DisplayMode } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
@@ -122,13 +122,14 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _layoutGrid: NodeRenderFn[][] = [];
 
   private _configs!: EnergyFlowCardExtConfig[];
+  private _mode!: DisplayMode;
   private _entityStates!: EntityStates;
   private _dateRange!: DateRange;
   private _dateRangeDisplayMode!: DateRangeDisplayMode;
   private _prefixThreshold!: Decimal;
-  private _energyUnits!: string;
+  private _electricUnits!: string;
   private _electricUnitPrefixes!: UnitPrefixes;
-  private _volumeUnits!: string;
+  private _gasUnits!: string;
   private _gasUnitPrefixes!: UnitPrefixes;
   private _useHassStyles!: boolean;
   private _animationMode!: AnimationMode;
@@ -173,6 +174,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this._configs = [config, DEFAULT_CONFIG];
     this.resetSubscriptions();
 
+    this._mode = getConfigValue(this._configs, GlobalOptions.Mode);
     this._dateRange = getConfigValue(this._configs, GlobalOptions.Date_Range);
     this._dateRangeDisplayMode = getConfigValue(this._configs, GlobalOptions.Date_Range_Display);
 
@@ -215,9 +217,9 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(this._configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
-    this._energyUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
+    this._electricUnits = this._mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
     this._electricUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
-    this._volumeUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
+    this._gasUnits = this._mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
     this._gasUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
     this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
 
@@ -389,7 +391,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
-    if (solar.isPresent && grid.firstExportEntity) {
+    if (solar.isPresent && (grid.firstExportEntity || this._mode === DisplayMode.Power)) {
       lines.push({
         cssLine: CssClass.Grid_Export,
         cssDot: CssClass.Grid_Export,
@@ -399,7 +401,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
-    if (solar.isPresent && battery.firstExportEntity) {
+    if (solar.isPresent && (battery.firstExportEntity || this._mode === DisplayMode.Power)) {
       lines.push({
         cssLine: CssClass.Battery_Export,
         cssDot: CssClass.Battery_Export,
@@ -438,7 +440,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
-    if (battery.isPresent && grid.isPresent) {
+    if (battery.isPresent && (grid.isPresent || this._mode === DisplayMode.Power)) {
       this._renderBiDiFlowLine(
         lines,
         this._batteryToGridPath,
@@ -446,10 +448,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         flows?.gridToBattery,
         animationDurations?.batteryToGrid,
         animationDurations?.gridToBattery,
-        CssClass.Battery_Import,
-        CssClass.Battery_Export,
-        CssClass.Grid_Import,
-        CssClass.Grid_Export,
+        entityStates.battery.firstImportEntity ? CssClass.Battery_Import : CssClass.None,
+        (entityStates.battery.firstExportEntity || this._mode === DisplayMode.Power) ? CssClass.Battery_Export : CssClass.None,
+        entityStates.grid.firstImportEntity ? CssClass.Grid_Import : CssClass.None,
+        entityStates.grid.firstExportEntity ? CssClass.Grid_Export : CssClass.None,
         CssClass.Grid_Battery_Anim,
         "--grid-battery-anim-duration"
       );
@@ -572,7 +574,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     let css2To1Dot: CssClass = cssNode1Export;
 
     if (!active1To2 && !active2To1) {
-      css1To2Path = css2To1Path = enabled1To2 && enabled2To1 ? CssClass.Inactive : enabled1To2 ? cssNode2Export : cssNode1Export;
+      css1To2Path = css2To1Path = this._useHassStyles || (enabled1To2 && enabled2To1) ? CssClass.Inactive : enabled1To2 ? cssNode2Export : cssNode1Export;
     } else if (this._useHassStyles) {
       css1To2Path = css2To1Path = active2To1 ? cssNode2Export : cssNode2Import;
       css1To2Dot = cssNode2Export;
@@ -690,12 +692,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       horizLinePresent = !!entityStates.battery.firstImportEntity && !!entityStates.grid.firstExportEntity;
       vertLinePresent = entityStates.solar.isPresent;
       upperLeftLinePresent = entityStates.solar.isPresent && !!entityStates.grid.firstExportEntity;
-      upperRightLinePresent = entityStates.solar.isPresent && !!entityStates.battery.firstExportEntity;
+      upperRightLinePresent = entityStates.solar.isPresent && (!!entityStates.battery.firstExportEntity || this._mode === DisplayMode.Power);
       lowerLeftLinePresent = !!entityStates.grid.firstImportEntity;
       lowerRightLinePresent = !!entityStates.battery.firstImportEntity;
     } else {
       horizLinePresent = !!entityStates.grid.firstImportEntity;
-      vertLinePresent = entityStates.solar.isPresent && !!entityStates.battery.firstExportEntity;
+      vertLinePresent = entityStates.solar.isPresent && (!!entityStates.battery.firstExportEntity || this._mode === DisplayMode.Power);
       upperLeftLinePresent = entityStates.solar.isPresent && !!entityStates.grid.firstExportEntity;
       upperRightLinePresent = entityStates.solar.isPresent;
       lowerLeftLinePresent = !!entityStates.battery.firstImportEntity && !!entityStates.grid.firstExportEntity;
@@ -973,7 +975,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const volumeUnits: string = this._getVolumeUnits();
-    const units: string = this._energyUnits.length > volumeUnits.length ? this._energyUnits : volumeUnits;
+    const units: string = this._electricUnits.length > volumeUnits.length ? this._electricUnits : volumeUnits;
 
     const numChars: number = Math.max(
       this._entityStates.home.renderEnergyState(9.999, units).length,
@@ -1048,7 +1050,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _getVolumeUnits = (): string => this._volumeUnits === VolumeUnits.Same_As_Electric ? this._energyUnits : this._volumeUnits;
+  private _getVolumeUnits = (): string => this._gasUnits === VolumeUnits.Same_As_Electric ? this._electricUnits : this._gasUnits;
 
   //================================================================================================================================================================================//
 

@@ -84,11 +84,15 @@ export interface EnergySource {
   type: string;
   stat_energy_from?: string;
   stat_energy_to?: string;
+  stat_rate?: string;
   flow_from?: {
     stat_energy_from: string;
   }[];
   flow_to?: {
     stat_energy_to: string;
+  }[];
+  power?: {
+    stat_rate: string;
   }[];
 }
 

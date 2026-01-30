@@ -2,7 +2,7 @@ import { ColoursConfig, NodeOptions, EntitiesOptions, OverridesOptions, isValidP
 import { formatNumber, HomeAssistant } from "custom-card-helpers";
 import { SecondaryInfo } from "./secondary-info";
 import { DEFAULT_CONFIG, DEFAULT_DEVICE_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
-import { checkEnumValue, CssClass, DeviceClasses, EnergyUnits, InactiveFlowsMode, PrefixThreshold, Scale, SIUnitPrefixes, UnitPosition, VolumeUnits } from "@/enums";
+import { checkEnumValue, CssClass, DeviceClasses, DisplayMode, EnergyUnits, InactiveFlowsMode, PrefixThreshold, Scale, SIUnitPrefixes, UnitPosition, VolumeUnits } from "@/enums";
 import { html, LitElement, nothing, svg, TemplateResult } from "lit";
 import { localize } from "@/localize/localize";
 import Decimal from "decimal.js";
@@ -45,9 +45,10 @@ export abstract class Node<T> {
   protected readonly cardConfigs: EnergyFlowCardExtConfig[];
   protected readonly nodeConfigs: T[];
   protected readonly coloursConfigs: ColoursConfig[];
+  protected readonly mode: DisplayMode;
   protected readonly inactiveFlowsCss: CssClass;
-  protected readonly energyUnits: EnergyUnits;
-  protected readonly volumeUnits: VolumeUnits;
+  protected readonly electricUnits: string;
+  protected readonly gasUnits: string;
   protected readonly showSegmentGaps: boolean;
   protected readonly useHassStyles: boolean;
   protected readonly hass: HomeAssistant;
@@ -84,6 +85,7 @@ export abstract class Node<T> {
     this.style = style;
     this.cssClass = nodeClass;
     this.cardConfigs = [cardConfig, DEFAULT_CONFIG];
+    this.mode = getConfigValue(this.cardConfigs, GlobalOptions.Mode);
 
     if (index === undefined) {
       this.nodeConfigs = getConfigObjects(this.cardConfigs, node) as T[];
@@ -97,8 +99,8 @@ export abstract class Node<T> {
     const importEntities: string[] = getConfigValue(this.nodeConfigs, [NodeOptions.Import_Entities, EntitiesOptions.Entity_Ids]) || [];
     const exportEntities: string[] = getConfigValue(this.nodeConfigs, [NodeOptions.Export_Entities, EntitiesOptions.Entity_Ids]) || [];
 
-    this.importEntities = this._filterPrimaryEntities(hass, [...hassImportEntities, ...importEntities], deviceClasses);
-    this.exportEntities = this._filterPrimaryEntities(hass, [...hassExportEntities, ...exportEntities], deviceClasses);
+    this.importEntities = this._filterPrimaryEntities(hass, this.mode, [...hassImportEntities, ...importEntities], deviceClasses);
+    this.exportEntities = this._filterPrimaryEntities(hass, this.mode, [...hassExportEntities, ...exportEntities], deviceClasses);
     this.configEntities = [...importEntities, ...exportEntities];
 
     this._name = getConfigValue(this.nodeConfigs, [NodeOptions.Overrides, OverridesOptions.Name]);
@@ -137,8 +139,8 @@ export abstract class Node<T> {
     this._scale = getConfigValue(flowsConfigs, FlowsOptions.Scale, value => checkEnumValue(value, Scale));
 
     const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(this.cardConfigs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
-    this.energyUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
-    this.volumeUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
+    this.electricUnits = this.mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
+    this.gasUnits = this.mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
     this._energyUnitPosition = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Unit_Position, value => checkEnumValue(value, UnitPosition));
     this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
     this._displayPrecisionUnder10 = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Under_10);
@@ -225,7 +227,7 @@ export abstract class Node<T> {
     const deviceClass: string | undefined = this.hass.states[entityId].attributes.device_class;
 
     if (deviceClass === DeviceClasses.Energy) {
-      return this.renderEnergyState(state, this.energyUnits);
+      return this.renderEnergyState(state, this.electricUnits);
     }
 
     const units: string | undefined = this.hass.states[entityId].attributes.unit_of_measurement;
@@ -416,8 +418,8 @@ export abstract class Node<T> {
 
   //================================================================================================================================================================================//
 
-  private _filterPrimaryEntities(hass: HomeAssistant, entityIds: string[], deviceClasses: DeviceClasses[]): string[] {
-    return [...new Set(entityIds.filter(entityId => isValidPrimaryEntity(hass, entityId, deviceClasses)))];
+  private _filterPrimaryEntities(hass: HomeAssistant, mode: DisplayMode, entityIds: string[], deviceClasses: DeviceClasses[]): string[] {
+    return [...new Set(entityIds.filter(entityId => isValidPrimaryEntity(hass, mode, entityId, deviceClasses)))];
   }
 
   //================================================================================================================================================================================//

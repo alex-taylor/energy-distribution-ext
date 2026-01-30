@@ -109,8 +109,8 @@ export class BatteryNode extends Node<BatteryConfig> {
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 180, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.batterySecondary, CssClass.Battery)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.energyUnits, this.firstExportEntity, this.exportIcon, exportState, overridePrefix)}
-        ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.energyUnits, this.firstImportEntity, this.importIcon, importState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.electricUnits, this.firstExportEntity, this.exportIcon, exportState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.electricUnits, this.firstImportEntity, this.importIcon, importState, overridePrefix)}
       </div>
     `;
   }
@@ -118,13 +118,14 @@ export class BatteryNode extends Node<BatteryConfig> {
   //================================================================================================================================================================================//
 
   private static _getHassImportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources.filter(source => source.type === "battery").filter(source => source.stat_energy_from).map(source => source.stat_energy_from!);
+    return energySources.filter(source => source.type === "battery" && source.stat_energy_from).map(source => source.stat_energy_from!)
+      .concat(energySources.filter(source => source.type === "battery" && source.stat_rate).map(source => source.stat_rate!));
   }
 
   //================================================================================================================================================================================//
 
   private static _getHassExportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources.filter(source => source.type === "battery").filter(source => source.stat_energy_to).map(source => source.stat_energy_to!);
+    return energySources.filter(source => source.type === "battery" && source.stat_energy_to).map(source => source.stat_energy_to!);
   }
 
   //================================================================================================================================================================================//

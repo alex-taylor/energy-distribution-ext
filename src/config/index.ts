@@ -326,26 +326,34 @@ export interface SolarConfig extends NodeConfig {
 
 //================================================================================================================================================================================//
 
-function isTotalisingEntity(hass: HomeAssistant, entityId: string = ""): boolean {
-  return ["total", "total_increasing"].includes(hass.states[entityId]?.attributes?.state_class || "");
+function isSupportedStateClass(hass: HomeAssistant, mode: DisplayMode, entityId: string = ""): boolean {
+  if (mode === DisplayMode.Energy) {
+    return ["total", "total_increasing"].includes(hass.states[entityId]?.attributes?.state_class || "");
+  }
+
+  return (hass.states[entityId]?.attributes?.state_class || "") === "measurement";
 }
 
 //================================================================================================================================================================================//
 
-export function isValidPrimaryEntity(hass: HomeAssistant, entityId: string = "", deviceClasses: string[]): boolean {
+export function isValidPrimaryEntity(hass: HomeAssistant, mode: DisplayMode, entityId: string = "", deviceClasses: string[]): boolean {
+  if (mode === DisplayMode.Power) {
+    deviceClasses = [DeviceClasses.Power];
+  }
+
   const deviceClass: string = hass.states[entityId]?.attributes?.device_class || DeviceClasses.None;
 
   if (deviceClass === DeviceClasses.None && deviceClasses.includes(deviceClass)) {
     return true;
   }
 
-  return isTotalisingEntity(hass, entityId) && deviceClasses.includes(deviceClass);
+  return isSupportedStateClass(hass, mode, entityId) && deviceClasses.includes(deviceClass);
 }
 
 //================================================================================================================================================================================//
 
-export function isValidSecondaryEntity(hass: HomeAssistant, entityId: string = ""): boolean {
-  return isTotalisingEntity(hass, entityId);
+export function isValidSecondaryEntity(hass: HomeAssistant, mode: DisplayMode, entityId: string = ""): boolean {
+  return isSupportedStateClass(hass, mode, entityId);
 }
 
 //================================================================================================================================================================================//

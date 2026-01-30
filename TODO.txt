@@ -11,12 +11,12 @@ Code
     - support State-of-Charge for Battery
       - this could be done using the secondary, although then we'd need to know that it was a SoC in order to manage the main icon
         - we could check its device_class: if "battery" then it's a SoC
-    - see what else should be changed/hidden
-      - labelling in the UI will need to be dynamic, unless Power entities are in a separate field in the config
   - see if we can filter out 'bad' config rather than forcing the user into YAML mode
     - or failing that - is there any way to find out from validation what the bad config is so we can at least *tell* the user?
       - looks like it - see superstruct
     - should be able to detect invalid enum values: right now they are validated (because it accepts any string), but cannot be parsed which dumps the user into YAML mode with no way of knowing what caused this
+
+  - BUG: flowline layout when the top-row is missing
 
   - BUG: the dots are being rendered at the (0,0) of the lines panel
     - may now be fixed?

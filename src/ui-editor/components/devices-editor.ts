@@ -4,7 +4,7 @@ import { HomeAssistant, fireEvent } from "custom-card-helpers";
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { CARD_NAME } from "@/const";
-import { ColourOptions, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, NodeOptions, EntitiesOptions, SecondaryInfoOptions } from "@/config";
+import { ColourOptions, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, NodeOptions, EntitiesOptions, SecondaryInfoOptions, GlobalOptions } from "@/config";
 import { deviceSchema } from "../schema/device";
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from "..";
 import { repeat } from "lit/directives/repeat.js";
@@ -49,6 +49,7 @@ export class DevicesEditor extends LitElement {
   private _devices: DeviceConfig[] = [];
   private _entityKeys = new WeakMap<DeviceConfig, string>();
   private _nextDeviceColour: number = 0;
+  private _mode!: DisplayMode;
 
   protected render(): TemplateResult {
     if (!this.config || !this.hass) {
@@ -56,6 +57,7 @@ export class DevicesEditor extends LitElement {
     }
 
     this._devices = this.config.devices || [];
+    this._mode = getConfigValue(this.config, GlobalOptions.Mode);
 
     if (this._indexBeingEdited >= this._devices.length) {
       // a new device has been added, but the config change has not propagated through yet
@@ -120,7 +122,7 @@ export class DevicesEditor extends LitElement {
       this._devices,
       deviceConf => this._getKey(deviceConf),
       (deviceConf, index) => {
-        const statusIcon: Status = getStatusIcon(this.hass, new DeviceNode(this.hass, this.config, this.style, index), ELECTRIC_ENTITY_CLASSES, true, true);
+        const statusIcon: Status = getStatusIcon(this.hass, this._mode, new DeviceNode(this.hass, this.config, this.style, index), ELECTRIC_ENTITY_CLASSES, true, true);
 
         return html`
           <div class="devices">
@@ -161,11 +163,11 @@ export class DevicesEditor extends LitElement {
     const errors: object = {};
     const secondaryEntityId: string | undefined = getConfigValue(config, [NodeOptions.Secondary_Info, SecondaryInfoOptions.Entity_Id]);
 
-    validatePrimaryEntities(this.hass, NodeOptions.Import_Entities, getConfigValue(config, [NodeOptions.Import_Entities, EntitiesOptions.Entity_Ids]), ELECTRIC_ENTITY_CLASSES, true, errors);
-    validatePrimaryEntities(this.hass, NodeOptions.Export_Entities, getConfigValue(config, [NodeOptions.Export_Entities, EntitiesOptions.Entity_Ids]), ELECTRIC_ENTITY_CLASSES, true, errors);
+    validatePrimaryEntities(this.hass, this._mode, NodeOptions.Import_Entities, getConfigValue(config, [NodeOptions.Import_Entities, EntitiesOptions.Entity_Ids]), ELECTRIC_ENTITY_CLASSES, true, errors);
+    validatePrimaryEntities(this.hass, this._mode, NodeOptions.Export_Entities, getConfigValue(config, [NodeOptions.Export_Entities, EntitiesOptions.Entity_Ids]), ELECTRIC_ENTITY_CLASSES, true, errors);
 
     if (secondaryEntityId) {
-      validateSecondaryEntity(this.hass, NodeOptions.Secondary_Info, secondaryEntityId, errors);
+      validateSecondaryEntity(this.hass, this._mode, NodeOptions.Secondary_Info, secondaryEntityId, errors);
     }
 
     return errors;

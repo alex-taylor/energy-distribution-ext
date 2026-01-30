@@ -71,19 +71,19 @@ export class DeviceNode extends Node<DeviceConfig> {
     let units: string;
 
     if (this.type === EnergyType.Gas) {
-      if (this.volumeUnits !== VolumeUnits.Same_As_Electric) {
+      if (this.gasUnits !== VolumeUnits.Same_As_Electric) {
         importValue = this.firstImportEntity ? states?.devicesGasVolume[index]?.import : null;
         exportValue = this.firstExportEntity ? states?.devicesGasVolume[index]?.export : null;
-        units = this.volumeUnits;
+        units = this.gasUnits;
       } else {
         importValue = this.firstImportEntity ? states?.devicesGas[index]?.import : null;
         exportValue = this.firstExportEntity ? states?.devicesGas[index]?.export : null;
-        units = this.energyUnits;
+        units = this.electricUnits;
       }
     } else {
       importValue = this.firstImportEntity ? states?.devicesElectric[index]?.import : null;
       exportValue = this.firstExportEntity ? states?.devicesElectric[index]?.export : null;
-      units = this.energyUnits;
+      units = this.electricUnits;
     }
 
     const inactiveCss: CssClass = !states || (!importValue && !exportValue) ? this.inactiveFlowsCss : CssClass.None;

@@ -62,7 +62,7 @@ export class LowCarbonNode extends Node<LowCarbonConfig> {
         ${this.renderSecondarySpan(target, this.secondary, states?.lowCarbonSecondary, CssClass.Low_Carbon)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
         <a href=${electricityMapUrl} style="text-decoration: none;" target="_blank" rel="noopener noreferrer">
-          ${this.renderEnergyStateSpan(target, CssClass.Low_Carbon, this.energyUnits, undefined, undefined, energyState, overridePrefix)}<br/>
+          ${this.renderEnergyStateSpan(target, CssClass.Low_Carbon, this.electricUnits, undefined, undefined, energyState, overridePrefix)}<br/>
           ${energyPercentage ? energyState ? html`<span class="value ${CssClass.Low_Carbon}"}>(${energyPercentage}%)</span>` : html`<span class="value ${CssClass.Low_Carbon}"}>${energyPercentage}%</span>` : nothing}
         </a>
       </div>

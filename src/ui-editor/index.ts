@@ -4,6 +4,7 @@ import { isValidPrimaryEntity, isValidSecondaryEntity } from "@/config";
 import { Node } from "@/nodes/node";
 import { HELPTEXT_SUFFIX } from "@/const";
 import memoizeOne from "memoize-one";
+import { DisplayMode } from "@/enums";
 
 export const computeLabelCallback = memoizeOne((schema: any): string => {
   if (!schema) {
@@ -45,7 +46,7 @@ export enum Status {
 export const STATUS_ICONS: string[] = ["", "mdi:check-circle", "mdi:alert", "mdi:alert-octagon"];
 export const STATUS_CLASSES: string[] = ["", "page-valid", "page-warning", "page-error"];
 
-export function getStatusIcon(hass: HomeAssistant, node: Node<any>, deviceClasses: string[], supportsPrimaries: boolean, requiresPrimaries: boolean = false): Status {
+export function getStatusIcon(hass: HomeAssistant, mode: DisplayMode, node: Node<any>, deviceClasses: string[], supportsPrimaries: boolean, requiresPrimaries: boolean = false): Status {
   let primaryEntityCount: number = 0;
   let secondaryEntity: boolean = false;
   let validPrimaryEntityCount: number = 0;
@@ -56,7 +57,7 @@ export function getStatusIcon(hass: HomeAssistant, node: Node<any>, deviceClasse
     node.configEntities.forEach(entityId => {
       primaryEntityCount++;
 
-      if (isValidPrimaryEntity(hass, entityId, deviceClasses)) {
+      if (isValidPrimaryEntity(hass, mode, entityId, deviceClasses)) {
         validPrimaryEntityCount++;
       } else {
         invalidPrimaryEntityCount++;
@@ -67,7 +68,7 @@ export function getStatusIcon(hass: HomeAssistant, node: Node<any>, deviceClasse
   if (node.secondary.configEntity) {
     secondaryEntity = true;
 
-    if (!isValidSecondaryEntity(hass, node.secondary.configEntity)) {
+    if (!isValidSecondaryEntity(hass, mode, node.secondary.configEntity)) {
       invalidSecondaryEntity = true;
     }
   }
@@ -93,7 +94,7 @@ export function getStatusIcon(hass: HomeAssistant, node: Node<any>, deviceClasse
   return Status.Valid;
 }
 
-export function validatePrimaryEntities(hass: HomeAssistant, label: string, entityIds: string[] = [], deviceClasses: string[], requirePrimary: boolean, errors: object): void {
+export function validatePrimaryEntities(hass: HomeAssistant, mode: DisplayMode, label: string, entityIds: string[] = [], deviceClasses: string[], requirePrimary: boolean, errors: object): void {
   delete errors[label];
 
   let error: string = "";
@@ -106,7 +107,7 @@ export function validatePrimaryEntities(hass: HomeAssistant, label: string, enti
     entityIds.forEach(entityId => {
       if (!entityId || entityId === "") {
         error += localize("editor.missing_entity") + "\n";
-      } else if (!isValidPrimaryEntity(hass, entityId, deviceClasses)) {
+      } else if (!isValidPrimaryEntity(hass, mode, entityId, deviceClasses)) {
         error += "'" + (hass.states[entityId]?.attributes?.friendly_name || entityId) + "' " + localize("editor.invalid_primary_entity") + "\n";
       }
     });
@@ -117,7 +118,7 @@ export function validatePrimaryEntities(hass: HomeAssistant, label: string, enti
   }
 }
 
-export function validateSecondaryEntity(hass: HomeAssistant, label: string, entityId: string, errors: object): void {
+export function validateSecondaryEntity(hass: HomeAssistant, mode: DisplayMode, label: string, entityId: string, errors: object): void {
   delete errors[label];
 
   if (entityId === undefined) {
@@ -126,7 +127,7 @@ export function validateSecondaryEntity(hass: HomeAssistant, label: string, enti
 
   if (!entityId || entityId === "") {
     errors[label] = localize("editor.missing_entity");
-  } else if (!isValidSecondaryEntity(hass, entityId)) {
+  } else if (!isValidSecondaryEntity(hass, mode, entityId)) {
     errors[label] = "'" + (hass.states[entityId]?.attributes?.friendly_name || entityId) + "' " + localize("editor.invalid_secondary_entity");
   }
 }

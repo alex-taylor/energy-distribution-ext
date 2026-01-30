@@ -80,7 +80,7 @@ export class SolarNode extends Node<SolarConfig> {
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.solarSecondary, CssClass.Solar)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, CssClass.Solar, this.energyUnits, this.firstImportEntity, undefined, primaryState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Solar, this.electricUnits, this.firstImportEntity, undefined, primaryState, overridePrefix)}
       </div>
     `;
   }
@@ -88,7 +88,8 @@ export class SolarNode extends Node<SolarConfig> {
   //================================================================================================================================================================================//
 
   private static _getHassEntities = (energySources: EnergySource[]): string[] => {
-    return energySources.filter(source => source.type === "solar").map(source => source.stat_energy_from!);
+    return energySources.filter(source => source.type === "solar" && source.stat_energy_from).map(source => source.stat_energy_from!)
+      .concat(energySources.filter(source => source.type === "solar" && source.stat_rate).map(source => source.stat_rate!));
   }
 
   //================================================================================================================================================================================//

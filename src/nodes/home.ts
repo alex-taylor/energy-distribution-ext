@@ -110,7 +110,7 @@ export class HomeNode extends Node<HomeConfig> {
           break;
 
         case GasSourcesMode.Show_Separately:
-          gasTotal = this.volumeUnits === VolumeUnits.Same_As_Electric ? states.homeGas : states.homeGasVolume;
+          gasTotal = this.gasUnits === VolumeUnits.Same_As_Electric ? states.homeGas : states.homeGasVolume;
           electricIcon = mdiFlash;
           gasIcon = mdiFire;
           break;
@@ -135,7 +135,7 @@ export class HomeNode extends Node<HomeConfig> {
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.homeSecondary, CssClass.Home)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, electricCss, this.energyUnits, undefined, electricIcon, electricTotal, overrideElectricUnitPrefix)}
+        ${this.renderEnergyStateSpan(target, electricCss, this.electricUnits, undefined, electricIcon, electricTotal, overrideElectricUnitPrefix)}
         ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasTotal, overrideGasUnitPrefix)}
       </div>
     `;
@@ -143,7 +143,7 @@ export class HomeNode extends Node<HomeConfig> {
 
   //================================================================================================================================================================================//
 
-  private _getVolumeUnits = (): string => this.volumeUnits === VolumeUnits.Same_As_Electric ? this.energyUnits : this.volumeUnits;
+  private _getVolumeUnits = (): string => this.gasUnits === VolumeUnits.Same_As_Electric ? this.electricUnits : this.gasUnits;
 
   //================================================================================================================================================================================//
 

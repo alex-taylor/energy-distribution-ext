@@ -41,12 +41,12 @@ export class GasNode extends Node<GasConfig> {
     let units: string;
     let primaryState: number | undefined;
 
-    if (this.volumeUnits === VolumeUnits.Same_As_Electric) {
+    if (this.gasUnits === VolumeUnits.Same_As_Electric) {
       primaryState = states?.gasImport;
-      units = this.energyUnits;
+      units = this.electricUnits;
     } else {
       primaryState = states?.gasImportVolume;
-      units = this.volumeUnits;
+      units = this.gasUnits;
     }
 
     const inactiveCss: CssClass = !states || !primaryState ? this.inactiveFlowsCss : CssClass.None;
