@@ -43,6 +43,7 @@ namespace Enums {
   } as const satisfies Record<string, string>;
 
   export const DeviceClasses = {
+    Battery: "battery",
     Energy: "energy",
     Gas: "gas",
     Monetary: "monetary",
@@ -108,6 +109,12 @@ namespace Enums {
     Logarithmic: "logarithmic"
   } as const satisfies Record<string, string>;
 
+  export const StateClasses = {
+    Measurement: "measurement",
+    Total: "total",
+    Total_Increasing: "total_increasing"
+  } as const satisfies Record<string, string>;
+
   export const UnitPosition = {
     After_Space: "after_space",
     Before_Space: "before_space",
@@ -159,6 +166,8 @@ export const PrefixThreshold = Enums.PrefixThreshold;
 export type PrefixThreshold = typeof PrefixThreshold[keyof typeof PrefixThreshold];
 export const Scale = Enums.Scale;
 export type Scale = typeof Scale[keyof typeof Scale];
+export const StateClasses = Enums.StateClasses;
+export type StateClasses = typeof StateClasses[keyof typeof StateClasses];
 export const UnitPosition = Enums.UnitPosition;
 export type UnitPosition = typeof UnitPosition[keyof typeof UnitPosition];
 export const UnitPrefixes = Enums.UnitPrefixes;

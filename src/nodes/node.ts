@@ -96,12 +96,13 @@ export abstract class Node<T> {
 
     this.coloursConfigs = getConfigObjects(this.nodeConfigs, NodeOptions.Colours);
 
+    const powerEntities: string[] = getConfigValue(this.nodeConfigs, [NodeOptions.Power_Entities, EntitiesOptions.Entity_Ids]) || [];
     const importEntities: string[] = getConfigValue(this.nodeConfigs, [NodeOptions.Import_Entities, EntitiesOptions.Entity_Ids]) || [];
     const exportEntities: string[] = getConfigValue(this.nodeConfigs, [NodeOptions.Export_Entities, EntitiesOptions.Entity_Ids]) || [];
 
-    this.importEntities = this._filterPrimaryEntities(hass, this.mode, [...hassImportEntities, ...importEntities], deviceClasses);
-    this.exportEntities = this._filterPrimaryEntities(hass, this.mode, [...hassExportEntities, ...exportEntities], deviceClasses);
-    this.configEntities = [...importEntities, ...exportEntities];
+    this.importEntities = this._filterPrimaryEntities(hass, this.mode, [...hassImportEntities, ...importEntities, ...powerEntities], deviceClasses);
+    this.exportEntities = this._filterPrimaryEntities(hass, this.mode, [...hassExportEntities, ...exportEntities, ...powerEntities], deviceClasses);
+    this.configEntities = [...importEntities, ...exportEntities, ...powerEntities];
 
     this._name = getConfigValue(this.nodeConfigs, [NodeOptions.Overrides, OverridesOptions.Name]);
     this._icon = getConfigValue(this.nodeConfigs, [NodeOptions.Overrides, OverridesOptions.Icon]);

@@ -4,7 +4,7 @@ import { Node } from "./node";
 import { HomeAssistant } from "custom-card-helpers";
 import { getConfigObjects, getConfigValue } from "@/config/config";
 import { EnergySource } from "@/hass";
-import { ColourMode, CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection, SIUnitPrefixes } from "@/enums";
+import { ColourMode, CssClass, DisplayMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection, SIUnitPrefixes } from "@/enums";
 import { BiDiState, Flows, States } from ".";
 import { Colours } from "./colours";
 import { html, LitElement, nothing, TemplateResult } from "lit";
@@ -64,13 +64,29 @@ export class GridNode extends Node<GridConfig> {
   //================================================================================================================================================================================//
 
   public readonly render = (target: LitElement, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
+    const importState: number | undefined = states && this.firstImportEntity
+      ? this.mode === DisplayMode.Energy
+        ? states.grid.import
+        : states.grid.export === 0
+          ? states.grid.import
+          : undefined
+      : undefined;
+
+    const exportState: number | undefined = states && this.firstExportEntity
+      ? this.mode === DisplayMode.Energy
+        ? states.grid.export
+        : states.grid.import === 0 && states.grid.export > 0
+          ? states.grid.export
+          : undefined
+      : undefined;
+
     const segmentGroups: SegmentGroup[] = [];
 
     if (states) {
       if (this._circleMode === ColourMode.Dynamic) {
         const flows: Flows = states.flows;
 
-        if (this.firstExportEntity) {
+        if (this.firstExportEntity && exportState !== undefined) {
           segmentGroups.push(
             {
               inactiveCss: CssClass.Grid_Export,
@@ -88,7 +104,7 @@ export class GridNode extends Node<GridConfig> {
           );
         }
 
-        if (this.firstImportEntity) {
+        if (this.firstImportEntity && importState !== undefined) {
           const highCarbon: number = 1 - (states.lowCarbonPercentage / 100);
 
           segmentGroups.push(
@@ -118,8 +134,6 @@ export class GridNode extends Node<GridConfig> {
 
     const inactiveCss: string = !states || (!states.grid.import && !states.grid.export) ? this.inactiveFlowsCss : CssClass.None;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
-    const importState: number | undefined = states && this.firstImportEntity ? states.grid.import : undefined;
-    const exportState: number | undefined = states && this.firstExportEntity ? states.grid.export : undefined;
     const isOutage: boolean = this.powerOutage.isOutage;
     const icon: string = isOutage ? this.powerOutage.icon : this.icon;
 
@@ -141,15 +155,17 @@ export class GridNode extends Node<GridConfig> {
   //================================================================================================================================================================================//
 
   private static _getHassImportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources?.filter(source => source.type === "grid" && (source.flow_from || source.power))
+    return energySources?.filter(source => source.type === "grid")
       .flatMap(source => (source.flow_from ? source.flow_from.map(from => from.stat_energy_from) : [])
-        .concat(source.power ? source.power.map(from => from.stat_rate) : []));
+        .concat(source.power ? source.power.map(power => power.stat_rate) : []));
   }
 
   //================================================================================================================================================================================//
 
   private static _getHassExportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources?.filter(source => source.type === "grid" && source.flow_to).flatMap(source => source.flow_to!.map(to => to!.stat_energy_to!));
+    return energySources?.filter(source => source.type === "grid")
+      .flatMap(source => (source.flow_to ? source.flow_to.map(to => to!.stat_energy_to) : [])
+        .concat(source.power ? source.power.map(power => power.stat_rate) : []));
   }
 
   //================================================================================================================================================================================//

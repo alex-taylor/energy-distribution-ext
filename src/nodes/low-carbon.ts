@@ -50,7 +50,7 @@ export class LowCarbonNode extends Node<LowCarbonConfig> {
     const co2State: HassEntity = this.hass.states[getCo2SignalEntity(this.hass)];
 
     if (co2State?.attributes.country_code) {
-      electricityMapUrl += `/zone/${co2State?.attributes.country_code} `;
+      electricityMapUrl += `/zone/${co2State?.attributes.country_code}`;
     }
 
     const energyState: number | undefined = !states || this._displayMode === LowCarbonDisplayMode.Percentage ? undefined : states.grid.import === 0 ? 0 : states.lowCarbon;

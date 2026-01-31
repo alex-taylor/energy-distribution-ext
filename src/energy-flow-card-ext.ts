@@ -14,7 +14,7 @@ import { DataStatus, EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
 import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode, EnergyDirection, DisplayMode } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
-import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from "@/const";
+import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING, POWER_UNITS } from "@/const";
 import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
 import { getRangePresetName, renderDateRange } from "@/ui-helpers/date-fns";
 import { AnimationDurations, FlowLine, getGasSourcesMode } from "@/ui-helpers";
@@ -175,8 +175,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     this.resetSubscriptions();
 
     this._mode = getConfigValue(this._configs, GlobalOptions.Mode);
-    this._dateRange = getConfigValue(this._configs, GlobalOptions.Date_Range);
-    this._dateRangeDisplayMode = getConfigValue(this._configs, GlobalOptions.Date_Range_Display);
 
     const appearanceConfig: AppearanceOptions[] = getConfigObjects(this._configs, [EditorPages.Appearance, GlobalOptions.Options]);
     this._useHassStyles = getConfigValue(appearanceConfig, AppearanceOptions.Use_HASS_Style);
@@ -217,9 +215,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     }
 
     const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(this._configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
-    this._electricUnits = this._mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
     this._electricUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
-    this._gasUnits = this._mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
     this._gasUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
     this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
 
@@ -228,6 +224,17 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     if (this.style.getPropertyValue("--circle-size") === "") {
       this._setLayout(this.style, CIRCLE_SIZE_MIN);
+    }
+
+    if (this._mode === DisplayMode.Power) {
+      this._dateRange = DateRange.Today;
+      this._dateRangeDisplayMode = DateRangeDisplayMode.Do_Not_Show;
+      this._electricUnits = this._gasUnits = POWER_UNITS;
+    } else {
+      this._dateRange = getConfigValue(this._configs, GlobalOptions.Date_Range);
+      this._dateRangeDisplayMode = getConfigValue(this._configs, GlobalOptions.Date_Range_Display);
+      this._electricUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
+      this._gasUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
     }
   }
 
@@ -391,7 +398,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
-    if (solar.isPresent && (grid.firstExportEntity || this._mode === DisplayMode.Power)) {
+    if (solar.isPresent && grid.firstExportEntity) {
       lines.push({
         cssLine: CssClass.Grid_Export,
         cssDot: CssClass.Grid_Export,
@@ -401,7 +408,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
-    if (solar.isPresent && (battery.firstExportEntity || this._mode === DisplayMode.Power)) {
+    if (solar.isPresent && battery.firstExportEntity) {
       lines.push({
         cssLine: CssClass.Battery_Export,
         cssDot: CssClass.Battery_Export,
@@ -440,7 +447,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       });
     }
 
-    if (battery.isPresent && (grid.isPresent || this._mode === DisplayMode.Power)) {
+    if (battery.isPresent && grid.isPresent) {
       this._renderBiDiFlowLine(
         lines,
         this._batteryToGridPath,
@@ -449,7 +456,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         animationDurations?.batteryToGrid,
         animationDurations?.gridToBattery,
         entityStates.battery.firstImportEntity ? CssClass.Battery_Import : CssClass.None,
-        (entityStates.battery.firstExportEntity || this._mode === DisplayMode.Power) ? CssClass.Battery_Export : CssClass.None,
+        entityStates.battery.firstExportEntity ? CssClass.Battery_Export : CssClass.None,
         entityStates.grid.firstImportEntity ? CssClass.Grid_Import : CssClass.None,
         entityStates.grid.firstExportEntity ? CssClass.Grid_Export : CssClass.None,
         CssClass.Grid_Battery_Anim,
@@ -673,8 +680,8 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     const rowPitch: number = circleSize + rowSpacing;
     const isTopRowPresent: boolean = (entityStates.lowCarbon.isPresent && entityStates.grid.isPresent) || entityStates.solar.isPresent || entityStates.gas.isPresent || devicesLayout === DevicesLayout.Horizontal || devicesLayout === DevicesLayout.Inline_Above;
-    const row1: number = (isTopRowPresent ? labelHeight : 0) + circleSize / 2;
-    const row2: number = row1 + rowPitch;
+    const row1: number = labelHeight + circleSize / 2;
+    const row2: number = isTopRowPresent ? row1 + rowPitch : circleSize / 2;
     const row3: number = row2 + rowPitch;
 
     const lineInset: number = circleSize / 2 - DOT_DIAMETER;
@@ -692,12 +699,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       horizLinePresent = !!entityStates.battery.firstImportEntity && !!entityStates.grid.firstExportEntity;
       vertLinePresent = entityStates.solar.isPresent;
       upperLeftLinePresent = entityStates.solar.isPresent && !!entityStates.grid.firstExportEntity;
-      upperRightLinePresent = entityStates.solar.isPresent && (!!entityStates.battery.firstExportEntity || this._mode === DisplayMode.Power);
+      upperRightLinePresent = entityStates.solar.isPresent && !!entityStates.battery.firstExportEntity;
       lowerLeftLinePresent = !!entityStates.grid.firstImportEntity;
       lowerRightLinePresent = !!entityStates.battery.firstImportEntity;
     } else {
       horizLinePresent = !!entityStates.grid.firstImportEntity;
-      vertLinePresent = entityStates.solar.isPresent && (!!entityStates.battery.firstExportEntity || this._mode === DisplayMode.Power);
+      vertLinePresent = entityStates.solar.isPresent && !!entityStates.battery.firstExportEntity;
       upperLeftLinePresent = entityStates.solar.isPresent && !!entityStates.grid.firstExportEntity;
       upperRightLinePresent = entityStates.solar.isPresent;
       lowerLeftLinePresent = !!entityStates.battery.firstImportEntity && !!entityStates.grid.firstExportEntity;

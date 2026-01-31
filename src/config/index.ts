@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode } from '@/enums';
+import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode, StateClasses } from '@/enums';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -327,24 +327,26 @@ export interface SolarConfig extends NodeConfig {
 //================================================================================================================================================================================//
 
 function isSupportedStateClass(hass: HomeAssistant, mode: DisplayMode, entityId: string = ""): boolean {
+  const stateClass: string = hass.states[entityId]?.attributes?.state_class || "";
+
   if (mode === DisplayMode.Energy) {
-    return ["total", "total_increasing"].includes(hass.states[entityId]?.attributes?.state_class || "");
+    return stateClass === StateClasses.Total || stateClass === StateClasses.Total_Increasing;
   }
 
-  return (hass.states[entityId]?.attributes?.state_class || "") === "measurement";
+  return stateClass === StateClasses.Measurement;
 }
 
 //================================================================================================================================================================================//
 
 export function isValidPrimaryEntity(hass: HomeAssistant, mode: DisplayMode, entityId: string = "", deviceClasses: string[]): boolean {
-  if (mode === DisplayMode.Power) {
-    deviceClasses = [DeviceClasses.Power];
-  }
-
   const deviceClass: string = hass.states[entityId]?.attributes?.device_class || DeviceClasses.None;
 
   if (deviceClass === DeviceClasses.None && deviceClasses.includes(deviceClass)) {
     return true;
+  }
+
+  if (mode === DisplayMode.Power) {
+    deviceClasses = [DeviceClasses.Power];
   }
 
   return isSupportedStateClass(hass, mode, entityId) && deviceClasses.includes(deviceClass);

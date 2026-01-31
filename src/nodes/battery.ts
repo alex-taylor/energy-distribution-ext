@@ -3,7 +3,7 @@ import { Node } from "./node";
 import { localize } from "@/localize/localize";
 import { HomeAssistant } from "custom-card-helpers";
 import { EnergySource } from "@/hass";
-import { ColourMode, CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection, SIUnitPrefixes } from "@/enums";
+import { ColourMode, CssClass, DeviceClasses, DisplayMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection, SIUnitPrefixes } from "@/enums";
 import { BiDiState, Flows, States } from ".";
 import { Colours } from "./colours";
 import { html, LitElement, nothing, TemplateResult } from "lit";
@@ -42,18 +42,34 @@ export class BatteryNode extends Node<BatteryConfig> {
     this.setCssVariables(this.style);
     this.style.setProperty("--flow-export-battery-color", this.colours.exportFlow);
     this.style.setProperty("--flow-import-battery-color", this.colours.importFlow);
-}
+  }
 
   //================================================================================================================================================================================//
 
   public readonly render = (target: LitElement, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
+    const importState: number | undefined = states && this.firstImportEntity
+      ? this.mode === DisplayMode.Energy
+        ? states.battery.import
+        : states.battery.export === 0
+          ? states.battery.import
+          : undefined
+      : undefined;
+
+    const exportState: number | undefined = states && this.firstExportEntity
+      ? this.mode === DisplayMode.Energy
+        ? states.battery.export
+        : states.battery.import === 0 && states.battery.export > 0
+          ? states.battery.export
+          : undefined
+      : undefined;
+
     const segmentGroups: SegmentGroup[] = [];
 
     if (states) {
       if (this._circleMode === ColourMode.Dynamic) {
         const flows: Flows = states.flows;
 
-        if (this.firstExportEntity) {
+        if (this.firstExportEntity && exportState !== undefined) {
           const highCarbon: number = 1 - (states.lowCarbonPercentage / 100);
 
           segmentGroups.push(
@@ -77,7 +93,7 @@ export class BatteryNode extends Node<BatteryConfig> {
           );
         }
 
-        if (this.firstImportEntity) {
+        if (this.firstImportEntity && importState !== undefined) {
           segmentGroups.push(
             {
               inactiveCss: CssClass.Battery_Import,
@@ -99,8 +115,20 @@ export class BatteryNode extends Node<BatteryConfig> {
       this.setCssVariables(this.style);
     }
 
-    const importState: number | undefined = states && this.firstImportEntity ? states.battery.import : undefined;
-    const exportState: number | undefined = states && this.firstExportEntity ? states.battery.export : undefined;
+    let icon: string = this.icon;
+
+    if (this.mode === DisplayMode.Power && this.secondary.isPresent && this.hass.states[this.secondary.entity!].attributes.device_class === DeviceClasses.Battery) {
+      const batteryLevel: number = states?.batterySecondary ?? 0;
+
+      if (batteryLevel <= 16) {
+        icon = "mdi:battery-outline";
+      } else if (batteryLevel <= 44) {
+        icon = "mdi:battery-low";
+      } else if (batteryLevel <= 72) {
+        icon = "mdi:battery-medium";
+      }
+    }
+
     const inactiveCss: string = !states || (!states.battery.import && !states.battery.export) ? this.inactiveFlowsCss : CssClass.None;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
@@ -108,7 +136,7 @@ export class BatteryNode extends Node<BatteryConfig> {
       <div class="circle ${borderCss} ${inactiveCss}">
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 180, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.batterySecondary, CssClass.Battery)}
-        <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
+        <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
         ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.electricUnits, this.firstExportEntity, this.exportIcon, exportState, overridePrefix)}
         ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.electricUnits, this.firstImportEntity, this.importIcon, importState, overridePrefix)}
       </div>
@@ -125,7 +153,8 @@ export class BatteryNode extends Node<BatteryConfig> {
   //================================================================================================================================================================================//
 
   private static _getHassExportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources.filter(source => source.type === "battery" && source.stat_energy_to).map(source => source.stat_energy_to!);
+    return energySources.filter(source => source.type === "battery" && source.stat_energy_to).map(source => source.stat_energy_to!)
+      .concat(energySources.filter(source => source.type === "battery" && source.stat_rate).map(source => source.stat_rate!));
   }
 
   //================================================================================================================================================================================//

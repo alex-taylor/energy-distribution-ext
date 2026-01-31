@@ -8,3 +8,5 @@ export const DOT_RADIUS: number = 4.5;
 export const CARD_NAME: string = "energy-flow-card-ext";
 
 export const HELPTEXT_SUFFIX: string = "#helptext";
+
+export const POWER_UNITS: string = "W";

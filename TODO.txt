@@ -4,19 +4,27 @@ TODO
 Code
 ----
 
-  - add support for Power
-    - single-entities for Grid/Battery/Devices
-    - no stats-gathering, just sensors
-    - sensor types are now Power and Measurement
-    - support State-of-Charge for Battery
-      - this could be done using the secondary, although then we'd need to know that it was a SoC in order to manage the main icon
-        - we could check its device_class: if "battery" then it's a SoC
+  - ui-editor:
+    - remove-defaults should strip redundant (ie, mode-specific) values out completely
+      - this leaves a problem: it removes user settings which should be reinstated if they switch between modes with the dialog still open
+      - so:
+        - before pruning, if the mode of the new config has changed (compare to this._config):
+          -copy the relevant mode-specific fields from this._last<mode>Config to the new config
+            - for Energy, these are:
+              - import_entities / export_entities on battery/gas/grid/solar/devices
+              - date-range settings
+              - electric/gas unit settings
+              - anything else?
+            - for Power, these are:
+              - power_entities on battery/gas/grid/solar/devices
+              - anything else?
+          - save the new config to this._last<mode>Config
+        - prune and send the event
+
   - see if we can filter out 'bad' config rather than forcing the user into YAML mode
     - or failing that - is there any way to find out from validation what the bad config is so we can at least *tell* the user?
       - looks like it - see superstruct
     - should be able to detect invalid enum values: right now they are validated (because it accepts any string), but cannot be parsed which dumps the user into YAML mode with no way of knowing what caused this
-
-  - BUG: flowline layout when the top-row is missing
 
   - BUG: the dots are being rendered at the (0,0) of the lines panel
     - may now be fixed?
