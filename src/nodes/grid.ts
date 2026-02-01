@@ -5,7 +5,7 @@ import { HomeAssistant } from "custom-card-helpers";
 import { getConfigObjects, getConfigValue } from "@/config/config";
 import { EnergySource } from "@/hass";
 import { ColourMode, CssClass, DisplayMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection, SIUnitPrefixes } from "@/enums";
-import { BiDiState, Flows, States } from ".";
+import { Flows, States } from ".";
 import { Colours } from "./colours";
 import { html, LitElement, nothing, TemplateResult } from "lit";
 import { SegmentGroup } from "@/ui-helpers";
@@ -31,7 +31,7 @@ export class GridNode extends Node<GridConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, state: BiDiState = { import: 0, export: 0 }, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,
@@ -55,7 +55,7 @@ export class GridNode extends Node<GridConfig> {
     };
 
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Both, state, "var(--energy-grid-consumption-color)", "var(--energy-grid-return-color)");
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Both, "var(--energy-grid-consumption-color)", "var(--energy-grid-return-color)");
     this.setCssVariables(style);
     this.style.setProperty("--flow-export-grid-color", this.colours.exportFlow);
     this.style.setProperty("--flow-import-grid-color", this.colours.importFlow);
@@ -129,7 +129,7 @@ export class GridNode extends Node<GridConfig> {
         }
       }
 
-      this.setCssVariables(this.style);
+      this.setCssVariables(this.style, states.grid);
     }
 
     const inactiveCss: string = !states || (!states.grid.import && !states.grid.export) ? this.inactiveFlowsCss : CssClass.None;

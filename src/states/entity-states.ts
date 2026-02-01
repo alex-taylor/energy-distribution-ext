@@ -208,7 +208,7 @@ export class EntityStates {
 
     this._addStateDeltas(states);
 
-    states.lowCarbon = states.grid.import - states.highCarbon;
+    states.lowCarbon = this.lowCarbon.isPresent ? states.grid.import - states.highCarbon : 0;
     states.lowCarbonPercentage = (states.lowCarbon / states.grid.import) * 100 ?? 0;
 
     this._calculateHomeTotals(states);
@@ -298,29 +298,37 @@ export class EntityStates {
       energySources = prefs?.energy_sources;
     }
 
-    this._battery = new BatteryNode(hass, cardConfig, style, this._states.battery, energySources);
+    this._battery = new BatteryNode(hass, cardConfig, style, energySources);
     this._gas = new GasNode(hass, cardConfig, style, energySources);
-    this._grid = new GridNode(hass, cardConfig, style, this._states.grid, energySources);
+    this._grid = new GridNode(hass, cardConfig, style, energySources);
     this._home = new HomeNode(hass, cardConfig, style);
     this._lowCarbon = new LowCarbonNode(hass, cardConfig, style);
     this._solar = new SolarNode(hass, cardConfig, style, energySources);
     const deviceConfigs: DeviceConfig[] = getConfigValue(configs, EditorPages.Devices) || [];
 
-    this._devices = deviceConfigs.flatMap((_, index) => new DeviceNode(hass, cardConfig, style, index, this._states.devicesElectric, this._states.devicesGas));
+    this._devices = deviceConfigs.flatMap((_, index) => new DeviceNode(hass, cardConfig, style, index));
 
     this._populateEntityArrays();
-    this._inferEntityModes();
+
+    if (this._primaryEntityIds.length !== 0 || this._secondaryEntityIds.length !== 0) {
+      this._inferEntityModes();
+    }
+
     this._isConfigPresent = true;
 
     this._states.electricPresent = this.battery.isPresent || this.grid.isPresent || this.solar.isPresent;
     this._states.gasPresent = this.gas.isPresent;
 
-    this.devices.forEach(device => {
+    this.devices.forEach((device, index) => {
       if (device.type === EnergyType.Electric) {
         this._states.electricPresent = true;
       } else {
         this._states.gasPresent = true;
       }
+
+      this._states.devicesElectric[index] = { export: 0, import: 0 };
+      this._states.devicesGas[index] = { export: 0, import: 0 };
+      this._states.devicesGasVolume[index] = { export: 0, import: 0 };
     });
   }
 
@@ -462,48 +470,51 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private async _loadStatistics(periodStart: Date, periodEnd: Date): Promise<void> {
-    if (!this._isRollover(periodStart) && (periodStart !== this.periodStart || periodEnd !== this.periodEnd)) {
-      this._primaryStatistics = undefined;
-      this._secondaryStatistics = undefined;
-      this._dataStatus = DataStatus.Requested;
-    }
+    if (this._primaryEntityIds.length !== 0 || this._secondaryEntityIds.length !== 0) {
+      if (!this._isRollover(periodStart) && (periodStart !== this.periodStart || periodEnd !== this.periodEnd)) {
+        this._primaryStatistics = undefined;
+        this._secondaryStatistics = undefined;
+        this._dataStatus = DataStatus.Requested;
+      }
 
-    const timeout: NodeJS.Timeout = setTimeout(() => {
-      this._dataStatus = DataStatus.Timed_Out;
-      logDebug(`No energy statistics received after ${ENERGY_DATA_TIMEOUT * 2}ms`);
-    },
-      ENERGY_DATA_TIMEOUT * 2
-    );
+      const timeout: NodeJS.Timeout = setTimeout(() => {
+        this._dataStatus = DataStatus.Timed_Out;
+        logDebug(`No energy statistics received after ${ENERGY_DATA_TIMEOUT * 2}ms`);
+      },
+        ENERGY_DATA_TIMEOUT * 2
+      );
 
-    const primaries: string[] = this._primaryEntityIds;
-    const secondaries: string[] = this._secondaryEntityIds;
-    const fetchStartTime: number = Date.now();
-    const dayDiff: number = differenceInDays(periodEnd, periodStart);
-    const period: Period = this._useHourlyStats ? Period.Hour : isFirstDayOfMonth(periodStart) && isLastDayOfMonth(periodEnd) && dayDiff > 35 ? Period.Month : dayDiff > 2 ? Period.Day : Period.Hour;
+      const primaries: string[] = this._primaryEntityIds;
+      const secondaries: string[] = this._secondaryEntityIds;
+      const fetchStartTime: number = Date.now();
+      const dayDiff: number = differenceInDays(periodEnd, periodStart);
+      const period: Period = isFirstDayOfMonth(periodStart) && isLastDayOfMonth(periodEnd) && dayDiff > 35 ? Period.Month : dayDiff > 2 ? Period.Day : Period.Hour;
+      const primaryPeriod: Period = this._useHourlyStats ? Period.Hour : period;
 
-    const [previousPrimaryData, primaryData, co2data, previousSecondaryData, secondaryData] = await Promise.all([
-      this._fetchStatistics(addHours(periodStart, -1), periodStart, primaries, Period.Hour),
-      this._fetchStatistics(periodStart, periodEnd, primaries, period),
-      this.lowCarbon.isPresent ? this._fetchCo2Data(periodStart, periodEnd, period) : Promise.resolve(),
-      secondaries.length !== 0 ? this._fetchStatistics(addHours(periodStart, -1), periodStart, secondaries, Period.Hour) : Promise.resolve(),
-      secondaries.length !== 0 ? this._fetchStatistics(periodStart, periodEnd, secondaries, Period.Day) : Promise.resolve()
-    ]);
+      const [previousPrimaryData, primaryData, co2data, previousSecondaryData, secondaryData] = await Promise.all([
+        this._fetchStatistics(addHours(periodStart, -1), periodStart, primaries, Period.Hour),
+        this._fetchStatistics(periodStart, periodEnd, primaries, primaryPeriod),
+        this.lowCarbon.isPresent ? this._fetchCo2Data(periodStart, periodEnd, primaryPeriod) : Promise.resolve(),
+        secondaries.length !== 0 ? this._fetchStatistics(addHours(periodStart, -1), periodStart, secondaries, Period.Hour) : Promise.resolve(),
+        secondaries.length !== 0 ? this._fetchStatistics(periodStart, periodEnd, secondaries, period) : Promise.resolve()
+      ]);
 
-    logDebug(`Received per-${period} stats (primary${this.lowCarbon.isPresent ? ", low-carbon" : ""}${secondaries.length !== 0 ? ", secondary" : ""}) for period ${periodStart} - ${periodEnd}] at ${new Date()} in ${Date.now() - fetchStartTime}ms`);
-    clearTimeout(timeout);
+      logDebug(`Received per-${primaryPeriod} stats (primary${this.lowCarbon.isPresent ? ", low-carbon" : ""}${secondaries.length !== 0 ? ", secondary" : ""}) for period ${periodStart} - ${periodEnd}] at ${new Date()} in ${Date.now() - fetchStartTime}ms`);
+      clearTimeout(timeout);
 
-    this._co2data = co2data || undefined;
+      this._co2data = co2data || undefined;
 
-    if (primaryData) {
-      this._validateStatistics(primaries, primaryData, previousPrimaryData, periodStart, periodEnd);
-      this._primaryStatistics = primaryData;
-      this._calculatePrimaryStatistics();
-    }
+      if (primaryData) {
+        this._validateStatistics(primaries, primaryData, previousPrimaryData, periodStart, periodEnd);
+        this._primaryStatistics = primaryData;
+        this._calculatePrimaryStatistics();
+      }
 
-    if (secondaryData) {
-      this._validateStatistics(secondaries, secondaryData, previousSecondaryData!, periodStart, periodEnd);
-      this._secondaryStatistics = secondaryData;
-      this._calculateSecondaryStatistics();
+      if (secondaryData) {
+        this._validateStatistics(secondaries, secondaryData, previousSecondaryData!, periodStart, periodEnd);
+        this._secondaryStatistics = secondaryData;
+        this._calculateSecondaryStatistics();
+      }
     }
 
     this._periodStart = periodStart;
@@ -885,12 +896,14 @@ export class EntityStates {
       let entityStats: StatisticValue[] = currentStatistics[entity];
       let idx: number = 0;
 
+      logDebug("validating " + entityStats.length + " stats for " + entity + " with " + previousStatistics[entity]?.length + " previous stats");
+
       if (!entityStats || entityStats.length === 0 || entityStats[0].start > periodStart.getTime()) {
         let dummyStat: StatisticValue;
 
-        if (previousStatistics && previousStatistics[entity] && previousStatistics[entity]?.length !== 0) {
-          // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate the
-          // Live/Hybrid-mode state-delta at midnight on the current date (ie, before the first stat of the new day has been generated) so we do
+        if (previousStatistics && previousStatistics[entity] && previousStatistics[entity].length !== 0) {
+          // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate
+          // the Live-mode state-delta at midnight on the current date (ie, before the first stat of the new day has been generated) so we do
           // not want to include its values in the stats calculations.
           const previousStat: StatisticValue = previousStatistics[entity][0];
 
@@ -917,8 +930,7 @@ export class EntityStates {
         if (entityStats) {
           entityStats.unshift(dummyStat);
         } else {
-          entityStats = new Array(dummyStat);
-          currentStatistics[entity] = entityStats;
+          currentStatistics[entity] = [dummyStat];
         }
 
         idx++;

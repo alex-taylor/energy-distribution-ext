@@ -44,8 +44,8 @@ export class HomeNode extends Node<HomeConfig> {
     this.setCssVariables(this.style);
 
     if (getConfigValue(this.coloursConfigs, ColourOptions.Value_Export) !== ColourMode.Automatic) {
-      this.style.setProperty(`--value-electric-home-color`, this.colours.exportValue);
-      this.style.setProperty(`--value-gas-home-color`, this.colours.exportValue);
+      this.style.setProperty(`--value-electric-home-color`, this.colours.getColour(ColourOptions.Value_Export));
+      this.style.setProperty(`--value-gas-home-color`, this.colours.getColour(ColourOptions.Value_Export));
     }
 
     if (states) {
@@ -67,11 +67,11 @@ export class HomeNode extends Node<HomeConfig> {
                 cssClass: CssClass.Battery_Import
               },
               {
-                state: states.lowCarbon * (flows.gridToHome / states.grid.import),
+                state: states.grid.import > 0 ? states.lowCarbon * (flows.gridToHome / states.grid.import) : 0,
                 cssClass: CssClass.Low_Carbon
               },
               {
-                state: states.highCarbon * (flows.gridToHome / states.grid.import),
+                state: states.grid.import > 0 ? states.highCarbon * (flows.gridToHome / states.grid.import) : 0,
                 cssClass: CssClass.Grid_Import
               }
             ]

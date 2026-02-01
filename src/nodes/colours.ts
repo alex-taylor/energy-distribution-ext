@@ -23,38 +23,16 @@ export class Colours {
   public readonly importFlow: string;
   public readonly exportFlow: string;
 
-  public get circle(): string {
-    return this._getColour(ColourOptions.Circle);
-  }
-
-  public get importValue(): string {
-    return this._getColour(ColourOptions.Value_Import);
-  }
-
-  public get exportValue(): string {
-    return this._getColour(ColourOptions.Value_Export);
-  }
-
-  public get icon(): string {
-    return this._getColour(ColourOptions.Icon);
-  }
-
-  public get secondary(): string {
-    return this._getColour(ColourOptions.Secondary);
-  }
-
   private _config: ColoursConfig[];
   private _direction: EnergyDirection;
-  private _state: BiDiState | undefined;
   private _defaultImportColour: string
   private _defaultExportColour: string
 
   //================================================================================================================================================================================//
 
-  public constructor(config: ColoursConfig[], direction: EnergyDirection, state: BiDiState = { import: 0, export: 0 }, defaultImportColour: string | number[] = "", defaultExportColour: string | number[] = "") {
+  public constructor(config: ColoursConfig[], direction: EnergyDirection, defaultImportColour: string | number[] = "", defaultExportColour: string | number[] = "") {
     this._config = config;
     this._direction = direction;
-    this._state = state;
 
     if (typeof defaultImportColour === "string") {
       this._defaultImportColour = defaultImportColour;
@@ -68,13 +46,13 @@ export class Colours {
       this._defaultExportColour = this._convertColourListToHex(defaultExportColour);
     }
 
-    this.importFlow = this._getColour(ColourOptions.Flow_Import);
-    this.exportFlow = this._getColour(ColourOptions.Flow_Export);
+    this.importFlow = this.getColour(ColourOptions.Flow_Import);
+    this.exportFlow = this.getColour(ColourOptions.Flow_Export);
   }
 
   //================================================================================================================================================================================//
 
-  private _getColour(option: ColourOptions): string {
+  public getColour(option: ColourOptions, state: BiDiState = { import: 0, export: 0 }): string {
     const mode: ColourMode = getConfigValue(this._config, option);
 
     switch (mode) {
@@ -127,7 +105,7 @@ export class Colours {
         return this.importFlow;
 
       case ColourMode.Automatic:
-        return this._state!.import >= this._state!.export ? this.importFlow : this.exportFlow;
+        return state!.import >= state!.export ? this.importFlow : this.exportFlow;
 
       case ColourMode.Custom:
       default:

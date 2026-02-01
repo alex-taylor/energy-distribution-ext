@@ -26,6 +26,7 @@ import { DeviceNode } from "@/nodes/device";
 import equal from "fast-deep-equal";
 import memoizeOne from "memoize-one";
 import { SecondaryInfo } from "@/nodes/secondary-info";
+import { logDebug } from "./logging";
 
 //================================================================================================================================================================================//
 
@@ -489,8 +490,6 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       let flow2: number | undefined;
       let duration1: number | undefined;
       let duration2: number | undefined;
-      const cssImport: CssClass = device.direction !== EnergyDirection.Consumer_Only ? `import-${device.cssClass}` as CssClass : CssClass.None;
-      const cssExport: CssClass = device.direction !== EnergyDirection.Producer_Only ? `export-${device.cssClass}` as CssClass : CssClass.None;
 
       if (device.type === EnergyType.Electric) {
         flow1 = states?.devicesElectric[index].import;
@@ -504,20 +503,48 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
         duration2 = animationDurations?.homeToDevicesGas[index];
       }
 
-      this._renderBiDiFlowLine(
-        lines,
-        this._devicePaths[index],
-        flow1,
-        flow2,
-        duration1,
-        duration2,
-        cssImport,
-        cssExport,
-        cssExport,
-        cssImport,
-        `device-${index}-home-anim` as CssClass,
-        `--device-${index}-home-anim-duration`
-      );
+      const cssImport: CssClass = `import-${device.cssClass}` as CssClass;
+      const cssExport: CssClass = `export-${device.cssClass}` as CssClass;
+
+      switch (device.direction) {
+        case EnergyDirection.Both:
+
+          this._renderBiDiFlowLine(
+            lines,
+            this._devicePaths[index],
+            flow1,
+            flow2,
+            duration1,
+            duration2,
+            cssImport,
+            cssExport,
+            cssExport,
+            cssImport,
+            `device-${index}-home-anim` as CssClass,
+            `--device-${index}-home-anim-duration`
+          );
+          break;
+
+        case EnergyDirection.Consumer_Only:
+          lines.push({
+            cssLine: cssExport,
+            cssDot: cssExport,
+            path: this._devicePaths[index],
+            active: (flow2 ?? 0) > 0,
+            animDuration: duration2 ?? 0
+          });
+          break;
+
+        case EnergyDirection.Producer_Only:
+          lines.push({
+            cssLine: cssImport,
+            cssDot: cssImport,
+            path: this._devicePaths[index],
+            active: (flow1 ?? 0) > 0,
+            animDuration: duration1 ?? 0
+          });
+          break;
+      } 
     });
 
     return html`
@@ -679,10 +706,11 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
     const col3: number = col2 + colPitch;
 
     const rowPitch: number = circleSize + rowSpacing;
-    const isTopRowPresent: boolean = (entityStates.lowCarbon.isPresent && entityStates.grid.isPresent) || entityStates.solar.isPresent || entityStates.gas.isPresent || devicesLayout === DevicesLayout.Horizontal || devicesLayout === DevicesLayout.Inline_Above;
+    const isRow1Present: boolean = (entityStates.lowCarbon.isPresent && entityStates.grid.isPresent) || entityStates.solar.isPresent || entityStates.gas.isPresent || devicesLayout === DevicesLayout.Horizontal || devicesLayout === DevicesLayout.Inline_Above;
+    const isRow2Present: boolean = entityStates.grid.isPresent || devicesLayout !== DevicesLayout.Vertical || (devicesLayout === DevicesLayout.Vertical && entityStates.battery.isPresent);
     const row1: number = labelHeight + circleSize / 2;
-    const row2: number = isTopRowPresent ? row1 + rowPitch : circleSize / 2;
-    const row3: number = row2 + rowPitch;
+    const row2: number = isRow1Present ? row1 + rowPitch : circleSize / 2;
+    const row3: number = isRow2Present ? row2 + rowPitch : circleSize / 2;
 
     const lineInset: number = circleSize / 2 - DOT_DIAMETER;
     const flowLineCurved: number = circleSize / 2 + rowSpacing - FLOW_LINE_SPACING;
@@ -742,7 +770,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
       this._solarToHomePath = vertLine;
       this._batteryToHomePath = lowerRightLine;
       this._batteryToGridPath = horizLine;
-      this._gasToHomePath = `M${col1 + lineInset},${isTopRowPresent ? row3 : row2} H${col2 - lineInset}`;
+      this._gasToHomePath = `M${col1 + lineInset},${isRow1Present ? row3 : row2} H${col2 - lineInset}`;
     } else {
       this._solarToBatteryPath = vertLine;
       this._gridToHomePath = horizLine;
@@ -927,12 +955,12 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _calculateAnimationDurations(states: States): AnimationDurations {
     const gasSourceMode: GasSourcesMode = getGasSourcesMode(getConfigObjects(this._configs, EditorPages.Home), states);
     const flows: Flows = states.flows;
-    const totalFlows: number = states.homeElectric
+    const totalFlows: number = Math.max(states.homeElectric, 0)
       + flows.batteryToGrid
       + flows.gridToBattery
       + flows.solarToBattery
       + flows.solarToGrid
-      + (gasSourceMode !== GasSourcesMode.Do_Not_Show ? states.homeGas : 0);
+      + (gasSourceMode !== GasSourcesMode.Do_Not_Show && states.homeGas > 0 ? states.homeGas : 0);
 
     const durations: AnimationDurations = {
       batteryToGrid: this._calculateDotRate(flows.batteryToGrid ?? 0, totalFlows),
@@ -966,12 +994,20 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _calculateDotRate(value: number, total: number): number {
+    if (value <= 0 || total <= 0) {
+      return 0;
+    }
+
     if (this._scale === Scale.Logarithmic) {
       value = Math.log(value);
       total = Math.log(total);
     }
 
-    return round(FLOW_RATE_MAX - (value / total) * (FLOW_RATE_MAX - FLOW_RATE_MIN), 1);
+    if (value >= total) {
+      logDebug("_calculateDotRate @ " + new Date() + ": value=" + value + ", total=" + total);
+    }
+
+    return FLOW_RATE_MAX - (value / total) * (FLOW_RATE_MAX - FLOW_RATE_MIN);
   };
 
   //================================================================================================================================================================================//
@@ -1012,6 +1048,10 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
     if (getConfigValue(this._configs, [EditorPages.Low_Carbon, GlobalOptions.Options, LowCarbonOptions.Low_Carbon_Mode]) === LowCarbonDisplayMode.Both) {
       return 1;
+    }
+
+    if (this._mode === DisplayMode.Power) {
+      return 0;
     }
 
     const entityStates: EntityStates = this._entityStates;

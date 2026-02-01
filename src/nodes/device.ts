@@ -3,9 +3,10 @@ import { HomeAssistant } from "custom-card-helpers";
 import { Node } from "./node";
 import { DEFAULT_DEVICE_CONFIG, getConfigValue } from "@/config/config";
 import { CssClass, DisplayMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection, EnergyType, GAS_ENTITY_CLASSES, SIUnitPrefixes, VolumeUnits } from "@/enums";
-import { BiDiState, States } from ".";
+import { States } from ".";
 import { Colours } from "./colours";
 import { html, LitElement, nothing, TemplateResult } from "lit";
+import { POWER_UNITS } from "../const";
 
 //================================================================================================================================================================================//
 
@@ -30,7 +31,7 @@ export class DeviceNode extends Node<DeviceConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, index: number, electricStates: BiDiState[] = [], gasStates: BiDiState[] = []) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, index: number) {
     super(
       hass,
       cardConfig,
@@ -52,12 +53,10 @@ export class DeviceNode extends Node<DeviceConfig> {
     this.colours = new Colours(
       this.coloursConfigs,
       this.direction,
-      (this.type === EnergyType.Electric ? electricStates[index] : gasStates[index]) || { import: 0, export: 0 },
       getConfigValue(this.coloursConfigs, ColourOptions.Flow_Import_Colour),
       getConfigValue(this.coloursConfigs, ColourOptions.Flow_Export_Colour)
     );
 
-    this.setCssVariables(style);
     style.setProperty(`--flow-import-device-${index}-color`, this.colours.importFlow);
     style.setProperty(`--flow-export-device-${index}-color`, this.colours.exportFlow);
   }
@@ -68,39 +67,45 @@ export class DeviceNode extends Node<DeviceConfig> {
     const index: number = this._index;
     let importValue: number | undefined | null;
     let exportValue: number | undefined | null;
-    let units: string;
+    let units: string = "";
 
-    if (this.mode === DisplayMode.Energy) {
-      if (this.type === EnergyType.Gas) {
-        if (this.gasUnits !== VolumeUnits.Same_As_Electric) {
-          importValue = this.firstImportEntity ? states?.devicesGasVolume[index]?.import : null;
-          exportValue = this.firstExportEntity ? states?.devicesGasVolume[index]?.export : null;
-          units = this.gasUnits;
+    if (states) {
+      if (this.mode === DisplayMode.Energy) {
+        if (this.type === EnergyType.Gas) {
+          if (this.gasUnits !== VolumeUnits.Same_As_Electric) {
+            importValue = this.firstImportEntity ? states.devicesGasVolume[index]?.import : null;
+            exportValue = this.firstExportEntity ? states.devicesGasVolume[index]?.export : null;
+            units = this.gasUnits;
+          } else {
+            importValue = this.firstImportEntity ? states.devicesGas[index]?.import : null;
+            exportValue = this.firstExportEntity ? states.devicesGas[index]?.export : null;
+            units = this.electricUnits;
+          }
+
+          this.setCssVariables(this.style, states.devicesGas[index]);
         } else {
-          importValue = this.firstImportEntity ? states?.devicesGas[index]?.import : null;
-          exportValue = this.firstExportEntity ? states?.devicesGas[index]?.export : null;
+          importValue = this.firstImportEntity ? states.devicesElectric[index]?.import : null;
+          exportValue = this.firstExportEntity ? states.devicesElectric[index]?.export : null;
           units = this.electricUnits;
+
+          this.setCssVariables(this.style, states.devicesElectric[index]);
         }
       } else {
-        importValue = this.firstImportEntity ? states?.devicesElectric[index]?.import : null;
-        exportValue = this.firstExportEntity ? states?.devicesElectric[index]?.export : null;
-        units = this.electricUnits;
-      }
-    } else {
-      if (this.type === EnergyType.Gas) {
-        importValue = this.firstImportEntity ? states?.devicesGas[index]?.import : null;
-        exportValue = this.firstExportEntity ? states?.devicesGas[index]?.export : null;
-      } else {
-        importValue = this.firstImportEntity ? states?.devicesElectric[index]?.import : null;
-        exportValue = this.firstExportEntity ? states?.devicesElectric[index]?.export : null;
-      }
+        if (this.type === EnergyType.Gas) {
+          importValue = this.firstImportEntity ? states.devicesGas[index]?.import : null;
+          exportValue = this.firstExportEntity ? states.devicesGas[index]?.export : null;
+        } else {
+          importValue = this.firstImportEntity ? states.devicesElectric[index]?.import : null;
+          exportValue = this.firstExportEntity ? states.devicesElectric[index]?.export : null;
+        }
 
-      units = "W";
+        units = POWER_UNITS;
 
-      if (exportValue) {
-        importValue = undefined;
-      } else {
-        exportValue = undefined;
+        if (exportValue) {
+          importValue = undefined;
+        } else {
+          exportValue = undefined;
+        }
       }
     }
 

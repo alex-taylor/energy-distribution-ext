@@ -26,10 +26,17 @@ Code
       - looks like it - see superstruct
     - should be able to detect invalid enum values: right now they are validated (because it accepts any string), but cannot be parsed which dumps the user into YAML mode with no way of knowing what caused this
 
+  - eliminate empty columns in the layout grid
+
   - BUG: the dots are being rendered at the (0,0) of the lines panel
     - may now be fixed?
   - BUG: the 'Loading' message appears over a very short card, looks like while the lines are being rendered the nodes are not
     - may now be fixed?
+  - BUG: still able to calculate anim durations below the minimum
+    - may now be fixed?
+
+  - BUG: on the Today display, the secondaries are showing badly wrong numbers immediately after midnight!
+    - basically they're showing the total, as if there was no 'previous stat' to subtract
 
 
 

@@ -38,7 +38,7 @@ export class LowCarbonNode extends Node<LowCarbonConfig> {
     );
 
     this._displayMode = getConfigValue(this.nodeConfigs, [GlobalOptions.Options, LowCarbonOptions.Low_Carbon_Mode]);
-    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Producer_Only, undefined, "var(--energy-non-fossil-color)");
+    this.colours = new Colours(this.coloursConfigs, EnergyDirection.Producer_Only, "var(--energy-non-fossil-color)");
     this.setCssVariables(style);
     this.style.setProperty("--flow-non-fossil-color", this.colours.importFlow);
   }

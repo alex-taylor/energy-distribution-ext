@@ -40,7 +40,7 @@ export const EDITOR_ELEMENT_NAME = CARD_NAME + "-editor";
 function createNode(cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, hass: HomeAssistant, type: EditorPages, index?: number): Node<any> | undefined {
   switch (type) {
     case EditorPages.Battery:
-      return new BatteryNode(hass, cardConfig, style, undefined, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
+      return new BatteryNode(hass, cardConfig, style, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
 
     case EditorPages.Devices:
       return new DeviceNode(hass, cardConfig, style, index!);
@@ -49,7 +49,7 @@ function createNode(cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclarat
       return new GasNode(hass, cardConfig, style, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
 
     case EditorPages.Grid:
-      return new GridNode(hass, cardConfig, style, undefined, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
+      return new GridNode(hass, cardConfig, style, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
 
     case EditorPages.Home:
       return new HomeNode(hass, cardConfig, style);

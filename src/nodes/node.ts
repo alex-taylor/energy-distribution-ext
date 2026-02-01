@@ -1,13 +1,13 @@
-import { ColoursConfig, NodeOptions, EntitiesOptions, OverridesOptions, isValidPrimaryEntity, EnergyFlowCardExtConfig, EditorPages, FlowsOptions, AppearanceOptions, GlobalOptions, SecondaryInfoConfig, SecondaryInfoOptions, EnergyUnitsConfig, EnergyUnitsOptions, DeviceConfig, FlowsConfig } from "@/config";
+import { ColoursConfig, NodeOptions, EntitiesOptions, OverridesOptions, isValidPrimaryEntity, EnergyFlowCardExtConfig, EditorPages, FlowsOptions, AppearanceOptions, GlobalOptions, SecondaryInfoConfig, SecondaryInfoOptions, EnergyUnitsConfig, EnergyUnitsOptions, DeviceConfig, FlowsConfig, ColourOptions } from "@/config";
 import { formatNumber, HomeAssistant } from "custom-card-helpers";
 import { SecondaryInfo } from "./secondary-info";
 import { DEFAULT_CONFIG, DEFAULT_DEVICE_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
-import { checkEnumValue, CssClass, DeviceClasses, DisplayMode, EnergyUnits, InactiveFlowsMode, PrefixThreshold, Scale, SIUnitPrefixes, UnitPosition, VolumeUnits } from "@/enums";
+import { checkEnumValue, CssClass, DeviceClasses, DisplayMode, EnergyUnits, InactiveFlowsMode, Scale, SIUnitPrefixes, UnitPosition, VolumeUnits } from "@/enums";
 import { html, LitElement, nothing, svg, TemplateResult } from "lit";
 import { localize } from "@/localize/localize";
 import Decimal from "decimal.js";
 import { Colours } from "./colours";
-import { States } from ".";
+import { BiDiState, States } from ".";
 import { Segment, SegmentGroup } from "@/ui-helpers";
 import { CIRCLE_STROKE_WIDTH_SEGMENTS } from "@/const";
 import { repeat } from "lit/directives/repeat.js";
@@ -210,12 +210,12 @@ export abstract class Node<T> {
 
   //================================================================================================================================================================================//
 
-  protected setCssVariables(style: CSSStyleDeclaration): void {
-    style.setProperty(`--circle-${this.cssClass}-color`, this.colours.circle);
-    style.setProperty(`--icon-${this.cssClass}-color`, this.colours.icon);
-    style.setProperty(`--importValue-${this.cssClass}-color`, this.colours.importValue);
-    style.setProperty(`--exportValue-${this.cssClass}-color`, this.colours.exportValue);
-    style.setProperty(`--secondary-${this.cssClass}-color`, this.colours.secondary);
+  protected setCssVariables(style: CSSStyleDeclaration, state: BiDiState = { import: 0, export: 0 }): void {
+    style.setProperty(`--circle-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Circle, state));
+    style.setProperty(`--icon-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Icon, state));
+    style.setProperty(`--importValue-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Value_Import, state));
+    style.setProperty(`--exportValue-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Value_Export, state));
+    style.setProperty(`--secondary-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Secondary, state));
   }
 
   //================================================================================================================================================================================//
@@ -287,7 +287,7 @@ export abstract class Node<T> {
 
           switch (this._inactiveFlowsMode) {
             case InactiveFlowsMode.Dimmed:
-//              cssFlow += " " + CssClass.Dimmed;
+              cssFlow += " " + CssClass.Dimmed;
               break;
 
             case InactiveFlowsMode.Greyed:
