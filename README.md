@@ -5,97 +5,83 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=flat-square)](https://github.com/hacs/integration)
 ![commit_activity](https://img.shields.io/github/commit-activity/y/alex-taylor/energy-distribution-ext?color=brightgreen&label=Commits&style=flat-square)
 
+An upgraded and configurable Energy Distribution Card, with a raft of new features and improvements.  It supports both Energy and Power flows, additional Devices and live sensor-data display.
 
+### Features
+- Optional automatic loading of the config from the [Energy Dashboard](https://www.home-assistant.io/docs/energy/) for hassle-free out-of-the-box setup
+- Configure entities independently of the Energy Dashboard
+- Add any number of entities for each circle
+- Display either Energy flows or Power flows
+- Add Devices - entities which either consume energy within the home, supply energy to it or both - so you can see where in your home energy is being used
+- Show secondary data from other entities
+- Click on values to display the entity's details
+- Connect to an Energy Date Picker card and update itself as the selected date-range changes, or it can be set to a fixed date-range
+- Show the latest values from the entities, rather than just the current statistics from the database
+- Use hourly statistics to calculate the flows more accurately
+- Show energy in watt-hours, joules or calories
+- Show gas as volume instead of energy
+- Show gas usage in the Home circle
+- Show power-outages on the grid
 
+### Customisation
+- Rename the circles
+- Change the icons
+- Change the colours
+- Dim or grey-out inactive flow-lines
+- Disable flow-line animation
+- Show low-carbon as an energy value, a percentage or both
+- Add a title and a link to a HASS dashboard
+- Hide zero-values
+- Set your own unit-prefixes and decimal places for values
+- Choose where or if to show the units for values
 
+### Graphical improvements
+- Circles can show where the energy they produce was sent, and where the energy they received came from
+- The flow-line dots stay the same size as the card is resized
+- Circles resize to fit their content
+- Show gaps between segments in circles to improve clarity
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-<details> <summary>✅ Advantages of this Card compared to the official Energy Distribution Card</summary>
-
-## Bugfixes
-  - Corrected crooked lines
-  ![Crooked Lines](https://github.com/flixlix/energy-flow-card-plus/assets/61006057/5250a695-a022-4960-a06a-80650a7fc139)
-  - Corrected curved lines not connecting to the circle
-  ![Curved Lines](https://github.com/flixlix/energy-flow-card-plus/assets/61006057/1dda7efb-be4d-4304-a5d8-6faea257a8fe)
-  - Changed the color of the line between the battery and the grid
-  ![Color Line Battery Grid](https://github.com/flixlix/energy-flow-card-plus/assets/61006057/62d71eae-049d-4492-86cf-16f712920cb6)
-## Features
-- Choose wether or not to change the color of the icons
-- Choose wether or not to change the color of the text
-- Added option for Dynamic Circle colors
-- Use different sensors than the ones used in the Energy Integration
-- Choose wether to show the Energy or the Percentage in the Low-Carbon Circle
-- Added Option for Secondary Information
-- Option for Templates in secondary Information
-- Override Home State (eg: to calculate Energy losses)
-- Choose wether to hide inactive lines
-- Individual Devices
-
-
-</details>
-
-## Goal
-
-Although the code base is very different, the design of this card is heavily inspired by the [Official Energy Distribution Card](https://www.home-assistant.io/dashboards/energy/#energy-distribution).
-
-The goal is to deliver a card that fits in the overall design of the Energy Dashboard, while providing more features, such as Individual Devices, Secondary Information and bringing small UI enhancements.
-
-## Install
+## Installation
 
 ### HACS (recommended)
 
-This card is direclty available in [HACS](https://hacs.xyz/) (Home Assistant Community Store).
-_HACS is a third party community store and is not included in Home Assistant out of the box._
-To install this:
+This card is available in [HACS](https://hacs.xyz/) (Home Assistant Community Store).
+_HACS is a third party community store and is not included in Home Assistant out of the box. To install it, please follow their instructions [here](https://www.hacs.xyz/docs/use/)._
 
-- Go to HACS
-- Click on `Frontend`
-- Search for `Energy Flow Card Plus`
-- Install via UI
+To install:
 
-<details>  <summary>Manual Install</summary>
+- Go to [HACS](http://home-assistant.local:8123/hacs/dashboard)
+- Search for `Energy Distribution Extended`
+- Install via the UI
 
-1. Download and copy `energy-flow-card-plus.js` from the [latest release](https://github.com/alex-taylor/energy-flow-card-plus/releases/latest) into your `config/www` directory.
+### <details>  <summary>Manual Install</summary>
+
+1. Download and copy `energy-distribution-ext.js` from the [latest release](https://github.com/alex-taylor/energy-distribution-ext/releases/latest) into your `config/www` directory.
 
 2. Add the resource reference as decribed below.
 
 ### Add resource reference
 
-If you configure Dashboards via YAML, add a reference to `energy-flow-card-plus.js` inside your `configuration.yaml`:
+If you configure Dashboards via YAML, add a reference to `energy-distribution-ext.js` inside your `configuration.yaml`:
 
 ```yaml
 resources:
-  - url: /local/energy-flow-card-plus.js
+  - url: /local/energy-distribution-ext.js
     type: module
 ```
 
-Else, if you prefer the graphical editor, use the menu to add the resource:
+If you use the graphical editor, add the resource:
 
-1. Make sure, advanced mode is enabled in your user profile (click on your user name to get there)
+1. Advanced mode must be enabled in [your user profile](http://home-assistant.local/profile)
 2. Navigate to Settings -> Dashboards
 3. Click three dot icon
-4. Select Resources
-5. Hit (+ ADD RESOURCE) icon
-6. Enter URL `/local/energy-flow-card-plus.js` and select type "JavaScript Module".
-   (Use `/hacsfiles/energy-flow-card-plus/energy-flow-card-plus.js` and select "JavaScript Module" for HACS install if HACS didn't do it already)
+4. Select [Resources](http://home-assistant.local/config/lovelace/resources)
+5. Click the (+ Add Resource) button
+6. Enter URL `/local/energy-distribution-ext.js` and select type `JavaScript Module`
  
 </details>
-   
-## Using the card
 
-> ⚠️ This card also has a UI-Editor. This Editor is currently incompatible with Card Mod. I created a PR to fix this issue, but it hasn't been merged yet. Here is the [PR #277](https://github.com/thomasloven/lovelace-card-mod/pull/277). Since it hasn't been merged yet, I also released a fork with the changes from the PR. Installing this Version of Card Mod you can use this card in conjunction with Card Mod. [Here is my fork](https://github.com/flixlix/lovelace-card-mod)
+## Getting started
 
 > ⚠️ This card offers a **LOT** of configuration options. Don't worry, if you want your card's appearance to match the oficial Energy Flow Card, you will only need to setup the entities. The rest of the options only enable further customization. If this is your goal, please go to [Minimal Configuration](#minimal-configuration)
 
