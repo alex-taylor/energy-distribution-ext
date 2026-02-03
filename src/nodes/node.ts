@@ -1,4 +1,4 @@
-import { ColoursConfig, NodeOptions, EntitiesOptions, OverridesOptions, isValidPrimaryEntity, EnergyFlowCardExtConfig, EditorPages, FlowsOptions, AppearanceOptions, GlobalOptions, SecondaryInfoConfig, SecondaryInfoOptions, EnergyUnitsConfig, EnergyUnitsOptions, DeviceConfig, FlowsConfig, ColourOptions } from "@/config";
+import { ColoursConfig, NodeOptions, EntitiesOptions, OverridesOptions, isValidPrimaryEntity, EnergyDistributionExtConfig, EditorPages, FlowsOptions, AppearanceOptions, GlobalOptions, SecondaryInfoConfig, SecondaryInfoOptions, EnergyUnitsConfig, EnergyUnitsOptions, DeviceConfig, FlowsConfig, ColourOptions } from "@/config";
 import { formatNumber, HomeAssistant } from "custom-card-helpers";
 import { SecondaryInfo } from "./secondary-info";
 import { DEFAULT_CONFIG, DEFAULT_DEVICE_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
@@ -42,7 +42,7 @@ export abstract class Node<T> {
   }
   private _icon?: string;
 
-  protected readonly cardConfigs: EnergyFlowCardExtConfig[];
+  protected readonly cardConfigs: EnergyDistributionExtConfig[];
   protected readonly nodeConfigs: T[];
   protected readonly coloursConfigs: ColoursConfig[];
   protected readonly mode: DisplayMode;
@@ -72,7 +72,7 @@ export abstract class Node<T> {
 
   protected constructor(
     hass: HomeAssistant,
-    cardConfig: EnergyFlowCardExtConfig,
+    cardConfig: EnergyDistributionExtConfig,
     style: CSSStyleDeclaration,
     node: EditorPages,
     nodeClass: CssClass,

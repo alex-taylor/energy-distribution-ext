@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
 import { version } from '../package.json';
+import { HOMEPAGE } from '@/const';
 
 // Log Version
 console.groupCollapsed(`%c⚡ Energy Flow Card Extended v${version} is installed`, 'color: #488fc2; font-weight: bold');
-console.log('Readme:', 'https://github.com/alex-taylor/energy-flow-card-plus');
+console.log('Readme:', HOMEPAGE);
 console.groupEnd();
 
 export const logError = (error: string) => {

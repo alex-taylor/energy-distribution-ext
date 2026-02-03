@@ -1,7 +1,7 @@
 {
-  "name": "energy-flow-card-ext",
-  "version": "0.1.3-alpha",
-  "description": "Energy Flow Card Extended",
+  "name": "energy-distribution-ext",
+  "version": "1.0.0",
+  "description": "Energy Distribution Extended",
   "keywords": [
     "home-assistant",
     "homeassistant",
@@ -11,11 +11,10 @@
     "custom-cards",
     "dashboard"
   ],
-  "module": "energy-flow-card-ext.js",
-  "repository": "git@github.com:alex-taylor/energy-flow-card-plus.git",
-  "author": "Luca Félix <luca.ziegler.felix@gmail.com>",
+  "module": "energy-distribution-ext.js",
+  "repository": "git@github.com:alex-taylor/energy-distribution.ext.git",
+  "author": "Alex Taylor <anathema9999@gmail.com>",
   "dependencies": {
-    "@mdi/js": "^7.4.47",
     "custom-card-helpers": "^1.9.0",
     "date-fns": "4.1.0",
     "decimal.js": "^10.6.0",
@@ -29,12 +28,13 @@
     "weekstart": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.5",
-    "@babel/eslint-parser": "^7.28.5",
+    "@babel/core": "^7.29.0",
+    "@babel/eslint-parser": "^7.28.6",
     "@babel/eslint-plugin": "^7.27.1",
-    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-env": "^7.29.0",
     "@babel/preset-typescript": "^7.28.5",
     "@jest/globals": "^29.7.0",
+    "@mdi/js": "^7.4.47",
     "@open-wc/eslint-config": "^7.0.0",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^21.1.0",
@@ -44,7 +44,7 @@
     "@rollup/plugin-typescript": "^8.5.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@types/node": "^20.19.28",
+    "@types/node": "^20.19.31",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "conventional-changelog-conventionalcommits": "^4.6.3",

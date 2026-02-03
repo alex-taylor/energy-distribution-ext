@@ -1,5 +1,5 @@
 import { localize } from "@/localize/localize";
-import { ColourOptions, EditorPages, EnergyFlowCardExtConfig, SolarConfig } from "@/config";
+import { ColourOptions, EditorPages, EnergyDistributionExtConfig, SolarConfig } from "@/config";
 import { Node } from "./node";
 import { HomeAssistant } from "custom-card-helpers";
 import { ColourMode, CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection, SIUnitPrefixes } from "@/enums";
@@ -22,7 +22,7 @@ export class SolarNode extends Node<SolarConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,

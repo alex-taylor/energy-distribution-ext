@@ -1,4 +1,4 @@
-import { EditorPages, EnergyFlowCardExtConfig, GasConfig } from "@/config";
+import { EditorPages, EnergyDistributionExtConfig, GasConfig } from "@/config";
 import { Node } from "./node";
 import { localize } from "@/localize/localize";
 import { HomeAssistant } from "custom-card-helpers";
@@ -18,7 +18,7 @@ export class GasNode extends Node<GasConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,

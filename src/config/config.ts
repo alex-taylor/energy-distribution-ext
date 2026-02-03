@@ -1,6 +1,6 @@
 import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode, AnimationMode, DisplayMode } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
-import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, GasConfig, GridConfig, GridOptions, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, OverridesConfig, OverridesOptions, PowerOutageOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig } from ".";
+import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyDistributionExtConfig, GasConfig, GridConfig, GridOptions, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, OverridesConfig, OverridesOptions, PowerOutageOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig } from ".";
 import { CARD_NAME } from "@/const";
 import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions } from "@/config";
 import { localize } from "@/localize/localize";
@@ -11,7 +11,7 @@ import { EntityRegistryEntry } from "@/hass";
 
 //================================================================================================================================================================================//
 
-export const DEFAULT_CONFIG: EnergyFlowCardExtConfig = getDefaultConfig(0, undefined);
+export const DEFAULT_CONFIG: EnergyDistributionExtConfig = getDefaultConfig(0, undefined);
 export const DEFAULT_GAS_CONFIG: GasConfig = getDefaultGasConfig()!;
 export const DEFAULT_SOLAR_CONFIG: SolarConfig = getDefaultSolarConfig()!;
 export const DEFAULT_LOW_CARBON_CONFIG: LowCarbonConfig = getDefaultLowCarbonConfig();
@@ -68,7 +68,7 @@ export function getConfigObjects(configs: any[], path: string[] | string): any[]
 
 //================================================================================================================================================================================//
 
-export function getMinimalConfig(hass: HomeAssistant | undefined): EnergyFlowCardExtConfig {
+export function getMinimalConfig(hass: HomeAssistant | undefined): EnergyDistributionExtConfig {
   return {
     type: 'custom:' + CARD_NAME,
     [GlobalOptions.Date_Range]: getEnergyDataCollection(hass) ? DateRange.From_Date_Picker : DateRange.Today,
@@ -81,7 +81,7 @@ export function getMinimalConfig(hass: HomeAssistant | undefined): EnergyFlowCar
 
 //================================================================================================================================================================================//
 
-function getDefaultConfig(numDevices: number, hass: HomeAssistant | undefined): EnergyFlowCardExtConfig {
+function getDefaultConfig(numDevices: number, hass: HomeAssistant | undefined): EnergyDistributionExtConfig {
   return {
     ...getMinimalConfig(hass),
     [EditorPages.Appearance]: getDefaultAppearanceConfig(),
@@ -97,8 +97,8 @@ function getDefaultConfig(numDevices: number, hass: HomeAssistant | undefined): 
 
 //================================================================================================================================================================================//
 
-export function removeConfigDefaults(config: EnergyFlowCardExtConfig, hass: HomeAssistant): EnergyFlowCardExtConfig {
-  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig(config.devices?.length ?? 0, hass);
+export function removeConfigDefaults(config: EnergyDistributionExtConfig, hass: HomeAssistant): EnergyDistributionExtConfig {
+  const defaultConfig: EnergyDistributionExtConfig = getDefaultConfig(config.devices?.length ?? 0, hass);
   const dateRange: DateRange = getConfigValue(config, GlobalOptions.Date_Range);
   const threshold: string = getConfigValue(config, [EditorPages.Appearance, AppearanceOptions.Energy_Units, EnergyUnitsOptions.Prefix_Threshold]);
 
@@ -144,8 +144,8 @@ function removeDefaultsRecursively(config: any, defaultConfig: any): void {
 
 //================================================================================================================================================================================//
 
-export function populateConfigDefaults(config: EnergyFlowCardExtConfig, hass: HomeAssistant): EnergyFlowCardExtConfig {
-  const defaultConfig: EnergyFlowCardExtConfig = getDefaultConfig(config.devices?.length ?? 0, hass);
+export function populateConfigDefaults(config: EnergyDistributionExtConfig, hass: HomeAssistant): EnergyDistributionExtConfig {
+  const defaultConfig: EnergyDistributionExtConfig = getDefaultConfig(config.devices?.length ?? 0, hass);
 
   config = structuredClone(config);
 

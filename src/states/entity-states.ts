@@ -1,7 +1,7 @@
 import { HomeAssistant, round } from "custom-card-helpers";
 import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
 import { EnergyCollection, EnergyData, EnergyPreferences, EnergySource, Statistics, StatisticValue } from "@/hass";
-import { AppearanceOptions, DeviceConfig, EditorPages, EnergyFlowCardExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, HomeOptions } from "@/config";
+import { AppearanceOptions, DeviceConfig, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, HomeOptions } from "@/config";
 import { BatteryNode } from "@/nodes/battery";
 import { GasNode } from "@/nodes/gas";
 import { HomeNode } from "@/nodes/home";
@@ -161,8 +161,8 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, config: EnergyFlowCardExtConfig) {
-    const configs: EnergyFlowCardExtConfig[] = [config, DEFAULT_CONFIG];
+  public constructor(hass: HomeAssistant, config: EnergyDistributionExtConfig) {
+    const configs: EnergyDistributionExtConfig[] = [config, DEFAULT_CONFIG];
 
     this.hass = hass;
     this._mode = getConfigValue(configs, GlobalOptions.Mode);
@@ -209,7 +209,7 @@ export class EntityStates {
     this._addStateDeltas(states);
 
     states.lowCarbon = this.lowCarbon.isPresent ? states.grid.import - states.highCarbon : 0;
-    states.lowCarbonPercentage = (states.lowCarbon / states.grid.import) * 100 ?? 0;
+    states.lowCarbonPercentage = (states.lowCarbon / states.grid.import) * 100;
 
     this._calculateHomeTotals(states);
     this._rescaleFlows(states);
@@ -219,7 +219,7 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  public async subscribe(cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration): Promise<UnsubscribeFunc> {
+  public async subscribe(cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration): Promise<UnsubscribeFunc> {
     await this._loadConfig(this.hass, cardConfig, style);
 
     if (this._mode === DisplayMode.Power) {
@@ -289,8 +289,8 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private async _loadConfig(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration): Promise<void> {
-    const configs: EnergyFlowCardExtConfig[] = [cardConfig, DEFAULT_CONFIG];
+  private async _loadConfig(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration): Promise<void> {
+    const configs: EnergyDistributionExtConfig[] = [cardConfig, DEFAULT_CONFIG];
     let energySources: EnergySource[] = [];
 
     if (getConfigValue(configs, GlobalOptions.Use_HASS_Config)) {
@@ -420,7 +420,7 @@ export class EntityStates {
 
         if (stateObj) {
           const state: number = Number(stateObj.state);
-          const units = stateObj.attributes.unit_of_measurement;
+          const units: string | undefined = stateObj.attributes.unit_of_measurement;
           deltaSum += this._toBaseUnits(state, units, requestedUnits);
         }
 
@@ -450,7 +450,7 @@ export class EntityStates {
             const state: number = Number(stateObj.state);
 
             if (entityStats && entityStats.length !== 0) {
-              const units = stateObj.attributes.unit_of_measurement;
+              const units: string | undefined = stateObj.attributes.unit_of_measurement;
               deltaSum += this._toBaseUnits(state - (entityStats[entityStats.length - 1].state ?? 0), units, requestedUnits);
             }
           }
@@ -807,7 +807,7 @@ export class EntityStates {
     const entityStats: StatisticValue[] = statistics[entityId];
 
     if (entityStats.length !== 0) {
-      const state: number = entityStats.map(stat => stat.change || 0).reduce((result, change) => result + change, 0) ?? 0;
+      const state: number = entityStats.map(stat => stat.change ?? 0).reduce((result, change) => result + change, 0) ?? 0;
       units = units || this.hass.states[entityId].attributes.unit_of_measurement;
       return this._toBaseUnits(state, units, requestedUnits || units);
     }
@@ -896,10 +896,10 @@ export class EntityStates {
       let entityStats: StatisticValue[] = currentStatistics[entity];
       let idx: number = 0;
 
-      logDebug("validating " + entityStats.length + " stats for " + entity + " with " + previousStatistics[entity]?.length + " previous stats");
-
       if (!entityStats || entityStats.length === 0 || entityStats[0].start > periodStart.getTime()) {
         let dummyStat: StatisticValue;
+
+        logDebug("entityStats: " + entityStats + ", previousStats: " + previousStatistics);
 
         if (previousStatistics && previousStatistics[entity] && previousStatistics[entity].length !== 0) {
           // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate
@@ -907,12 +907,16 @@ export class EntityStates {
           // not want to include its values in the stats calculations.
           const previousStat: StatisticValue = previousStatistics[entity][0];
 
+          logDebug("using previous: " + previousStat)
+
           dummyStat = {
             ...previousStat,
             change: 0,
             state: this._entityModes.get(entity) === EntityMode.Totalising ? previousStat.state : 0
           };
         } else {
+          logDebug("no previous, creating dummy");
+
           dummyStat = {
             change: 0,
             state: 0,

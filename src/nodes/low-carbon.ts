@@ -1,5 +1,5 @@
 import { localize } from "@/localize/localize";
-import { EditorPages, EnergyFlowCardExtConfig, GlobalOptions, LowCarbonConfig, LowCarbonOptions } from "@/config";
+import { EditorPages, EnergyDistributionExtConfig, GlobalOptions, LowCarbonConfig, LowCarbonOptions } from "@/config";
 import { Node } from "./node";
 import { HomeAssistant, round } from "custom-card-helpers";
 import { getCo2SignalEntity, getConfigValue } from "@/config/config";
@@ -25,7 +25,7 @@ export class LowCarbonNode extends Node<LowCarbonConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration) {
     super(
       hass,
       cardConfig,

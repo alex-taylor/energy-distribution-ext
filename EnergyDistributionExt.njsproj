@@ -4,7 +4,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{787f3ad3-f21e-41bc-8cb7-c10ec1d388f4}</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
+    <ProjectHome>
+    </ProjectHome>
     <ProjectView>ShowAllFiles</ProjectView>
     <StartupFile>.eslintrc.ts</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
@@ -14,6 +15,7 @@
     <TypeScriptCompileOnSaveEnabled>False</TypeScriptCompileOnSaveEnabled>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">16.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>EnergyDistributionExt</Name>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -33,7 +35,7 @@
     <None Include="jest.config.ts" />
     <None Include="src\const.ts" />
     <None Include="src\config\config.ts" />
-    <None Include="src\energy-flow-card-ext.ts" />
+    <None Include="src\energy-distribution-ext.ts" />
     <None Include="src\hass.ts" />
     <None Include="src\logging.ts" />
     <None Include="src\style.ts" />

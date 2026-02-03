@@ -5,8 +5,10 @@ export const ICON_PADDING: number = 2;
 
 export const DOT_RADIUS: number = 4.5;
 
-export const CARD_NAME: string = "energy-flow-card-ext";
+export const CARD_NAME: string = "energy-distribution-ext";
 
 export const HELPTEXT_SUFFIX: string = "#helptext";
 
 export const POWER_UNITS: string = "W";
+
+export const HOMEPAGE: string = "https://github.com/alex-taylor/energy-distribution-ext";

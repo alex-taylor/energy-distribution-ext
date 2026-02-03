@@ -1,4 +1,4 @@
-import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig, EditorPages, EnergyFlowCardExtConfig } from '@/config';
+import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, AppearanceConfig, NodeConfig, EnergyUnitsConfig, EditorPages, EnergyDistributionExtConfig } from '@/config';
 import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode } from '@/enums';
 import { localize } from '@/localize/localize';
 import { BASIC_COLOUR_MODES, BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue } from '@/config/config';
@@ -42,7 +42,7 @@ export const generalConfigSchema = memoizeOne((): any[] => {
 
 //================================================================================================================================================================================//
 
-export const appearanceSchema = memoizeOne((schemaConfig: EnergyFlowCardExtConfig, mode: DisplayMode): any[] => {
+export const appearanceSchema = memoizeOne((schemaConfig: EnergyDistributionExtConfig, mode: DisplayMode): any[] => {
   return [
     {
       key: GlobalOptions,

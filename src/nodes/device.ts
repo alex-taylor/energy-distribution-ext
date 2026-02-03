@@ -1,4 +1,4 @@
-import { DeviceConfig, DeviceOptions, ColourOptions, EditorPages, EnergyFlowCardExtConfig } from "@/config";
+import { DeviceConfig, DeviceOptions, ColourOptions, EditorPages, EnergyDistributionExtConfig } from "@/config";
 import { HomeAssistant } from "custom-card-helpers";
 import { Node } from "./node";
 import { DEFAULT_DEVICE_CONFIG, getConfigValue } from "@/config/config";
@@ -31,7 +31,7 @@ export class DeviceNode extends Node<DeviceConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, index: number) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration, index: number) {
     super(
       hass,
       cardConfig,

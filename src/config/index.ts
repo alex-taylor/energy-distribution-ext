@@ -183,7 +183,7 @@ export type SecondaryInfoOptions = typeof SecondaryInfoOptions[keyof typeof Seco
 // Config structure                                                                                                                                                               //
 //================================================================================================================================================================================//
 
-export interface EnergyFlowCardExtConfig extends LovelaceCardConfig {
+export interface EnergyDistributionExtConfig extends LovelaceCardConfig {
   [GlobalOptions.Title]?: string;
   [GlobalOptions.Date_Range]?: DateRange;
   [GlobalOptions.Date_Range_From]?: string;

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.36422.26
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "EnergyFlowCardPlus", "EnergyFlowCardPlus.njsproj", "{787F3AD3-F21E-41BC-8CB7-C10EC1D388F4}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "EnergyDistributionExt", "EnergyDistributionExt.njsproj", "{787F3AD3-F21E-41BC-8CB7-C10EC1D388F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

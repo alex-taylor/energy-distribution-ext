@@ -4,7 +4,7 @@ import { HomeAssistant, fireEvent } from "custom-card-helpers";
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { CARD_NAME } from "@/const";
-import { ColourOptions, DeviceConfig, DeviceOptions, EnergyFlowCardExtConfig, NodeOptions, EntitiesOptions, SecondaryInfoOptions, GlobalOptions } from "@/config";
+import { ColourOptions, DeviceConfig, DeviceOptions, EnergyDistributionExtConfig, NodeOptions, EntitiesOptions, SecondaryInfoOptions, GlobalOptions } from "@/config";
 import { deviceSchema } from "../schema/device";
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from "..";
 import { repeat } from "lit/directives/repeat.js";
@@ -41,7 +41,7 @@ const DEVICES_EDITOR_ELEMENT_NAME = CARD_NAME + "-devices-editor";
 @customElement(DEVICES_EDITOR_ELEMENT_NAME)
 export class DevicesEditor extends LitElement {
   public hass!: HomeAssistant;
-  @property({ attribute: false }) public config!: EnergyFlowCardExtConfig;
+  @property({ attribute: false }) public config!: EnergyDistributionExtConfig;
   @property({ attribute: false }) public mode!: DisplayMode;
   @state() private _indexBeingEdited: number = -1;
   private secondaryEntities: string[] = [];

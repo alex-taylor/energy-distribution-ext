@@ -1,5 +1,5 @@
 import { localize } from "@/localize/localize";
-import { ColourOptions, EditorPages, EnergyFlowCardExtConfig, GridConfig, GridOptions, PowerOutageConfig, PowerOutageOptions } from "@/config";
+import { ColourOptions, EditorPages, EnergyDistributionExtConfig, GridConfig, GridOptions, PowerOutageConfig, PowerOutageOptions } from "@/config";
 import { Node } from "./node";
 import { HomeAssistant } from "custom-card-helpers";
 import { getConfigObjects, getConfigValue } from "@/config/config";
@@ -31,7 +31,7 @@ export class GridNode extends Node<GridConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration, energySources: EnergySource[]) {
     super(
       hass,
       cardConfig,

@@ -1,5 +1,5 @@
 import { localize } from "@/localize/localize";
-import { ColourOptions, EditorPages, EnergyFlowCardExtConfig, HomeConfig } from "@/config";
+import { ColourOptions, EditorPages, EnergyDistributionExtConfig, HomeConfig } from "@/config";
 import { Node } from "./node";
 import { HomeAssistant } from "custom-card-helpers";
 import { ColourMode, CssClass, EnergyDirection, GasSourcesMode, SIUnitPrefixes, VolumeUnits } from "@/enums";
@@ -26,7 +26,7 @@ export class HomeNode extends Node<HomeConfig> {
 
   //================================================================================================================================================================================//
 
-  public constructor(hass: HomeAssistant, cardConfig: EnergyFlowCardExtConfig, style: CSSStyleDeclaration) {
+  public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration) {
     super(hass, cardConfig, style, EditorPages.Home, CssClass.Home);
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
     this.colours = new Colours(this.coloursConfigs, EnergyDirection.Consumer_Only);

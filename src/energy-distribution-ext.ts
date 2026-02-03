@@ -14,8 +14,8 @@ import { DataStatus, EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
 import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode, EnergyDirection, DisplayMode } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
-import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING, POWER_UNITS } from "@/const";
-import { EnergyFlowCardExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
+import { CARD_NAME, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, HOMEPAGE, ICON_PADDING, POWER_UNITS } from "@/const";
+import { EnergyDistributionExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
 import { getRangePresetName, renderDateRange } from "@/ui-helpers/date-fns";
 import { AnimationDurations, FlowLine, getGasSourcesMode } from "@/ui-helpers";
 import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight } from "@mdi/js";
@@ -51,14 +51,14 @@ function registerCustomCard(params: RegisterCardParams): void {
   windowWithCards.customCards.push({
     ...params,
     preview: false,
-    documentationURL: `https://github.com/alex-taylor/energy-flow-card-plus`
+    documentationURL: HOMEPAGE
   });
 }
 
 registerCustomCard({
   type: CARD_NAME,
-  name: "Energy Flow Card Extended",
-  description: "A custom card for displaying energy flow in Home Assistant. Inspired by the official Energy Distribution Card and Energy Flow Card Plus."
+  name: "Energy Distribution Extended",
+  description: "A custom card for displaying energy and power flow in Home Assistant. Inspired by the official Energy Distribution Card and Energy Flow Card Plus."
 });
 
 //================================================================================================================================================================================//
@@ -90,7 +90,7 @@ type NodeRenderFn = ((nodeClass: CssClass, states?: States, overrideElectricPref
 //================================================================================================================================================================================//
 
 @customElement(CARD_NAME)
-export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
+export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   static styles: CSSResult = styles;
 
   //================================================================================================================================================================================//
@@ -109,7 +109,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   @property({ attribute: false }) public hass!: HomeAssistant;
-  @state() private _config!: EnergyFlowCardExtConfig;
+  @state() private _config!: EnergyDistributionExtConfig;
 
   private _gridToHomePath: string = "";
   private _solarToBatteryPath: string = "";
@@ -122,7 +122,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
   private _devicePaths: string[] = [];
   private _layoutGrid: NodeRenderFn[][] = [];
 
-  private _configs!: EnergyFlowCardExtConfig[];
+  private _configs!: EnergyDistributionExtConfig[];
   private _mode!: DisplayMode;
   private _entityStates!: EntityStates;
   private _dateRange!: DateRange;
@@ -165,7 +165,7 @@ export default class EnergyFlowCardPlus extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  public setConfig(config: EnergyFlowCardExtConfig): void {
+  public setConfig(config: EnergyDistributionExtConfig): void {
     if (typeof config !== "object") {
       throw new Error(localize("common.invalid_configuration"));
     }
