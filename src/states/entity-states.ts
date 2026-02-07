@@ -449,10 +449,14 @@ export class EntityStates {
           if (lastChanged >= periodStart.getTime() && lastChanged <= periodEnd.getTime()) {
             const entityStats: StatisticValue[] = statistics[entityId];
             const state: number = Number(stateObj.state);
+            const units: string | undefined = stateObj.attributes.unit_of_measurement;
 
-            if (entityStats && entityStats.length !== 0) {
-              const units: string | undefined = stateObj.attributes.unit_of_measurement;
-              deltaSum += this._toBaseUnits(state - (entityStats[entityStats.length - 1].state ?? 0), units, requestedUnits);
+            if (this._entityModes.get(entityId) === EntityMode.Totalising) {
+              if (entityStats && entityStats.length !== 0) {
+                deltaSum += this._toBaseUnits(state - (entityStats[entityStats.length - 1].state ?? 0), units, requestedUnits);
+              }
+            } else {
+              deltaSum += this._toBaseUnits(state, units, requestedUnits);
             }
           }
         }
@@ -471,8 +475,12 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private async _loadStatistics(periodStart: Date, periodEnd: Date): Promise<void> {
+    const isNewPeriod: boolean = !this._isRollover(periodStart) && (periodStart !== this.periodStart || periodEnd !== this.periodEnd);
+    this._periodStart = periodStart;
+    this._periodEnd = periodEnd;
+
     if (this._primaryEntityIds.length !== 0 || this._secondaryEntityIds.length !== 0) {
-      if (!this._isRollover(periodStart) && (periodStart !== this.periodStart || periodEnd !== this.periodEnd)) {
+      if (isNewPeriod) {
         this._primaryStatistics = undefined;
         this._secondaryStatistics = undefined;
         this._dataStatus = DataStatus.Requested;
@@ -500,12 +508,7 @@ export class EntityStates {
         secondaries.length !== 0 ? this._fetchStatistics(periodStart, periodEnd, secondaries, period) : Promise.resolve()
       ]);
 
-      console.log("primary: %O", primaryData);
-      console.log("preivousPrimary: %O", previousPrimaryData);
-      console.log("secondary: %O", secondaryData);
-      console.log("preivousSecondary: %O", previousSecondaryData);
-
-      LOGGER.debug(`Received per-${primaryPeriod} stats (primary${this.lowCarbon.isPresent ? ", low-carbon" : ""}${secondaries.length !== 0 ? ", secondary" : ""}) for period ${periodStart} - ${periodEnd}] in ${Date.now() - fetchStartTime}ms`);
+      LOGGER.debug(`Received per-${primaryPeriod} stats (primary${this.lowCarbon.isPresent ? ", low-carbon" : ""}${secondaries.length !== 0 ? ", secondary" : ""}) for period [${periodStart.toISOString()} - ${periodEnd.toISOString() }] in ${Date.now() - fetchStartTime}ms`);
 
       clearTimeout(timeout);
 
@@ -524,8 +527,6 @@ export class EntityStates {
       }
     }
 
-    this._periodStart = periodStart;
-    this._periodEnd = periodEnd;
     this._dataStatus = DataStatus.Received;
   }
 
@@ -916,21 +917,22 @@ export class EntityStates {
           // not want to include its values in the stats calculations.
           const previousStat: StatisticValue = previousStatistics[entity][0];
 
-          LOGGER.debug("using previous: " + previousStat);
+          LOGGER.debug("using previous: " + previousStat.state);
 
           dummyStat = {
             ...previousStat,
             change: 0,
-            state: this._entityModes.get(entity) === EntityMode.Totalising ? previousStat.state : 0
+            state: this._entityModes.get(entity) === EntityMode.Totalising && previousStat.state ? previousStat.state : 0
           };
         } else {
+          const state: number = Number(this.hass.states[entity].state);
           LOGGER.debug("no previous, creating dummy");
 
-          LOGGER.debug("current sensor state=" + this.hass.states[entity].state + " changed@ " + this.hass.states[entity].last_changed + " updated@ " + this.hass.states[entity].last_updated);
+          LOGGER.debug("current sensor state=" + state + " changed@ " + this.hass.states[entity].last_changed + " updated@ " + this.hass.states[entity].last_updated);
 
           dummyStat = {
             change: 0,
-            state: 0,
+            state: this._entityModes.get(entity) === EntityMode.Totalising && Date.parse(this.hass.states[entity].last_changed) <= periodEnd.getTime() ? state : 0,
             sum: 0,
             start: periodStart.getTime(),
             end: periodEnd.getTime(),
@@ -984,8 +986,6 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _fetchStatistics(periodStart: Date, periodEnd: Date, entityIds: string[], period: Period): Promise<Statistics> {
-    LOGGER.debug("fetching stats for period " + periodStart + " to " + periodEnd);
-
     return this.hass.callWS<Statistics>({
       type: "recorder/statistics_during_period",
       start_time: periodStart.toISOString(),

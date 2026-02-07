@@ -996,7 +996,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _calculateDotRate(value: number, total: number): number {
     if (value <= 0 || total <= 0) {
       if (value < 0 || total < 0) {
-        LOGGER.debug("_calculateDotRate @" + new Date() + ": value = " + value + ", total = " + total);
+        LOGGER.debug("_calculateDotRate: value = " + value + ", total = " + total);
       }
 
       return 0;
@@ -1007,8 +1007,8 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       total = Math.log(total);
     }
 
-    if (value >= total) {
-      LOGGER.debug("_calculateDotRate @ " + new Date() + ": value=" + value + ", total=" + total);
+    if (value > total) {
+      LOGGER.debug("_calculateDotRate: value=" + value + ", total=" + total);
     }
 
     return FLOW_RATE_MAX - (value / total) * (FLOW_RATE_MAX - FLOW_RATE_MIN);

@@ -12,5 +12,4 @@ export const LOGGER = new LogLayer({
   })
 });
 
-LOGGER.info("Energy Distribution Extended v${version} is installed");
-LOGGER.info('Readme:', HOMEPAGE);
+LOGGER.info(`is installed. Readme: ${HOMEPAGE}`);
