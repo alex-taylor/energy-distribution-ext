@@ -109,36 +109,11 @@ A newly-created Energy Distribution Extended card will have a similar appearance
 
 ## Customisation
 
-The card offers a *lot* of configuration options!  You may find it simpler to use the UI, but if you need to edit the YAML directly it's all documented here.
+The card offers a *lot* of configuration options!  You may find it simpler to use the UI, but if you need to edit the YAML directly it's [all documented here](docs/config.md).
 
 The only option is is required is the `type`: this will set the card up to mimic the official Energy Dashboard Card without any further tweaking needed.
 
 Many options are mode-specific: they will only work in either `energy` or `power` mode.  It is always safe to leave these options in your config; they will be ignored if not used.
-
-#### Card options
-
-| Name | Type | Default | Description |
-|---|---|---|---|
-| `type` | `string` | **required** | Must be set to `custom:energy-distribution-card-ext` |
-| `mode` | `energy \| power` | `energy` | Selects whether the card should display energy or power flows |
-| `title` | `string` | | Shows a title at the top of the card |
-| `use_hass_config` | `boolean` | `true` | Loads the entities configured for the HASS Energy Dashboard |
-| `date_range` | `today \| yesterday \| this_week \| this_month \| this_quarter \| this_year \| now-7d \| now-30d \| now-12m \| custom \| from_date_picker` | `from_date_picker` if an `energy-date-selection` card is present in the dashboard;<br>`today` otherwise | The date-range to display (`energy` mode only) |
-| `date_range_from` | `string` | | The start of the date-range to display, in `YYYY-MM-DD` format (if `date_range` is `custom`) |
-| `date_range_to` | `string` | | The end of the date-range to display, in `YYYY-MM-DD` format (if `date_range` is `custom`) |
-| `date_range_live` | `boolean` | `false` | Include the latest data from the entities in the display (`energy` mode only) |
-| `date_range_display` | `do_not_show \| label \| dates \| both` | `do_not_show` | Display the selected date-range at the top of the card (`energy` mode only) |
-| `appearance` | [`Appearance`](docs/appearance.md) | | Appearance options section |
-| `battery` | `Battery` | | [Battery options section](docs/battery.md) |
-| `gas` | `Gas` | | [Gas options section](docs/gas.md) |
-| `grid` | `Grid` | | [Grid options section](docs/grid.md) |
-| `home` | `Home` | | [Home options section](docs/home.md) |
-| `low-carbon` | `Low-carbon` | | [Low-carbon options section](docs/low-carbon.md) |
-| `solar` | `Solar` | | [Solar options section](docs/solar.md) |
-| `Devices` | `Device[]` | | [Device options section](docs/devices.md) | 
-
-
-
 
 
 
@@ -151,7 +126,7 @@ Many options are mode-specific: they will only work in either `energy` or `power
 
 ---
 
-### Example Configurations
+## Example Configurations
 
 > Don't forget to change the entity ids
 

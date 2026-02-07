@@ -1,12 +1,12 @@
-#### Appearance options section
+## Appearance options section
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `options` | | | [General settings section](#appearance-settings-section) |
-| `flows` | | | [Flows settings section](#flows-settings-section) |
-| `units` | | | [Units settings section](#units-settings-section) |
+| `options` | [Options](#options) | | General settings section |
+| `flows` | [Flows](#flows) | | Flows settings section |
+| `units` | [Units](#units) | | Units settings section |
 
-##### Appearance settings section
+### Options
 
 | Name | Type | Default | Description |
 |---|---|---|---|
@@ -17,25 +17,25 @@
 | `segment_gaps` | `boolean` | `false` | If `true`, circles being displayed in `dynamic` mode will have gaps left between the segments to make them easier to distinguish |
 | `use_hass_style` | `boolean` | `true` | If `true`, colours and layout will mimic the official Energy Distribution card as closely as possible; if `false` the following features will be enabled:<ul><li>Circles will grow to fit their contents, so long as there is enough space in the card</li><li>The grid-to-battery flow-line will be rendered in the battery-export colour rather than the grid-import colour</li><li>The grid-to-home and grid-to-battery lines will animate their colours</li><li>The inactive colour will be dimmed</li><li>If the Home circle is inactive it will be shown in the inactive colour rather than the grid-import colour</li></ul>|
 
-##### Flows settings section
+### Flows
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `animation` | `system_setting | enabled | disabled` | `system_setting` | Enables animation of the flow-lines; the default behaviour is to respect the user's system setting, but this can be overridden as required |
-| `inactive_flows` | `normal | dimmed | greyed` | `normal` | How to display inactive flow-lines and circles |
-| `scale` | `linear | logarithmic` | `linear` | How to scale flow-values when calculating circle segments and flow-rates; setting to `logarithmic` may help with clarity if you have a mixture of very large and very small values on the display |
+| `animation` | `system_setting \| enabled \| disabled` | `system_setting` | Enables animation of the flow-lines; the default behaviour is to respect the user's system setting, but this can be overridden as required |
+| `inactive_flows` | `normal \| dimmed \| greyed` | `normal` | How to display inactive flow-lines and circles |
+| `scale` | `linear | logarithmic` \| `linear` | How to scale flow-values when calculating circle segments and flow-rates; setting to `logarithmic` may help with clarity if you have a mixture of very large and very small values on the display |
 | `use_hourly_stats` | `boolean` | `false` | If `true`, hourly statistics will be used to calculate the flows; this will produce a more accurate picture of your energy flows, but may take longer to calculate for larger date-ranges (`energy` mode only) |
 
-##### Units settings section
+### Units
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `unit_position` | `after_space | before_space | after | before | hidden` | `after_space` | The position of the units relative to the value, and whether to separate the units and value with a space |
+| `unit_position` | `after_space \| before_space \| after \| before \| hidden` | `after_space` | The position of the units relative to the value, and whether to separate the units and value with a space |
 | `prefix_threshold` | `number` | `1000` | The threshold at which the next unit prefix is selected |
-| `electric_units` | `Wh | J | cal` | `Wh` | The units for electric values |
-| `electric_unit_prefixes` | `unified | individual` | `unified` | If `unified`, all electric values will have the same unit-prefix, selected based on the largest value to be display; otherwise the prefixes will be selected for each value independently |
-| `gas_units` | `same_as_electric | ft³ | m³ | CCF | MCF | L` | `same_as_electric` | The units for gas values |
-| `gas_unit_prefixes` | `unified | individual` | `unified` | If `unified`, all gas values will have the same unit-prefix, selected based on the largest value to be display; otherwise the prefixes will be selected for each value independently |
+| `electric_units` | `Wh \| J \| cal` | `Wh` | The units for electric values |
+| `electric_unit_prefixes` | `unified \| individual` | `unified` | If `unified`, all electric values will have the same unit-prefix, selected based on the largest value to be display; otherwise the prefixes will be selected for each value independently |
+| `gas_units` | `same_as_electric \| ft³ \| m³ \| CCF \| MCF \| L` | `same_as_electric` | The units for gas values |
+| `gas_unit_prefixes` | `unified \| individual` | `unified` | If `unified`, all gas values will have the same unit-prefix, selected based on the largest value to be display; otherwise the prefixes will be selected for each value independently |
 | `display_precision_under_10` | `number` | `2` | The number of decimal places to show for values less than 10 |
 | `display_precision_under_100` | `number` | `1` | The number of decimal places to show for values less than 100 |
 | `display_precision_default` | `number` | `0` | The number of decimal places to show for values >= 100 |
