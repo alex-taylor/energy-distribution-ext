@@ -1,7 +1,8 @@
-#### Home options section
+## Home configuration
+
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `overrides` | | | [Overrides settings section](#overrides-settings-section) |
-| `colours` | | | [Home colours section](#home-colours-section) |
-| `secondary_info` | | | [Secondary-info settings section](#secondary-info-settings-section) |
-| `options` | | | [Home settings section](#home-settings-section) |
+| `overrides` | [Overrides](overrides.md) | | Overrides settings section |
+| `colours` | [Colours](#colours) | | Colours settings section |
+| `secondary_info` | [SecondaryInfo](secondary-info.md) | | Secondary-info settings section |
+| `options` | [Options](#optiona) | | Home settings section |

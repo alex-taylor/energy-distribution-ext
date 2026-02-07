@@ -1,10 +1,11 @@
-#### Grid options section
+## Grid configuration
+
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `import_entities` | | | [Entities settings section](#entities-settings-section) (`energy` mode only) |
-| `export_entities` | | | [Entities settings section](#entities-settings-section) (`energy` mode only) |
-| `power_entities` | | | [Entities settings section](#entities-settings-section) (`power` mode only) |
-| `overrides` | | | [Overrides settings section](#overrides-settings-section) |
-| `colours` | | | [Grid colours section](#grid-colours-section) |
-| `secondary_info` | | | [Secondary-info settings section](#secondary-info-settings-section) |
-| `power_outage` | | | Power-outage section |
+| `import_entities` | [Entities](entities.md) | | Entities settings section (`energy` mode only) |
+| `export_entities` | [Entities](entities.md) | | Entities settings section (`energy` mode only) |
+| `power_entities` | [Entities](entities.md) | | Entities settings section (`power` mode only) |
+| `overrides` | [Overrides](overrides.md) | | Overrides settings section |
+| `colours` | [Colours](#colours) | | Colours settings section |
+| `secondary_info` | [SecondaryInfo](secondary-info.md) | | Secondary-info settings section |
+| `power_outage` | [PowerOutage](#power-outage) | | Power-outage settings section |

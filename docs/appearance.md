@@ -1,4 +1,4 @@
-## Appearance options section
+## Appearance configuration
 
 | Name | Type | Default | Description |
 |---|---|---|---|
@@ -23,7 +23,7 @@
 |---|---|---|---|
 | `animation` | `system_setting \| enabled \| disabled` | `system_setting` | Enables animation of the flow-lines; the default behaviour is to respect the user's system setting, but this can be overridden as required |
 | `inactive_flows` | `normal \| dimmed \| greyed` | `normal` | How to display inactive flow-lines and circles |
-| `scale` | `linear | logarithmic` \| `linear` | How to scale flow-values when calculating circle segments and flow-rates; setting to `logarithmic` may help with clarity if you have a mixture of very large and very small values on the display |
+| `scale` | `linear \| logarithmic` | `linear` | How to scale flow-values when calculating circle segments and flow-rates; setting to `logarithmic` may help with clarity if you have a mixture of very large and very small values on the display |
 | `use_hourly_stats` | `boolean` | `false` | If `true`, hourly statistics will be used to calculate the flows; this will produce a more accurate picture of your energy flows, but may take longer to calculate for larger date-ranges (`energy` mode only) |
 
 ### Units

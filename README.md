@@ -111,7 +111,7 @@ A newly-created Energy Distribution Extended card will have a similar appearance
 
 The card offers a *lot* of configuration options!  You may find it simpler to use the UI, but if you need to edit the YAML directly it's [all documented here](docs/config.md).
 
-The only option is is required is the `type`: this will set the card up to mimic the official Energy Dashboard Card without any further tweaking needed.
+The only option required is `type: custom:energy-distribution-ext`: this will set the card up to mimic the official Energy Dashboard Card without any further tweaking needed.
 
 Many options are mode-specific: they will only work in either `energy` or `power` mode.  It is always safe to leave these options in your config; they will be ignored if not used.
 

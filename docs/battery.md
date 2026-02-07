@@ -1,4 +1,4 @@
-## Battery options section
+## Battery configuration
 `Import` is energy discharged from the battery; `export` is energy used to charge the battery.
 
 In `power` mode, the entities must return positive values for discharging and negative values for charging.

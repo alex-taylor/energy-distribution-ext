@@ -1,4 +1,5 @@
-##### Overrides settings section
+## Overrides configuration
+
 | Name | Type | Default | Description |
 |---|---|---|---|
 | `name` | `string` | | Provides a different name for the circle |
