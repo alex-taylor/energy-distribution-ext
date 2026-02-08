@@ -4,7 +4,7 @@ TODO
 Code
 ----
 
-  - if displaying 'Idle', clear the colour CSS for the value!
+  - move the 'subtract' flag back to Device
 
   - BUG: the dots are being rendered at the (0,0) of the lines panel
     - may now be fixed?
