@@ -136,6 +136,8 @@ export class GridNode extends Node<GridConfig> {
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
     const isOutage: boolean = this.powerOutage.isOutage;
     const icon: string = isOutage ? this.powerOutage.icon : this.icon;
+    const exportIcon: string | undefined = this.mode === DisplayMode.Power && exportState === 0 ? undefined : mdiArrowLeft;
+    const importIcon: string | undefined = this.mode === DisplayMode.Power && importState === 0 ? undefined : mdiArrowRight;
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">
@@ -143,10 +145,10 @@ export class GridNode extends Node<GridConfig> {
         ${this.renderSecondarySpan(target, this.secondary, states?.gridSecondary, CssClass.Grid)}
         <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.electricUnits, this.firstExportEntity, mdiArrowLeft, exportState, overridePrefix)
+        ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, overridePrefix)
         : html`<span class="${CssClass.Grid} power-outage">${localize("common.power_outage")}</span>`}
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.electricUnits, this.firstImportEntity, mdiArrowRight, importState, overridePrefix)
+        ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, overridePrefix)
         : nothing}
       </div>
     `;

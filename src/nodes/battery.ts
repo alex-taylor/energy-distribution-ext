@@ -131,14 +131,16 @@ export class BatteryNode extends Node<BatteryConfig> {
 
     const inactiveCss: string = !states || (!states.battery.import && !states.battery.export) ? this.inactiveFlowsCss : CssClass.None;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
+    const exportIcon: string | undefined = this.mode === DisplayMode.Power && exportState === 0 ? undefined : this.orientation === DevicesLayout.Vertical ? mdiArrowRight : mdiArrowDown;
+    const importIcon: string | undefined = this.mode === DisplayMode.Power && importState === 0 ? undefined : this.orientation === DevicesLayout.Vertical ? mdiArrowLeft : mdiArrowUp;
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, this.orientation === DevicesLayout.Vertical ? 90 : 180, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.batterySecondary, CssClass.Battery)}
         <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.electricUnits, this.firstExportEntity, this.orientation === DevicesLayout.Vertical ? mdiArrowRight : mdiArrowDown, exportState, overridePrefix)}
-        ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.electricUnits, this.firstImportEntity, this.orientation === DevicesLayout.Vertical ? mdiArrowLeft : mdiArrowUp, importState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, overridePrefix)}
       </div>
     `;
   }
