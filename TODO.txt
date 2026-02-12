@@ -4,8 +4,6 @@ TODO
 Code
 ----
 
-  - move the 'subtract' flag back to Device
-
   - BUG: the dots are being rendered at the (0,0) of the lines panel
     - may now be fixed?
   - BUG: the 'Loading' message appears over a very short card, looks like while the lines are being rendered the nodes are not

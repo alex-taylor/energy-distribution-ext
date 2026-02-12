@@ -147,7 +147,8 @@ export default {
     [DeviceOptions.Energy_Direction]: "Direction",
     [DeviceOptions.Energy_Type]: "Type",
     [DeviceOptions.Icon]: "Icon",
-    [DeviceOptions.Name]: "Name"
+    [DeviceOptions.Name]: "Name",
+    [DeviceOptions.Subtract_From_Home]: "Subtract consumption from Home total"
   },
 
   "DisplayMode": {
@@ -190,7 +191,7 @@ export default {
     [EnergyUnitsOptions.Display_Precision_Under_10]: "Display precision (<10)",
     [EnergyUnitsOptions.Display_Precision_Under_100]: "Display precision (<100)",
     [EnergyUnitsOptions.Gas_Calorific_Value]: "Gas calorific value",
-    [EnergyUnitsOptions.Gas_Calorific_Value + HELPTEXT_SUFFIX]: "This can be found on your gas statement and can change from time to time",
+    [EnergyUnitsOptions.Gas_Calorific_Value + HELPTEXT_SUFFIX]: "This can usually be found on your gas bill and can change from time to time",
     [EnergyUnitsOptions.Gas_Units]: "Gas units",
     [EnergyUnitsOptions.Gas_Unit_Prefixes]: "Gas unit prefixes",
     [EnergyUnitsOptions.Prefix_Threshold]: "Prefix threshold",
@@ -237,8 +238,7 @@ export default {
   "HomeOptions": {
     [HomeOptions.Gas_Sources]: "Show gas sources",
     [HomeOptions.Gas_Sources_Threshold]: "Threshold",
-    [HomeOptions.Gas_Sources_Threshold + HELPTEXT_SUFFIX]: "If gas usage is below this, add it to the total; otherwise display it separately",
-    [HomeOptions.Subtract_Consumers]: "Subtract consuming devices from totals"
+    [HomeOptions.Gas_Sources_Threshold + HELPTEXT_SUFFIX]: "If gas usage is below this, add it to the total; otherwise display it separately"
   },
 
   "InactiveFlowsMode": {

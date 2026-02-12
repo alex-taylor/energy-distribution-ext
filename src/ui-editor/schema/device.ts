@@ -18,7 +18,8 @@ export const deviceSchema = memoizeOne((schemaConfig: DeviceConfig, mode: Displa
         { key: DeviceOptions, name: DeviceOptions.Name, required: true, selector: { text: {} } },
         { key: DeviceOptions, name: DeviceOptions.Icon, selector: { icon: {} } },
         { key: DeviceOptions, name: DeviceOptions.Energy_Type, required: true, selector: dropdownSelector(EnergyType) },
-        mode === DisplayMode.Energy ? { key: DeviceOptions, name: DeviceOptions.Energy_Direction, required: true, selector: dropdownSelector(EnergyDirection) } : {}
+        mode === DisplayMode.Energy ? { key: DeviceOptions, name: DeviceOptions.Energy_Direction, required: true, selector: dropdownSelector(EnergyDirection) } : {},
+        getConfigValue(schemaConfig, DeviceOptions.Energy_Direction) !== EnergyDirection.Producer_Only ? { key: DeviceOptions, name: DeviceOptions.Subtract_From_Home, selector: { boolean: {} } } : {}
       ]
     },
     mode === DisplayMode.Energy && energyDirection !== EnergyDirection.Consumer_Only ?

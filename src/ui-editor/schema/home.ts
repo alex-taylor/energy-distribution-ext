@@ -56,7 +56,6 @@ export const homeSchema = memoizeOne((config: EnergyDistributionExtConfig, mode:
         name: GlobalOptions.Options,
         type: SchemaTypes.Expandable,
         schema: [
-          { key: HomeOptions, name: HomeOptions.Subtract_Consumers, selector: { boolean: {} } },
           { key: HomeOptions, name: HomeOptions.Gas_Sources, required: true, selector: dropdownSelector(GasSourcesMode) },
           dynamicHomeOptionsSchema(homeConfig)
         ]

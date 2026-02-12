@@ -110,8 +110,7 @@ const gridConfigStruct = object({
 
 const homeOptionsConfigStruct = object({
   [HomeOptions.Gas_Sources]: optional(string()),
-  [HomeOptions.Gas_Sources_Threshold]: optional(number()),
-  [HomeOptions.Subtract_Consumers]: optional(boolean())
+  [HomeOptions.Gas_Sources_Threshold]: optional(number())
 });
 
 const homeConfigStruct = object({
@@ -137,7 +136,8 @@ const deviceConfigStruct = object({
   [DeviceOptions.Name]: optional(string()),
   [DeviceOptions.Icon]: optional(string()),
   [DeviceOptions.Energy_Type]: optional(string()),
-  [DeviceOptions.Energy_Direction]: optional(string())
+  [DeviceOptions.Energy_Direction]: optional(string()),
+  [DeviceOptions.Subtract_From_Home]: optional(boolean())
 });
 
 export const cardConfigStruct = assign(

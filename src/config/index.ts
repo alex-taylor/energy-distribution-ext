@@ -47,7 +47,8 @@ namespace ConfigKeys {
     Energy_Direction: "energy_direction",
     Energy_Type: "energy_type",
     Icon: "icon",
-    Name: "name"
+    Name: "name",
+    Subtract_From_Home: "subtract_from_home"
   } as const satisfies Record<string, string>;
 
   export const EditorPages = {
@@ -103,8 +104,7 @@ namespace ConfigKeys {
 
   export const HomeOptions = {
     Gas_Sources: "gas_sources",
-    Gas_Sources_Threshold: "gas_sources_threshold",
-    Subtract_Consumers: "subtract_consumers"
+    Gas_Sources_Threshold: "gas_sources_threshold"
   } as const satisfies Record<string, string>;
 
   export const LowCarbonOptions = {
@@ -246,7 +246,6 @@ export interface LowCarbonOptionsConfig {
 export interface HomeOptionsConfig {
   [HomeOptions.Gas_Sources]?: GasSourcesMode;
   [HomeOptions.Gas_Sources_Threshold]?: number;
-  [HomeOptions.Subtract_Consumers]?: boolean;
 };
 
 export interface NodeConfig {
@@ -306,6 +305,7 @@ export interface DeviceConfig extends NodeConfig {
   [DeviceOptions.Icon]?: string;
   [DeviceOptions.Energy_Type]?: EnergyType;
   [DeviceOptions.Energy_Direction]?: EnergyDirection;
+  [DeviceOptions.Subtract_From_Home]?: boolean;
 };
 
 export interface GasConfig extends NodeConfig {

@@ -168,7 +168,7 @@ function setDefaultsRecursively(config: any, defaultConfig: any): void {
 
     if (currentNode === undefined) {
       config[key] = defaultNode;
-    } else if (!(defaultNode instanceof Array) && typeof defaultNode === "object") {
+    } else if (typeof defaultNode === "object") {
       setDefaultsRecursively(currentNode, defaultNode);
     }
   }
@@ -340,8 +340,7 @@ export function getDefaultHomeConfig(): HomeConfig {
     },
     [GlobalOptions.Options]: {
       [HomeOptions.Gas_Sources]: GasSourcesMode.Do_Not_Show,
-      [HomeOptions.Gas_Sources_Threshold]: 33,
-      [HomeOptions.Subtract_Consumers]: false
+      [HomeOptions.Gas_Sources_Threshold]: 33
     },
     [NodeOptions.Secondary_Info]: getDefaultSecondaryInfoConfig()
   };
@@ -401,7 +400,8 @@ export function getDefaultDeviceConfig(importColour: number[], exportColour: num
     [DeviceOptions.Name]: localize("common.new_device"),
     [DeviceOptions.Icon]: "mdi:devices",
     [DeviceOptions.Energy_Type]: EnergyType.Electric,
-    [DeviceOptions.Energy_Direction]: EnergyDirection.Consumer_Only
+    [DeviceOptions.Energy_Direction]: EnergyDirection.Consumer_Only,
+    [DeviceOptions.Subtract_From_Home]: true
   };
 }
 

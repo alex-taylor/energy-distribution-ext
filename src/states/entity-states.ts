@@ -1,7 +1,7 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
 import { EnergyCollection, EnergyData, EnergyPreferences, EnergySource, Statistics, StatisticValue } from "@/hass";
-import { AppearanceOptions, DeviceConfig, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, HomeOptions } from "@/config";
+import { AppearanceOptions, DeviceConfig, DeviceOptions, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, HomeOptions } from "@/config";
 import { BatteryNode } from "@/nodes/battery";
 import { GasNode } from "@/nodes/gas";
 import { HomeNode } from "@/nodes/home";
@@ -163,7 +163,6 @@ export class EntityStates {
   private _volumeUnits: string;
   private _gasCalorificValue: number;
   private _useHourlyStats: boolean;
-  private _subtractConsumingDevices: boolean;
 
   //================================================================================================================================================================================//
 
@@ -175,7 +174,6 @@ export class EntityStates {
 
     const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
     this._gasCalorificValue = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Calorific_Value);
-    this._subtractConsumingDevices = getConfigValue(configs, [EditorPages.Home, GlobalOptions.Options, HomeOptions.Subtract_Consumers]);
 
     if (this._mode === DisplayMode.Power) {
       this._dateRange = DateRange.Today;
@@ -991,15 +989,15 @@ export class EntityStates {
     this.devices.forEach((device, index) => {
       if (device.type === EnergyType.Electric) {
         const deviceState: BiDiState = states.devicesElectric[index];
-        states.homeElectric += deviceState.import - (this._subtractConsumingDevices ? deviceState.export : 0);
+        states.homeElectric += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
         electricValues.push(deviceState.import, deviceState.export);
       } else {
         const deviceState: BiDiState = states.devicesGas[index];
-        states.homeGas += deviceState.import - (this._subtractConsumingDevices ? deviceState.export : 0);
+        states.homeGas += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
         gasValues.push(deviceState.import, deviceState.export);
 
         const deviceVolumeState: BiDiState = states.devicesGasVolume[index];
-        states.homeGasVolume += deviceVolumeState.import - (this._subtractConsumingDevices ? deviceVolumeState.export : 0);
+        states.homeGasVolume += deviceVolumeState.import - (device.subtractConsumption ? deviceVolumeState.export : 0);
         gasVolumeValues.push(deviceVolumeState.import, deviceVolumeState.export);
       }
     });

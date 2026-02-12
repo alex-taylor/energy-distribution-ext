@@ -14,6 +14,7 @@ export class DeviceNode extends Node<DeviceConfig> {
   public readonly colours: Colours;
   public readonly type: EnergyType;
   public readonly direction: EnergyDirection;
+  public readonly subtractConsumption: boolean;
   public exportIcon: string = "";
   public importIcon: string = "";
 
@@ -42,6 +43,7 @@ export class DeviceNode extends Node<DeviceConfig> {
 
     this.type = getConfigValue(this.nodeConfigs, DeviceOptions.Energy_Type);
     this.direction = getConfigValue(this.nodeConfigs, DeviceOptions.Energy_Direction);
+    this.subtractConsumption = getConfigValue(this.nodeConfigs, DeviceOptions.Subtract_From_Home);
 
     this.colours = new Colours(
       this.coloursConfigs,
