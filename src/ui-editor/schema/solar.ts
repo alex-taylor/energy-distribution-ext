@@ -1,43 +1,14 @@
-import { secondaryInfoSchema, getBaseMainConfigSchema } from './_schema-base';
-import localize from '../../localize/localize';
+import { EditorPages, EnergyDistributionExtConfig, SolarConfig } from '@/config';
+import { nodeConfigSchema, singleValueNodeSchema } from '.';
+import { DisplayMode, ELECTRIC_ENTITY_CLASSES } from '@/enums';
+import { DEFAULT_CONFIG, getConfigValue } from '@/config/config';
+import memoizeOne from 'memoize-one';
 
-const mainSchema = {
-  ...getBaseMainConfigSchema(),
-  schema: [
-    ...getBaseMainConfigSchema().schema,
-    {
-      name: 'color_value',
-      label: 'Color Value',
-      selector: { boolean: {} },
-    },
-    {
-      name: 'color_icon',
-      label: 'Color Icon',
-      selector: { boolean: {} },
-    },
-    {
-      name: 'display_zero_tolerance',
-      label: 'Display Zero Tolerance',
-      selector: { number: { mode: 'box', min: 0, max: 1000000, step: 0.1 } },
-    }
-  ],
-};
+//================================================================================================================================================================================//
 
-export const solarSchema = [
-  {
-    name: 'entity',
-    selector: { entity: {} },
-  },
-  mainSchema,
-  {
-    name: 'color',
-    label: 'Color',
-    selector: { color_rgb: {} },
-  },
-  {
-    title: localize('editor.secondary_info'),
-    name: 'secondary_info',
-    type: 'expandable',
-    schema: secondaryInfoSchema,
-  },
-] as const;
+export const solarSchema = memoizeOne((config: EnergyDistributionExtConfig, mode: DisplayMode, secondaryEntities: string[]): any[] => {
+  const solarConfig: SolarConfig = getConfigValue([config, DEFAULT_CONFIG], EditorPages.Solar);
+  return nodeConfigSchema(singleValueNodeSchema(solarConfig, mode, EditorPages.Solar, ELECTRIC_ENTITY_CLASSES, true), secondaryEntities);
+});
+
+//================================================================================================================================================================================//

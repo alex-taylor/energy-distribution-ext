@@ -15,45 +15,44 @@ const serveOptions = {
   port: 5000,
   allowCrossOrigin: true,
   headers: {
-    "Access-Control-Allow-Origin": "*",
-  },
+    "Access-Control-Allow-Origin": "*"
+  }
 };
 
 export default [
   {
-    input: ["src/energy-flow-card-plus.ts"],
+    input: ["src/energy-distribution-ext.ts"],
     output: [
       {
         dir: "dist",
         format: "es",
-        inlineDynamicImports: true,
-      },
+        inlineDynamicImports: true
+      }
     ],
     plugins: [
       minifyHTML(),
-      terser({ output: { comments: false } }),
-      typescript({
-        declaration: false,
-      }),
+      //terser({ output: { comments: false } }),
+      typescript(),
       nodeResolve(),
       json({
-        compact: true,
+        compact: true
       }),
       commonjs(),
       babel({
         exclude: "node_modules/**",
-        babelHelpers: "bundled",
+        babelHelpers: "bundled"
       }),
-      ...(dev ? [serve(serveOptions)] : [terser()]),
+      ...(dev ? [serve(serveOptions)] : [/*terser()*/])
     ],
     moduleContext: (id) => {
       const thisAsWindowForModules = [
         "node_modules/@formatjs/intl-utils/lib/src/diff.js",
         "node_modules/@formatjs/intl-utils/lib/src/resolve-locale.js",
       ];
+
       if (thisAsWindowForModules.some((id_) => id.trimRight().endsWith(id_))) {
         return "window";
       }
-    },
-  },
+    }
+  }
 ];

@@ -1,8 +1,6 @@
-.rpt2_cache
 dist
 node_modules
-.DS_Store
 obj
 bin
 .vs
-.vscode
+*.DotSettings.user

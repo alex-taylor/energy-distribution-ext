@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{787f3ad3-f21e-41bc-8cb7-c10ec1d388f4}</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <ProjectView>ShowAllFiles</ProjectView>
+    <StartupFile>.eslintrc.ts</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <EnableTypeScript>true</EnableTypeScript>
+    <TypeScriptCompileOnSaveEnabled>False</TypeScriptCompileOnSaveEnabled>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">16.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>EnergyDistributionExt</Name>
+    <StartWebBrowser>True</StartWebBrowser>
+    <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <JavaScriptTestRoot>src\</JavaScriptTestRoot>
+    <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="docs\appearance.md" />
+    <Content Include="docs\battery.md" />
+    <Content Include="docs\config.md">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="docs\device.md" />
+    <Content Include="docs\entities.md" />
+    <Content Include="docs\gas.md" />
+    <Content Include="docs\grid.md" />
+    <Content Include="docs\home.md" />
+    <Content Include="docs\low-carbon.md" />
+    <Content Include="docs\overrides.md" />
+    <Content Include="docs\secondary-info.md" />
+    <Content Include="docs\solar.md" />
+    <Content Include="hacs.json" />
+    <Content Include="package.json" />
+    <Content Include="src\ui-editor\components\page-header.ts">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="TODO.txt">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="CHANGELOG.md" />
+    <Content Include="README.md" />
+    <Content Include="tsconfig.json" />
+    <None Include=".eslintrc.ts" />
+    <None Include="jest.config.ts" />
+    <None Include="src\const.ts" />
+    <None Include="src\config\config.ts" />
+    <None Include="src\energy-distribution-ext.ts" />
+    <None Include="src\hass.ts" />
+    <None Include="src\logging.ts" />
+    <None Include="src\style.ts" />
+    <None Include="src\config\index.ts" />
+    <None Include="src\energy\index.ts" />
+    <None Include="src\energy\subscribe-mixin.ts" />
+    <None Include="src\localize\localize.ts" />
+    <None Include="src\ui-editor\ui-editor.ts" />
+    <Content Include="src\localize\languages\en.ts" />
+    <None Include="src\ui-editor\schema\battery.ts" />
+    <None Include="src\ui-editor\schema\low-carbon.ts" />
+    <None Include="src\ui-editor\schema\grid.ts" />
+    <None Include="src\ui-editor\schema\home.ts" />
+    <None Include="src\ui-editor\schema\device.ts" />
+    <None Include="src\ui-editor\schema\solar.ts" />
+    <None Include="src\ui-editor\schema\index.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="docs\" />
+    <Folder Include="src\nodes\" />
+    <Folder Include="src\ui-helpers\" />
+    <Folder Include="src\states\" />
+    <Folder Include="src\config\" />
+    <Folder Include="src\ui-editor\components\" />
+    <Folder Include="dist" />
+    <Folder Include="src" />
+    <Folder Include="src\energy" />
+    <Folder Include="src\localize" />
+    <Folder Include="src\localize\languages" />
+    <Folder Include="src\ui-editor" />
+    <Folder Include="src\ui-editor\schema" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="src\config\validation.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\dates.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <Compile Include="src\localize\localize.test.ts">
+      <SubType>Code</SubType>
+      <TestFramework>Jest</TestFramework>
+      <Publish>False</Publish>
+    </Compile>
+    <TypeScriptCompile Include="src\nodes\colours.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\states\entity-states.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\nodes\battery.ts" />
+    <TypeScriptCompile Include="src\nodes\gas.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\nodes\node.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\nodes\low-carbon.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\nodes\grid.ts" />
+    <TypeScriptCompile Include="src\nodes\home.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\nodes\index.ts" />
+    <TypeScriptCompile Include="src\nodes\device.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\nodes\secondary-info.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\nodes\solar.ts" />
+    <TypeScriptCompile Include="src\enums.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\states\unit-conversions.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ui-editor\components\date-range-picker.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ui-editor\components\devices-editor.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ui-editor\index.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ui-editor\schema\gas.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ui-helpers\index.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ui-helpers\date-fns.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

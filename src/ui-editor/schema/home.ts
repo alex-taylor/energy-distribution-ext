@@ -1,66 +1,76 @@
-import { getBaseMainConfigSchema, secondaryInfoSchema } from './_schema-base';
-import localize from '../../localize/localize';
-import { ColorMode } from '../../enums';
+import { colourSchema, dropdownSelector, getDropdownValues, nodeConfigSchema, SchemaTypes, SelectorModes } from '.';
+import { ColourMode, DisplayMode, GasSourcesMode } from '@/enums';
+import { ColourOptions, NodeOptions, HomeConfig, GlobalOptions, HomeOptions, EnergyDistributionExtConfig, EditorPages } from '@/config';
+import { DEFAULT_HOME_CONFIG, getConfigValue } from '@/config/config';
+import memoizeOne from 'memoize-one';
 
-const mainSchema = {
-  ...getBaseMainConfigSchema(),
-  schema: [
-    ...getBaseMainConfigSchema().schema,
-    {
-      name: 'color_of_value',
-      label: 'Color of Value',
-      selector: {
-        select: {
-          options: [
-            ColorMode.getItem(ColorMode.Do_Not_Color),
-            ColorMode.getItem(ColorMode.Color_Dynamically),
-            ColorMode.getItem(ColorMode.Solar),
-            ColorMode.getItem(ColorMode.Grid),
-            ColorMode.getItem(ColorMode.Battery),
-          ],
-          mode: 'dropdown'
-        },
-      },
-    },
-    {
-      name: 'color_of_icon',
-      label: 'Color of Icon',
-      selector: {
-        select: {
-          options: [
-            ColorMode.getItem(ColorMode.Do_Not_Color),
-            ColorMode.getItem(ColorMode.Color_Dynamically),
-            ColorMode.getItem(ColorMode.Solar),
-            ColorMode.getItem(ColorMode.Grid),
-            ColorMode.getItem(ColorMode.Battery),
-          ],
-          mode: 'dropdown'
-        },
-      },
-    },
-    {
-      name: 'subtract_individual',
-      label: 'Subtract Individual',
-      selector: { boolean: {} },
-    },
-    {
-      name: 'override_state',
-      label: 'Override State (With Home Entity)',
-      selector: { boolean: {} },
-    }
-  ],
-};
+//================================================================================================================================================================================//
 
-export const homeSchema = [
-  {
-    name: 'entity',
-    selector: { entity: {} },
-  },
-  mainSchema,
-  {
-    title: localize('editor.secondary_info'),
-    name: 'secondary_info',
-    type: 'expandable',
-    schema: secondaryInfoSchema,
-  },
-] as const;
+const COLOUR_MODES: ColourMode[] = [ColourMode.Do_Not_Colour, ColourMode.Automatic, ColourMode.Solar, ColourMode.High_Carbon, ColourMode.Low_Carbon, ColourMode.Battery, ColourMode.Gas, ColourMode.Custom];
+
+//================================================================================================================================================================================//
+
+export const homeSchema = memoizeOne((config: EnergyDistributionExtConfig, mode: DisplayMode, secondaryEntities: string[]): any[] => {
+  const homeConfig: HomeConfig = getConfigValue([config, DEFAULT_HOME_CONFIG], EditorPages.Home);
+
+  return nodeConfigSchema([], secondaryEntities)
+    .concat(
+      {
+        key: NodeOptions,
+        name: NodeOptions.Colours,
+        type: SchemaTypes.Expandable,
+        schema: [
+          {
+            type: SchemaTypes.Grid,
+            schema: [
+              ...colourSchema(
+                homeConfig,
+                undefined,
+                ColourOptions.Circle,
+                getDropdownValues(ColourMode, [ColourMode.Dynamic, ...COLOUR_MODES])
+              ),
+              ...colourSchema(
+                homeConfig,
+                EditorPages.Home,
+                ColourOptions.Value_Export,
+                getDropdownValues(ColourMode, COLOUR_MODES)
+              ),
+              ...colourSchema(
+                homeConfig,
+                undefined,
+                ColourOptions.Icon,
+                getDropdownValues(ColourMode, COLOUR_MODES)
+              ),
+              ...colourSchema(
+                homeConfig,
+                undefined,
+                ColourOptions.Secondary,
+                getDropdownValues(ColourMode, COLOUR_MODES)
+              )
+            ]
+          }
+        ]
+      },
+      {
+        key: GlobalOptions,
+        name: GlobalOptions.Options,
+        type: SchemaTypes.Expandable,
+        schema: [
+          { key: HomeOptions, name: HomeOptions.Gas_Sources, required: true, selector: dropdownSelector(GasSourcesMode) },
+          dynamicHomeOptionsSchema(homeConfig)
+        ]
+      }
+    );
+});
+
+//================================================================================================================================================================================//
+
+const dynamicHomeOptionsSchema = memoizeOne((schemaConfig: HomeConfig): {} => {
+  if (getConfigValue([schemaConfig, DEFAULT_HOME_CONFIG], [GlobalOptions.Options, HomeOptions.Gas_Sources]) !== GasSourcesMode.Automatic) {
+    return {};
+  }
+
+  return { key: HomeOptions, name: HomeOptions.Gas_Sources_Threshold, required: true, selector: { number: { mode: SelectorModes.Box, min: 0, max: 100, step: 1, unit_of_measurement: "%" } } };
+});
+
+//================================================================================================================================================================================//

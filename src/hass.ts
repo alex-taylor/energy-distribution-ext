@@ -1,13 +1,4 @@
-import { HomeAssistant } from 'custom-card-helpers';
-
-export interface Area {
-  area_id: string;
-  name: string;
-}
-
-export interface HomeAssistantReal extends HomeAssistant {
-  areas: Record<string, Area>;
-}
+import { Collection } from "home-assistant-js-websocket";
 
 export interface EntityRegistryEntry {
   id: string;
@@ -27,36 +18,104 @@ export interface EntityRegistryEntry {
   translation_key?: string;
 }
 
-export interface ExtEntityRegistryEntry extends EntityRegistryEntry {
-  capabilities: Record<string, unknown>;
-  original_icon?: string;
-  device_class?: string;
-  original_device_class?: string;
+interface StatisticsMetaData {
+  statistics_unit_of_measurement: string | null;
+  statistic_id: string;
+  source: string;
+  name?: string | null;
+  has_sum: boolean;
+  has_mean: boolean;
+  unit_class: string | null;
 }
 
-export const getExtendedEntityRegistryEntry = (
-  hass: HomeAssistant,
-  entityId: string,
-): Promise<ExtEntityRegistryEntry> =>
-  hass.callWS({
-    type: 'config/entity_registry/get',
-    entity_id: entityId,
-  });
-
-export async function getEntityArea(hass: HomeAssistant, entityId: string) {
-  const extended = await getExtendedEntityRegistryEntry(hass, entityId);
-  return extended.area_id;
+interface ConfigEntry {
+  entry_id: string;
+  domain: string;
+  title: string;
+  source: string;
+  state: 'loaded' | 'setup_error' | 'migration_error' | 'setup_retry' | 'not_loaded' | 'failed_unload' | 'setup_in_progress';
+  supports_options: boolean;
+  supports_remove_device: boolean;
+  supports_unload: boolean;
+  pref_disable_new_entities: boolean;
+  pref_disable_polling: boolean;
+  disabled_by: 'user' | null;
+  reason: string | null;
 }
 
-export async function getEntitiesByArea(hass: HomeAssistantReal, entityIds: string[]) {
-  const result: Record<string, { area: Area; entities: string[] }> = {};
-  for (const entityId of entityIds) {
-    const areaId = await getEntityArea(hass, entityId);
-    const area = areaId ? hass.areas[areaId] : {area_id: 'no_area', name: 'No area'};
-    if (!result[area.area_id]) {
-      result[area.area_id] = { area, entities: [] };
-    }
-    result[area.area_id].entities.push(entityId);
-  }
-  return result;
+interface FossilEnergyConsumption {
+  [date: string]: number;
+}
+
+export interface EnergyData {
+  start: Date;
+  end?: Date;
+  startCompare?: Date;
+  endCompare?: Date;
+  prefs: EnergyPreferences;
+  info: EnergyInfo;
+  stats: Statistics;
+  statsMetadata: Record<string, StatisticsMetaData>;
+  statsCompare: Statistics;
+  co2SignalConfigEntry?: ConfigEntry;
+  co2SignalEntity?: string;
+  fossilEnergyConsumption?: FossilEnergyConsumption;
+  fossilEnergyConsumptionCompare?: FossilEnergyConsumption;
+}
+
+export interface Statistics {
+  [statisticId: string]: StatisticValue[];
+}
+
+export interface StatisticValue {
+  statistic_id: string;
+  start: number;
+  end: number;
+  last_reset: string | null;
+  max: number | null;
+  mean: number | null;
+  min: number | null;
+  sum: number | null;
+  state: number | null;
+  change: number | null;
+}
+
+export interface EnergySource {
+  type: string;
+  stat_energy_from?: string;
+  stat_energy_to?: string;
+  stat_rate?: string;
+  flow_from?: {
+    stat_energy_from: string;
+  }[];
+  flow_to?: {
+    stat_energy_to: string;
+  }[];
+  power?: {
+    stat_rate: string;
+  }[];
+}
+
+export interface DeviceConsumptionEnergyPreference {
+  stat_consumption: string;
+}
+
+export interface EnergyPreferences {
+  energy_sources: EnergySource[];
+  device_consumption: DeviceConsumptionEnergyPreference[];
+}
+
+export interface EnergyInfo {
+  cost_sensors: Record<string, string>;
+}
+
+export interface EnergyCollection extends Collection<EnergyData> {
+  start: Date;
+  end?: Date;
+  prefs?: EnergyPreferences;
+  clearPrefs(): void;
+  setPeriod(newStart: Date, newEnd?: Date): void;
+  _refreshTimeout?: number;
+  _updatePeriodTimeout?: number;
+  _active: number;
 }

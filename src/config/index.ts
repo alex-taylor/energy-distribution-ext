@@ -1,157 +1,363 @@
-import { LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColorMode, DisplayMode } from '../enums';
+import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
+import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode, StateClasses } from '@/enums';
+
+//================================================================================================================================================================================//
 
 declare global {
   interface HTMLElementTagNameMap {
-    'hui-error-card': LovelaceCard;
+    "hui-error-card": LovelaceCard;
   }
 }
 
-export type BasicEntity = string | string[];
+//================================================================================================================================================================================//
+// These act both as keys in the YAML config, and as the names of the fields in the below Config interfaces                                                                       //
+//================================================================================================================================================================================//
 
-export type ComboEntity = {
-  consumption: string;
-  production: string;
-};
+namespace ConfigKeys {
+  export const AppearanceOptions = {
+    Clickable_Entities: "clickable_entities",
+    Dashboard_Link: "dashboard_link",
+    Dashboard_Link_Label: "dashboard_link_label",
+    Energy_Units: "units",
+    Flows: "flows",
+    Power_Units: "power_units",
+    Segment_Gaps: "segment_gaps",
+    Show_Zero_States: "show_zero_states",
+    Use_HASS_Style: "use_hass_style"
+  } as const satisfies Record<string, string>;
 
-export interface EnergyFlowCardPlusConfig extends LovelaceCardConfig, MainConfigOptions {
-  entities: EntitiesConfig;
+  export const ColourOptions = {
+    Circle: "circle_mode",
+    Circle_Colour: "circle_colour",
+    Flow_Export: "flow_export_mode",
+    Flow_Export_Colour: "flow_export_colour",
+    Flow_Import: "flow_import_mode",
+    Flow_Import_Colour: "flow_import_colour",
+    Icon: "icon_mode",
+    Icon_Colour: "icon_colour",
+    Secondary: "secondary_mode",
+    Secondary_Colour: "secondary_colour",
+    Value_Export: "value_export_mode",
+    Value_Export_Colour: "value_export_colour",
+    Value_Import: "value_import_mode",
+    Value_Import_Colour: "value_import_colour"
+  } as const satisfies Record<string, string>;
+
+  export const DeviceOptions = {
+    Energy_Direction: "energy_direction",
+    Energy_Type: "energy_type",
+    Icon: "icon",
+    Name: "name",
+    Subtract_From_Home: "subtract_from_home"
+  } as const satisfies Record<string, string>;
+
+  export const EditorPages = {
+    Appearance: "appearance",
+    Battery: "battery",
+    Devices: "devices",
+    Gas: "gas",
+    Grid: "grid",
+    Home: "home",
+    Low_Carbon: "low_carbon_energy",
+    Solar: "solar"
+  } as const satisfies Record<string, string>;
+
+  export const EnergyUnitsOptions = {
+    Electric_Units: "electric_units",
+    Electric_Unit_Prefixes: "electric_unit_prefixes",
+    Display_Precision_Default: "display_precision_default",
+    Display_Precision_Under_10: "display_precision_under_10",
+    Display_Precision_Under_100: "display_precision_under_100",
+    Gas_Calorific_Value: "gas_calorific_value",
+    Gas_Units: "gas_units",
+    Gas_Unit_Prefixes: "gas_unit_prefixes",
+    Prefix_Threshold: "prefix_threshold",
+    Unit_Position: "unit_position"
+  } as const satisfies Record<string, string>;
+
+  export const EntitiesOptions = {
+    Entity_Ids: "entity_ids"
+  } as const satisfies Record<string, string>;
+
+  export const FlowsOptions = {
+    Animation: "animation",
+    Inactive_Flows: "inactive_flows",
+    Scale: "scale",
+    Use_Hourly_Stats: "use_hourly_stats"
+  } as const satisfies Record<string, string>;
+
+  export const GlobalOptions = {
+    Date_Range: "date_range",
+    Date_Range_From: "date_range_from",
+    Date_Range_To: "date_range_to",
+    Date_Range_Live: "date_range_live",
+    Date_Range_Display: "date_range_display",
+    Mode: "mode",
+    Options: "options",
+    Title: "title",
+    Use_HASS_Config: "use_hass_config"
+  } as const satisfies Record<string, string>;
+
+  export const GridOptions = {
+    Power_Outage: "power_outage"
+  } as const satisfies Record<string, string>;
+
+  export const HomeOptions = {
+    Gas_Sources: "gas_sources",
+    Gas_Sources_Threshold: "gas_sources_threshold"
+  } as const satisfies Record<string, string>;
+
+  export const LowCarbonOptions = {
+    Low_Carbon_Mode: "low_carbon_mode"
+  } as const satisfies Record<string, string>;
+
+  export const NodeOptions = {
+    Colours: "colours",
+    Export_Entities: "export_entities",
+    Import_Entities: "import_entities",
+    Overrides: "overrides",
+    Power_Entities: "power_entities",
+    Secondary_Info: "secondary_info"
+  } as const satisfies Record<string, string>;
+
+  export const OverridesOptions = {
+    Icon: "icon",
+    Name: "name"
+  } as const satisfies Record<string, string>;
+
+  export const PowerOutageOptions = {
+    Entity_Id: "entity_id",
+    Alert_Icon: "alert_icon",
+    Alert_State: "alert_state"
+  } as const satisfies Record<string, string>;
+
+  export const SecondaryInfoOptions = {
+    Display_Precision: "display_precision",
+    Entity_Id: "entity_id",
+    Icon: "icon",
+    Unit_Position: "unit_position"
+  } as const satisfies Record<string, string>;
 }
 
-interface MainConfigOptions {
-  display_mode?: DisplayMode;
-  dashboard_link?: string;
-  dashboard_link_label?: string;
-  min_flow_rate?: number;
-  max_flow_rate?: number;
-  wh_decimals?: number;
-  kwh_decimals?: number;
-  mwh_decimals?: number;
-  wh_kwh_threshold?: number;
-  kwh_mwh_threshold?: number;
-  clickable_entities?: boolean;
-  max_expected_energy?: number;
-  min_expected_energy?: number;
-  display_zero_lines?: boolean;
-  energy_date_selection?: boolean;
-  use_new_flow_rate_model?: boolean;
-  use_hourly_stats?: boolean;
-  unit_white_space?: boolean;
-  display_zero_state?: boolean;
+export const AppearanceOptions = ConfigKeys.AppearanceOptions;
+export type AppearanceOptions = typeof AppearanceOptions[keyof typeof AppearanceOptions];
+export const ColourOptions = ConfigKeys.ColourOptions;
+export type ColourOptions = typeof ColourOptions[keyof typeof ColourOptions];
+export const DeviceOptions = ConfigKeys.DeviceOptions;
+export type DeviceOptions = typeof DeviceOptions[keyof typeof DeviceOptions];
+export const EditorPages = ConfigKeys.EditorPages;
+export type EditorPages = typeof EditorPages[keyof typeof EditorPages];
+export const EnergyUnitsOptions = ConfigKeys.EnergyUnitsOptions;
+export type EnergyUnitsOptions = typeof EnergyUnitsOptions[keyof typeof EnergyUnitsOptions];
+export const EntitiesOptions = ConfigKeys.EntitiesOptions;
+export type EntitiesOptions = typeof EntitiesOptions[keyof typeof EntitiesOptions];
+export const FlowsOptions = ConfigKeys.FlowsOptions;
+export type FlowsOptions = typeof FlowsOptions[keyof typeof FlowsOptions];
+export const GlobalOptions = ConfigKeys.GlobalOptions;
+export type GlobalOptions = typeof GlobalOptions[keyof typeof GlobalOptions];
+export const GridOptions = ConfigKeys.GridOptions;
+export type GridOptions = typeof GridOptions[keyof typeof GridOptions];
+export const HomeOptions = ConfigKeys.HomeOptions;
+export type HomeOptions = typeof HomeOptions[keyof typeof HomeOptions];
+export const LowCarbonOptions = ConfigKeys.LowCarbonOptions;
+export type LowCarbonOptions = typeof LowCarbonOptions[keyof typeof LowCarbonOptions];
+export const NodeOptions = ConfigKeys.NodeOptions;
+export type NodeOptions = typeof NodeOptions[keyof typeof NodeOptions];
+export const OverridesOptions = ConfigKeys.OverridesOptions;
+export type OverridesOptions = typeof OverridesOptions[keyof typeof OverridesOptions];
+export const PowerOutageOptions = ConfigKeys.PowerOutageOptions;
+export type PowerOutageOptions = typeof PowerOutageOptions[keyof typeof PowerOutageOptions];
+export const SecondaryInfoOptions = ConfigKeys.SecondaryInfoOptions;
+export type SecondaryInfoOptions = typeof SecondaryInfoOptions[keyof typeof SecondaryInfoOptions];
+
+(() => {
+  Object.keys(ConfigKeys).forEach(name => {
+    const type = ConfigKeys[name];
+
+    Object.defineProperty(type, "name", {
+      value: name,
+      configurable: true
+    });
+  });
+})();
+
+//================================================================================================================================================================================//
+// Config structure                                                                                                                                                               //
+//================================================================================================================================================================================//
+
+export interface EnergyDistributionExtConfig extends LovelaceCardConfig {
+  [GlobalOptions.Title]?: string;
+  [GlobalOptions.Date_Range]?: DateRange;
+  [GlobalOptions.Date_Range_From]?: string;
+  [GlobalOptions.Date_Range_To]?: string;
+  [GlobalOptions.Date_Range_Live]?: boolean;
+  [GlobalOptions.Date_Range_Display]?: DateRangeDisplayMode;
+  [GlobalOptions.Mode]?: DisplayMode;
+  [GlobalOptions.Use_HASS_Config]?: boolean,
+  [EditorPages.Appearance]?: AppearanceConfig;
+  [EditorPages.Grid]?: GridConfig;
+  [EditorPages.Gas]?: GasConfig;
+  [EditorPages.Low_Carbon]?: LowCarbonConfig;
+  [EditorPages.Solar]?: SolarConfig;
+  [EditorPages.Battery]?: BatteryConfig;
+  [EditorPages.Home]?: HomeConfig;
+  [EditorPages.Devices]?: DeviceConfig[];
 }
 
-interface EntitiesConfig {
-  battery?: BatteryConfigEntity;
-  grid?: GridConfigEntity;
-  fossil_fuel_percentage?: FossilFuelConfigEntity;
-  home?: HomeConfigEntity;
-  solar?: SolarConfigEntity;
-  individual1?: IndividualConfigEntity;
-  individual2?: IndividualConfigEntity;
+export interface AppearanceConfig {
+  [GlobalOptions.Options]?: AppearanceOptionsConfig;
+  [AppearanceOptions.Energy_Units]?: EnergyUnitsConfig;
+  [AppearanceOptions.Flows]?: FlowsConfig;
+};
+
+export interface AppearanceOptionsConfig {
+  [AppearanceOptions.Dashboard_Link]?: string;
+  [AppearanceOptions.Dashboard_Link_Label]?: string;
+  [AppearanceOptions.Show_Zero_States]?: boolean;
+  [AppearanceOptions.Clickable_Entities]?: boolean;
+  [AppearanceOptions.Segment_Gaps]?: boolean;
+  [AppearanceOptions.Use_HASS_Style]?: boolean;
+};
+
+export interface EnergyUnitsConfig {
+  [EnergyUnitsOptions.Electric_Units]?: EnergyUnits;
+  [EnergyUnitsOptions.Electric_Unit_Prefixes]?: UnitPrefixes;
+  [EnergyUnitsOptions.Gas_Units]?: VolumeUnits;
+  [EnergyUnitsOptions.Gas_Unit_Prefixes]?: UnitPrefixes;
+  [EnergyUnitsOptions.Unit_Position]?: UnitPosition;
+  [EnergyUnitsOptions.Display_Precision_Under_10]?: number;
+  [EnergyUnitsOptions.Display_Precision_Under_100]?: number;
+  [EnergyUnitsOptions.Display_Precision_Default]?: number;
+  [EnergyUnitsOptions.Prefix_Threshold]?: number | string;
+  [EnergyUnitsOptions.Gas_Calorific_Value]?: number;
+};
+
+export interface FlowsConfig {
+  [FlowsOptions.Use_Hourly_Stats]?: boolean;
+  [FlowsOptions.Animation]?: AnimationMode;
+  [FlowsOptions.Inactive_Flows]?: InactiveFlowsMode;
+  [FlowsOptions.Scale]?: Scale;
+};
+
+export interface LowCarbonOptionsConfig {
+  [LowCarbonOptions.Low_Carbon_Mode]?: LowCarbonDisplayMode;
+};
+
+export interface HomeOptionsConfig {
+  [HomeOptions.Gas_Sources]?: GasSourcesMode;
+  [HomeOptions.Gas_Sources_Threshold]?: number;
+};
+
+export interface NodeConfig {
+  [NodeOptions.Export_Entities]?: EntityConfig;
+  [NodeOptions.Import_Entities]?: EntityConfig;
+  [NodeOptions.Power_Entities]?: EntityConfig;
+  [NodeOptions.Overrides]?: OverridesConfig;
+  [NodeOptions.Secondary_Info]?: SecondaryInfoConfig;
+  [NodeOptions.Colours]?: ColoursConfig;
+};
+
+export interface OverridesConfig {
+  [OverridesOptions.Name]?: string;
+  [OverridesOptions.Icon]?: string;
+};
+
+export interface ColoursConfig {
+  [ColourOptions.Circle]?: ColourMode;
+  [ColourOptions.Circle_Colour]?: number[];
+  [ColourOptions.Flow_Export]?: ColourMode;
+  [ColourOptions.Flow_Export_Colour]?: number[];
+  [ColourOptions.Flow_Import]?: ColourMode;
+  [ColourOptions.Flow_Import_Colour]?: number[];
+  [ColourOptions.Icon]?: ColourMode;
+  [ColourOptions.Icon_Colour]?: number[];
+  [ColourOptions.Secondary]?: ColourMode;
+  [ColourOptions.Secondary_Colour]?: number[];
+  [ColourOptions.Value_Export]?: ColourMode;
+  [ColourOptions.Value_Import_Colour]?: number[];
+  [ColourOptions.Value_Import]?: ColourMode;
+  [ColourOptions.Value_Export_Colour]?: number[];
+};
+export interface EntityConfig {
+  [EntitiesOptions.Entity_Ids]?: string[];
 }
 
-export interface EntityConfigOptions {
-  name?: string;
-  icon?: string;
-  display_zero_tolerance?: number;
-  use_metadata?: boolean;
-  secondary_info?: SecondaryInfoType;
+export interface PowerOutageConfig {
+  [PowerOutageOptions.Entity_Id]?: string;
+  [PowerOutageOptions.Alert_State]?: string;
+  [PowerOutageOptions.Alert_Icon]?: string;
+};
+
+export interface SecondaryInfoConfig {
+  [SecondaryInfoOptions.Entity_Id]?: string;
+  [SecondaryInfoOptions.Unit_Position]?: UnitPosition;
+  [SecondaryInfoOptions.Display_Precision]?: number;
+  [SecondaryInfoOptions.Icon]?: string;
+};
+
+//================================================================================================================================================================================//
+
+export interface BatteryConfig extends NodeConfig {
+};
+
+export interface DeviceConfig extends NodeConfig {
+  [DeviceOptions.Name]?: string;
+  [DeviceOptions.Icon]?: string;
+  [DeviceOptions.Energy_Type]?: EnergyType;
+  [DeviceOptions.Energy_Direction]?: EnergyDirection;
+  [DeviceOptions.Subtract_From_Home]?: boolean;
+};
+
+export interface GasConfig extends NodeConfig {
+};
+
+export interface GridConfig extends NodeConfig {
+  [GridOptions.Power_Outage]?: PowerOutageConfig;
+};
+
+export interface HomeConfig extends NodeConfig {
+  [GlobalOptions.Options]?: HomeOptionsConfig;
+};
+
+export interface LowCarbonConfig extends NodeConfig {
+  [GlobalOptions.Options]?: LowCarbonOptionsConfig;
+};
+
+export interface SolarConfig extends NodeConfig {
+};
+
+//================================================================================================================================================================================//
+
+function isSupportedStateClass(hass: HomeAssistant, mode: DisplayMode, entityId: string = ""): boolean {
+  const stateClass: string = hass.states[entityId]?.attributes?.state_class || "";
+
+  if (mode === DisplayMode.Energy) {
+    return stateClass === StateClasses.Total || stateClass === StateClasses.Total_Increasing;
+  }
+
+  return stateClass === StateClasses.Measurement;
 }
 
-export interface ExtraConfigOptions extends EntityConfigOptions {
-  entity?: BasicEntity;
-  color?: string | number[];
-  color_icon?: boolean;
-  display_zero?: boolean;
-  color_value?: boolean;
-  color_label?: boolean;
-};
+//================================================================================================================================================================================//
 
-interface BidirectionalConfigOptions extends EntityConfigOptions {
-  entity?: ComboEntity;
-  invert_state?: boolean;
-  // TODO: not valid here, should be an array of string|number[], separate for consumption/production
-  color?: ComboEntity;
-  color_of_icon?: ColorMode;
-  color_of_circle?: ColorMode;
+export function isValidPrimaryEntity(hass: HomeAssistant, mode: DisplayMode, entityId: string = "", deviceClasses: string[]): boolean {
+  const deviceClass: string = hass.states[entityId]?.attributes?.device_class || DeviceClasses.None;
 
-  // @deprecated replaced by color_of_icon
-  color_icon?: any;
-  // @deprecated replaced by color_of_circle
-  color_circle?: any;
-};
+  if (deviceClass === DeviceClasses.None && deviceClasses.includes(deviceClass)) {
+    return true;
+  }
 
-export interface BatteryConfigEntity extends BidirectionalConfigOptions {
-  state_of_charge?: string;
-  state_of_charge_unit?: string;
-  state_of_charge_decimals?: number;
-  color_state_of_charge_value?: ColorMode;
+  if (mode === DisplayMode.Power) {
+    deviceClasses = [DeviceClasses.Power];
+  }
 
-  // @deprecated replaced by mainConfigOptions#unit_white_space
-  unit_white_space?: any;
-  // @deprecated replaced by mainConfigOptions#unit_white_space
-  state_of_charge_unit_white_space?: any;
-};
+  return isSupportedStateClass(hass, mode, entityId) && deviceClasses.includes(deviceClass);
+}
 
-export interface FossilFuelConfigEntity extends ExtraConfigOptions {
-  state_type?: 'percentage' | 'energy';
+//================================================================================================================================================================================//
 
-  // @deprecated replaced by mainConfigOptions#unit_white_space
-  unit_white_space?: any;
-};
+export function isValidSecondaryEntity(hass: HomeAssistant, mode: DisplayMode, entityId: string = ""): boolean {
+  return isSupportedStateClass(hass, mode, entityId);
+}
 
-export interface GridConfigEntity extends BidirectionalConfigOptions {
-  power_outage?: GridPowerOutage;
-};
-
-export interface HomeConfigEntity extends EntityConfigOptions {
-  entity?: BasicEntity;
-  override_state?: boolean;
-  subtract_individual?: boolean;
-  color_of_icon?: ColorMode;
-  color_of_value?: ColorMode;
-
-  // @deprecated replaced by color_of_icon
-  color_icon?: any;
-  // @deprecated replaced by color_of_value
-  color_value?: any;
-};
-
-export interface IndividualConfigEntity extends ExtraConfigOptions {
-  inverted_animation?: boolean;
-  show_direction?: boolean;
-
-  // @deprecated replaced by mainConfigOptions#unit_white_space
-  unit_white_space?: any;
-};
-
-export interface SolarConfigEntity extends EntityConfigOptions {
-  entity?: BasicEntity;
-  color?: string | number[];
-  color_icon?: boolean;
-  color_value?: boolean;
-  color_label?: boolean;
-};
-
-type GridPowerOutage = {
-  entity: string;
-  state_alert?: string;
-  label_alert?: string;
-  icon_alert?: string;
-};
-
-export type SecondaryInfoType = {
-  entity?: string;
-  unit_of_measurement?: string;
-  icon?: string;
-  display_zero?: boolean;
-  display_zero_tolerance?: number;
-  color_of_value?: ColorMode;
-  template?: string;
-  decimals?: number;
-
-  // @deprecated replaced by mainConfigOptions#unit_white_space
-  unit_white_space?: any;
-  // @deprecated replaced by color_of_value
-  color_value?: any;
-};
+//================================================================================================================================================================================//
