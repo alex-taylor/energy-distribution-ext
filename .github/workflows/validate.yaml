@@ -10,10 +10,12 @@ on:
 permissions: {}
 
 jobs:
-  validate-hacs:
+  hacs:
     runs-on: "ubuntu-latest"
     steps:
-      - name: HACS validation
+      - name: Checkout
+        uses: "actions/checkout@v4"
+      - name: Validate HACS
         uses: "hacs/action@main"
         with:
           category: "plugin"
