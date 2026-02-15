@@ -303,23 +303,7 @@ export class EntityStates {
     this._devices = deviceConfigs.flatMap((_, index) => new DeviceNode(hass, cardConfig, style, index));
 
     this._populateEntityArrays();
-
-    this._states.electricPresent = this.battery.isPresent || this.grid.isPresent || this.solar.isPresent;
-    this._states.gasPresent = this.gas.isPresent;
-
-    this.devices.forEach((device, index) => {
-      if (device.type === EnergyType.Electric) {
-        this._states.electricPresent = true;
-      } else {
-        this._states.gasPresent = true;
-      }
-
-      this._states.devicesElectric[index] = { export: 0, import: 0 };
-      this._states.devicesGas[index] = { export: 0, import: 0 };
-      this._states.devicesGasVolume[index] = { export: 0, import: 0 };
-      this._states.devicesSecondary[index] = 0;
-    });
-
+    this._clearStates();
     this._isConfigPresent = true;
   }
 
@@ -464,6 +448,62 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
+  private _clearStates(): void {
+    this._dataStatus = DataStatus.Unavailable;
+
+    this._states = {
+      electricPresent: this.battery.isPresent || this.grid.isPresent || this.solar.isPresent,
+      gasPresent: this.gas.isPresent,
+      largestElectricValue: 0,
+      largestGasValue: 0,
+      battery: { import: 0, export: 0 },
+      batterySecondary: 0,
+      gasImport: 0,
+      gasImportVolume: 0,
+      gasSecondary: 0,
+      grid: { import: 0, export: 0 },
+      gridSecondary: 0,
+      highCarbon: 0,
+      homeElectric: 0,
+      homeGas: 0,
+      homeGasVolume: 0,
+      homeSecondary: 0,
+      lowCarbon: 0,
+      lowCarbonPercentage: 0,
+      lowCarbonSecondary: 0,
+      solarImport: 0,
+      solarSecondary: 0,
+      devicesElectric: [],
+      devicesGas: [],
+      devicesGasVolume: [],
+      devicesSecondary: [],
+      flows: {
+        solarToHome: 0,
+        solarToGrid: 0,
+        solarToBattery: 0,
+        gridToHome: 0,
+        gridToBattery: 0,
+        batteryToHome: 0,
+        batteryToGrid: 0
+      }
+    };
+
+    this.devices.forEach((device, index) => {
+      if (device.type === EnergyType.Electric) {
+        this._states.electricPresent = true;
+      } else {
+        this._states.gasPresent = true;
+      }
+
+      this._states.devicesElectric[index] = { export: 0, import: 0 };
+      this._states.devicesGas[index] = { export: 0, import: 0 };
+      this._states.devicesGasVolume[index] = { export: 0, import: 0 };
+      this._states.devicesSecondary[index] = 0;
+    });
+  }
+
+  //================================================================================================================================================================================//
+
   private async _loadStatistics(periodStart: Date, periodEnd: Date): Promise<void> {
     if (this._primaryEntityIds.length !== 0 || this._secondaryEntityIds.length !== 0) {
       // if the new period follows directly on from the current one, do not set the 'requested' flag as this will cause the display to show "Loading...", which is unnecessary
@@ -502,6 +542,8 @@ export class EntityStates {
       let primaryDataProcessed: boolean = false;
       let secondaryDataProcessed: boolean = false;
 
+      this._clearStates();
+
       if (primaryData && Object.keys(primaryData).length !== 0) {
         this._prepStatistics(primaries, primaryData, previousPrimaryData, periodStart, periodEnd);
         this._primaryStatistics = primaryData;
@@ -521,7 +563,11 @@ export class EntityStates {
         this._dataStatus = DataStatus.Received;
       } else {
         LOGGER.debug(`Stats not available for period [${periodStart.toISOString()} - ${periodEnd.toISOString()}]`);
-        this._dataStatus = DataStatus.Unavailable;
+        const now: number = Date.now();
+
+        if (this._dateRangeLive && now >= periodStart.getTime() && now <= periodEnd.getTime()) {
+          this._dataStatus = DataStatus.Received;
+        }
       }
     }
 
