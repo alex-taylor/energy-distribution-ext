@@ -449,6 +449,10 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _clearStates(): void {
+    if (this._mode === DisplayMode.Power) {
+      return;
+    }
+
     this._dataStatus = DataStatus.Unavailable;
 
     this._states = {
