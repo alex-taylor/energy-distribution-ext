@@ -25,9 +25,10 @@ export function calculateDateRange(hass: HomeAssistant, range: DateRange): [Date
     case DateRange.Yesterday:
       return [startOfYesterday(), endOfYesterday()];
 
-    case DateRange.This_Week:
+    case DateRange.This_Week: {
       const weekStartsOn: Day = firstWeekdayIndex(hass.locale.language, hass.locale["first_weekday"]);
-      return [startOfWeek(today, { weekStartsOn }), endOfWeek(today, { weekStartsOn })];
+      return [startOfWeek(today, {weekStartsOn}), endOfWeek(today, {weekStartsOn})];
+    }
 
     case DateRange.This_Month:
       return [startOfMonth(today), endOfMonth(today)];

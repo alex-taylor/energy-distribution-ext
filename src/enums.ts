@@ -231,7 +231,7 @@ export enum DevicesLayout {
 
 //================================================================================================================================================================================//
 
-export function checkEnumValue(value: any, type: any): boolean {
+export function checkEnumValue(value: object, type: object): boolean {
   return Object.values(type).includes(value);
 }
 

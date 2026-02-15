@@ -78,7 +78,7 @@ To install:
 
 1. Download and copy `energy-distribution-ext.js` from the [latest release](https://github.com/alex-taylor/energy-distribution-ext/releases/latest) into your `config/www` directory.
 
-2. Add the resource reference as decribed below.
+2. Add the resource reference as described below.
 
 ### Add resource reference
 
@@ -93,7 +93,7 @@ resources:
 If you use the graphical editor, add the resource:
 
 1. Advanced mode must be enabled in [your user profile](http://home-assistant.local/profile)
-2. Navigate to Settings -> Dashboards
+2. Navigate to Settings → Dashboards
 3. Click three dot icon
 4. Select [Resources](http://home-assistant.local/config/lovelace/resources)
 5. Click the (+ Add Resource) button

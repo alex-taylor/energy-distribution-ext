@@ -1,5 +1,5 @@
 import { CSSResult, html, LitElement, nothing, PropertyValues, svg, TemplateResult } from "lit";
-import { HomeAssistant, LovelaceConfig, LovelaceViewConfig, Panel, round } from "custom-card-helpers";
+import { HomeAssistant, LovelaceConfig, LovelaceViewConfig, Panel } from "custom-card-helpers";
 import { Decimal } from "decimal.js";
 import { customElement, property, state } from "lit/decorators.js";
 import { getConfigValue, DEFAULT_CONFIG, getMinimalConfig, getConfigObjects } from "@/config/config";
@@ -15,7 +15,18 @@ import { UnsubscribeFunc } from "home-assistant-js-websocket";
 import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode, EnergyDirection, DisplayMode, DevicesLayout } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, HOMEPAGE, ICON_PADDING, POWER_UNITS } from "@/const";
-import { EnergyDistributionExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions } from "@/config";
+import {
+  EnergyDistributionExtConfig,
+  AppearanceOptions,
+  EditorPages,
+  GlobalOptions,
+  FlowsOptions,
+  EnergyUnitsOptions,
+  EnergyUnitsConfig,
+  HomeOptions,
+  LowCarbonOptions,
+  NodeConfig
+} from "@/config";
 import { getRangePresetName, renderDateRange } from "@/ui-helpers/date-fns";
 import { AnimationDurations, FlowLine, getGasSourcesMode } from "@/ui-helpers";
 import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight } from "@mdi/js";
@@ -597,7 +608,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     let css1To2Path: CssClass | undefined = undefined;
     let css2To1Path: CssClass | undefined = undefined;
     let css1To2Dot: CssClass = cssNode2Export;
-    let css2To1Dot: CssClass = cssNode1Export;
+    const css2To1Dot: CssClass = cssNode1Export;
 
     if (!active1To2 && !active2To1) {
       css1To2Path = css2To1Path = this._useHassStyles || (enabled1To2 && enabled2To1) ? CssClass.Inactive : enabled1To2 ? cssNode2Export : cssNode1Export;
@@ -641,7 +652,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _getFontSize(): number {
-    const dummy = this.shadowRoot?.ownerDocument.createElement("div")!;
+    const dummy: HTMLDivElement = this.shadowRoot!.ownerDocument.createElement("div")!;
     this.shadowRoot?.ownerDocument.body.append(dummy);
     dummy.style.height = "var(--ha-font-size-s)";
     const fontSize: number = dummy.getBoundingClientRect().height;
@@ -1038,7 +1049,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
     const entityStates: EntityStates = this._entityStates;
 
-    const dualPrimaries: Node<any>[] = [
+    const dualPrimaries: Node<NodeConfig>[] = [
       entityStates.battery,
       entityStates.grid,
       ...entityStates.devices
