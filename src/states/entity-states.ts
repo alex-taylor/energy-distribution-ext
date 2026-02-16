@@ -1,7 +1,17 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
 import { EnergyCollection, EnergyData, EnergyPreferences, EnergySource, Statistics, StatisticValue } from "@/hass";
-import { AppearanceOptions, DeviceConfig, DeviceOptions, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, HomeOptions } from "@/config";
+import {
+  AppearanceOptions,
+  DeviceConfig,
+  EditorPages,
+  EnergyDistributionExtConfig,
+  EnergyUnitsConfig,
+  EnergyUnitsOptions,
+  FlowsOptions,
+  GlobalOptions,
+  NodeConfig
+} from "@/config";
 import { BatteryNode } from "@/nodes/battery";
 import { GasNode } from "@/nodes/gas";
 import { HomeNode } from "@/nodes/home";
@@ -449,11 +459,9 @@ export class EntityStates {
   //================================================================================================================================================================================//
 
   private _clearStates(): void {
-    if (this._mode === DisplayMode.Power) {
-      return;
+    if (this._mode !== DisplayMode.Power) {
+      this._dataStatus = DataStatus.Unavailable;
     }
-
-    this._dataStatus = DataStatus.Unavailable;
 
     this._states = {
       electricPresent: this.battery.isPresent || this.grid.isPresent || this.solar.isPresent,
@@ -755,7 +763,7 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private _getSecondaryStatistic(node: Node<any>): number {
+  private _getSecondaryStatistic(node: Node<NodeConfig>): number {
     if (!node.secondary.isPresent) {
       return 0;
     }
@@ -829,13 +837,6 @@ export class EntityStates {
     const energyIn: number = fromGrid + fromSolar + fromBattery;
     const energyOut: number = toGrid + toBattery;
     let remaining: number = Math.max(0, energyIn - energyOut);
-    let solarToHome: number;
-    let gridToHome: number;
-    let gridToBattery: number;
-    let batteryToGrid: number;
-    let batteryToHome: number;
-    let solarToBattery: number;
-    let solarToGrid: number;
 
     if (this._isPowerOutage()) {
       fromGrid = 0;
@@ -843,32 +844,32 @@ export class EntityStates {
     }
 
     const excess: number = Math.max(0, Math.min(toBattery, fromGrid - remaining));
-    gridToBattery = excess;
+    let gridToBattery: number = excess;
     toBattery -= excess;
     fromGrid -= excess;
 
-    solarToBattery = Math.min(fromSolar, toBattery);
+    const solarToBattery: number = Math.min(fromSolar, toBattery);
     toBattery -= solarToBattery;
     fromSolar -= solarToBattery;
 
-    solarToGrid = Math.min(fromSolar, toGrid);
+    const solarToGrid: number = Math.min(fromSolar, toGrid);
     toGrid -= solarToGrid;
     fromSolar -= solarToGrid;
 
-    batteryToGrid = Math.min(fromBattery, toGrid);
+    const batteryToGrid: number = Math.min(fromBattery, toGrid);
     fromBattery -= batteryToGrid;
 
     const gridToBattery2: number = Math.min(fromGrid, toBattery);
     gridToBattery += gridToBattery2;
     fromGrid -= gridToBattery2;
 
-    solarToHome = Math.min(remaining, fromSolar);
+    const solarToHome: number = Math.min(remaining, fromSolar);
     remaining -= solarToHome;
 
-    batteryToHome = Math.min(fromBattery, remaining);
+    const batteryToHome: number = Math.min(fromBattery, remaining);
     remaining -= batteryToHome;
 
-    gridToHome = Math.min(remaining, fromGrid);
+    const gridToHome: number = Math.min(remaining, fromGrid);
 
     return {
       solarToHome: solarToHome,
