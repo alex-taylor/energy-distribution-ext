@@ -37,7 +37,8 @@ const ENERGY_DATA_POLL: number = 100;
 
 const Direction = {
   Normal: 0,
-  Reverse: 1
+  Reverse: 1,
+  Secondary: 2
 } as const;
 
 type Direction = typeof Direction[keyof typeof Direction];
@@ -370,12 +371,12 @@ export class EntityStates {
     const highCarbonDelta: number = this.lowCarbon.isPresent ? gridImportDelta * Number(this.hass.states[this.lowCarbon.firstImportEntity!].state) / 100 : 0;
     states.highCarbon += highCarbonDelta;
 
-    states.batterySecondary += this._getStateDelta(Direction.Normal, secondaryStatistics, this.battery.secondary.entity);
-    states.gasSecondary += this._getStateDelta(Direction.Normal, secondaryStatistics, this.gas.secondary.entity);
-    states.gridSecondary += this._getStateDelta(Direction.Normal, secondaryStatistics, this.grid.secondary.entity);
-    states.homeSecondary += this._getStateDelta(Direction.Normal, secondaryStatistics, this.home.secondary.entity);
-    states.lowCarbonSecondary += this._getStateDelta(Direction.Normal, secondaryStatistics, this.lowCarbon.secondary.entity);
-    states.solarSecondary += this._getStateDelta(Direction.Normal, secondaryStatistics, this.solar.secondary.entity);
+    states.batterySecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.battery.secondary.entity);
+    states.gasSecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.gas.secondary.entity);
+    states.gridSecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.grid.secondary.entity);
+    states.homeSecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.home.secondary.entity);
+    states.lowCarbonSecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.lowCarbon.secondary.entity);
+    states.solarSecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.solar.secondary.entity);
 
     const flowDeltas: Flows = this._calculateFlows(solarImportDelta, batteryImportDelta, batteryExportDelta, gridImportDelta, gridExportDelta);
     states.flows.batteryToGrid += flowDeltas.batteryToGrid;
@@ -415,7 +416,7 @@ export class EntityStates {
         } else {
           deltaSum = 0;
         }
-      } else if (deltaSum < 0) {
+      } else if (direction === Direction.Normal && deltaSum < 0) {
         deltaSum = 0;
       }
     } else {

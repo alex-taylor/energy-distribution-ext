@@ -177,7 +177,7 @@ export abstract class Node<T> {
       return localize("common.unavailable");
     }
 
-    if (isNaN(state) || state < 0) {
+    if (isNaN(state) || (this.mode === DisplayMode.Energy && state < 0)) {
       return localize("common.unknown");
     }
 
@@ -233,7 +233,7 @@ export abstract class Node<T> {
 
     const deviceClass: string | undefined = this.hass.states[entityId].attributes.device_class;
 
-    if (deviceClass === DeviceClasses.Energy) {
+    if (deviceClass === DeviceClasses.Energy || deviceClass === DeviceClasses.Power) {
       return this.renderEnergyState(state, this.electricUnits);
     }
 
@@ -358,7 +358,7 @@ export abstract class Node<T> {
 
   //================================================================================================================================================================================//
 
-  private _handleKeyDown(target: LitElement, entityId?: string): any {
+  private _handleKeyDown(target: LitElement, entityId?: string): object | undefined {
     if (!entityId) {
       return undefined;
     }
@@ -373,7 +373,7 @@ export abstract class Node<T> {
 
   //================================================================================================================================================================================//
 
-  private _handleClick(target: LitElement, entityId?: string): any {
+  private _handleClick(target: LitElement, entityId?: string): object | undefined {
     if (!entityId) {
       return undefined;
     }
@@ -386,7 +386,7 @@ export abstract class Node<T> {
 
   //================================================================================================================================================================================//
 
-  private _openDetails(target: LitElement, event: { stopPropagation: any; key?: string }, entityId?: string): void {
+  private _openDetails(target: LitElement, event: { stopPropagation: () => void; key?: string }, entityId?: string): void {
     event.stopPropagation();
 
     if (!entityId || !this._clickableEntities) {
