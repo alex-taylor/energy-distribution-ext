@@ -35,12 +35,12 @@ export abstract class Node<T> {
   public get name(): string {
     return this._name || this.defaultName;
   }
-  private _name?: string;
+  private readonly _name?: string;
 
   public get icon(): string {
     return this._icon || this.defaultIcon;
   }
-  private _icon?: string;
+  private readonly _icon?: string;
 
   protected readonly cardConfigs: EnergyDistributionExtConfig[];
   protected readonly nodeConfigs: T[];
@@ -58,15 +58,15 @@ export abstract class Node<T> {
   protected abstract readonly defaultName: string;
   protected abstract readonly defaultIcon: string;
 
-  private _showZeroStates: boolean;
-  private _clickableEntities: boolean;
-  private _energyUnitPosition: UnitPosition;
-  private _prefixThreshold: Decimal;
-  private _displayPrecisionUnder10: number;
-  private _displayPrecisionUnder100: number;
-  private _displayPrecision: number;
-  private _inactiveFlowsMode: InactiveFlowsMode;
-  private _scale: Scale;
+  private readonly _showZeroStates: boolean;
+  private readonly _clickableEntities: boolean;
+  private readonly _energyUnitPosition: UnitPosition;
+  private readonly _prefixThreshold: Decimal;
+  private readonly _displayPrecisionUnder10: number;
+  private readonly _displayPrecisionUnder100: number;
+  private readonly _displayPrecision: number;
+  private readonly _inactiveFlowsMode: InactiveFlowsMode;
+  private readonly _scale: Scale;
 
   //================================================================================================================================================================================//
 

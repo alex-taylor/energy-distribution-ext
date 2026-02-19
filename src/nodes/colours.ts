@@ -23,10 +23,10 @@ export class Colours {
   public readonly importFlow: string;
   public readonly exportFlow: string;
 
-  private _config: ColoursConfig[];
-  private _direction: EnergyDirection;
-  private _defaultImportColour: string
-  private _defaultExportColour: string
+  private readonly _config: ColoursConfig[];
+  private readonly _direction: EnergyDirection;
+  private readonly _defaultImportColour: string
+  private readonly _defaultExportColour: string
 
   //================================================================================================================================================================================//
 

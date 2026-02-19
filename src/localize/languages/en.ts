@@ -4,6 +4,7 @@ import { HELPTEXT_SUFFIX } from "@/const";
 
 //================================================================================================================================================================================//
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   "common": {
     "go_to_dashboard": "Go to the {title} dashboard",

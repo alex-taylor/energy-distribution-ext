@@ -116,6 +116,7 @@ export class DateRangePicker extends LitElement {
 //================================================================================================================================================================================//
 
 declare global {
+  // noinspection JSUnusedGlobalSymbols
   interface HASSDomEvents {
     "date-range-changed": {
       range: DateRange;

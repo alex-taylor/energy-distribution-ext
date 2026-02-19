@@ -20,7 +20,7 @@ export class BatteryNode extends Node<BatteryConfig> {
   protected readonly defaultName: string = localize("EditorPages.battery");
   protected readonly defaultIcon: string = "mdi:battery-high";
 
-  private _circleMode: ColourMode;
+  private readonly _circleMode: ColourMode;
 
   //================================================================================================================================================================================//
 

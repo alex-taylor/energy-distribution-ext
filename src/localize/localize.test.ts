@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { AppearanceOptions } from "../config";
+import { AppearanceOptions } from "@/config";
 import { localize } from "./localize";
 
 const KEY: string = "key";

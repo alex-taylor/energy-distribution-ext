@@ -18,7 +18,7 @@ export class SolarNode extends Node<SolarConfig> {
   protected readonly defaultName: string = localize("EditorPages.solar");
   protected readonly defaultIcon: string = "mdi:solar-power";
 
-  private _circleMode: ColourMode;
+  private readonly _circleMode: ColourMode;
 
   //================================================================================================================================================================================//
 

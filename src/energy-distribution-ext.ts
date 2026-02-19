@@ -253,6 +253,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
     const padding: number = this._getPropertyValue("ha-card", "--ha-space-4");
     const width: number = this._getPropertyValue("ha-card", "width") - padding * 2;
+    // noinspection JSIgnoredPromiseFromCall
     this._getDashboardTitle(this._dashboardLink);
 
     if (this._animationMode === AnimationMode.System_Setting) {

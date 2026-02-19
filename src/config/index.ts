@@ -4,6 +4,7 @@ import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, Unit
 //================================================================================================================================================================================//
 
 declare global {
+  // noinspection JSUnusedGlobalSymbols
   interface HTMLElementTagNameMap {
     "hui-error-card": LovelaceCard;
   }
@@ -208,7 +209,7 @@ export interface AppearanceConfig {
   [GlobalOptions.Options]?: AppearanceOptionsConfig;
   [AppearanceOptions.Energy_Units]?: EnergyUnitsConfig;
   [AppearanceOptions.Flows]?: FlowsConfig;
-};
+}
 
 export interface AppearanceOptionsConfig {
   [AppearanceOptions.Dashboard_Link]?: string;
@@ -217,7 +218,7 @@ export interface AppearanceOptionsConfig {
   [AppearanceOptions.Clickable_Entities]?: boolean;
   [AppearanceOptions.Segment_Gaps]?: boolean;
   [AppearanceOptions.Use_HASS_Style]?: boolean;
-};
+}
 
 export interface EnergyUnitsConfig {
   [EnergyUnitsOptions.Electric_Units]?: EnergyUnits;
@@ -230,23 +231,23 @@ export interface EnergyUnitsConfig {
   [EnergyUnitsOptions.Display_Precision_Default]?: number;
   [EnergyUnitsOptions.Prefix_Threshold]?: number | string;
   [EnergyUnitsOptions.Gas_Calorific_Value]?: number;
-};
+}
 
 export interface FlowsConfig {
   [FlowsOptions.Use_Hourly_Stats]?: boolean;
   [FlowsOptions.Animation]?: AnimationMode;
   [FlowsOptions.Inactive_Flows]?: InactiveFlowsMode;
   [FlowsOptions.Scale]?: Scale;
-};
+}
 
 export interface LowCarbonOptionsConfig {
   [LowCarbonOptions.Low_Carbon_Mode]?: LowCarbonDisplayMode;
-};
+}
 
 export interface HomeOptionsConfig {
   [HomeOptions.Gas_Sources]?: GasSourcesMode;
   [HomeOptions.Gas_Sources_Threshold]?: number;
-};
+}
 
 export interface NodeConfig {
   [NodeOptions.Export_Entities]?: EntityConfig;
@@ -255,12 +256,12 @@ export interface NodeConfig {
   [NodeOptions.Overrides]?: OverridesConfig;
   [NodeOptions.Secondary_Info]?: SecondaryInfoConfig;
   [NodeOptions.Colours]?: ColoursConfig;
-};
+}
 
 export interface OverridesConfig {
   [OverridesOptions.Name]?: string;
   [OverridesOptions.Icon]?: string;
-};
+}
 
 export interface ColoursConfig {
   [ColourOptions.Circle]?: ColourMode;
@@ -277,7 +278,8 @@ export interface ColoursConfig {
   [ColourOptions.Value_Import_Colour]?: number[];
   [ColourOptions.Value_Import]?: ColourMode;
   [ColourOptions.Value_Export_Colour]?: number[];
-};
+}
+
 export interface EntityConfig {
   [EntitiesOptions.Entity_Ids]?: string[];
 }
@@ -286,19 +288,19 @@ export interface PowerOutageConfig {
   [PowerOutageOptions.Entity_Id]?: string;
   [PowerOutageOptions.Alert_State]?: string;
   [PowerOutageOptions.Alert_Icon]?: string;
-};
+}
 
 export interface SecondaryInfoConfig {
   [SecondaryInfoOptions.Entity_Id]?: string;
   [SecondaryInfoOptions.Unit_Position]?: UnitPosition;
   [SecondaryInfoOptions.Display_Precision]?: number;
   [SecondaryInfoOptions.Icon]?: string;
-};
+}
 
 //================================================================================================================================================================================//
 
 export interface BatteryConfig extends NodeConfig {
-};
+}
 
 export interface DeviceConfig extends NodeConfig {
   [DeviceOptions.Name]?: string;
@@ -306,25 +308,25 @@ export interface DeviceConfig extends NodeConfig {
   [DeviceOptions.Energy_Type]?: EnergyType;
   [DeviceOptions.Energy_Direction]?: EnergyDirection;
   [DeviceOptions.Subtract_From_Home]?: boolean;
-};
+}
 
 export interface GasConfig extends NodeConfig {
-};
+}
 
 export interface GridConfig extends NodeConfig {
   [GridOptions.Power_Outage]?: PowerOutageConfig;
-};
+}
 
 export interface HomeConfig extends NodeConfig {
   [GlobalOptions.Options]?: HomeOptionsConfig;
-};
+}
 
 export interface LowCarbonConfig extends NodeConfig {
   [GlobalOptions.Options]?: LowCarbonOptionsConfig;
-};
+}
 
 export interface SolarConfig extends NodeConfig {
-};
+}
 
 //================================================================================================================================================================================//
 

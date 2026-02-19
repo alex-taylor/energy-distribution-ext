@@ -21,7 +21,7 @@ export class DeviceNode extends Node<DeviceConfig> {
   protected readonly defaultName: string;
   protected readonly defaultIcon: string;
 
-  private _index: number;
+  private readonly _index: number;
 
   //================================================================================================================================================================================//
 

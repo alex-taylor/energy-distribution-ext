@@ -162,19 +162,19 @@ export class EntityStates {
     }
   };
 
-  private _mode: DisplayMode;
-  private _dateRange: DateRange;
-  private _dateRangeLive: boolean;
+  private readonly _mode: DisplayMode;
+  private readonly _dateRange: DateRange;
+  private readonly _dateRangeLive: boolean;
   private _primaryEntityIds: string[] = [];
   private _secondaryEntityIds: string[] = [];
   private _primaryStatistics?: Statistics;
   private _secondaryStatistics?: Statistics;
   private _co2data?: Record<string, number>;
-  private _energyUnits: string;
-  private _gasUnits: string;
-  private _volumeUnits: string;
-  private _gasCalorificValue: number;
-  private _useHourlyStats: boolean;
+  private readonly _energyUnits: string;
+  private readonly _gasUnits: string;
+  private readonly _volumeUnits: string;
+  private readonly _gasCalorificValue: number;
+  private readonly _useHourlyStats: boolean;
 
   //================================================================================================================================================================================//
 
@@ -249,7 +249,7 @@ export class EntityStates {
 
       return new Promise<EnergyCollection>(getEnergyDataCollectionPoll)
         .then(async (collection: EnergyCollection) => collection.subscribe(async (data: EnergyData) => {
-          this._loadStatistics(data.start, data.end || endOfToday());
+          await this._loadStatistics(data.start, data.end || endOfToday());
         }))
         .catch(err => {
           LOGGER.debug(err);

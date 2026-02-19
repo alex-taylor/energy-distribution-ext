@@ -8,6 +8,7 @@ import { property } from "lit/decorators.js";
 
 
 //================================================================================================================================================================================//
+// noinspection JSUnusedGlobalSymbols
 export interface HassSubscribeElement {
   hassSubscribe(): UnsubscribeFunc[];
 }
@@ -21,11 +22,13 @@ export function SubscribeMixin<T extends Constructor<ReactiveElement>>(superClas
     @property({ attribute: false }) public hass?: HomeAssistant;
     private __unsubs?: Array<UnsubscribeFunc | Promise<UnsubscribeFunc>>;
 
+    // noinspection JSUnusedGlobalSymbols
     public connectedCallback() {
       super.connectedCallback();
       this.__checkSubscribed();
     }
 
+    // noinspection JSUnusedGlobalSymbols
     public disconnectedCallback() {
       super.disconnectedCallback();
       this.hassUnsubscribe();

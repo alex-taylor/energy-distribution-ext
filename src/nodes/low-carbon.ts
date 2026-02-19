@@ -21,7 +21,7 @@ export class LowCarbonNode extends Node<LowCarbonConfig> {
   protected readonly defaultName: string = localize("common.low_carbon");
   protected readonly defaultIcon: string = "mdi:leaf";
 
-  private _displayMode: LowCarbonDisplayMode;
+  private readonly _displayMode: LowCarbonDisplayMode;
 
   //================================================================================================================================================================================//
 

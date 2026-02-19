@@ -22,7 +22,7 @@ export class HomeNode extends Node<HomeConfig> {
   protected readonly defaultName: string = localize("EditorPages.home");
   protected readonly defaultIcon: string = "mdi:home";
 
-  private _circleMode: ColourMode;
+  private readonly _circleMode: ColourMode;
 
   //================================================================================================================================================================================//
 

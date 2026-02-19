@@ -27,7 +27,7 @@ export class GridNode extends Node<GridConfig> {
   protected readonly defaultName: string = localize("EditorPages.grid");
   protected readonly defaultIcon: string = "mdi:transmission-tower";
 
-  private _circleMode: ColourMode;
+  private readonly _circleMode: ColourMode;
 
   //================================================================================================================================================================================//
 

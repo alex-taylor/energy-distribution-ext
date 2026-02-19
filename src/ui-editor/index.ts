@@ -43,7 +43,7 @@ export enum Status {
   Valid,
   Warnings,
   Errors
-};
+}
 
 export const STATUS_ICONS: string[] = ["", "mdi:check-circle", "mdi:alert", "mdi:alert-octagon"];
 export const STATUS_CLASSES: string[] = ["", "page-valid", "page-warning", "page-error"];
