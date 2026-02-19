@@ -13,7 +13,7 @@ const DEFAULT_LANGUAGE: string = "en";
 function getTranslatedString(key: string, lang: string): string | undefined {
   try {
     return key.split(".").reduce((o, i) => (o as Record<string, unknown>)[i], (LANGUAGES[lang] as any).default) as string;
-  } catch (_) {
+  } catch {
     return undefined;
   }
 }
@@ -21,7 +21,7 @@ function getTranslatedString(key: string, lang: string): string | undefined {
 //================================================================================================================================================================================//
 
 export function localize(key: string, fallback: string | undefined = undefined): string {
-  const lang: string = (localStorage.getItem("selectedLanguage") || DEFAULT_LANGUAGE).replace(/['"]+/g, "").replace("-", "_");;
+  const lang: string = (localStorage.getItem("selectedLanguage") || DEFAULT_LANGUAGE).replace(/['"]+/g, "").replace("-", "_");
   let translated: string | undefined = getTranslatedString(key, lang);
 
   if (!translated) {

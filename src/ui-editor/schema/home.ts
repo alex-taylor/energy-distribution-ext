@@ -65,7 +65,7 @@ export const homeSchema = memoizeOne((config: EnergyDistributionExtConfig, mode:
 
 //================================================================================================================================================================================//
 
-const dynamicHomeOptionsSchema = memoizeOne((schemaConfig: HomeConfig): {} => {
+const dynamicHomeOptionsSchema = memoizeOne((schemaConfig: HomeConfig): object => {
   if (getConfigValue([schemaConfig, DEFAULT_HOME_CONFIG], [GlobalOptions.Options, HomeOptions.Gas_Sources]) !== GasSourcesMode.Automatic) {
     return {};
   }

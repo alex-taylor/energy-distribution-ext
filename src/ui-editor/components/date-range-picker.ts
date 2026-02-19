@@ -22,7 +22,7 @@ export class DateRangePicker extends LitElement {
   public endDate?: Date;
 
   private _lastSelectedPreset: DateRange = DateRange.Custom;
-  private _ranges: {} = {};
+  private _ranges: object = {};
   @property() private _label: string = "";
 
   //================================================================================================================================================================================//
@@ -94,6 +94,7 @@ export class DateRangePicker extends LitElement {
   //================================================================================================================================================================================//
 
   static get styles(): CSSResultGroup {
+    // noinspection CssUnresolvedCustomProperty,CssUnusedSymbol
     return [
       css`
         .control {

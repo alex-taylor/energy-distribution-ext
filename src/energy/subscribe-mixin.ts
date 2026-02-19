@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
   Copied from https://github.com/home-assistant/frontend/blob/master/src/mixins/subscribe-mixin.ts
 */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { HomeAssistant } from "custom-card-helpers";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
 import { PropertyValues, ReactiveElement } from "lit";
@@ -14,7 +12,6 @@ export interface HassSubscribeElement {
   hassSubscribe(): UnsubscribeFunc[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Constructor<T = any> = new (...args: any[]) => T;
 
 //================================================================================================================================================================================//

@@ -187,7 +187,7 @@ export const singleValueNodeSchema = memoizeOne((schemaConfig: NodeConfig, mode:
 
 //================================================================================================================================================================================//
 
-export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, page: EditorPages, isSolarNode: boolean = false): {} => {
+export const singleValueColourSchema = memoizeOne((schemaConfig: NodeConfig, page: EditorPages, isSolarNode: boolean = false): object => {
   return {
     key: NodeOptions,
     name: NodeOptions.Colours,
@@ -337,7 +337,7 @@ export const colourSchema = memoizeOne((config: NodeConfig, page: EditorPages | 
 
 //================================================================================================================================================================================//
 
-export const secondaryInfoSchema = memoizeOne((secondaryEntities: string[]): {} => {
+export const secondaryInfoSchema = memoizeOne((secondaryEntities: string[]): object => {
   return {
     key: NodeOptions,
     name: NodeOptions.Secondary_Info,
@@ -359,13 +359,13 @@ export const secondaryInfoSchema = memoizeOne((secondaryEntities: string[]): {} 
 
 //================================================================================================================================================================================//
 
-const displayPrecisionSelector = memoizeOne((): {} => {
+const displayPrecisionSelector = memoizeOne((): object=> {
   return { number: { mode: SelectorModes.Box, min: 0, max: 3, step: 1, unit_of_measurement: "dp" } };
 });
 
 //================================================================================================================================================================================//
 
-export const dropdownSelector = memoizeOne((type: any, page?: EditorPages): {} => {
+export const dropdownSelector = memoizeOne((type: any, page?: EditorPages): object => {
   return { select: { mode: SelectorModes.Dropdown, options: getDropdownValues(type, [], page) } };
 });
 

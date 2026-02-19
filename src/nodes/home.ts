@@ -163,7 +163,7 @@ export class HomeNode extends Node<HomeConfig> {
 
     const flows: Flows = states.flows;
 
-    const electricSources: {} = {
+    const electricSources: object = {
       battery: {
         value: flows.batteryToHome,
         colour: "var(--flow-import-battery-color)"
@@ -192,7 +192,7 @@ export class HomeNode extends Node<HomeConfig> {
     const electricLargestSource: string = Object.keys(electricSources).reduce((a, b) => electricSources[a].value > electricSources[b].value ? a : b);
     const electricLargestColour: string = electricSources[electricLargestSource].colour;
 
-    const gasSources: {} = {
+    const gasSources: object = {
       gas: {
         value: states.gasImport,
         colour: "var(--flow-gas-color)"

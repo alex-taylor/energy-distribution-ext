@@ -12,12 +12,7 @@ import { name } from '../../package.json';
 //================================================================================================================================================================================//
 
 export const DEFAULT_CONFIG: EnergyDistributionExtConfig = getDefaultConfig(0, undefined);
-export const DEFAULT_GAS_CONFIG: GasConfig = getDefaultGasConfig()!;
-export const DEFAULT_SOLAR_CONFIG: SolarConfig = getDefaultSolarConfig()!;
-export const DEFAULT_LOW_CARBON_CONFIG: LowCarbonConfig = getDefaultLowCarbonConfig();
 export const DEFAULT_HOME_CONFIG: HomeConfig = getDefaultHomeConfig();
-export const DEFAULT_BATTERY_CONFIG: BatteryConfig = getDefaultBatteryConfig();
-export const DEFAULT_GRID_CONFIG: GridConfig = getDefaultGridConfig();
 export const DEFAULT_SECONDARY_INFO_CONFIG: SecondaryInfoConfig = getDefaultSecondaryInfoConfig();
 export const DEFAULT_DEVICE_CONFIG: DeviceConfig = getDefaultDeviceConfig([], []);
 
@@ -39,7 +34,7 @@ export function getConfigValue<T>(configs: any[] | any, path: string[] | string,
   }
 
   for (let c: number = 0; c < configs.length; c++) {
-    let obj = configs[c];
+    let obj: any = configs[c];
 
     if (obj !== undefined) {
       for (let n: number = 0; n < path.length; n++) {

@@ -157,7 +157,7 @@ export class DevicesEditor extends LitElement {
 
   //================================================================================================================================================================================//
 
-  private _validateConfig(config: DeviceConfig): {} {
+  private _validateConfig(config: DeviceConfig): object {
     if (!config) {
       return {};
     }
@@ -281,6 +281,7 @@ export class DevicesEditor extends LitElement {
   //================================================================================================================================================================================//
 
   static get styles(): CSSResultGroup {
+    // noinspection CssInvalidHtmlTagReference,CssUnusedSymbol
     return [
       css`
         ha-form {
