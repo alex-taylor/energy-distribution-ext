@@ -12,7 +12,7 @@ Under consideration
       - this leaves a problem: it removes user settings which should be reinstated if they switch between modes with the dialog still open
       - so:
         - before pruning, if the mode of the new config has changed (compare to this._config):
-          -copy the relevant mode-specific fields from this._last<mode>Config to the new config
+          - copy the relevant mode-specific fields from this._last<mode>Config to the new config
             - for Energy, these are:
               - import_entities / export_entities on battery/gas/grid/solar/devices
               - date-range settings
@@ -52,7 +52,6 @@ Under consideration
 Before release
 --------------
 
-  - look into better default colours for devices which work in both light and dark modes
   - README and CHANGELOG updates
   - unit-testing
   - reinstate terser in rollup.config.js

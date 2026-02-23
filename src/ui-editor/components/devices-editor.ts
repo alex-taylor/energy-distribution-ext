@@ -23,7 +23,7 @@ import { name } from '../../../package.json';
 
 const DEVICE_COLOURS = [
   // yellow
-  [0xFF, 0xFF, 0x00],
+  [0xEE, 0xCC, 0x4B],
   // dodger blue
   [0x1E, 0x90, 0xFF],
   // chocolate
