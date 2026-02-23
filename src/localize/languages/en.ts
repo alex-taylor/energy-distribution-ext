@@ -28,6 +28,8 @@ export default {
     "go_back": "Go Back",
     "invalid_primary_entity": "is not an energy sensor of type Total or Total_Increasing",
     "invalid_secondary_entity": "is not of type Total or Total_Increasing",
+    "load_default_config": "Load default config",
+    "load_showroom_config": "Load showroom config",
     "missing_entity": "Entity must be specified",
     "next": "Next",
     "previous": "Previous",

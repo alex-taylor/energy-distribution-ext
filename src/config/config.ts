@@ -76,6 +76,63 @@ export function getMinimalConfig(hass: HomeAssistant | undefined): EnergyDistrib
 
 //================================================================================================================================================================================//
 
+export function getShowroomConfig(hass: HomeAssistant | undefined): EnergyDistributionExtConfig {
+  return {
+    ...getMinimalConfig(hass),
+    [GlobalOptions.Date_Range_Live]: true,
+    [EditorPages.Appearance]: {
+      ...getDefaultAppearanceConfig(),
+      [GlobalOptions.Options]: {
+        [AppearanceOptions.Clickable_Entities]: true,
+        [AppearanceOptions.Segment_Gaps]: true,
+        [AppearanceOptions.Use_HASS_Style]: false
+      },
+      [AppearanceOptions.Energy_Units]: {
+        [EnergyUnitsOptions.Electric_Unit_Prefixes]: UnitPrefixes.Individual,
+        [EnergyUnitsOptions.Gas_Units]: VolumeUnits.Same_As_Electric,
+        [EnergyUnitsOptions.Gas_Unit_Prefixes]: UnitPrefixes.Individual
+      },
+      [AppearanceOptions.Flows]: {
+        [FlowsOptions.Use_Hourly_Stats]: true,
+        [FlowsOptions.Animation]: AnimationMode.System_Setting,
+        [FlowsOptions.Inactive_Flows]: InactiveFlowsMode.Dimmed
+      }
+    },
+    [EditorPages.Battery]: {
+      ...getDefaultBatteryConfig(),
+      [NodeOptions.Colours]: {
+        [ColourOptions.Circle]: ColourMode.Dynamic
+      }
+    },
+    [EditorPages.Grid]: {
+      ...getDefaultGridConfig(),
+      [NodeOptions.Colours]: {
+        [ColourOptions.Circle]: ColourMode.Dynamic
+      }
+    },
+    [EditorPages.Home]: {
+      ...getDefaultHomeConfig(),
+      [GlobalOptions.Options]: {
+        [HomeOptions.Gas_Sources]: GasSourcesMode.Show_Separately
+      }
+    },
+    [EditorPages.Low_Carbon]: {
+      ...getDefaultLowCarbonConfig(),
+      [GlobalOptions.Options]: {
+        [LowCarbonOptions.Low_Carbon_Mode]: LowCarbonDisplayMode.Both
+      }
+    },
+    [EditorPages.Solar]: {
+      ...getDefaultSolarConfig(),
+      [NodeOptions.Colours]: {
+        [ColourOptions.Circle]: ColourMode.Dynamic
+      }
+    }
+  };
+}
+
+//================================================================================================================================================================================//
+
 function getDefaultConfig(numDevices: number, hass: HomeAssistant | undefined): EnergyDistributionExtConfig {
   return {
     ...getMinimalConfig(hass),

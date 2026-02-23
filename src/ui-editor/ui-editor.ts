@@ -1,65 +1,35 @@
-import {LitElement, css, html, nothing, TemplateResult, CSSResultGroup} from 'lit';
-import {customElement, state} from 'lit/decorators.js';
-import {fireEvent, HomeAssistant, LovelaceCardEditor} from 'custom-card-helpers';
-import {assert} from 'superstruct';
-import {
-  EditorPages,
-  EnergyDistributionExtConfig,
-  NodeOptions,
-  EntitiesOptions,
-  GlobalOptions,
-  SecondaryInfoOptions,
-  DeviceConfig,
-  isValidSecondaryEntity
-} from '@/config';
-import {appearanceSchema, dateRangeSchema, generalConfigSchema} from './schema';
-import {localize} from '@/localize/localize';
-import {gridSchema} from './schema/grid';
-import {solarSchema} from './schema/solar';
-import {batterySchema} from './schema/battery';
-import {lowCarbonSchema} from './schema/low-carbon';
-import {homeSchema} from './schema/home';
-import {gasSchema} from './schema/gas';
+import { LitElement, css, html, nothing, TemplateResult, CSSResultGroup } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
+import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
+import { assert } from 'superstruct';
+import { EditorPages, EnergyDistributionExtConfig, NodeOptions, EntitiesOptions, GlobalOptions, SecondaryInfoOptions, DeviceConfig, isValidSecondaryEntity } from '@/config';
+import { appearanceSchema, dateRangeSchema, generalConfigSchema } from './schema';
+import { localize } from '@/localize/localize';
+import { gridSchema } from './schema/grid';
+import { solarSchema } from './schema/solar';
+import { batterySchema } from './schema/battery';
+import { lowCarbonSchema } from './schema/low-carbon';
+import { homeSchema } from './schema/home';
+import { gasSchema } from './schema/gas';
 import "./components/date-range-picker";
 import "./components/page-header";
 import "./components/devices-editor";
-import {cardConfigStruct} from '@/config/validation';
-import {
-  computeHelperCallback,
-  computeLabelCallback,
-  getStatusIcon,
-  Status,
-  STATUS_CLASSES,
-  STATUS_ICONS,
-  validatePrimaryEntities,
-  validateSecondaryEntity
-} from '.';
-import {
-  getDefaultLowCarbonConfig,
-  getDefaultAppearanceConfig,
-  getDefaultGridConfig,
-  getDefaultGasConfig,
-  getDefaultSolarConfig,
-  getDefaultBatteryConfig,
-  getDefaultHomeConfig,
-  getCo2SignalEntity,
-  getConfigValue,
-  populateConfigDefaults,
-  removeConfigDefaults
-} from '@/config/config';
-import {GasNode} from '@/nodes/gas';
-import {getEnergyDataCollection} from '@/energy';
-import {GridNode} from '@/nodes/grid';
-import {SolarNode} from '@/nodes/solar';
-import {BatteryNode} from '@/nodes/battery';
-import {LowCarbonNode} from '@/nodes/low-carbon';
-import {HomeNode} from '@/nodes/home';
-import {DeviceNode} from '@/nodes/device';
-import {DateRange, DisplayMode, ELECTRIC_ENTITY_CLASSES, GAS_ENTITY_CLASSES} from '@/enums';
-import {endOfToday, formatDate, startOfToday} from 'date-fns';
-import {EntityRegistryEntry} from '@/hass';
-import {Node} from '@/nodes/node';
-import {name} from '../../package.json';
+import { cardConfigStruct } from '@/config/validation';
+import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from '.';
+import { getDefaultLowCarbonConfig, getDefaultAppearanceConfig, getDefaultGridConfig, getDefaultGasConfig, getDefaultSolarConfig, getDefaultBatteryConfig, getDefaultHomeConfig, getCo2SignalEntity, getConfigValue, populateConfigDefaults, removeConfigDefaults, getMinimalConfig, getShowroomConfig } from '@/config/config';
+import { GasNode } from '@/nodes/gas';
+import { getEnergyDataCollection } from '@/energy';
+import { GridNode } from '@/nodes/grid';
+import { SolarNode } from '@/nodes/solar';
+import { BatteryNode } from '@/nodes/battery';
+import { LowCarbonNode } from '@/nodes/low-carbon';
+import { HomeNode } from '@/nodes/home';
+import { DeviceNode } from '@/nodes/device';
+import { DateRange, DisplayMode, ELECTRIC_ENTITY_CLASSES, GAS_ENTITY_CLASSES } from '@/enums';
+import { endOfToday, formatDate, startOfToday } from 'date-fns';
+import { EntityRegistryEntry } from '@/hass';
+import { Node } from '@/nodes/node';
+import { name } from '../../package.json';
 
 //================================================================================================================================================================================//
 
@@ -98,7 +68,7 @@ const CONFIG_PAGES: {
   page: EditorPages;
   icon: string;
   schema?: (config: any, mode: DisplayMode, secondaries: string[]) => any[];
-  createConfig?;
+  createConfig: () => any;
   statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant) => Status;
 }[] = [
   {
@@ -165,7 +135,7 @@ const CONFIG_PAGES: {
     },
     statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => {
       const deviceConfigs: DeviceConfig[] = getConfigValue(cardConfig, EditorPages.Devices);
-      return deviceConfigs?.map((device, index) => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Devices, index)!, ELECTRIC_ENTITY_CLASSES, true, true)).reduce((previous, current) => current > previous ? current : previous, Status.NotConfigured) || Status.NotConfigured
+      return deviceConfigs?.map((_device, index) => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Devices, index)!, ELECTRIC_ENTITY_CLASSES, true, true)).reduce((previous, current) => current > previous ? current : previous, Status.NotConfigured) || Status.NotConfigured
     }
   }
 ];
@@ -213,7 +183,7 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
       const icon: string | undefined = CONFIG_PAGES.find((page) => page.page === currentConfigPage)?.icon;
 
       if (!config[currentConfigPage]) {
-        config[currentConfigPage] = CONFIG_PAGES.find(page => page.page === currentConfigPage)?.createConfig();
+        config[currentConfigPage] = CONFIG_PAGES.find(page => page.page === currentConfigPage)!.createConfig();
       }
 
       const configForPage: any = config[currentConfigPage];
@@ -257,6 +227,22 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
 
     return html`
       <div class="card-config">
+
+        <div class="defaults-container">
+          <ha-control-button class="page-link" @click=${this._onLoadDefaultConfig}>
+            <div class="defaults-label">
+              ${localize("editor.load_default_config")}
+            </div>
+          </ha-control-button>
+          <ha-control-button class="page-link" @click=${this._onLoadShowroomConfig}>
+            <div class="defaults-label">
+              ${localize("editor.load_showroom_config")}
+            </div>
+          </ha-control-button>
+        </div>
+
+        <hr/>
+
         <ha-form
           .hass=${this.hass}
           .data=${config}
@@ -268,10 +254,10 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
 
         ${mode === DisplayMode.Energy
           ? html`
-            <hr width="100%"/>
+            <hr/>
 
             <div class="date-picker">
-              <p class="primary">${computeLabelCallback({key: GlobalOptions, name: GlobalOptions.Date_Range})}</p>
+              <p class="primary">${computeLabelCallback({ key: GlobalOptions, name: GlobalOptions.Date_Range })}</p>
               <energy-distribution-ext-date-range-picker
                 class="date-picker-control"
                 .hass=${this.hass}
@@ -292,7 +278,7 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
               @value-changed=${this._onValueChanged}
             ></ha-form>
 
-            <hr width="100%"/>
+            <hr/>
           `
           : nothing}
 
@@ -372,7 +358,7 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
       };
     }
 
-    fireEvent(this, "config-changed", {config: this._cleanupConfig(config)});
+    fireEvent(this, "config-changed", { config: this._cleanupConfig(config) });
   }
 
   //================================================================================================================================================================================//
@@ -393,7 +379,31 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
       };
     }
 
-    fireEvent(this, "config-changed", {config: this._cleanupConfig(config)});
+    fireEvent(this, "config-changed", { config: this._cleanupConfig(config) });
+  }
+
+  //================================================================================================================================================================================//
+
+  private _onLoadDefaultConfig(ev: any): void {
+    ev.stopPropagation();
+
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    fireEvent(this, "config-changed", { config: getMinimalConfig(this.hass) });
+  }
+
+  //================================================================================================================================================================================//
+
+  private _onLoadShowroomConfig(ev: any): void {
+    ev.stopPropagation();
+
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    fireEvent(this, "config-changed", { config: getShowroomConfig(this.hass) });
   }
 
   //================================================================================================================================================================================//
@@ -445,6 +455,10 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
     return [
       css`
         ha-form {
+          width: 100%;
+        }
+
+        hr {
           width: 100%;
         }
 
@@ -500,6 +514,15 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
           background-color: var(--mdc-select-fill-color);
           min-height: 4rem;
           align-content: center;
+        }
+
+        .defaults-container {
+          display: flex;
+          column-gap: 10px;
+        }
+
+        .defaults-label {
+          font-size: 1.2rem;
         }
       `
     ];
