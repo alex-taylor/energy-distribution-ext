@@ -137,8 +137,11 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _dashboardLinkLabel!: string;
   private _dashboardLinkTitle: string | undefined = undefined;
   private _refreshPeriod!: number;
+
   private _lastRefresh: number = 0;
   private _lastStates: States | undefined = undefined;
+  private _lastPeriodStart: number = 0;
+  private _lastPeriodEnd: number = 0;
 
   private _inactiveFlowsCss: string = CssClass.Inactive;
   private _circleSize: number = CIRCLE_SIZE_MIN;
@@ -262,6 +265,17 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
       if (this._animationEnabled !== animationEnabled) {
         this._animationEnabled = animationEnabled;
+        this._clearCaches();
+      }
+    }
+
+    if (this._mode === DisplayMode.Energy) {
+      const periodStart: number = entityStates.periodStart?.getTime() ?? 0;
+      const periodEnd: number = entityStates.periodEnd?.getTime() ?? 0;
+
+      if (periodStart !== this._lastPeriodStart || periodEnd !== this._lastPeriodEnd) {
+        this._lastPeriodStart = periodStart;
+        this._lastPeriodEnd = periodEnd;
         this._clearCaches();
       }
     }
