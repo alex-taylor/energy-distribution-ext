@@ -200,6 +200,7 @@ export enum CssClass {
   Grid_Export = "export-grid",
   Grid_Import = "import-grid",
   Home = "home",
+  Idle = "idle",
   // for some reason HASS calls its css classes 'non-fossil'
   Low_Carbon = "non-fossil",
   Solar = "solar",

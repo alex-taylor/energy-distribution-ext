@@ -1,8 +1,11 @@
+// noinspection CssUnresolvedCustomProperty,CssUnusedSymbol
+
 import { css, CSSResult } from 'lit';
 import { CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, ICON_PADDING } from '@/const';
 
 //================================================================================================================================================================================//
 
+// noinspection CssReplaceWithShorthandSafely
 export const styles: CSSResult = css`
   :host {
     --mdc-icon-size: calc(2 * var(--ha-font-size-s));
@@ -24,8 +27,8 @@ export const styles: CSSResult = css`
 
   .overlay {
     position: absolute;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
     opacity: 60%;
@@ -49,9 +52,11 @@ export const styles: CSSResult = css`
     justify-content: space-between;
     margin: 0 auto;
   }
+
   .top-row {
     height: calc(var(--label-height) + var(--circle-size) + var(--row-spacing));
   }
+
   .bottom-row {
     height: calc(var(--circle-size) + var(--row-spacing));
     justify-content: flex-end;
@@ -75,6 +80,7 @@ export const styles: CSSResult = css`
     align-items: center;
     z-index: 2;
   }
+
   .circle {
     width: var(--circle-size);
     height: var(--circle-size);
@@ -93,13 +99,16 @@ export const styles: CSSResult = css`
     text-decoration: none;
     color: var(--primary-text-color);
   }
+
   .background {
     border-width: 0;
     background-color: var(--card-background-color);
   }
+
   .hidden-circle {
     border-width: 0;
   }
+
   .circle .inactive {
     border-color: var(--disabled-text-color) !important;
   }
@@ -112,10 +121,12 @@ export const styles: CSSResult = css`
   ha-icon.small {
     --mdc-icon-size: var(--ha-font-size-s);
   }
+
   ha-svg-icon.small {
     --mdc-icon-size: var(--ha-font-size-s);
     padding-bottom: calc(${ICON_PADDING}px);
   }
+
   ha-svg-icon.hidden {
     --mdc-icon-size: 0px !important;
   }
@@ -164,13 +175,16 @@ export const styles: CSSResult = css`
   .non-fossil .circle {
     border-color: var(--circle-non-fossil-color);
   }
+
   .non-fossil ha-icon {
     color: var(--icon-non-fossil-color);
   }
+
   .non-fossil.secondary-info {
     color: var(--secondary-non-fossil-color);
   }
-  .non-fossil.value {
+
+  .non-fossil.value:not(.idle) {
     color: var(--importValue-non-fossil-color);
     padding-bottom: calc(${ICON_PADDING}px);
   }
@@ -178,42 +192,52 @@ export const styles: CSSResult = css`
   .solar .circle {
     border-color: var(--circle-solar-color);
   }
+
   .solar ha-icon {
     color: var(--icon-solar-color);
   }
+
   .solar.secondary-info {
     color: var(--secondary-solar-color);
   }
-  .solar.value {
+
+  .solar.value:not(.idle) {
     color: var(--importValue-solar-color);
   }
 
   .gas .circle {
     border-color: var(--circle-gas-color);
   }
+
   .gas ha-icon {
     color: var(--icon-gas-color);
   }
+
   .gas.secondary-info {
     color: var(--secondary-gas-color);
   }
-  .gas.value {
+
+  .gas.value:not(.idle) {
     color: var(--importValue-gas-color);
   }
 
   .grid .circle {
     border-color: var(--circle-grid-color);
   }
+
   .grid ha-icon {
     color: var(--icon-grid-color);
   }
+
   .grid.secondary-info {
     color: var(--secondary-grid-color);
   }
-  .export-grid.value {
+
+  .export-grid.value:not(.idle) {
     color: var(--exportValue-grid-color);
   }
-  .import-grid.value {
+
+  .import-grid.value:not(.idle) {
     color: var(--importValue-grid-color);
   }
 
@@ -221,32 +245,40 @@ export const styles: CSSResult = css`
     border-color: var(--circle-home-color);
     cursor: default !important;
   }
+
   .home ha-icon {
     color: var(--icon-home-color);
   }
+
   .home.secondary-info {
     color: var(--secondary-home-color);
   }
-  .home.value.electric {
+
+  .home.value.electric:not(.idle) {
     color: var(--value-electric-home-color);
   }
-  .home.value.gas {
+
+  .home.value.gas:not(.idle) {
     color: var(--value-gas-home-color);
   }
 
   .battery .circle {
     border-color: var(--circle-battery-color);
   }
+
   .battery ha-icon {
     color: var(--icon-battery-color);
   }
+
   .battery.secondary-info {
     color: var(--secondary-battery-color);
   }
-  .export-battery.value {
+
+  .export-battery.value:not(.idle) {
     color: var(--exportValue-battery-color);
   }
-  .import-battery.value {
+
+  .import-battery.value:not(.idle) {
     color: var(--importValue-battery-color);
   }
 
@@ -257,58 +289,73 @@ export const styles: CSSResult = css`
   path.inactive {
     stroke: var(--inactive-flow-color) !important;
   }
+
   path.solar {
     stroke: var(--flow-solar-color);
   }
+
   path.export-grid {
     stroke: var(--flow-export-grid-color);
   }
+
   path.import-grid {
     stroke: var(--flow-import-grid-color);
   }
+
   path.export-battery {
     stroke: var(--flow-export-battery-color);
   }
+
   path.import-battery {
     stroke: var(--flow-import-battery-color);
   }
+
   path.gas {
     stroke: var(--flow-gas-color);
   }
+
   path.non-fossil {
     stroke: var(--flow-non-fossil-color);
   }
+
   path.hidden {
-    opacity: 0%;
+    opacity: 0;
   }
 
   circle.inactive {
     stroke: var(--disabled-text-color) !important;
   }
+
   circle.non-fossil {
     fill: var(--flow-non-fossil-color);
     stroke: var(--flow-non-fossil-color);
   }
+
   circle.solar {
     fill: var(--flow-solar-color);
     stroke: var(--flow-solar-color);
   }
+
   circle.gas {
     fill: var(--flow-gas-color);
     stroke: var(--flow-gas-color);
   }
+
   circle.export-grid {
     fill: var(--flow-export-grid-color);
     stroke: var(--flow-export-grid-color);
   }
+
   circle.import-grid {
     fill: var(--flow-import-grid-color);
     stroke: var(--flow-import-grid-color);
   }
+
   circle.export-battery {
     fill: var(--flow-export-battery-color);
     stroke: var(--flow-export-battery-color);
   }
+
   circle.import-battery {
     fill: var(--flow-import-battery-color);
     stroke: var(--flow-import-battery-color);
@@ -340,9 +387,18 @@ export const styles: CSSResult = css`
   }
 
   @keyframes gridToHomeAnim {
-    0% { stroke: var(--flow-import-grid-color); fill: var(--flow-import-grid-color); }
-    50% { stroke: var(--flow-non-fossil-color); fill: var(--flow-non-fossil-color); }
-    100% { stroke: var(--flow-import-grid-color); fill: var(--flow-import-grid-color); }
+    0% {
+      stroke: var(--flow-import-grid-color);
+      fill: var(--flow-import-grid-color);
+    }
+    50% {
+      stroke: var(--flow-non-fossil-color);
+      fill: var(--flow-non-fossil-color);
+    }
+    100% {
+      stroke: var(--flow-import-grid-color);
+      fill: var(--flow-import-grid-color);
+    }
   }
 
   .grid-battery-anim {
@@ -352,9 +408,15 @@ export const styles: CSSResult = css`
   }
 
   @keyframes gridBatteryAnim {
-    0% { stroke: var(--flow-export-grid-color); }
-    50% { stroke: var(--flow-export-battery-color); }
-    100% { stroke: var(--flow-export-grid-color); }
+    0% {
+      stroke: var(--flow-export-grid-color);
+    }
+    50% {
+      stroke: var(--flow-export-battery-color);
+    }
+    100% {
+      stroke: var(--flow-export-grid-color);
+    }
   }
 
   .separator {

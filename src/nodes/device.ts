@@ -58,7 +58,7 @@ export class DeviceNode extends Node<DeviceConfig> {
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, circleSize: number, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, _circleSize: number, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
     const index: number = this._index;
     let importValue: number | undefined | null;
     let exportValue: number | undefined | null;
@@ -108,6 +108,7 @@ export class DeviceNode extends Node<DeviceConfig> {
     const exportCss: string = "export-" + this.cssClass;
     const prefix: SIUnitPrefixes | undefined = this.type === EnergyType.Electric ? overrideElectricPrefix : overrideGasPrefix;
 
+    // noinspection HtmlDeprecatedAttribute
     return html`
       <style type="text/css" scoped>
         .device-${index} .circle {
@@ -119,10 +120,10 @@ export class DeviceNode extends Node<DeviceConfig> {
         .device-${index}.secondary-info {
           color: var(--secondary-device-${index}-color);
         }
-        .export-device-${index}.value {
+        .export-device-${index}.value:not(.idle) {
           color: var(--exportValue-device-${index}-color);
         }
-        .import-device-${index}.value {
+        .import-device-${index}.value:not(.idle) {
           color: var(--importValue-device-${index}-color);
         }
         circle.import-device-${index} {

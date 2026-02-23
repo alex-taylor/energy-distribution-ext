@@ -165,7 +165,7 @@ export abstract class Node<T> {
     const isIdle: boolean = this.mode === DisplayMode.Power && state === 0;
 
     return html`
-      <span class="value ${cssClass}" @click=${this._handleClick(target, entityId)} @keyDown=${this._handleKeyDown(target, entityId)}>
+      <span class="value ${isIdle ? CssClass.Idle : CssClass.None} ${cssClass}" @click=${this._handleClick(target, entityId)} @keyDown=${this._handleKeyDown(target, entityId)}>
         <ha-svg-icon class="small ${icon ? "" : "hidden"}" .path=${icon}></ha-svg-icon>
         ${isIdle ? localize("common.idle") : this.renderEnergyState(state, units, overridePrefix)}
       </span>
