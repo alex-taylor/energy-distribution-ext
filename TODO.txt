@@ -1,9 +1,6 @@
 TODO
 ----
 
-Buttons in the UI: 'reset to defaults' and 'showroom settings'
-
-
 Under consideration
 -------------------
 
@@ -55,5 +52,3 @@ Before release
   - README and CHANGELOG updates
   - unit-testing
   - reinstate terser in rollup.config.js
-  - check against the Plus cards for missing/broken functionality
-  - check against the Plus issue-lists for features which might be worth adding

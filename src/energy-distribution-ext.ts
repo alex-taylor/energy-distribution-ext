@@ -582,41 +582,48 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     });
 
     return html`
-      ${repeat(lines, (_, index) => index, (_, index) => {
-        const line: FlowLine = lines[index];
-        const id: string = line.id;
-        let cssLine: string = line.cssLine;
+      <svg class="lines" xmlns="http://www.w3.org/2000/svg">
+        ${repeat(lines, (_, index) => index, (_, index) => {
+          const line: FlowLine = lines[index];
+          let cssLine: string = line.cssLine;
 
-        if (!line.active && cssLine !== CssClass.Hidden_Path) {
-          cssLine += " " + this._inactiveFlowsCss;
-        }
+          if (!line.active && cssLine !== CssClass.Hidden_Path) {
+            cssLine += " " + this._inactiveFlowsCss;
+          }
 
-        const flowSvgElement: SVGSVGElement = this?.shadowRoot?.querySelector(`#${id}Flow`) as SVGSVGElement;
+          return svg`<path id="flowline${index}" class="${cssLine}" d="${line.path}" style="fill: none !important;"></path>`;
+        })}
+      </svg>
 
-        if (flowSvgElement && this._previousAnimationDurations[id] && this._previousAnimationDurations[id] !== line.animDuration) {
-          flowSvgElement.pauseAnimations();
-          flowSvgElement.setCurrentTime(flowSvgElement.getCurrentTime() * (line.animDuration / this._previousAnimationDurations[id]));
-          flowSvgElement.unpauseAnimations();
-        }
+      ${this._animationEnabled
+        ? repeat(lines, (_, index) => index, (_, index) => {
+          const line: FlowLine = lines[index];
+          const id: string = line.id + "Flow";
+          const flowSvgElement: SVGSVGElement = this?.shadowRoot?.querySelector(`#${id}`) as SVGSVGElement;
 
-        this._previousAnimationDurations[id] = line.animDuration;
+          if (flowSvgElement && this._previousAnimationDurations[id] && this._previousAnimationDurations[id] !== line.animDuration) {
+            flowSvgElement.pauseAnimations();
+            flowSvgElement.setCurrentTime(flowSvgElement.getCurrentTime() * (line.animDuration / this._previousAnimationDurations[id]));
+            flowSvgElement.unpauseAnimations();
+          }
 
-        return html`
-          <svg class="lines" xmlns="http://www.w3.org/2000/svg" id="${line.id}Flow">
-            <path id="flowline${index}" class="${cssLine}" d="${line.path}" style="fill: none !important;"></path>
-            ${this._animationEnabled && line.active
+          this._previousAnimationDurations[id] = line.animDuration;
+
+          return html`
+            ${line.active
               ? svg`
-                <circle r="${DOT_RADIUS}" class="${line.cssDot}">
-                  <animateMotion dur="${Math.abs(line.animDuration)}s" repeatCount="indefinite" calcMode="linear" keyPoints="${line.animDuration < 0 ? '1;0' : '0;1'}" keyTimes="0; 1">
-                    <mpath href="#flowline${index}"></mpath>
-                  </animateMotion>
-                </circle>
+                <svg class="lines" xmlns="http://www.w3.org/2000/svg" id="${id}">
+                  <circle r="${DOT_RADIUS}" class="${line.cssDot}">
+                    <animateMotion dur="${Math.abs(line.animDuration)}s" repeatCount="indefinite" calcMode="linear" keyPoints="${line.animDuration < 0 ? '1;0' : '0;1'}" keyTimes="0; 1">
+                      <mpath href="#flowline${index}"></mpath>
+                    </animateMotion>
+                  </circle>
+                </svg>
               `
-              : nothing
-            }
-          </svg>
-        `;
-      })}
+              : nothing}
+          `;
+        })
+        : nothing}
     `;
   }
 
