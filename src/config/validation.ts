@@ -146,8 +146,6 @@ export const cardConfigStruct = assign(
   object({
     [GlobalOptions.Title]: optional(string()),
     [GlobalOptions.Date_Range]: optional(string()),
-    [GlobalOptions.Date_Range_From]: optional(string()),
-    [GlobalOptions.Date_Range_To]: optional(string()),
     [GlobalOptions.Date_Range_Live]: optional(boolean()),
     [GlobalOptions.Date_Range_Display]: optional(string()),
     [GlobalOptions.Mode]: optional(string()),

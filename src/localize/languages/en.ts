@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from "@/config";
-import { AnimationMode, ColourMode, DateRangeDisplayMode, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
+import { AnimationMode, ColourMode, DateRange, DateRangeDisplayMode, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
 import { HELPTEXT_SUFFIX } from "@/const";
 
 //================================================================================================================================================================================//
@@ -24,7 +24,6 @@ export default {
   "editor": {
     "add_device": "Add Device",
     "device": "Device",
-    "from_date_picker": "Use Energy Dashboard Date Selector",
     "go_back": "Go Back",
     "invalid_primary_entity": "is not an energy sensor of type Total or Total_Increasing",
     "invalid_secondary_entity": "is not of type Total or Total_Increasing",
@@ -143,6 +142,19 @@ export default {
     }
   },
 
+  "DateRange": {
+    [DateRange.Today]: "Today",
+    [DateRange.Yesterday]: "Yesterday",
+    [DateRange.This_Week]: "This week",
+    [DateRange.This_Month]: "This month",
+    [DateRange.This_Quarter]: "This quarter",
+    [DateRange.This_Year]: "This year",
+    [DateRange.Last_7_Days]: "Last 7 days",
+    [DateRange.Last_30_Days]: "Last 30 days",
+    [DateRange.Last_12_Months]: "Last 12 months",
+    [DateRange.From_Date_Picker]: "Use Energy Dashboard Date Selector"
+  },
+
   "DateRangeDisplayMode": {
     [DateRangeDisplayMode.Do_Not_Show]: "Do not show",
     [DateRangeDisplayMode.Preset_Name]: "Preset name",
@@ -226,8 +238,6 @@ export default {
 
   "GlobalOptions": {
     [GlobalOptions.Date_Range]: "Date range to show",
-    [GlobalOptions.Date_Range_From]: "From",
-    [GlobalOptions.Date_Range_To]: "To",
     [GlobalOptions.Date_Range_Live]: "Include live sensor data",
     [GlobalOptions.Date_Range_Live + HELPTEXT_SUFFIX]: "If the selected date range includes the current day, use the latest values from the entities",
     [GlobalOptions.Date_Range_Display]: "Show the date range on the card",

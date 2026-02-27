@@ -282,6 +282,10 @@ export const styles: CSSResult = css`
     color: var(--importValue-battery-color);
   }
 
+  .idle.value {
+    color: initial;
+  }
+  
   .device .circle {
     border-color: red;
   }

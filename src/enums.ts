@@ -31,7 +31,6 @@ namespace Enums {
     Last_7_Days: "now-7d",
     Last_30_Days: "now-30d",
     Last_12_Months: "now-12m",
-    Custom: "custom",
     From_Date_Picker: "from_date_picker"
   } as const satisfies Record<string, string>;
 

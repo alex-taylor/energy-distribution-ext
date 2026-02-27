@@ -11,7 +11,6 @@ import { batterySchema } from './schema/battery';
 import { lowCarbonSchema } from './schema/low-carbon';
 import { homeSchema } from './schema/home';
 import { gasSchema } from './schema/gas';
-import "./components/date-range-picker";
 import "./components/page-header";
 import "./components/devices-editor";
 import { cardConfigStruct } from '@/config/validation';
@@ -25,8 +24,7 @@ import { BatteryNode } from '@/nodes/battery';
 import { LowCarbonNode } from '@/nodes/low-carbon';
 import { HomeNode } from '@/nodes/home';
 import { DeviceNode } from '@/nodes/device';
-import { DateRange, DisplayMode, ELECTRIC_ENTITY_CLASSES, GAS_ENTITY_CLASSES } from '@/enums';
-import { endOfToday, formatDate, startOfToday } from 'date-fns';
+import { DisplayMode, ELECTRIC_ENTITY_CLASSES, GAS_ENTITY_CLASSES } from '@/enums';
 import { EntityRegistryEntry } from '@/hass';
 import { Node } from '@/nodes/node';
 import { name } from '../../package.json';
@@ -220,11 +218,6 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
       `;
     }
 
-    const startDateValue: string = getConfigValue(config, GlobalOptions.Date_Range_From);
-    const endDateValue: string = getConfigValue(config, GlobalOptions.Date_Range_To);
-    const startDate: Date = startDateValue ? new Date(startDateValue) : startOfToday();
-    const endDate: Date = endDateValue ? new Date(endDateValue) : endOfToday();
-
     return html`
       <div class="card-config">
 
@@ -255,19 +248,6 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
         ${mode === DisplayMode.Energy
           ? html`
             <hr/>
-
-            <div class="date-picker">
-              <p class="primary">${computeLabelCallback({ key: GlobalOptions, name: GlobalOptions.Date_Range })}</p>
-              <energy-distribution-ext-date-range-picker
-                class="date-picker-control"
-                .hass=${this.hass}
-                .range=${getConfigValue(config, GlobalOptions.Date_Range)}
-                .startDate=${startDate}
-                .endDate=${endDate}
-                @date-range-changed=${this._onDateRangeChanged}
-              >
-              </energy-distribution-ext-date-range-picker>
-            </div>
 
             <ha-form
               .hass=${this.hass}
@@ -321,44 +301,8 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
 
   //================================================================================================================================================================================//
 
-  private _formatDate(date: Date): string {
-    return formatDate(date, "yyyy-MM-dd");
-  }
-
-  //================================================================================================================================================================================//
-
   private _onGoBack(): void {
     this._currentConfigPage = undefined;
-  }
-
-  //================================================================================================================================================================================//
-
-  private _onDateRangeChanged(ev: any): void {
-    ev.stopPropagation();
-
-    if (!this._config || !this.hass) {
-      return;
-    }
-
-    let config: EnergyDistributionExtConfig;
-
-    if (ev.detail.range === DateRange.Custom) {
-      config = {
-        ...this._config,
-        [GlobalOptions.Date_Range]: DateRange.Custom,
-        [GlobalOptions.Date_Range_From]: this._formatDate(ev.detail.start as Date),
-        [GlobalOptions.Date_Range_To]: this._formatDate(ev.detail.end as Date)
-      };
-    } else {
-      config = {
-        ...this._config,
-        [GlobalOptions.Date_Range]: ev.detail.range,
-        [GlobalOptions.Date_Range_From]: undefined,
-        [GlobalOptions.Date_Range_To]: undefined
-      };
-    }
-
-    fireEvent(this, "config-changed", { config: this._cleanupConfig(config) });
   }
 
   //================================================================================================================================================================================//

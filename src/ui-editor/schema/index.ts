@@ -1,5 +1,5 @@
 import { AppearanceOptions, ColourOptions, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, OverridesOptions, SecondaryInfoOptions, NodeConfig, EnergyUnitsConfig, EditorPages, EnergyDistributionExtConfig } from '@/config';
-import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode } from '@/enums';
+import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshold, Scale, UnitPosition, UnitPrefixes, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode, DateRange } from '@/enums';
 import { localize } from '@/localize/localize';
 import { BASIC_COLOUR_MODES, BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
@@ -25,6 +25,7 @@ export interface DropdownValue {
 
 export const dateRangeSchema = memoizeOne((): any[] => {
   return [
+    { key: GlobalOptions, name: GlobalOptions.Date_Range, required: true, selector: dropdownSelector(DateRange) },
     { key: GlobalOptions, name: GlobalOptions.Date_Range_Live, selector: { boolean: {} } },
     { key: GlobalOptions, name: GlobalOptions.Date_Range_Display, required: true, selector: dropdownSelector(DateRangeDisplayMode) }
   ];

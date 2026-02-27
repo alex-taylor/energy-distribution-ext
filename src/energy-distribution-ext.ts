@@ -1208,7 +1208,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       text = renderDateRange(this.hass.locale.language, this._entityStates.periodStart, this._entityStates.periodEnd);
     }
 
-    if (this._dateRange === DateRange.Custom || this._dateRange === DateRange.From_Date_Picker) {
+    if (this._dateRange === DateRange.From_Date_Picker) {
       if (!dates) {
         return html``;
       }

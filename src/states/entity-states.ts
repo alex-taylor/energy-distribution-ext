@@ -1,54 +1,24 @@
-import {HomeAssistant} from "custom-card-helpers";
-import {HassEntity, UnsubscribeFunc} from "home-assistant-js-websocket";
-import {EnergyCollection, EnergyData, EnergyPreferences, EnergySource, Statistics, StatisticValue} from "@/hass";
-import {
-  AppearanceOptions,
-  DeviceConfig,
-  EditorPages,
-  EnergyDistributionExtConfig,
-  EnergyUnitsConfig,
-  EnergyUnitsOptions,
-  FlowsOptions,
-  GlobalOptions,
-  NodeConfig
-} from "@/config";
-import {BatteryNode} from "@/nodes/battery";
-import {GasNode} from "@/nodes/gas";
-import {HomeNode} from "@/nodes/home";
-import {LowCarbonNode} from "@/nodes/low-carbon";
-import {SolarNode} from "@/nodes/solar";
-import {DeviceNode} from "@/nodes/device";
-import {
-  addDays,
-  addHours,
-  differenceInDays,
-  endOfToday,
-  isFirstDayOfMonth,
-  isLastDayOfMonth,
-  startOfDay,
-  startOfToday
-} from "date-fns";
-import {
-  EnergyUnits,
-  SIUnitPrefixes,
-  VolumeUnits,
-  checkEnumValue,
-  DateRange,
-  EnergyType,
-  DeviceClasses,
-  EnergyDirection,
-  DisplayMode,
-  StateClasses
-} from "@/enums";
-import {LOGGER} from "@/logging";
-import {getEnergyDataCollection} from "@/energy";
-import {BiDiState, Flows, States} from "@/nodes";
-import {UNIT_CONVERSIONS} from "./unit-conversions";
-import {DEFAULT_CONFIG, getConfigObjects, getConfigValue} from "@/config/config";
-import {calculateDateRange} from "@/dates";
-import {Node} from "@/nodes/node";
-import {GridNode} from "@/nodes/grid";
-import {POWER_UNITS} from "@/const";
+import { HomeAssistant } from "custom-card-helpers";
+import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
+import { EnergyCollection, EnergyData, EnergyPreferences, EnergySource, Statistics, StatisticValue } from "@/hass";
+import { AppearanceOptions, DeviceConfig, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, NodeConfig } from "@/config";
+import { BatteryNode } from "@/nodes/battery";
+import { GasNode } from "@/nodes/gas";
+import { HomeNode } from "@/nodes/home";
+import { LowCarbonNode } from "@/nodes/low-carbon";
+import { SolarNode } from "@/nodes/solar";
+import { DeviceNode } from "@/nodes/device";
+import { addDays, addHours, differenceInDays, endOfToday, isFirstDayOfMonth, isLastDayOfMonth, startOfDay } from "date-fns";
+import { EnergyUnits, SIUnitPrefixes, VolumeUnits, checkEnumValue, DateRange, EnergyType, DeviceClasses, EnergyDirection, DisplayMode, StateClasses } from "@/enums";
+import { LOGGER } from "@/logging";
+import { getEnergyDataCollection } from "@/energy";
+import { BiDiState, Flows, States } from "@/nodes";
+import { UNIT_CONVERSIONS } from "./unit-conversions";
+import { DEFAULT_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
+import { calculateDateRange } from "@/dates";
+import { Node } from "@/nodes/node";
+import { GridNode } from "@/nodes/grid";
+import { POWER_UNITS } from "@/const";
 
 //================================================================================================================================================================================//
 
@@ -162,12 +132,12 @@ export class EntityStates {
     gasPresent: false,
     largestElectricValue: 0,
     largestGasValue: 0,
-    battery: {import: 0, export: 0},
+    battery: { import: 0, export: 0 },
     batterySecondary: 0,
     gasImport: 0,
     gasImportVolume: 0,
     gasSecondary: 0,
-    grid: {import: 0, export: 0},
+    grid: { import: 0, export: 0 },
     gridSecondary: 0,
     highCarbon: 0,
     homeElectric: 0,
@@ -298,12 +268,8 @@ export class EntityStates {
       let periodStart: Date;
       let periodEnd: Date;
 
-      if (this._dateRange === DateRange.Custom) {
-        periodStart = new Date(getConfigValue(cardConfig, GlobalOptions.Date_Range_From) || startOfToday());
-        periodEnd = new Date(getConfigValue(cardConfig, GlobalOptions.Date_Range_To) || endOfToday());
-      } else {
-        [periodStart, periodEnd] = calculateDateRange(this.hass, this._dateRange);
-      }
+      // eslint-disable-next-line prefer-const
+      [periodStart, periodEnd] = calculateDateRange(this.hass, this._dateRange);
 
       this._loadStatistics(periodStart, periodEnd);
 
@@ -519,12 +485,12 @@ export class EntityStates {
       gasPresent: this.gas.isPresent,
       largestElectricValue: 0,
       largestGasValue: 0,
-      battery: {import: 0, export: 0},
+      battery: { import: 0, export: 0 },
       batterySecondary: 0,
       gasImport: 0,
       gasImportVolume: 0,
       gasSecondary: 0,
-      grid: {import: 0, export: 0},
+      grid: { import: 0, export: 0 },
       gridSecondary: 0,
       highCarbon: 0,
       homeElectric: 0,
@@ -558,9 +524,9 @@ export class EntityStates {
         this._states.gasPresent = true;
       }
 
-      this._states.devicesElectric[index] = {export: 0, import: 0};
-      this._states.devicesGas[index] = {export: 0, import: 0};
-      this._states.devicesGasVolume[index] = {export: 0, import: 0};
+      this._states.devicesElectric[index] = { export: 0, import: 0 };
+      this._states.devicesGas[index] = { export: 0, import: 0 };
+      this._states.devicesGasVolume[index] = { export: 0, import: 0 };
       this._states.devicesSecondary[index] = 0;
     });
   }
@@ -768,9 +734,9 @@ export class EntityStates {
     }
 
     this.devices.forEach((device, index) => {
-      states.devicesElectric[index] = {export: 0, import: 0};
-      states.devicesGas[index] = {export: 0, import: 0};
-      states.devicesGasVolume[index] = {export: 0, import: 0};
+      states.devicesElectric[index] = { export: 0, import: 0 };
+      states.devicesGas[index] = { export: 0, import: 0 };
+      states.devicesGasVolume[index] = { export: 0, import: 0 };
 
       if (device.type === EnergyType.Gas) {
         if (device.direction !== EnergyDirection.Consumer_Only) {

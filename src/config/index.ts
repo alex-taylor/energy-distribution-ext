@@ -90,8 +90,6 @@ namespace ConfigKeys {
 
   export const GlobalOptions = {
     Date_Range: "date_range",
-    Date_Range_From: "date_range_from",
-    Date_Range_To: "date_range_to",
     Date_Range_Live: "date_range_live",
     Date_Range_Display: "date_range_display",
     Mode: "mode",
@@ -190,8 +188,6 @@ export type SecondaryInfoOptions = typeof SecondaryInfoOptions[keyof typeof Seco
 export interface EnergyDistributionExtConfig extends LovelaceCardConfig {
   [GlobalOptions.Title]?: string;
   [GlobalOptions.Date_Range]?: DateRange;
-  [GlobalOptions.Date_Range_From]?: string;
-  [GlobalOptions.Date_Range_To]?: string;
   [GlobalOptions.Date_Range_Live]?: boolean;
   [GlobalOptions.Date_Range_Display]?: DateRangeDisplayMode;
   [GlobalOptions.Mode]?: DisplayMode;
