@@ -11,7 +11,7 @@ import { DeviceNode } from "@/nodes/device";
 import { addDays, addHours, differenceInDays, endOfToday, isFirstDayOfMonth, isLastDayOfMonth, startOfDay } from "date-fns";
 import { EnergyUnits, SIUnitPrefixes, VolumeUnits, checkEnumValue, DateRange, EnergyType, DeviceClasses, EnergyDirection, DisplayMode, StateClasses } from "@/enums";
 import { LOGGER } from "@/logging";
-import { getEnergyDataCollection } from "@/energy";
+import { getEnergyDataCollection, getEnergyPreferences } from "@/energy";
 import { BiDiState, Flows, States } from "@/nodes";
 import { UNIT_CONVERSIONS } from "./unit-conversions";
 import { DEFAULT_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
@@ -299,8 +299,8 @@ export class EntityStates {
     let energySources: EnergySource[] = [];
 
     if (getConfigValue(configs, GlobalOptions.Use_HASS_Config)) {
-      const prefs: EnergyPreferences = await this._getEnergyPreferences(hass);
-      energySources = prefs?.energy_sources;
+      const prefs: EnergyPreferences = await getEnergyPreferences(hass);
+      energySources = prefs?.energy_sources || [];
     }
 
     this._battery = new BatteryNode(hass, cardConfig, style, energySources);
@@ -980,14 +980,6 @@ export class EntityStates {
       energy_statistic_ids: this.grid.importEntities,
       co2_statistic_id: this.lowCarbon.firstImportEntity,
       period
-    });
-  }
-
-  //================================================================================================================================================================================//
-
-  private _getEnergyPreferences(hass: HomeAssistant): Promise<EnergyPreferences> {
-    return hass.callWS<EnergyPreferences>({
-      type: "energy/get_prefs",
     });
   }
 

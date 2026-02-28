@@ -598,23 +598,30 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       ${this._animationEnabled
         ? repeat(lines, (_, index) => index, (_, index) => {
           const line: FlowLine = lines[index];
+          const duration: number = Math.abs(line.animDuration);
+
+          if (duration === 0) {
+            return html``;
+          }
+
           const id: string = line.id + "Flow";
           const flowSvgElement: SVGSVGElement = this?.shadowRoot?.querySelector(`#${id}`) as SVGSVGElement;
+          const previousDuration: number = this._previousAnimationDurations[id];
 
-          if (flowSvgElement && this._previousAnimationDurations[id] && this._previousAnimationDurations[id] !== line.animDuration) {
+          if (flowSvgElement && previousDuration && previousDuration !== duration) {
             flowSvgElement.pauseAnimations();
-            flowSvgElement.setCurrentTime(flowSvgElement.getCurrentTime() * (line.animDuration / this._previousAnimationDurations[id]));
+            flowSvgElement.setCurrentTime(flowSvgElement.getCurrentTime() * (duration / previousDuration));
             flowSvgElement.unpauseAnimations();
           }
 
-          this._previousAnimationDurations[id] = line.animDuration;
+          this._previousAnimationDurations[id] = duration;
 
           return html`
             ${line.active
               ? svg`
                 <svg class="lines" xmlns="http://www.w3.org/2000/svg" id="${id}">
                   <circle r="${DOT_RADIUS}" class="${line.cssDot}">
-                    <animateMotion dur="${Math.abs(line.animDuration)}s" repeatCount="indefinite" calcMode="linear" keyPoints="${line.animDuration < 0 ? '1;0' : '0;1'}" keyTimes="0; 1">
+                    <animateMotion dur="${duration}s" repeatCount="indefinite" calcMode="linear" keyPoints="${line.animDuration < 0 ? '1;0' : '0;1'}" keyTimes="0; 1">
                       <mpath href="#flowline${index}"></mpath>
                     </animateMotion>
                   </circle>

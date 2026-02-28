@@ -1,8 +1,8 @@
-import { LitElement, css, html, nothing, TemplateResult, CSSResultGroup } from 'lit';
+import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { assert } from 'superstruct';
-import { EditorPages, EnergyDistributionExtConfig, NodeOptions, EntitiesOptions, GlobalOptions, SecondaryInfoOptions, DeviceConfig, isValidSecondaryEntity } from '@/config';
+import { DeviceConfig, EditorPages, EnergyDistributionExtConfig, EntitiesOptions, GlobalOptions, isValidSecondaryEntity, NodeOptions, SecondaryInfoOptions } from '@/config';
 import { appearanceSchema, dateRangeSchema, generalConfigSchema } from './schema';
 import { localize } from '@/localize/localize';
 import { gridSchema } from './schema/grid';
@@ -15,9 +15,9 @@ import "./components/page-header";
 import "./components/devices-editor";
 import { cardConfigStruct } from '@/config/validation';
 import { computeHelperCallback, computeLabelCallback, getStatusIcon, Status, STATUS_CLASSES, STATUS_ICONS, validatePrimaryEntities, validateSecondaryEntity } from '.';
-import { getDefaultLowCarbonConfig, getDefaultAppearanceConfig, getDefaultGridConfig, getDefaultGasConfig, getDefaultSolarConfig, getDefaultBatteryConfig, getDefaultHomeConfig, getCo2SignalEntity, getConfigValue, populateConfigDefaults, removeConfigDefaults, getMinimalConfig, getShowroomConfig } from '@/config/config';
+import { getCo2SignalEntity, getConfigValue, getDefaultAppearanceConfig, getDefaultBatteryConfig, getDefaultGasConfig, getDefaultGridConfig, getDefaultHomeConfig, getDefaultLowCarbonConfig, getDefaultSolarConfig, getMinimalConfig, getShowroomConfig, populateConfigDefaults, removeConfigDefaults } from '@/config/config';
 import { GasNode } from '@/nodes/gas';
-import { getEnergyDataCollection } from '@/energy';
+import { getEnergyPreferences } from '@/energy';
 import { GridNode } from '@/nodes/grid';
 import { SolarNode } from '@/nodes/solar';
 import { BatteryNode } from '@/nodes/battery';
@@ -25,7 +25,7 @@ import { LowCarbonNode } from '@/nodes/low-carbon';
 import { HomeNode } from '@/nodes/home';
 import { DeviceNode } from '@/nodes/device';
 import { DisplayMode, ELECTRIC_ENTITY_CLASSES, GAS_ENTITY_CLASSES } from '@/enums';
-import { EntityRegistryEntry } from '@/hass';
+import { EnergyPreferences, EnergySource, EntityRegistryEntry } from '@/hass';
 import { Node } from '@/nodes/node';
 import { name } from '../../package.json';
 
@@ -35,19 +35,19 @@ export const EDITOR_ELEMENT_NAME: string = `${name}-editor`;
 
 //================================================================================================================================================================================//
 
-function createNode(cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration, hass: HomeAssistant, type: EditorPages, index?: number): Node<any> | undefined {
+function createNode(cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[], type: EditorPages, index?: number): Node<any> | undefined {
   switch (type) {
     case EditorPages.Battery:
-      return new BatteryNode(hass, cardConfig, style, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
+      return new BatteryNode(hass, cardConfig, style, energySources);
 
     case EditorPages.Devices:
       return new DeviceNode(hass, cardConfig, style, index!);
 
     case EditorPages.Gas:
-      return new GasNode(hass, cardConfig, style, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
+      return new GasNode(hass, cardConfig, style, energySources);
 
     case EditorPages.Grid:
-      return new GridNode(hass, cardConfig, style, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
+      return new GridNode(hass, cardConfig, style, energySources);
 
     case EditorPages.Home:
       return new HomeNode(hass, cardConfig, style);
@@ -56,7 +56,7 @@ function createNode(cardConfig: EnergyDistributionExtConfig, style: CSSStyleDecl
       return new LowCarbonNode(hass, cardConfig, style);
 
     case EditorPages.Solar:
-      return new SolarNode(hass, cardConfig, style, getEnergyDataCollection(hass)?.prefs?.energy_sources || []);
+      return new SolarNode(hass, cardConfig, style, energySources);
   }
 
   return undefined;
@@ -67,7 +67,7 @@ const CONFIG_PAGES: {
   icon: string;
   schema?: (config: any, mode: DisplayMode, secondaries: string[]) => any[];
   createConfig: () => any;
-  statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant) => Status;
+  statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]) => Status;
 }[] = [
   {
     page: EditorPages.Appearance,
@@ -81,36 +81,36 @@ const CONFIG_PAGES: {
     icon: "mdi:transmission-tower",
     schema: gridSchema,
     createConfig: getDefaultGridConfig,
-    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Grid)!, ELECTRIC_ENTITY_CLASSES, true)
+    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, energySources, EditorPages.Grid)!, ELECTRIC_ENTITY_CLASSES, true)
   },
   {
     page: EditorPages.Gas,
     icon: "mdi:fire",
     schema: gasSchema,
     createConfig: getDefaultGasConfig,
-    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Gas)!, GAS_ENTITY_CLASSES, true)
+    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, energySources, EditorPages.Gas)!, GAS_ENTITY_CLASSES, true)
   },
   {
     page: EditorPages.Solar,
     icon: "mdi:solar-power",
     schema: solarSchema,
     createConfig: getDefaultSolarConfig,
-    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Solar)!, ELECTRIC_ENTITY_CLASSES, true)
+    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, energySources, EditorPages.Solar)!, ELECTRIC_ENTITY_CLASSES, true)
   },
   {
     page: EditorPages.Battery,
     icon: "mdi:battery-high",
     schema: batterySchema,
     createConfig: getDefaultBatteryConfig,
-    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Battery)!, ELECTRIC_ENTITY_CLASSES, true)
+    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, energySources, EditorPages.Battery)!, ELECTRIC_ENTITY_CLASSES, true)
   },
   {
     page: EditorPages.Low_Carbon,
     icon: "mdi:leaf",
     schema: lowCarbonSchema,
     createConfig: getDefaultLowCarbonConfig,
-    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => {
-      const status = getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Low_Carbon)!, ELECTRIC_ENTITY_CLASSES, false);
+    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]): Status => {
+      const status = getStatusIcon(hass, mode, createNode(cardConfig, style, hass, energySources, EditorPages.Low_Carbon)!, ELECTRIC_ENTITY_CLASSES, false);
 
       if (status !== Status.NotConfigured) {
         return status;
@@ -124,16 +124,16 @@ const CONFIG_PAGES: {
     icon: "mdi:home",
     schema: homeSchema,
     createConfig: getDefaultHomeConfig,
-    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Home)!, ELECTRIC_ENTITY_CLASSES, false)
+    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]): Status => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, energySources, EditorPages.Home)!, ELECTRIC_ENTITY_CLASSES, false)
   },
   {
     page: EditorPages.Devices,
     icon: "mdi:devices",
     createConfig: () => {
     },
-    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant): Status => {
+    statusIcon: (cardConfig: EnergyDistributionExtConfig, mode: DisplayMode, style: CSSStyleDeclaration, hass: HomeAssistant, energySources: EnergySource[]): Status => {
       const deviceConfigs: DeviceConfig[] = getConfigValue(cardConfig, EditorPages.Devices);
-      return deviceConfigs?.map((_device, index) => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, EditorPages.Devices, index)!, ELECTRIC_ENTITY_CLASSES, true, true)).reduce((previous, current) => current > previous ? current : previous, Status.NotConfigured) || Status.NotConfigured
+      return deviceConfigs?.map((_device, index) => getStatusIcon(hass, mode, createNode(cardConfig, style, hass, energySources, EditorPages.Devices, index)!, ELECTRIC_ENTITY_CLASSES, true, true)).reduce((previous, current) => current > previous ? current : previous, Status.NotConfigured) || Status.NotConfigured
     }
   }
 ];
@@ -147,6 +147,7 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
 
   @state() private _config?: EnergyDistributionExtConfig;
   @state() private _currentConfigPage?: EditorPages;
+  @state() private _energySources: EnergySource[] = [];
 
   private _secondaryEntities: string[] | undefined;
 
@@ -163,6 +164,8 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
     }
 
     this._mode = mode;
+    const prefs: EnergyPreferences = await getEnergyPreferences(this.hass);
+    this._energySources = prefs?.energy_sources || [];
   }
 
   //================================================================================================================================================================================//
@@ -276,7 +279,7 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
   //================================================================================================================================================================================//
 
   private _renderPageLinks(): TemplateResult[] {
-    return CONFIG_PAGES.map(page => this._renderPageLink(page.page, page.icon, page.statusIcon(this._config!, this._mode, this.style, this.hass)));
+    return CONFIG_PAGES.map(page => this._renderPageLink(page.page, page.icon, page.statusIcon(this._config!, this._mode, this.style, this.hass, this._energySources)));
   };
 
   //================================================================================================================================================================================//
@@ -363,7 +366,7 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
 
     if (this._currentConfigPage) {
       const secondaryEntityId: string | undefined = getConfigValue(config, [this._currentConfigPage, NodeOptions.Secondary_Info, SecondaryInfoOptions.Entity_Id]);
-      const node: Node<any> | undefined = createNode(this._config!, this.style, this.hass, this._currentConfigPage);
+      const node: Node<any> | undefined = createNode(this._config!, this.style, this.hass, this._energySources, this._currentConfigPage);
 
       switch (this._currentConfigPage) {
         case EditorPages.Battery:

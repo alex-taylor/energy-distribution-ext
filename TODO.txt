@@ -1,10 +1,6 @@
 TODO
 ----
-BUG: date-picker control 0x0
-BUG: incorrect config-states showing
-    - expecting a primary even though HACS config is present
-
-
+Prev/now/next date-range controls on the card
 
 
 Under consideration
