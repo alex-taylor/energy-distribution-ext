@@ -1,7 +1,5 @@
 TODO
 ----
-Prev/now/next date-range controls on the card
-
 
 Under consideration
 -------------------

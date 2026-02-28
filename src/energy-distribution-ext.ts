@@ -1231,7 +1231,24 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
     return html`
       <div>
-        <span class="date-label">${text}</span>
+        <div class="date-range">
+          <span class="date-label">${text}</span>
+          ${this._dateRangeDisplayMode === DateRangeDisplayMode.Dates
+            ? html`
+              <div class="date-range">
+                <ha-icon-button @click=${() => this._entityStates.gotoPreviousDate()}>
+                  <ha-icon .icon=${"mdi:chevron-left"}></ha-icon>
+                </ha-icon-button>
+                <ha-button appearance="filled" size="small" variant="brand" @click=${() => this._entityStates.isNowDateAvailable && this._entityStates.gotoNow()}>
+                  Now
+                </ha-button>
+                <ha-icon-button @click=${() => this._entityStates.isNextDateAvailable && this._entityStates.gotoNextDate()}>
+                  <ha-icon .icon=${"mdi:chevron-right"}></ha-icon>
+                </ha-icon-button>
+              </div>
+            `
+            : nothing}
+        </div>
         <hr class="separator"/>
       </div>
     `;

@@ -431,8 +431,14 @@ export const styles: CSSResult = css`
   .date-label {
     cursor: default;
     font-size: var(--ha-font-size-l);
+    width: 100%;
   }
 
+  .date-range {
+    display: flex; 
+    align-items: center;
+  }
+  
 `;
 
 //================================================================================================================================================================================//

@@ -144,7 +144,6 @@ export default {
 
   "DateRange": {
     [DateRange.Today]: "Today",
-    [DateRange.Yesterday]: "Yesterday",
     [DateRange.This_Week]: "This week",
     [DateRange.This_Month]: "This month",
     [DateRange.This_Quarter]: "This quarter",

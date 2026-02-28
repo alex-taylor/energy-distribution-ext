@@ -23,7 +23,6 @@ namespace Enums {
 
   export const DateRange = {
     Today: "today",
-    Yesterday: "yesterday",
     This_Week: "this_week",
     This_Month: "this_month",
     This_Quarter: "this_quarter",

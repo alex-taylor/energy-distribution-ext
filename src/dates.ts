@@ -1,5 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { Day, endOfDay, endOfMonth, endOfQuarter, endOfToday, endOfWeek, endOfYear, endOfYesterday, startOfDay, startOfMonth, startOfQuarter, startOfToday, startOfWeek, startOfYear, startOfYesterday, subDays, subMonths } from "date-fns";
+import { addDays, addMonths, addYears, Day, endOfDay, endOfMonth, endOfQuarter, endOfToday, endOfWeek, endOfYear, startOfDay, startOfMonth, startOfQuarter, startOfToday, startOfWeek, startOfYear, subDays, subMonths, subYears } from "date-fns";
 import { getWeekStartByLocale } from "weekstart";
 import { DateRange } from "@/enums";
 import memoizeOne from "memoize-one";
@@ -22,9 +22,6 @@ export function calculateDateRange(hass: HomeAssistant, range: DateRange): [Date
   const today: Date = new Date();
 
   switch (range) {
-    case DateRange.Yesterday:
-      return [startOfYesterday(), endOfYesterday()];
-
     case DateRange.This_Week: {
       const weekStartsOn: Day = firstWeekdayIndex(hass.locale.language, hass.locale["first_weekday"]);
       return [startOfWeek(today, {weekStartsOn}), endOfWeek(today, {weekStartsOn})];
@@ -50,6 +47,87 @@ export function calculateDateRange(hass: HomeAssistant, range: DateRange): [Date
   }
 
   return [startOfToday(), endOfToday()];
+}
+
+//================================================================================================================================================================================//
+
+export function calculatePreviousDateRange(range: DateRange, periodStart: Date, periodEnd: Date): [Date, Date] {
+  switch (range) {
+    case DateRange.Today:
+      periodStart = subDays(periodStart, 1);
+      periodEnd = subDays(periodEnd, 1);
+      break;
+
+    case DateRange.This_Week:
+    case DateRange.Last_7_Days:
+      periodStart = subDays(periodStart, 7);
+      periodEnd = subDays(periodEnd, 7);
+      break;
+
+    case DateRange.This_Month:
+      periodStart = subMonths(periodStart, 1);
+      periodEnd = endOfMonth(subMonths(periodEnd, 1));
+      break;
+
+    case DateRange.This_Quarter:
+      periodStart = subMonths(periodStart, 3);
+      periodEnd = endOfMonth(subMonths(periodEnd, 3));
+      break;
+
+    case DateRange.This_Year:
+    case DateRange.Last_12_Months:
+      periodStart = subYears(periodStart, 1);
+      periodEnd = endOfYear(subYears(periodEnd, 1));
+      break;
+
+    case DateRange.Last_30_Days:
+      periodStart = subDays(periodStart, 30);
+      periodEnd = subDays(periodEnd, 30);
+      break;
+  }
+
+  return [periodStart, periodEnd];
+}
+
+//================================================================================================================================================================================//
+
+export function calculateNextDateRange(range: DateRange, periodStart: Date, periodEnd: Date): [Date, Date] {
+  switch (range) {
+    case DateRange.Today:
+      periodStart = addDays(periodStart, 1);
+      periodEnd = addDays(periodEnd, 1);
+      break;
+
+    case DateRange.This_Week:
+    case DateRange.Last_7_Days:
+      periodStart = addDays(periodStart, 7);
+      periodEnd = addDays(periodEnd, 7);
+      break;
+
+    case DateRange.This_Month:
+      periodStart = addMonths(periodStart, 1);
+      periodEnd = endOfMonth(addMonths(periodEnd, 1));
+      break;
+
+    case DateRange.This_Quarter:
+      periodStart = addMonths(periodStart, 3);
+      periodEnd = endOfMonth(addMonths(periodEnd, 3));
+      break;
+
+    case DateRange.This_Year:
+    case DateRange.Last_12_Months:
+      periodStart = addYears(periodStart, 1);
+      periodEnd = endOfYear(addYears(periodEnd, 1));
+      break;
+
+    case DateRange.Last_30_Days:
+      periodStart = addDays(periodStart, 30);
+      periodEnd = addDays(periodEnd, 30);
+      break;
+
+  }
+
+  return [periodStart, periodEnd];
 }
 
 //================================================================================================================================================================================//

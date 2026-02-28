@@ -9,13 +9,13 @@ import { LowCarbonNode } from "@/nodes/low-carbon";
 import { SolarNode } from "@/nodes/solar";
 import { DeviceNode } from "@/nodes/device";
 import { addDays, addHours, differenceInDays, endOfToday, isFirstDayOfMonth, isLastDayOfMonth, startOfDay } from "date-fns";
-import { EnergyUnits, SIUnitPrefixes, VolumeUnits, checkEnumValue, DateRange, EnergyType, DeviceClasses, EnergyDirection, DisplayMode, StateClasses } from "@/enums";
+import { checkEnumValue, DateRange, DeviceClasses, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, SIUnitPrefixes, StateClasses, VolumeUnits } from "@/enums";
 import { LOGGER } from "@/logging";
 import { getEnergyDataCollection, getEnergyPreferences } from "@/energy";
 import { BiDiState, Flows, States } from "@/nodes";
 import { UNIT_CONVERSIONS } from "./unit-conversions";
 import { DEFAULT_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
-import { calculateDateRange } from "@/dates";
+import { calculateDateRange, calculateNextDateRange, calculatePreviousDateRange } from "@/dates";
 import { Node } from "@/nodes/node";
 import { GridNode } from "@/nodes/grid";
 import { POWER_UNITS } from "@/const";
@@ -84,6 +84,14 @@ export class EntityStates {
   }
 
   private _periodEnd: Date | undefined = undefined;
+
+  public get isNextDateAvailable(): boolean {
+    return !!this.periodEnd && this.periodEnd.getTime() < Date.now();
+  }
+
+  public get isNowDateAvailable(): boolean {
+    return !!this.periodStart && !!this.periodEnd && !(Date.now() >= this.periodStart.getTime() && Date.now() <= this.periodEnd.getTime());
+  }
 
   public get battery(): BatteryNode {
     return this._battery;
@@ -222,6 +230,34 @@ export class EntityStates {
     this._rescaleFlows(states);
 
     return states;
+  }
+
+  //================================================================================================================================================================================//
+
+  public gotoNextDate(): void {
+    let periodStart: Date = this.periodStart!;
+    let periodEnd: Date = this.periodEnd!;
+    [periodStart, periodEnd] = calculateNextDateRange(this._dateRange, periodStart, periodEnd);
+    this._loadStatistics(periodStart, periodEnd);
+  }
+
+  //================================================================================================================================================================================//
+
+  public gotoPreviousDate(): void {
+    let periodStart: Date = this.periodStart!;
+    let periodEnd: Date = this.periodEnd!;
+    [periodStart, periodEnd] = calculatePreviousDateRange(this._dateRange, periodStart, periodEnd);
+    this._loadStatistics(periodStart, periodEnd);
+  }
+
+  //================================================================================================================================================================================//
+
+  public gotoNow(): void {
+    let periodStart: Date;
+    let periodEnd: Date;
+    // eslint-disable-next-line prefer-const
+    [periodStart, periodEnd] = calculateDateRange(this.hass, this._dateRange);
+    this._loadStatistics(periodStart, periodEnd);
   }
 
   //================================================================================================================================================================================//
