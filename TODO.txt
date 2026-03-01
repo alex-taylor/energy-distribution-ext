@@ -4,6 +4,15 @@ TODO
 Under consideration
 -------------------
 
+  - have an optional dashboard link per node, accessed by clicking on its icon
+    - or a popup, see below
+    - perhaps have the dashboard in 'Energy' mode and the 'switch' popup in 'Power' mode
+
+  - have an optional on/off switch per device node
+    - requires a specific type of entity, not sure exactly what yet
+    - ideally should bring up a popup, rather than toggling power immediately, to avoid accidental clicks
+      - looks like the hass-more-info event will bring up the dialog for the entity, whatever that might be
+
   - ui-editor:
     - remove-defaults should strip redundant (ie, mode-specific) values out completely
       - this leaves a problem: it removes user settings which should be reinstated if they switch between modes with the dialog still open

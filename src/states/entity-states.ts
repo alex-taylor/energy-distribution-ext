@@ -491,7 +491,7 @@ export class EntityStates {
 
             if (delta < 0 && stateObj.attributes.state_class === StateClasses.Total_Increasing) {
               // a total_increasing sensor can only have a negative delta following a reset event
-              delta = 0;
+              delta = state;
             }
 
             deltaSum += this._toBaseUnits(delta, units, requestedUnits);
@@ -609,18 +609,18 @@ export class EntityStates {
 
       this._clearStates();
 
-      if (primaryData && Object.keys(primaryData).length !== 0) {
-        this._prepStatistics(primaries, primaryData, previousPrimaryData, periodStart, periodEnd);
+      if (primaryData) {
+        this._prepStatistics(primaries, primaryData, previousPrimaryData, periodEnd);
         this._primaryStatistics = primaryData;
         this._calculatePrimaryStatistics();
-        primaryDataProcessed = true;
+        primaryDataProcessed = Object.keys(primaryData).length !== 0;
       }
 
-      if (secondaryData && Object.keys(secondaryData).length !== 0) {
-        this._prepStatistics(secondaries, secondaryData, previousSecondaryData!, periodStart, periodEnd);
+      if (secondaryData) {
+        this._prepStatistics(secondaries, secondaryData, previousSecondaryData!, periodEnd);
         this._secondaryStatistics = secondaryData;
         this._calculateSecondaryStatistics();
-        secondaryDataProcessed = true;
+        secondaryDataProcessed = Object.keys(secondaryData).length !== 0;
       }
 
       if (primaryDataProcessed || secondaryDataProcessed) {
@@ -953,42 +953,60 @@ export class EntityStates {
 
   //================================================================================================================================================================================//
 
-  private _prepStatistics(entityIds: string[], currentStatistics: Statistics, previousStatistics: Statistics, periodStart: Date, periodEnd: Date): void {
+  private _prepStatistics(entityIds: string[], currentStatistics: Statistics, previousStatistics: Statistics, periodEnd: Date): void {
     entityIds.forEach(entity => {
-      const entityStats: StatisticValue[] = currentStatistics[entity];
+      const entityStats: StatisticValue[] = (currentStatistics[entity] || []).filter(stat => stat.state !== null);
+      const stateObj: HassEntity = this.hass.states[entity];
+      let previousStat: StatisticValue;
+      let lastState: number;
+      let lastStart: number;
 
-      if (!entityStats || entityStats.length === 0 || entityStats[0].start > periodStart.getTime()) {
-        let previousStat: StatisticValue;
+      if (previousStatistics && previousStatistics[entity] && previousStatistics[entity].length !== 0) {
+        // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate
+        // the Live-mode state-delta at midnight on the current date (ie, before the first stat of the new day has been generated) so we do
+        // not want to include its values in the stats calculations.
+        previousStat = previousStatistics[entity][0];
+        previousStat.change = 0;
+        lastState = previousStat.state ?? 0;
+        lastStart = previousStat.start;
+      } else {
+        // no previous stat exists, so fake one up
+        previousStat = {
+          change: 0,
+          state: Date.parse(stateObj.last_changed) <= periodEnd.getTime() ? Number(stateObj.state) : 0,
+          sum: 0,
+          start: -1,
+          end: -1,
+          min: 0,
+          mean: 0,
+          max: 0,
+          last_reset: null,
+          statistic_id: entity
+        };
 
-        if (previousStatistics && previousStatistics[entity] && previousStatistics[entity].length !== 0) {
-          // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate
-          // the Live-mode state-delta at midnight on the current date (ie, before the first stat of the new day has been generated) so we do
-          // not want to include its values in the stats calculations.
-          previousStat = previousStatistics[entity][0];
-          previousStat.change = 0;
-        } else {
-          // no previous stat exists, so fake one up
-          const stateObj: HassEntity = this.hass.states[entity];
+        lastState = 0;
+        lastStart = -1;
+      }
 
-          previousStat = {
-            change: 0,
-            state: Date.parse(stateObj.last_changed) <= periodEnd.getTime() ? Number(stateObj.state) : 0,
-            sum: 0,
-            start: -1,
-            end: -1,
-            min: 0,
-            mean: 0,
-            max: 0,
-            last_reset: null,
-            statistic_id: entity
-          };
+      if (entityStats) {
+        // sometimes the first 'change' value following a reset of the sensor is wrong, so fix it up
+        if (stateObj.attributes.state_class === StateClasses.Total_Increasing) {
+          entityStats.forEach(stat => {
+            const state: number = stat.state!;
+
+            if (lastStart === -1 || state - lastState < 0) {
+              stat.change = state;
+            }
+
+            lastState = state;
+            lastStart = stat.start;
+          });
         }
 
-        if (entityStats) {
-          entityStats.unshift(previousStat);
-        } else {
-          currentStatistics[entity] = [previousStat];
-        }
+        entityStats.unshift(previousStat);
+        currentStatistics[entity] = entityStats;
+      } else {
+        currentStatistics[entity] = [previousStat];
       }
     });
   }
