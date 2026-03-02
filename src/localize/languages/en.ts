@@ -156,9 +156,8 @@ export default {
 
   "DateRangeDisplayMode": {
     [DateRangeDisplayMode.Do_Not_Show]: "Do not show",
-    [DateRangeDisplayMode.Preset_Name]: "Preset name",
-    [DateRangeDisplayMode.Dates]: "Dates",
-    [DateRangeDisplayMode.Both]: "Preset name and dates"
+    [DateRangeDisplayMode.Label]: "Label",
+    [DateRangeDisplayMode.Controls]: "Label and controls"
   },
 
   "DeviceOptions": {

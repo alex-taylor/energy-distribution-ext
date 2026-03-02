@@ -35,9 +35,8 @@ namespace Enums {
 
   export const DateRangeDisplayMode = {
     Do_Not_Show: "do_not_show",
-    Preset_Name: "label",
-    Dates: "dates",
-    Both: "both"
+    Label: "label",
+    Controls: "controls"
   } as const satisfies Record<string, string>;
 
   export const DeviceClasses = {

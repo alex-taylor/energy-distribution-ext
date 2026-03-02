@@ -2,23 +2,23 @@ import { CSSResult, html, LitElement, nothing, PropertyValues, svg, TemplateResu
 import { HomeAssistant, LovelaceConfig, LovelaceViewConfig, Panel } from "custom-card-helpers";
 import { Decimal } from "decimal.js";
 import { customElement, property, state } from "lit/decorators.js";
-import { getConfigValue, DEFAULT_CONFIG, getMinimalConfig, getConfigObjects } from "@/config/config";
+import { DEFAULT_CONFIG, getConfigObjects, getConfigValue, getMinimalConfig } from "@/config/config";
 import { SubscribeMixin } from "@/energy/subscribe-mixin";
 import { localize } from "@/localize/localize";
 import { styles } from "@/style";
 import { BatteryNode } from "@/nodes/battery";
 import { GridNode } from "@/nodes/grid";
 import { SolarNode } from "@/nodes/solar";
-import { States, Flows } from "@/nodes";
+import { Flows, States } from "@/nodes";
 import { DataStatus, EntityStates } from "@/states/entity-states";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { LowCarbonDisplayMode, UnitPrefixes, CssClass, SIUnitPrefixes, InactiveFlowsMode, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, checkEnumValue, DateRange, DateRangeDisplayMode, EnergyType, AnimationMode, EnergyDirection, DisplayMode, DevicesLayout } from "@/enums";
+import { AnimationMode, checkEnumValue, CssClass, DateRange, DateRangeDisplayMode, DevicesLayout, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, SIUnitPrefixes, UnitPrefixes, VolumeUnits } from "@/enums";
 import { EDITOR_ELEMENT_NAME } from "@/ui-editor/ui-editor";
 import { CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, HOMEPAGE, ICON_PADDING, POWER_UNITS } from "@/const";
-import { EnergyDistributionExtConfig, AppearanceOptions, EditorPages, GlobalOptions, FlowsOptions, EnergyUnitsOptions, EnergyUnitsConfig, HomeOptions, LowCarbonOptions, NodeConfig } from "@/config";
-import { getRangePresetName, renderDateRange } from "@/ui-helpers/date-fns";
+import { AppearanceOptions, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, HomeOptions, LowCarbonOptions, NodeConfig } from "@/config";
+import { renderDateRange } from "@/ui-helpers/date-fns";
 import { AnimationDurations, FlowLine } from "@/ui-helpers";
-import { mdiArrowDown, mdiArrowUp, mdiArrowLeft, mdiArrowRight } from "@mdi/js";
+import { mdiArrowDown, mdiArrowLeft, mdiArrowRight, mdiArrowUp } from "@mdi/js";
 import { titleCase } from "title-case";
 import { repeat } from "lit/directives/repeat.js";
 import { Node, NodeContentRenderFn } from "@/nodes/node";
@@ -1207,33 +1207,20 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       return html``;
     }
 
-    const presetName: boolean = this._dateRangeDisplayMode === DateRangeDisplayMode.Preset_Name || this._dateRangeDisplayMode === DateRangeDisplayMode.Both;
-    const dates: boolean = this._dateRangeDisplayMode === DateRangeDisplayMode.Dates || this._dateRangeDisplayMode === DateRangeDisplayMode.Both;
-    let text: string = "";
+    let text: string;
+    const now: number = Date.now();
 
-    if (dates) {
-      text = renderDateRange(this.hass.locale.language, this._entityStates.periodStart, this._entityStates.periodEnd);
-    }
-
-    if (this._dateRange === DateRange.From_Date_Picker) {
-      if (!dates) {
-        return html``;
-      }
+    if (this._dateRange !== DateRange.From_Date_Picker && now >= this._entityStates.periodStart.getTime() && now <= this._entityStates.periodEnd.getTime()) {
+      text = localize("DateRange." + this._dateRange);
     } else {
-      const preset: string = getRangePresetName(this.hass, this._dateRange);
-
-      if (presetName && dates) {
-        text = `${preset} (${text})`;
-      } else if (presetName) {
-        text = `${preset}`;
-      }
+      text = renderDateRange(this.hass.locale.language, this._entityStates.periodStart, this._entityStates.periodEnd);
     }
 
     return html`
       <div>
         <div class="date-range">
           <span class="date-label">${text}</span>
-          ${this._dateRangeDisplayMode === DateRangeDisplayMode.Dates
+          ${this._dateRangeDisplayMode === DateRangeDisplayMode.Controls
             ? html`
               <div class="date-range">
                 <ha-icon-button @click=${() => this._entityStates.gotoPreviousDate()}>

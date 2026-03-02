@@ -12,6 +12,10 @@ export const styles: CSSResult = css`
     --label-height: calc(var(--ha-font-size-s) * var(--ha-line-height-normal));
   }
 
+  ha-card {
+    height: 100%;
+  }
+  
   .card-content {
     position: relative;
     direction: ltr;

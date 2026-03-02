@@ -1,8 +1,5 @@
-import { DateRange } from "@/enums";
 import { isFirstDayOfMonth, isLastDayOfMonth, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import memoizeOne from "memoize-one";
-import { localize } from "@/localize/localize";
-import { HomeAssistant } from "custom-card-helpers";
 
 //================================================================================================================================================================================//
 
@@ -54,11 +51,5 @@ export const renderDateRange = memoizeOne((language: string, start: Date, end: D
 
   return `${formatStart.format(start)} – ${formatEnd.format(end)}`;
 });
-
-//================================================================================================================================================================================//
-
-export function getRangePresetName(hass: HomeAssistant, range: DateRange): string {
-  return range === DateRange.From_Date_Picker ? localize("editor.from_date_picker") : hass.localize(`ui.components.date-range-picker.ranges.${range}`);
-}
 
 //================================================================================================================================================================================//
