@@ -1220,17 +1220,17 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       <div>
         <div class="date-range">
           <span class="date-label">${text}</span>
-          ${this._dateRangeDisplayMode === DateRangeDisplayMode.Controls
+          ${this._dateRangeDisplayMode === DateRangeDisplayMode.Controls && this._dateRange !== DateRange.From_Date_Picker
             ? html`
               <div class="date-range">
                 <ha-icon-button @click=${() => this._entityStates.gotoPreviousDate()}>
-                  <ha-icon .icon=${"mdi:chevron-left"}></ha-icon>
+                  <ha-icon class="date-range-icon" .icon=${"mdi:chevron-left"}></ha-icon>
                 </ha-icon-button>
                 <ha-button appearance="filled" size="small" variant="brand" @click=${() => this._entityStates.isNowDateAvailable && this._entityStates.gotoNow()}>
                   Now
                 </ha-button>
                 <ha-icon-button @click=${() => this._entityStates.isNextDateAvailable && this._entityStates.gotoNextDate()}>
-                  <ha-icon .icon=${"mdi:chevron-right"}></ha-icon>
+                  <ha-icon class="date-range-icon" .icon=${"mdi:chevron-right"}></ha-icon>
                 </ha-icon-button>
               </div>
             `
