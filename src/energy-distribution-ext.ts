@@ -828,7 +828,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       this._solarToHomePath = vertLine;
       this._batteryToHomePath = lowerRightLine;
       this._batteryToGridPath = horizLine;
-      this._gasToHomePath = `M${col1 + lineInset},${isRow1Present ? row3 : row2} H${col2 - lineInset}`;
+      this._gasToHomePath = `M${col3 - lineInset},${isRow1Present ? row3 : row2} H${col2 + lineInset}`;
     } else {
       this._solarToBatteryPath = vertLine;
       this._gridToHomePath = horizLine;
@@ -947,9 +947,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     ];
 
     layoutGrid[2] = [
-      entityStates.gas.isPresent && devicesLayout === DevicesLayout.Vertical
-        ? this._getNodeRenderFn(entityStates.gas.cssClass, entityStates.gas.name, entityStates.gas.render)
-        : undefined,
+      undefined,
 
       devicesLayout === DevicesLayout.Vertical
         ? this._getNodeRenderFn(entityStates.home.cssClass, "", entityStates.home.render)
@@ -957,7 +955,9 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
           ? this._getNodeRenderFn(entityStates.battery.cssClass, entityStates.battery.name, entityStates.battery.render)
           : undefined,
 
-      undefined
+      entityStates.gas.isPresent && devicesLayout === DevicesLayout.Vertical
+        ? this._getNodeRenderFn(entityStates.gas.cssClass, entityStates.gas.name, entityStates.gas.render)
+        : undefined
     ];
 
     const getDeviceRenderFn = (deviceIndex: number, importIcon: string, exportIcon: string): NodeRenderFn => {
