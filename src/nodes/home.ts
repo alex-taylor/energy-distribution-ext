@@ -38,7 +38,9 @@ export class HomeNode extends Node<HomeConfig> {
     const segmentGroups: SegmentGroup[] = [];
     let electricIcon: string | undefined;
     let gasIcon: string | undefined;
-    let electricTotal: number | undefined | null = !states ? null : states?.homeElectric;
+    let electricNet: number | undefined | null = !states ? null : states?.homeElectric;
+    const electricTotal: number | undefined | null = !states ? null : states?.totalElectric;
+    let gasNet: number | undefined | null;
     let gasTotal: number | undefined | null;
 
     this.setCssVariables(this.style);
@@ -104,19 +106,22 @@ export class HomeNode extends Node<HomeConfig> {
 
       switch (gasSourcesMode) {
         case GasSourcesMode.Add_To_Total:
-          electricTotal! += states.homeGas;
+          electricNet! += states.homeGas;
+          gasNet = undefined;
           gasTotal = undefined;
           electricIcon = gasIcon = undefined;
           break;
 
         case GasSourcesMode.Show_Separately:
-          gasTotal = this.gasUnits === VolumeUnits.Same_As_Electric ? states.homeGas : states.homeGasVolume;
+          gasNet = this.gasUnits === VolumeUnits.Same_As_Electric ? states.homeGas : states.homeGasVolume;
+          gasTotal = this.gasUnits === VolumeUnits.Same_As_Electric ? states.totalGas : states.totalGasVolume;
           electricIcon = mdiFlash;
           gasIcon = mdiFire;
           break;
 
         case GasSourcesMode.Do_Not_Show:
         default:
+          gasNet = undefined;
           gasTotal = undefined;
           electricIcon = gasIcon = undefined;
           break;
@@ -140,8 +145,8 @@ export class HomeNode extends Node<HomeConfig> {
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.homeSecondary, CssClass.Home)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, electricCss, this.electricUnits, undefined, electricIcon, electricTotal, overrideElectricUnitPrefix)}
-        ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasTotal, overrideGasUnitPrefix)}
+        ${this.renderEnergyStateSpan(target, electricCss, this.electricUnits, undefined, electricIcon, electricNet, electricNet !== electricTotal, overrideElectricUnitPrefix)}
+        ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasNet, gasNet !== gasTotal, overrideGasUnitPrefix)}
       </div>
     `;
   };

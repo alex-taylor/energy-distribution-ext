@@ -157,8 +157,8 @@ export class BatteryNode extends Node<BatteryConfig> {
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, this.orientation === DevicesLayout.Vertical ? 90 : 180, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.batterySecondary, CssClass.Battery)}
         <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, overridePrefix)}
-        ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, false, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, false, overridePrefix)}
       </div>
     `;
   }

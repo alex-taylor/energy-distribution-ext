@@ -157,6 +157,9 @@ export class EntityStates {
     lowCarbonSecondary: 0,
     solarImport: 0,
     solarSecondary: 0,
+    totalElectric: 0,
+    totalGas: 0,
+    totalGasVolume: 0,
     devicesElectric: [],
     devicesGas: [],
     devicesGasVolume: [],
@@ -538,6 +541,9 @@ export class EntityStates {
       lowCarbonSecondary: 0,
       solarImport: 0,
       solarSecondary: 0,
+      totalElectric: 0,
+      totalGas: 0,
+      totalGasVolume: 0,
       devicesElectric: [],
       devicesGas: [],
       devicesGasVolume: [],
@@ -1118,18 +1124,25 @@ export class EntityStates {
     states.homeGas = states.gasImport;
     states.homeGasVolume = states.gasImportVolume;
 
+    states.totalElectric = states.homeElectric;
+    states.totalGas = states.homeGas;
+    states.totalGasVolume = states.homeGasVolume;
+
     this.devices.forEach((device, index) => {
       if (device.type === EnergyType.Electric) {
         const deviceState: BiDiState = states.devicesElectric[index];
         states.homeElectric += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
+        states.totalElectric += deviceState.import;
         electricValues.push(deviceState.import, deviceState.export);
       } else {
         const deviceState: BiDiState = states.devicesGas[index];
         states.homeGas += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
+        states.totalGas += deviceState.import;
         gasValues.push(deviceState.import, deviceState.export);
 
         const deviceVolumeState: BiDiState = states.devicesGasVolume[index];
         states.homeGasVolume += deviceVolumeState.import - (device.subtractConsumption ? deviceVolumeState.export : 0);
+        states.totalGasVolume += deviceVolumeState.import;
         gasVolumeValues.push(deviceVolumeState.import, deviceVolumeState.export);
       }
     });

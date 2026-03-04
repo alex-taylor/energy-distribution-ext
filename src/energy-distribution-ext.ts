@@ -1072,10 +1072,10 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     const units: string = this._electricUnits.length > volumeUnits.length ? this._electricUnits : volumeUnits;
 
     const numChars: number = Math.max(
-      this._entityStates.home.renderEnergyState(9.999, units).length,
-      this._entityStates.home.renderEnergyState(99.999, units).length,
-      this._entityStates.home.renderEnergyState(999.999, units).length,
-      this._entityStates.home.renderEnergyState(9999.999, units).length
+      this._entityStates.home.renderEnergyState(9.999, units, true).length,
+      this._entityStates.home.renderEnergyState(99.999, units, true).length,
+      this._entityStates.home.renderEnergyState(999.999, units, true).length,
+      this._entityStates.home.renderEnergyState(9999.999, units, true).length
     );
 
     const textLineHeight: number = fontSize + ICON_PADDING;

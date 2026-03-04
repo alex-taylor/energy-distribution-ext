@@ -157,7 +157,7 @@ export abstract class Node<T> {
 
   //================================================================================================================================================================================//
 
-  protected renderEnergyStateSpan(target: LitElement, cssClass: string, units: string, entityId?: string, icon?: string, state?: number | null, overridePrefix?: SIUnitPrefixes): TemplateResult {
+  protected renderEnergyStateSpan(target: LitElement, cssClass: string, units: string, entityId?: string, icon?: string, state?: number | null, isEstimated: boolean = false, overridePrefix?: SIUnitPrefixes): TemplateResult {
     if (state === undefined || (state === 0 && !this._showZeroStates)) {
       return html``;
     }
@@ -167,14 +167,14 @@ export abstract class Node<T> {
     return html`
       <span class="value ${isIdle ? CssClass.Idle : CssClass.None} ${cssClass}" @click=${this._handleClick(target, entityId)} @keyDown=${this._handleKeyDown(target, entityId)}>
         <ha-svg-icon class="small ${icon ? "" : "hidden"}" .path=${icon}></ha-svg-icon>
-        ${isIdle ? localize("common.idle") : this.renderEnergyState(state, units, overridePrefix)}
+        ${isIdle ? localize("common.idle") : this.renderEnergyState(state, units, isEstimated, overridePrefix)}
       </span>
     `;
   }
 
   //================================================================================================================================================================================//
 
-  public renderEnergyState(state: number | null, units: string, overridePrefix?: SIUnitPrefixes): string {
+  public renderEnergyState(state: number | null, units: string, isEstimated: boolean = false, overridePrefix?: SIUnitPrefixes): string {
     if (state === null) {
       return localize("common.unavailable");
     }
@@ -196,7 +196,7 @@ export abstract class Node<T> {
     stateAsDecimal = stateAsDecimal.dividedBy(divisor);
     const decimals: number = getDisplayPrecisionForEnergyState(stateAsDecimal);
     const formattedValue = formatNumber(stateAsDecimal.toDecimalPlaces(decimals).toString(), this.hass.locale);
-    return this._formatState(formattedValue, overridePrefix + units, this._energyUnitPosition);
+    return (isEstimated ? "℮" : "") + this._formatState(formattedValue, overridePrefix + units, this._energyUnitPosition);
   }
 
   //================================================================================================================================================================================//

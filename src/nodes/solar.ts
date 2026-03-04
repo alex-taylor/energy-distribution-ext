@@ -85,7 +85,7 @@ export class SolarNode extends Node<SolarConfig> {
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
         ${this.renderSecondarySpan(target, this.secondary, states?.solarSecondary, CssClass.Solar)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, CssClass.Solar, this.electricUnits, this.firstImportEntity, undefined, primaryState, overridePrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Solar, this.electricUnits, this.firstImportEntity, undefined, primaryState, false, overridePrefix)}
       </div>
     `;
   }

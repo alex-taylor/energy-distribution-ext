@@ -60,7 +60,7 @@ export class GasNode extends Node<GasConfig> {
       <div class="circle ${inactiveCss}">
         ${this.renderSecondarySpan(target, this.secondary, states?.gasSecondary, CssClass.Gas)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, CssClass.Gas, units, this.firstImportEntity, undefined, primaryState, overrideGasPrefix)}
+        ${this.renderEnergyStateSpan(target, CssClass.Gas, units, this.firstImportEntity, undefined, primaryState, false, overrideGasPrefix)}
       </div>
     `;
   }

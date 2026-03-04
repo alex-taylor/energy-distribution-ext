@@ -35,6 +35,9 @@ export interface States {
   lowCarbonSecondary: number;
   solarImport: number;
   solarSecondary: number;
+  totalElectric: number;
+  totalGas: number;
+  totalGasVolume: number;
   devicesElectric: BiDiState[];
   devicesGas: BiDiState[];
   devicesGasVolume: BiDiState[];
