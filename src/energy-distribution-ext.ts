@@ -28,7 +28,6 @@ import memoizeOne from "memoize-one";
 import { SecondaryInfo } from "@/nodes/secondary-info";
 import { description, friendlyName, name } from '../package.json';
 import { calculateEnergyUnitPrefix } from "@/energy";
-import { de } from "date-fns/locale";
 
 //================================================================================================================================================================================//
 
