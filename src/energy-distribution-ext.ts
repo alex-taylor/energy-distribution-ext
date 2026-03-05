@@ -28,6 +28,7 @@ import memoizeOne from "memoize-one";
 import { SecondaryInfo } from "@/nodes/secondary-info";
 import { description, friendlyName, name } from '../package.json';
 import { calculateEnergyUnitPrefix } from "@/energy";
+import { de } from "date-fns/locale";
 
 //================================================================================================================================================================================//
 
@@ -148,6 +149,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _circleSize: number = CIRCLE_SIZE_MIN;
   private _devicesLayout: DevicesLayout = DevicesLayout.None;
   private _previousAnimationDurations: object = {};
+  private _showDeviceBus: boolean = true;
 
   //================================================================================================================================================================================//
 
@@ -366,6 +368,20 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
           </div>
         `;
       })}
+    `;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _renderDisplayBusNode = (nodeClass: CssClass, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
+    return html`
+      <div class="node ${nodeClass}" style="justify-content: ${this._devicesLayout === DevicesLayout.Vertical ? 'center' : ''};">
+        <div class="circle background">
+          <div class="circle">
+            test
+          </div>
+        </div>
+      </div>
     `;
   }
 
@@ -700,6 +716,12 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
+  private _requireDeviceBus(): boolean {
+    return this._entityStates.devices.filter(device => device.subtractConsumption).length !== 0;
+  }
+
+  //================================================================================================================================================================================//
+
   private _doDeviceLayout(width: number, circleSize: number, minColSpacing: number): number {
     const entityStates: EntityStates = this._entityStates;
     const numDeviceColumns: number = this._getNumDeviceColumns();
@@ -727,6 +749,8 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     const labelHeight: number = fontSize * this._getPropertyValue("ha-card", "--ha-line-height-normal");
     const circleSize: number = this._calculateCircleSize(fontSize, cardWidth);
     this._circleSize = circleSize;
+
+    this._showDeviceBus = this._requireDeviceBus();
 
     const columnSpacingRange: MinMax = this._getColSpacing(circleSize);
     const numColumns: number = this._doDeviceLayout(cardWidth, circleSize, columnSpacingRange.min);
@@ -847,7 +871,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         for (let index: number = 0, offset: number = FLOW_LINE_SPACING; index < this._entityStates.devices.length; index += 2, offset -= spacing) {
           const row: number = Math.floor(index / 2) + 1;
           const startY = row3 + rowPitch * row;
-          const endY: number = row3 + lineInset - startY;
+          const endY: number = row3 - startY + (this._showDeviceBus ? rowPitch : 0);
 
           let startX: number = col1 + lineInset;
           let endX: number = col2 - startX - offset;
@@ -863,7 +887,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         for (let index: number = 0, offset: number = FLOW_LINE_SPACING; index < this._entityStates.devices.length; index += 2, offset -= spacing) {
           const col: number = Math.floor(index / 2) + 1;
           const startX: number = col3 + colPitch * col;
-          const endX: number = col3 + lineInset - startX;
+          const endX: number = col3 - startX + (this._showDeviceBus ? colPitch : 0);
 
           let startY: number = row1 + lineInset;
           let endY: number = row2 - startY - offset;
@@ -882,7 +906,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _getNumDeviceColumns(): number {
     const numDevices: number = this._entityStates.devices.length;
 
-    if (numDevices <= 1 || (numDevices === 2 && !this._entityStates.gas.isPresent)) {
+    if (!this._showDeviceBus && (numDevices <= 1 || (numDevices === 2 && !this._entityStates.gas.isPresent))) {
       return 0;
     }
 
@@ -969,6 +993,10 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
           layoutGrid[1][column] = undefined;
           layoutGrid[2][column] = ++n < entityStates.devices.length ? getDeviceRenderFn(n, mdiArrowUp, mdiArrowDown) : undefined;
         }
+
+        if (this._showDeviceBus) {
+          layoutGrid[1][3] = this._renderDisplayBusNode;
+        }
         break;
 
       case DevicesLayout.Vertical:
@@ -978,6 +1006,10 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
             undefined,
             (++n < entityStates.devices.length) ? getDeviceRenderFn(n, mdiArrowLeft, mdiArrowRight) : undefined
           ];
+        }
+
+        if (this._showDeviceBus) {
+          layoutGrid[3][1] = this._renderDisplayBusNode;
         }
         break;
     }
