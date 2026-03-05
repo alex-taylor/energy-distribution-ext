@@ -413,7 +413,7 @@ export abstract class Node<T> {
   private _calculateEnergyUnitPrefix(value: Decimal): SIUnitPrefixes {
     const prefixes: SIUnitPrefixes[] = Object.values(SIUnitPrefixes);
 
-    value = value.abs();
+    value = value.abs().toDecimalPlaces(0);
 
     for (let n: number = 0; n < prefixes.length; n++) {
       if (value.lessThan(this._prefixThreshold)) {
