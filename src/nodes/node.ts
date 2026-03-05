@@ -1,4 +1,4 @@
-import { ColoursConfig, NodeOptions, EntitiesOptions, OverridesOptions, isValidPrimaryEntity, EnergyDistributionExtConfig, EditorPages, FlowsOptions, AppearanceOptions, GlobalOptions, SecondaryInfoConfig, SecondaryInfoOptions, EnergyUnitsConfig, EnergyUnitsOptions, DeviceConfig, FlowsConfig, ColourOptions } from "@/config";
+import { AppearanceOptions, ColourOptions, ColoursConfig, DeviceConfig, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, EntitiesOptions, FlowsConfig, FlowsOptions, GlobalOptions, isValidPrimaryEntity, NodeOptions, OverridesOptions, SecondaryInfoConfig, SecondaryInfoOptions } from "@/config";
 import { formatNumber, HomeAssistant } from "custom-card-helpers";
 import { SecondaryInfo } from "./secondary-info";
 import { DEFAULT_CONFIG, DEFAULT_DEVICE_CONFIG, getConfigObjects, getConfigValue } from "@/config/config";
@@ -11,6 +11,7 @@ import { BiDiState, States } from ".";
 import { Segment, SegmentGroup } from "@/ui-helpers";
 import { CIRCLE_STROKE_WIDTH_SEGMENTS } from "@/const";
 import { repeat } from "lit/directives/repeat.js";
+import { calculateEnergyUnitPrefix } from "@/energy";
 
 //================================================================================================================================================================================//
 
@@ -73,15 +74,15 @@ export abstract class Node<T> {
   //================================================================================================================================================================================//
 
   protected constructor(
-      hass: HomeAssistant,
-      cardConfig: EnergyDistributionExtConfig,
-      style: CSSStyleDeclaration,
-      node: EditorPages,
-      nodeClass: CssClass,
-      index: number | undefined = undefined,
-      deviceClasses: DeviceClasses[] = [],
-      hassImportEntities: string[] = [],
-      hassExportEntities: string[] = []) {
+    hass: HomeAssistant,
+    cardConfig: EnergyDistributionExtConfig,
+    style: CSSStyleDeclaration,
+    node: EditorPages,
+    nodeClass: CssClass,
+    index: number | undefined = undefined,
+    deviceClasses: DeviceClasses[] = [],
+    hassImportEntities: string[] = [],
+    hassExportEntities: string[] = []) {
 
     this.hass = hass;
     this.style = style;
@@ -188,10 +189,10 @@ export abstract class Node<T> {
     let stateAsDecimal: Decimal = new Decimal(state);
 
     if (!overridePrefix) {
-      overridePrefix = this._calculateEnergyUnitPrefix(stateAsDecimal);
+      overridePrefix = calculateEnergyUnitPrefix(stateAsDecimal, this._prefixThreshold);
     }
 
-    const prefixes: string[] = Object.values(SIUnitPrefixes);
+    const prefixes: SIUnitPrefixes[] = Object.values(SIUnitPrefixes);
     const divisor: number = 1000 ** prefixes.indexOf(overridePrefix);
     stateAsDecimal = stateAsDecimal.dividedBy(divisor);
     const decimals: number = getDisplayPrecisionForEnergyState(stateAsDecimal);
@@ -277,34 +278,34 @@ export abstract class Node<T> {
     return html`
       <svg>
         ${repeat(
-            segmentGroups,
-            (_, index) => index,
-            (_, groupIdx) => {
-              const group: SegmentGroup = segmentGroups[groupIdx];
-              let activeSegments: number = 0;
-              let stateTotal: number = 0;
+          segmentGroups,
+          (_, index) => index,
+          (_, groupIdx) => {
+            const group: SegmentGroup = segmentGroups[groupIdx];
+            let activeSegments: number = 0;
+            let stateTotal: number = 0;
 
-              group.segments.forEach(segment => {
-                if (segment.state > 0) {
-                  stateTotal += this._scale === Scale.Linear ? segment.state : Math.log(segment.state);
-                  activeSegments++;
-                }
-              });
+            group.segments.forEach(segment => {
+              if (segment.state > 0) {
+                stateTotal += this._scale === Scale.Linear ? segment.state : Math.log(segment.state);
+                activeSegments++;
+              }
+            });
 
-              if (activeSegments === 0) {
-                let cssFlow: string = group.inactiveCss;
+            if (activeSegments === 0) {
+              let cssFlow: string = group.inactiveCss;
 
-                switch (this._inactiveFlowsMode) {
-                  case InactiveFlowsMode.Dimmed:
-                    cssFlow += " " + CssClass.Dimmed;
-                    break;
+              switch (this._inactiveFlowsMode) {
+                case InactiveFlowsMode.Dimmed:
+                  cssFlow += " " + CssClass.Dimmed;
+                  break;
 
-                  case InactiveFlowsMode.Greyed:
-                    cssFlow = CssClass.Inactive;
-                    break;
-                }
+                case InactiveFlowsMode.Greyed:
+                  cssFlow = CssClass.Inactive;
+                  break;
+              }
 
-                return svg`
+              return svg`
           <circle
             class="${cssFlow}"
             cx = "${centre}"
@@ -315,31 +316,31 @@ export abstract class Node<T> {
             shape-rendering="geometricPrecision"
           />
         `;
-              }
+            }
 
-              const totalSegmentLengths: number = groupLength - (activeSegments === 1 ? 0 : (activeSegments - (segmentGroups.length === 1 ? 0 : 1)) * interSegmentLength);
-              let segmentToRender: number = 0;
+            const totalSegmentLengths: number = groupLength - (activeSegments === 1 ? 0 : (activeSegments - (segmentGroups.length === 1 ? 0 : 1)) * interSegmentLength);
+            let segmentToRender: number = 0;
 
-              return html`
-                ${repeat(
-                    group.segments,
-                    (_, index) => index,
-                    (_, segmentIdx) => {
-                      const segment: Segment = group.segments[segmentIdx];
+            return html`
+              ${repeat(
+                group.segments,
+                (_, index) => index,
+                (_, segmentIdx) => {
+                  const segment: Segment = group.segments[segmentIdx];
 
-                      if (segmentIdx === 0) {
-                        offset = groupIdx * (groupLength + interGroupLength) + startingOffset + interGroupLength;
-                      }
+                  if (segmentIdx === 0) {
+                    offset = groupIdx * (groupLength + interGroupLength) + startingOffset + interGroupLength;
+                  }
 
-                      if (segment.state === 0) {
-                        return ``;
-                      }
+                  if (segment.state === 0) {
+                    return ``;
+                  }
 
-                      const interSegmentGap: number = segmentToRender++ > 0 || segmentGroups.length === 1 ? interSegmentLength : 0;
-                      length = (this._scale === Scale.Linear ? segment.state : Math.log(segment.state)) / stateTotal * totalSegmentLengths;
-                      offset += interSegmentGap + length;
+                  const interSegmentGap: number = segmentToRender++ > 0 || segmentGroups.length === 1 ? interSegmentLength : 0;
+                  length = (this._scale === Scale.Linear ? segment.state : Math.log(segment.state)) / stateTotal * totalSegmentLengths;
+                  offset += interSegmentGap + length;
 
-                      return svg`
+                  return svg`
           <circle
             class="${segment.cssClass}"
             cx = "${centre}"
@@ -350,10 +351,10 @@ export abstract class Node<T> {
             shape-rendering="geometricPrecision"
           />
           `;
-                    }
-                )}
-              `;
-            }
+                }
+              )}
+            `;
+          }
         )}
       </svg>
     `;
@@ -407,24 +408,6 @@ export abstract class Node<T> {
 
     target.dispatchEvent(e);
   };
-
-  //================================================================================================================================================================================//
-
-  private _calculateEnergyUnitPrefix(value: Decimal): SIUnitPrefixes {
-    const prefixes: SIUnitPrefixes[] = Object.values(SIUnitPrefixes);
-
-    value = value.abs().toDecimalPlaces(0);
-
-    for (let n: number = 0; n < prefixes.length; n++) {
-      if (value.lessThan(this._prefixThreshold)) {
-        return prefixes[n];
-      }
-
-      value = value.dividedBy(1000);
-    }
-
-    return prefixes[prefixes.length - 1];
-  }
 
   //================================================================================================================================================================================//
 

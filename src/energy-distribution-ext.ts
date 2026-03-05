@@ -27,6 +27,7 @@ import equal from "fast-deep-equal";
 import memoizeOne from "memoize-one";
 import { SecondaryInfo } from "@/nodes/secondary-info";
 import { description, friendlyName, name } from '../package.json';
+import { calculateEnergyUnitPrefix } from "@/energy";
 
 //================================================================================================================================================================================//
 
@@ -337,8 +338,8 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _render = memoizeOne((width: number, states?: States): TemplateResult => {
     this._calculateLayout(width);
 
-    const electricUnitPrefix: SIUnitPrefixes | undefined = states && this._electricUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue)) : undefined;
-    const gasUnitPrefix: SIUnitPrefixes | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? this._calculateEnergyUnitPrefix(new Decimal(states.largestGasValue)) : undefined;
+    const electricUnitPrefix: SIUnitPrefixes | undefined = states && this._electricUnitPrefixes === UnitPrefixes.Unified ? calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue), this._prefixThreshold) : undefined;
+    const gasUnitPrefix: SIUnitPrefixes | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? calculateEnergyUnitPrefix(new Decimal(states.largestGasValue), this._prefixThreshold) : undefined;
     const animationDurations: AnimationDurations | undefined = states ? this._calculateAnimationDurations(states) : undefined;
 
     return html`
@@ -380,24 +381,6 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         ${nodeClass !== CssClass.Top_Row ? html`<span class="label">${nodeLabel || html`&nbsp;`}</span>` : nothing}
       </div>
     `;
-  }
-
-  //================================================================================================================================================================================//
-
-  private _calculateEnergyUnitPrefix(value: Decimal): SIUnitPrefixes {
-    const prefixes: SIUnitPrefixes[] = Object.values(SIUnitPrefixes);
-
-    value = value.abs();
-
-    for (let n: number = 0; n < prefixes.length; n++) {
-      if (value.lessThan(this._prefixThreshold)) {
-        return prefixes[n];
-      }
-
-      value = value.dividedBy(1000);
-    }
-
-    return prefixes[prefixes.length - 1];
   }
 
   //================================================================================================================================================================================//
