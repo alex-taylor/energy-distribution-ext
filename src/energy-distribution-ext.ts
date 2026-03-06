@@ -119,6 +119,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _gasToHomePath: string = "";
   private _lowCarbonToGridPath: string = "";
   private _devicePaths: string[] = [];
+  private _deviceBusPath: string = "";
   private _layoutGrid: NodeRenderFn[][] = [];
 
   private _configs!: EnergyDistributionExtConfig[];
@@ -570,6 +571,8 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
     return html`
       <svg class="lines" xmlns="http://www.w3.org/2000/svg">
+        <path class="device-bus" d="${this._deviceBusPath}"></path>
+        
         ${repeat(lines, (_, index) => index, (_, index) => {
           const line: FlowLine = lines[index];
           let cssLine: string = line.cssLine;
@@ -831,6 +834,11 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       this._batteryToHomePath = lowerRightLine;
       this._batteryToGridPath = lowerLeftLine;
       this._gasToHomePath = `M${col3},${row1 + lineInset} V${row2 - lineInset}`;
+
+      if (this._showDeviceBus) {
+        const radius: number = circleSize / 2 + DOT_DIAMETER;
+        this._deviceBusPath = `M${col3},${row2 - radius} h${colPitch} a${radius} ${radius} 0 0 1 0,${radius * 2} h${-colPitch} a${radius} ${radius} 0 0 1 0,${-radius * 2}`;
+      }
     }
 
     this._lowCarbonToGridPath = `M${col1},${row1 + lineInset} V${row2 - lineInset}`;

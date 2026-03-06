@@ -109,6 +109,10 @@ export const styles: CSSResult = css`
     font-style: italic;
   }
   
+  .device-bus {
+    stroke: var(--primary-text-color);
+  }
+  
   .background {
     border-width: 0;
     background-color: var(--card-background-color);

@@ -308,9 +308,9 @@ export abstract class Node<T> {
               return svg`
           <circle
             class="${cssFlow}"
-            cx = "${centre}"
-            cy = "${centre}"
-            r = "${radius}"
+            cx="${centre}"
+            cy="${centre}"
+            r="${radius}"
             stroke-dasharray="${groupLength} ${circumference - groupLength}"
             stroke-dashoffset="${(groupIdx + 1) * (groupLength + interGroupLength) - circumference + startingOffset}"
             shape-rendering="geometricPrecision"
