@@ -1,6 +1,5 @@
 import { localize } from "@/localize/localize";
 import { ColourOptions, EditorPages, EnergyDistributionExtConfig, HomeConfig } from "@/config";
-import { Node } from "./node";
 import { HomeAssistant } from "custom-card-helpers";
 import { ColourMode, CssClass, EnergyDirection, GasSourcesMode, SIUnitPrefixes, VolumeUnits } from "@/enums";
 import { Colours, STYLE_PRIMARY_TEXT_COLOR } from "./colours";
@@ -9,6 +8,7 @@ import { Flows, States } from ".";
 import { getConfigValue } from "@/config/config";
 import { getGasSourcesMode, SegmentGroup } from "@/ui-helpers";
 import { mdiFire, mdiFlash } from "@mdi/js";
+import { Node } from "@/nodes/node";
 
 //================================================================================================================================================================================//
 
@@ -22,7 +22,7 @@ export class HomeNode extends Node<HomeConfig> {
   protected readonly defaultName: string = localize("EditorPages.home");
   protected readonly defaultIcon: string = "mdi:home";
 
-  private readonly _circleMode: ColourMode;
+  protected readonly _circleMode: ColourMode;
 
   //================================================================================================================================================================================//
 
@@ -34,13 +34,11 @@ export class HomeNode extends Node<HomeConfig> {
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, circleSize: number, states?: States, overrideElectricUnitPrefix?: SIUnitPrefixes, overrideGasUnitPrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, circleSize: number, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
     const segmentGroups: SegmentGroup[] = [];
     let electricIcon: string | undefined;
     let gasIcon: string | undefined;
-    let electricNet: number | undefined | null = !states ? null : states?.homeElectric;
-    const electricTotal: number | undefined | null = !states ? null : states?.totalElectric;
-    let gasNet: number | undefined | null;
+    let electricTotal: number | undefined | null = !states ? null : this.getElectricState(states);
     let gasTotal: number | undefined | null;
 
     this.setCssVariables(this.style);
@@ -91,9 +89,9 @@ export class HomeNode extends Node<HomeConfig> {
 
         if (gasSourcesMode !== GasSourcesMode.Do_Not_Show) {
           segmentGroups[0].segments.unshift({
-            state: states.gasImport,
-            cssClass: CssClass.Gas
-          },
+              state: states.gasImport,
+              cssClass: CssClass.Gas
+            },
             ...(states.devicesGas.map((deviceState, index) => {
               return {
                 state: deviceState.import,
@@ -106,22 +104,19 @@ export class HomeNode extends Node<HomeConfig> {
 
       switch (gasSourcesMode) {
         case GasSourcesMode.Add_To_Total:
-          electricNet! += states.homeGas;
-          gasNet = undefined;
+          electricTotal = !electricTotal ? this.getGasState(states) : electricTotal + (this.getGasState(states) ?? 0);
           gasTotal = undefined;
           electricIcon = gasIcon = undefined;
           break;
 
         case GasSourcesMode.Show_Separately:
-          gasNet = this.gasUnits === VolumeUnits.Same_As_Electric ? states.homeGas : states.homeGasVolume;
-          gasTotal = this.gasUnits === VolumeUnits.Same_As_Electric ? states.totalGas : states.totalGasVolume;
+          gasTotal = this.gasUnits === VolumeUnits.Same_As_Electric ? this.getGasState(states) : this.getGasVolumeState(states);
           electricIcon = mdiFlash;
           gasIcon = mdiFire;
           break;
 
         case GasSourcesMode.Do_Not_Show:
         default:
-          gasNet = undefined;
           gasTotal = undefined;
           electricIcon = gasIcon = undefined;
           break;
@@ -135,7 +130,7 @@ export class HomeNode extends Node<HomeConfig> {
       });
     }
 
-    const inactiveCss: string = !states || states.homeElectric === 0 ? this.inactiveFlowsCss : CssClass.None;
+    const inactiveCss: string = !states || this.getElectricState(states) === 0 ? this.inactiveFlowsCss : CssClass.None;
     const electricCss: string = CssClass.Home + " " + CssClass.Electric;
     const gasCss: string = CssClass.Home + " " + CssClass.Gas;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
@@ -143,13 +138,37 @@ export class HomeNode extends Node<HomeConfig> {
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">
         ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
-        ${this.renderSecondarySpan(target, this.secondary, states?.homeSecondary, CssClass.Home)}
+        ${this.renderSecondaryState(target, states)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, electricCss, this.electricUnits, undefined, electricIcon, electricNet, electricNet !== electricTotal, overrideElectricUnitPrefix)}
-        ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasNet, gasNet !== gasTotal, overrideGasUnitPrefix)}
+        ${this.renderEnergyStateSpan(target, electricCss, this.electricUnits, undefined, electricIcon, electricTotal, false, overrideElectricPrefix)}
+        ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasTotal, false, overrideGasPrefix)}
       </div>
     `;
   };
+
+  //================================================================================================================================================================================//
+
+  protected getElectricState(states?: States): number | undefined  {
+    return states?.homeElectric;
+  }
+
+  //================================================================================================================================================================================//
+
+  protected getGasState(states?: States): number | undefined  {
+    return states?.homeGas;
+  }
+
+  //================================================================================================================================================================================//
+
+  protected getGasVolumeState(states?: States): number | undefined {
+    return states?.homeGasVolume;
+  }
+
+  //================================================================================================================================================================================//
+
+  protected renderSecondaryState(target: LitElement, states?: States): TemplateResult  {
+    return html`${this.renderSecondarySpan(target, this.secondary, states?.homeSecondary, CssClass.Home)}`;
+  }
 
   //================================================================================================================================================================================//
 

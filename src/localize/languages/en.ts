@@ -18,7 +18,8 @@ export default {
     "power_outage": "Power outage",
     "timed_out": "Timed out while loading data",
     "unavailable": "Unavailable",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "untracked": "Untracked consumption"
   },
 
   "editor": {

@@ -104,6 +104,11 @@ export const styles: CSSResult = css`
     color: var(--primary-text-color);
   }
 
+  .untracked {
+    padding-bottom: 5px;
+    font-style: italic;
+  }
+  
   .background {
     border-width: 0;
     background-color: var(--card-background-color);

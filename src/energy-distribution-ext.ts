@@ -28,6 +28,7 @@ import memoizeOne from "memoize-one";
 import { SecondaryInfo } from "@/nodes/secondary-info";
 import { description, friendlyName, name } from '../package.json';
 import { calculateEnergyUnitPrefix } from "@/energy";
+import { DeviceBus } from "@/nodes/device-bus";
 
 //================================================================================================================================================================================//
 
@@ -149,6 +150,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _devicesLayout: DevicesLayout = DevicesLayout.None;
   private _previousAnimationDurations: object = {};
   private _showDeviceBus: boolean = true;
+  private _deviceBus!: DeviceBus;
 
   //================================================================================================================================================================================//
 
@@ -166,6 +168,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
   public hassSubscribe(): Promise<UnsubscribeFunc>[] {
     this._entityStates = new EntityStates(this.hass, this._config);
+    this._deviceBus = new DeviceBus(this.hass, this._config, this.style);
     return [this._entityStates.subscribe(this._config, this.style)];
   }
 
@@ -367,20 +370,6 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
           </div>
         `;
       })}
-    `;
-  }
-
-  //================================================================================================================================================================================//
-
-  private _renderDisplayBusNode = (nodeClass: CssClass, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
-    return html`
-      <div class="node ${nodeClass}" style="justify-content: ${this._devicesLayout === DevicesLayout.Vertical ? 'center' : ''};">
-        <div class="circle background">
-          <div class="circle">
-            test
-          </div>
-        </div>
-      </div>
     `;
   }
 
@@ -994,7 +983,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         }
 
         if (this._showDeviceBus) {
-          layoutGrid[1][3] = this._renderDisplayBusNode;
+          layoutGrid[1][3] = this._getNodeRenderFn(this._deviceBus.cssClass, this._deviceBus.name, this._deviceBus.render);
         }
         break;
 
@@ -1008,7 +997,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         }
 
         if (this._showDeviceBus) {
-          layoutGrid[3][1] = this._renderDisplayBusNode;
+          layoutGrid[3][1] = this._getNodeRenderFn(this._deviceBus.cssClass, this._deviceBus.name, this._deviceBus.render);
         }
         break;
     }

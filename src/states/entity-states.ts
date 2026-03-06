@@ -157,9 +157,9 @@ export class EntityStates {
     lowCarbonSecondary: 0,
     solarImport: 0,
     solarSecondary: 0,
-    totalElectric: 0,
-    totalGas: 0,
-    totalGasVolume: 0,
+    untrackedElectric: 0,
+    untrackedGas: 0,
+    untrackedGasVolume: 0,
     devicesElectric: [],
     devicesGas: [],
     devicesGasVolume: [],
@@ -541,9 +541,9 @@ export class EntityStates {
       lowCarbonSecondary: 0,
       solarImport: 0,
       solarSecondary: 0,
-      totalElectric: 0,
-      totalGas: 0,
-      totalGasVolume: 0,
+      untrackedElectric: 0,
+      untrackedGas: 0,
+      untrackedGasVolume: 0,
       devicesElectric: [],
       devicesGas: [],
       devicesGasVolume: [],
@@ -577,7 +577,7 @@ export class EntityStates {
 
   private async _loadStatistics(periodStart: Date, periodEnd: Date): Promise<void> {
     if (this._primaryEntityIds.length !== 0 || this._secondaryEntityIds.length !== 0) {
-      // if the new period follows directly on from the current one, do not set the 'requested' flag as this will cause the display to show "Loading...", which is unnecessary
+      // if the new period is the same as or follows directly on from the current one, do not set the 'requested' flag as this will cause the display to show "Loading...", which is unnecessary
       if (!this._isRollover(periodStart) && (periodStart !== this.periodStart || periodEnd !== this.periodEnd)) {
         this._primaryStatistics = undefined;
         this._secondaryStatistics = undefined;
@@ -964,8 +964,6 @@ export class EntityStates {
       const entityStats: StatisticValue[] = (currentStatistics[entity] || []).filter(stat => stat.state !== null);
       const stateObj: HassEntity = this.hass.states[entity];
       let previousStat: StatisticValue;
-      let lastState: number;
-      let lastStart: number;
 
       if (previousStatistics && previousStatistics[entity] && previousStatistics[entity].length !== 0) {
         // This entry is the final stat prior to the period we are interested in.  It is only needed for the case where we need to calculate
@@ -973,8 +971,6 @@ export class EntityStates {
         // not want to include its values in the stats calculations.
         previousStat = previousStatistics[entity][0];
         previousStat.change = 0;
-        lastState = previousStat.state ?? 0;
-        lastStart = previousStat.start;
       } else {
         // no previous stat exists, so fake one up
         previousStat = {
@@ -989,26 +985,9 @@ export class EntityStates {
           last_reset: null,
           statistic_id: entity
         };
-
-        lastState = 0;
-        lastStart = -1;
       }
 
       if (entityStats) {
-        // sometimes the first 'change' value following a reset of the sensor is wrong, so fix it up
-        if (stateObj.attributes.state_class === StateClasses.Total_Increasing) {
-          entityStats.forEach(stat => {
-            const state: number = stat.state!;
-
-            if (lastStart === -1 || state - lastState < 0) {
-              stat.change = state;
-            }
-
-            lastState = state;
-            lastStart = stat.start;
-          });
-        }
-
         entityStats.unshift(previousStat);
         currentStatistics[entity] = entityStats;
       } else {
@@ -1124,25 +1103,25 @@ export class EntityStates {
     states.homeGas = states.gasImport;
     states.homeGasVolume = states.gasImportVolume;
 
-    states.totalElectric = states.homeElectric;
-    states.totalGas = states.homeGas;
-    states.totalGasVolume = states.homeGasVolume;
+    states.untrackedElectric = states.homeElectric;
+    states.untrackedGas = states.homeGas;
+    states.untrackedGasVolume = states.homeGasVolume;
 
     this.devices.forEach((device, index) => {
       if (device.type === EnergyType.Electric) {
         const deviceState: BiDiState = states.devicesElectric[index];
-        states.homeElectric += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
-        states.totalElectric += deviceState.import;
+        states.homeElectric += deviceState.import;
+        states.untrackedElectric += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
         electricValues.push(deviceState.import, deviceState.export);
       } else {
         const deviceState: BiDiState = states.devicesGas[index];
-        states.homeGas += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
-        states.totalGas += deviceState.import;
+        states.homeGas += deviceState.import;
+        states.untrackedGas += deviceState.import - (device.subtractConsumption ? deviceState.export : 0);
         gasValues.push(deviceState.import, deviceState.export);
 
         const deviceVolumeState: BiDiState = states.devicesGasVolume[index];
-        states.homeGasVolume += deviceVolumeState.import - (device.subtractConsumption ? deviceVolumeState.export : 0);
-        states.totalGasVolume += deviceVolumeState.import;
+        states.homeGasVolume += deviceVolumeState.import;
+        states.untrackedGasVolume += deviceVolumeState.import - (device.subtractConsumption ? deviceVolumeState.export : 0);
         gasVolumeValues.push(deviceVolumeState.import, deviceVolumeState.export);
       }
     });
