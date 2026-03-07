@@ -33,8 +33,8 @@ export class BatteryNode extends Node<BatteryConfig> {
       CssClass.Battery,
       undefined,
       ELECTRIC_ENTITY_CLASSES,
-      BatteryNode._getHassImportEntities(energySources),
-      BatteryNode._getHassExportEntities(energySources)
+      Node.getHassEntities(energySources, "battery", "from"),
+      Node.getHassEntities(energySources, "battery", "to")
     );
 
     this._circleMode = getConfigValue(this.cardConfigs, [EditorPages.Battery, NodeOptions.Colours, ColourOptions.Circle], value => checkEnumValue(value, ColourMode));
@@ -161,20 +161,6 @@ export class BatteryNode extends Node<BatteryConfig> {
         ${this.renderEnergyStateSpan(target, CssClass.Battery_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, false, overridePrefix)}
       </div>
     `;
-  }
-
-  //================================================================================================================================================================================//
-
-  private static _getHassImportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources.filter(source => source.type === "battery" && source.stat_energy_from).map(source => source.stat_energy_from!)
-      .concat(energySources.filter(source => source.type === "battery" && source.stat_rate).map(source => source.stat_rate!));
-  }
-
-  //================================================================================================================================================================================//
-
-  private static _getHassExportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources.filter(source => source.type === "battery" && source.stat_energy_to).map(source => source.stat_energy_to!)
-      .concat(energySources.filter(source => source.type === "battery" && source.stat_rate).map(source => source.stat_rate!));
   }
 
   //================================================================================================================================================================================//

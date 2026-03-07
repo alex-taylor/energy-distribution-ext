@@ -12,6 +12,7 @@ import { Segment, SegmentGroup } from "@/ui-helpers";
 import { CIRCLE_STROKE_WIDTH_SEGMENTS } from "@/const";
 import { repeat } from "lit/directives/repeat.js";
 import { calculateEnergyUnitPrefix } from "@/energy";
+import { EnergySource } from "@/hass";
 
 //================================================================================================================================================================================//
 
@@ -226,6 +227,24 @@ export abstract class Node<T> {
     style.setProperty(`--importValue-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Value_Import, state));
     style.setProperty(`--exportValue-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Value_Export, state));
     style.setProperty(`--secondary-${this.cssClass}-color`, this.colours.getColour(ColourOptions.Secondary, state));
+  }
+
+  //================================================================================================================================================================================//
+
+  protected static getHassEntities = (energySources: EnergySource[], type: string, direction: string): string[] => {
+    return energySources?.filter(source => source.type === type)
+      .flatMap(source => (source[`flow_${direction}`]
+        ? source[`flow_${direction}`].map(from => from[`stat_energy_${direction}`])
+        : source[`stat_energy_${direction}`]
+          ? [source[`stat_energy_${direction}`]]
+          : [])
+        .concat(source.stat_rate
+          ? [source.stat_rate]
+          : source.power
+            ? source.power.map(power => power.stat_rate)
+            : source.power_config
+              ? [source.power_config.stat_rate]
+              : []));
   }
 
   //================================================================================================================================================================================//

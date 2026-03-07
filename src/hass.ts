@@ -94,6 +94,9 @@ export interface EnergySource {
   power?: {
     stat_rate: string;
   }[];
+  power_config?: {
+    stat_rate: string;
+  };
 }
 
 export interface DeviceConsumptionEnergyPreference {

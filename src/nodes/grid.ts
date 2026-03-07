@@ -40,8 +40,8 @@ export class GridNode extends Node<GridConfig> {
       CssClass.Grid,
       undefined,
       ELECTRIC_ENTITY_CLASSES,
-      GridNode._getHassImportEntities(energySources),
-      GridNode._getHassExportEntities(energySources)
+      Node.getHassEntities(energySources, "grid", "from"),
+      Node.getHassEntities(energySources, "grid", "to")
     );
 
     const powerOutageConfig: PowerOutageConfig[] = getConfigObjects(this.nodeConfigs, GridOptions.Power_Outage);
@@ -163,29 +163,13 @@ export class GridNode extends Node<GridConfig> {
         ${this.renderSecondarySpan(target, this.secondary, states?.gridSecondary, CssClass.Grid)}
         <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, false, overridePrefix)
-        : html`<span class="${CssClass.Grid} power-outage">${localize("common.power_outage")}</span>`}
+          ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, false, overridePrefix)
+          : html`<span class="${CssClass.Grid} power-outage">${localize("common.power_outage")}</span>`}
         ${!isOutage
-        ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, false, overridePrefix)
-        : nothing}
+          ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, false, overridePrefix)
+          : nothing}
       </div>
     `;
-  }
-
-  //================================================================================================================================================================================//
-
-  private static _getHassImportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources?.filter(source => source.type === "grid")
-      .flatMap(source => (source.flow_from ? source.flow_from.map(from => from.stat_energy_from) : [])
-        .concat(source.power ? source.power.map(power => power.stat_rate) : []));
-  }
-
-  //================================================================================================================================================================================//
-
-  private static _getHassExportEntities = (energySources: EnergySource[]): string[] => {
-    return energySources?.filter(source => source.type === "grid")
-      .flatMap(source => (source.flow_to ? source.flow_to.map(to => to!.stat_energy_to) : [])
-        .concat(source.power ? source.power.map(power => power.stat_rate) : []));
   }
 
   //================================================================================================================================================================================//

@@ -10,7 +10,6 @@ import { Flows, States } from ".";
 import { getConfigValue } from "@/config/config";
 import { SegmentGroup } from "@/ui-helpers";
 
-//================================================================================================================================================================================//
 
 export class SolarNode extends Node<SolarConfig> {
   public readonly colours: Colours;
@@ -31,7 +30,7 @@ export class SolarNode extends Node<SolarConfig> {
       CssClass.Solar,
       undefined,
       ELECTRIC_ENTITY_CLASSES,
-      SolarNode._getHassEntities(energySources)
+      Node.getHassEntities(energySources, "solar", "from")
     );
 
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
@@ -40,7 +39,7 @@ export class SolarNode extends Node<SolarConfig> {
     this.style.setProperty("--flow-solar-color", this.colours.importFlow);
   }
 
-  //================================================================================================================================================================================//
+  //===============================================================================================================================================================================//
 
   public readonly render = (target: LitElement, circleSize: number, states?: States, overridePrefix?: SIUnitPrefixes): TemplateResult => {
     const segmentGroups: SegmentGroup[] = [];
@@ -88,13 +87,6 @@ export class SolarNode extends Node<SolarConfig> {
         ${this.renderEnergyStateSpan(target, CssClass.Solar, this.electricUnits, this.firstImportEntity, undefined, primaryState, false, overridePrefix)}
       </div>
     `;
-  }
-
-  //================================================================================================================================================================================//
-
-  private static _getHassEntities = (energySources: EnergySource[]): string[] => {
-    return energySources.filter(source => source.type === "solar" && source.stat_energy_from).map(source => source.stat_energy_from!)
-      .concat(energySources.filter(source => source.type === "solar" && source.stat_rate).map(source => source.stat_rate!));
   }
 
   //================================================================================================================================================================================//
