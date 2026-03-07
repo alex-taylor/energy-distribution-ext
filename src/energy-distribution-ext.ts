@@ -571,7 +571,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
     return html`
       <svg class="lines" xmlns="http://www.w3.org/2000/svg">
-        <path class="device-bus" d="${this._deviceBusPath}"></path>
+        ${this._showDeviceBus ? svg`<path class="${CssClass.Device_Bus}" d="${this._deviceBusPath}"></path>` : nothing}
         
         ${repeat(lines, (_, index) => index, (_, index) => {
           const line: FlowLine = lines[index];
@@ -739,6 +739,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     const fontSize: number = this._getFontSize();
     const labelHeight: number = fontSize * this._getPropertyValue("ha-card", "--ha-line-height-normal");
     const circleSize: number = this._calculateCircleSize(fontSize, cardWidth);
+    const circleRadius: number = circleSize / 2;
     this._circleSize = circleSize;
 
     this._showDeviceBus = this._requireDeviceBus();
@@ -757,19 +758,19 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     const colSpacing: number = Math.max(columnSpacingRange.min, (layoutWidth - numColumns * circleSize) / (numColumns - 1));
 
     const colPitch: number = circleSize + colSpacing;
-    const col1: number = circleSize / 2;
+    const col1: number = circleRadius;
     const col2: number = col1 + colPitch;
     const col3: number = col2 + colPitch;
 
     const rowPitch: number = circleSize + rowSpacing;
     const isRow1Present: boolean = (entityStates.lowCarbon.isPresent && entityStates.grid.isPresent) || entityStates.solar.isPresent || entityStates.gas.isPresent || devicesLayout === DevicesLayout.Horizontal || devicesLayout === DevicesLayout.Inline_Above;
     const isRow2Present: boolean = entityStates.grid.isPresent || devicesLayout !== DevicesLayout.Vertical || (devicesLayout === DevicesLayout.Vertical && entityStates.battery.isPresent);
-    const row1: number = labelHeight + circleSize / 2;
-    const row2: number = isRow1Present ? row1 + rowPitch : circleSize / 2;
-    const row3: number = isRow2Present ? row2 + rowPitch : circleSize / 2;
+    const row1: number = labelHeight + circleRadius;
+    const row2: number = isRow1Present ? row1 + rowPitch : circleRadius + rowSpacing - labelHeight;
+    const row3: number = isRow2Present ? row2 + rowPitch : circleRadius + rowSpacing - labelHeight;
 
-    const lineInset: number = circleSize / 2 - DOT_DIAMETER;
-    const flowLineCurved: number = circleSize / 2 + rowSpacing - FLOW_LINE_SPACING;
+    const lineInset: number = circleRadius - DOT_DIAMETER;
+    const flowLineCurved: number = circleRadius + rowSpacing - FLOW_LINE_SPACING;
     const flowLineCurvedControl: number = Math.round(flowLineCurved / 3);
 
     let horizLinePresent: boolean;
@@ -827,6 +828,11 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       this._batteryToHomePath = lowerRightLine;
       this._batteryToGridPath = horizLine;
       this._gasToHomePath = `M${col3 - lineInset},${isRow1Present ? row3 : row2} H${col2 + lineInset}`;
+
+      if (this._showDeviceBus) {
+        const radius: number = circleRadius + DOT_DIAMETER;
+        this._deviceBusPath = `M${col2 + radius},${row3} v${rowPitch} a${radius} ${radius} 0 0 1 ${-radius * 2},0 v${-rowPitch} a${radius} ${radius} 0 0 1 ${radius * 2},0`;
+      }
     } else {
       this._solarToBatteryPath = vertLine;
       this._gridToHomePath = horizLine;
@@ -836,7 +842,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       this._gasToHomePath = `M${col3},${row1 + lineInset} V${row2 - lineInset}`;
 
       if (this._showDeviceBus) {
-        const radius: number = circleSize / 2 + DOT_DIAMETER;
+        const radius: number = circleRadius + DOT_DIAMETER;
         this._deviceBusPath = `M${col3},${row2 - radius} h${colPitch} a${radius} ${radius} 0 0 1 0,${radius * 2} h${-colPitch} a${radius} ${radius} 0 0 1 0,${-radius * 2}`;
       }
     }
@@ -953,7 +959,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       undefined,
 
       devicesLayout === DevicesLayout.Vertical
-        ? this._getNodeRenderFn(entityStates.home.cssClass, "", entityStates.home.render)
+        ? this._getNodeRenderFn(entityStates.home.cssClass, this._showDeviceBus ? entityStates.home.name : "", entityStates.home.render)
         : entityStates.battery.isPresent
           ? this._getNodeRenderFn(entityStates.battery.cssClass, entityStates.battery.name, entityStates.battery.render)
           : undefined,
@@ -1255,7 +1261,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   //================================================================================================================================================================================//
 
   private _getColSpacing(circleSize: number): MinMax {
-    return { min: Math.round(circleSize / 10), max: Math.round(circleSize * 5 / 8) }
+    return { min: Math.max(DOT_DIAMETER * 2, Math.round(circleSize / 10)), max: Math.round(circleSize * 5 / 8) }
   }
 
   //================================================================================================================================================================================//

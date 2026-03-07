@@ -1,7 +1,7 @@
 // noinspection CssUnresolvedCustomProperty,CssUnusedSymbol
 
 import { css, CSSResult } from 'lit';
-import { CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, ICON_PADDING } from '@/const';
+import { CIRCLE_STROKE_WIDTH, CIRCLE_STROKE_WIDTH_SEGMENTS, DOT_RADIUS, ICON_PADDING } from '@/const';
 
 //================================================================================================================================================================================//
 
@@ -25,7 +25,7 @@ export const styles: CSSResult = css`
 
   .lines {
     position: absolute;
-    width: calc(100% - 2 * var(--ha-space-4));
+    width: calc(100% - 2 * var(--ha-space-4) + ${DOT_RADIUS * 2 + 2}px);
     height: calc(100% - 2 * var(--ha-space-4));
   }
 
@@ -111,6 +111,7 @@ export const styles: CSSResult = css`
   
   .device-bus {
     stroke: var(--primary-text-color);
+    stroke-dasharray: 5;
   }
   
   .background {
@@ -151,6 +152,11 @@ export const styles: CSSResult = css`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+  }
+  
+  .home .label {
+    background-color: var(--card-background-color);
+    padding: 0 5px 0 5px;
   }
 
   path {

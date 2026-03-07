@@ -1,7 +1,7 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { EnergyDistributionExtConfig } from "@/config";
 import { HomeNode } from "@/nodes/home";
-import { ColourMode } from "@/enums";
+import { ColourMode, CssClass } from "@/enums";
 import { States } from "@/nodes/index";
 import { html, LitElement, TemplateResult } from "lit";
 import { localize } from "@/localize/localize";
@@ -10,6 +10,7 @@ import { localize } from "@/localize/localize";
 
 export class DeviceBus extends HomeNode {
 
+  public readonly cssClass: CssClass = CssClass.Device_Bus;
   protected readonly defaultName: string = "";
   protected readonly defaultIcon: string = "";
   protected readonly _circleMode: ColourMode = ColourMode.Do_Not_Colour;

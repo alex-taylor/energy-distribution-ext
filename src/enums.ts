@@ -191,6 +191,7 @@ export enum CssClass {
   Battery_Export = "export-battery",
   Battery_Import = "import-battery",
   Device = "device",
+  Device_Bus = "device-bus",
   Electric = "electric",
   Gas = "gas",
   Grid = "grid",
