@@ -382,19 +382,28 @@ export class EntityStates {
 
     this.devices.forEach((device, index) => {
       if (device.type === EnergyType.Gas) {
-        if (device.direction !== EnergyDirection.Consumer_Only) {
-          states.devicesGas[index].import += this._getStateDelta(Direction.Normal, primaryStatistics, device.importEntities, energyUnits);
-          states.devicesGasVolume[index].import += this._getStateDelta(Direction.Normal, primaryStatistics, device.importEntities, volumeUnits);
-        }
+        switch (device.direction) {
+          case EnergyDirection.Producer_Only:
+            states.devicesGas[index].import += this._getStateDelta(Direction.Normal, primaryStatistics, device.importEntities, energyUnits);
+            states.devicesGasVolume[index].import += this._getStateDelta(Direction.Normal, primaryStatistics, device.importEntities, volumeUnits);
+            break;
 
-        if (device.direction !== EnergyDirection.Producer_Only) {
-          if (this._mode === DisplayMode.Power) {
-            states.devicesGas[index].export -= this._getStateDelta(Direction.Normal, primaryStatistics, device.exportEntities, energyUnits);
-            states.devicesGasVolume[index].export -= this._getStateDelta(Direction.Normal, primaryStatistics, device.exportEntities, volumeUnits);
-          } else {
+          case EnergyDirection.Consumer_Only:
+            if (this._mode === DisplayMode.Power) {
+              states.devicesGas[index].export += this._getStateDelta(Direction.Normal, primaryStatistics, device.exportEntities, energyUnits);
+              states.devicesGasVolume[index].export += this._getStateDelta(Direction.Normal, primaryStatistics, device.exportEntities, volumeUnits);
+            } else {
+              states.devicesGas[index].export += this._getStateDelta(Direction.Reverse, primaryStatistics, device.exportEntities, energyUnits);
+              states.devicesGasVolume[index].export += this._getStateDelta(Direction.Reverse, primaryStatistics, device.exportEntities, volumeUnits);
+            }
+            break;
+
+          case EnergyDirection.Both:
+            states.devicesGas[index].import += this._getStateDelta(Direction.Normal, primaryStatistics, device.importEntities, energyUnits);
+            states.devicesGasVolume[index].import += this._getStateDelta(Direction.Normal, primaryStatistics, device.importEntities, volumeUnits);
             states.devicesGas[index].export += this._getStateDelta(Direction.Reverse, primaryStatistics, device.exportEntities, energyUnits);
             states.devicesGasVolume[index].export += this._getStateDelta(Direction.Reverse, primaryStatistics, device.exportEntities, volumeUnits);
-          }
+            break;
         }
       } else {
         switch (device.direction) {
