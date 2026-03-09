@@ -163,10 +163,10 @@ export class GridNode extends Node<GridConfig> {
         ${this.renderSecondarySpan(target, this.secondary, states?.gridSecondary, CssClass.Grid)}
         <ha-icon class="entity-icon" .icon=${icon}></ha-icon>
         ${!isOutage
-          ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, false, overridePrefix)
+          ? this.renderEnergyStateSpan(target, CssClass.Grid_Export, this.electricUnits, this.firstExportEntity, exportIcon, exportState, overridePrefix)
           : html`<span class="${CssClass.Grid} power-outage">${localize("common.power_outage")}</span>`}
         ${!isOutage
-          ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, false, overridePrefix)
+          ? this.renderEnergyStateSpan(target, CssClass.Grid_Import, this.electricUnits, this.firstImportEntity, importIcon, importState, overridePrefix)
           : nothing}
       </div>
     `;

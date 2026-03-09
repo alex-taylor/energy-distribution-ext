@@ -9,7 +9,7 @@ import Decimal from "decimal.js";
 import { Colours } from "./colours";
 import { BiDiState, States } from ".";
 import { Segment, SegmentGroup } from "@/ui-helpers";
-import { CIRCLE_STROKE_WIDTH_SEGMENTS } from "@/const";
+import { CIRCLE_STROKE_WIDTH_SEGMENTS, MAX_DECIMALS } from "@/const";
 import { repeat } from "lit/directives/repeat.js";
 import { calculateEnergyUnitPrefix } from "@/energy";
 import { EnergySource } from "@/hass";
@@ -148,9 +148,9 @@ export abstract class Node<T> {
     this.gasUnits = this.mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
     this._energyUnitPosition = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Unit_Position, value => checkEnumValue(value, UnitPosition));
     this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
-    this._displayPrecisionUnder10 = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Under_10);
-    this._displayPrecisionUnder100 = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Under_100);
-    this._displayPrecision = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Default);
+    this._displayPrecisionUnder10 = Math.max(Math.min(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Under_10), MAX_DECIMALS), 0);
+    this._displayPrecisionUnder100 = Math.max(Math.min(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Under_100), MAX_DECIMALS), 0);
+    this._displayPrecision = Math.max(Math.min(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Default), MAX_DECIMALS), 0);
   }
 
   //================================================================================================================================================================================//
@@ -159,7 +159,7 @@ export abstract class Node<T> {
 
   //================================================================================================================================================================================//
 
-  protected renderEnergyStateSpan(target: LitElement, cssClass: string, units: string, entityId?: string, icon?: string, state?: number | null, isEstimated: boolean = false, overridePrefix?: SIUnitPrefixes): TemplateResult {
+  protected renderEnergyStateSpan(target: LitElement, cssClass: string, units: string, entityId?: string, icon?: string, state?: number | null, overridePrefix?: SIUnitPrefixes): TemplateResult {
     if (state === undefined || (state === 0 && !this._showZeroStates)) {
       return html``;
     }
@@ -169,19 +169,19 @@ export abstract class Node<T> {
     return html`
       <span class="value ${isIdle ? CssClass.Idle : CssClass.None} ${cssClass}" @click=${this._handleClick(target, entityId)} @keyDown=${this._handleKeyDown(target, entityId)}>
         <ha-svg-icon class="small ${icon ? "" : "hidden"}" .path=${icon}></ha-svg-icon>
-        ${isIdle ? localize("common.idle") : this.renderEnergyState(state, units, isEstimated, overridePrefix)}
+        ${isIdle ? localize("common.idle") : this.renderEnergyState(state, units, overridePrefix)}
       </span>
     `;
   }
 
   //================================================================================================================================================================================//
 
-  public renderEnergyState(state: number | null, units: string, isEstimated: boolean = false, overridePrefix?: SIUnitPrefixes): string {
+  public renderEnergyState(state: number | null, units: string, overridePrefix?: SIUnitPrefixes): string {
     if (state === null) {
       return localize("common.unavailable");
     }
 
-    if (isNaN(state) || (this.mode === DisplayMode.Energy && state < 0)) {
+    if (isNaN(state)) {
       return localize("common.unknown");
     }
 
@@ -197,8 +197,14 @@ export abstract class Node<T> {
     const divisor: number = 1000 ** prefixes.indexOf(overridePrefix);
     stateAsDecimal = stateAsDecimal.dividedBy(divisor);
     const decimals: number = getDisplayPrecisionForEnergyState(stateAsDecimal);
-    const formattedValue = formatNumber(stateAsDecimal.toDecimalPlaces(decimals).toString(), this.hass.locale);
-    return (isEstimated ? "℮" : "") + this._formatState(formattedValue, overridePrefix + units, this._energyUnitPosition);
+    stateAsDecimal = stateAsDecimal.toDecimalPlaces(decimals);
+
+    if (this.mode === DisplayMode.Energy && stateAsDecimal.isNegative() && !stateAsDecimal.isZero()) {
+      return localize("common.unknown");
+    }
+
+    const formattedValue = formatNumber(stateAsDecimal.toString(), this.hass.locale);
+    return this._formatState(formattedValue, overridePrefix + units, this._energyUnitPosition);
   }
 
   //================================================================================================================================================================================//

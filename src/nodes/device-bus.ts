@@ -1,10 +1,11 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistant, round } from "custom-card-helpers";
 import { EnergyDistributionExtConfig } from "@/config";
 import { HomeNode } from "@/nodes/home";
 import { ColourMode, CssClass } from "@/enums";
 import { States } from "@/nodes/index";
 import { html, LitElement, TemplateResult } from "lit";
 import { localize } from "@/localize/localize";
+import { MAX_DECIMALS } from "@/const";
 
 //================================================================================================================================================================================//
 
@@ -13,7 +14,7 @@ export class DeviceBus extends HomeNode {
   public readonly cssClass: CssClass = CssClass.Device_Bus;
   protected readonly defaultName: string = "";
   protected readonly defaultIcon: string = "";
-  protected readonly _circleMode: ColourMode = ColourMode.Do_Not_Colour;
+  protected readonly circleMode: ColourMode = ColourMode.Do_Not_Colour;
 
   public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration) {
     super(hass, cardConfig, style);
@@ -22,19 +23,19 @@ export class DeviceBus extends HomeNode {
   //================================================================================================================================================================================//
 
   protected getElectricState(states?: States): number | undefined {
-    return states?.untrackedElectric === states?.homeElectric ? undefined : states?.untrackedElectric;
+    return !states ? undefined : this._getState(states.homeElectric, states.untrackedElectric);
   }
 
   //================================================================================================================================================================================//
 
   protected getGasState(states?: States): number | undefined {
-    return states?.untrackedGas === states?.homeGas ? undefined : states?.untrackedGas;
+    return !states ? undefined : this._getState(states.homeGas, states.untrackedGas);
   }
 
   //================================================================================================================================================================================//
 
   protected getGasVolumeState(states?: States): number | undefined {
-    return states?.untrackedGasVolume === states?.homeGasVolume ? undefined : states?.untrackedGasVolume;
+    return !states ? undefined : this._getState(states.homeGasVolume, states.untrackedGasVolume);
   }
 
   //================================================================================================================================================================================//
@@ -43,6 +44,15 @@ export class DeviceBus extends HomeNode {
     return html`<span class="untracked">${localize("common.untracked")}</span>`;
   }
 
+  //================================================================================================================================================================================//
+
+  private _getState(homeState: number, untrackedState: number): number | undefined {
+    homeState = round(homeState, MAX_DECIMALS) || 0;
+    untrackedState = round(untrackedState, MAX_DECIMALS) || 0;
+    return homeState === untrackedState || untrackedState === 0 ? undefined : untrackedState;
+  }
+
+  //================================================================================================================================================================================//
 }
 
 //================================================================================================================================================================================//

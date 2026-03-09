@@ -10,3 +10,5 @@ export const HELPTEXT_SUFFIX: string = "#helptext";
 export const POWER_UNITS: string = "W";
 
 export const HOMEPAGE: string = "https://github.com/alex-taylor/energy-distribution-ext";
+
+export const MAX_DECIMALS: number = 3;

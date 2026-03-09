@@ -22,13 +22,13 @@ export class HomeNode extends Node<HomeConfig> {
   protected readonly defaultName: string = localize("EditorPages.home");
   protected readonly defaultIcon: string = "mdi:home";
 
-  protected readonly _circleMode: ColourMode;
+  protected readonly circleMode: ColourMode;
 
   //================================================================================================================================================================================//
 
   public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration) {
     super(hass, cardConfig, style, EditorPages.Home, CssClass.Home);
-    this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
+    this.circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
     this.colours = new Colours(this.coloursConfigs, EnergyDirection.Consumer_Only);
   }
 
@@ -51,7 +51,7 @@ export class HomeNode extends Node<HomeConfig> {
     if (states) {
       const gasSourcesMode: GasSourcesMode = states.gasPresent ? getGasSourcesMode(this.nodeConfigs, states) : GasSourcesMode.Do_Not_Show;
 
-      if (this._circleMode === ColourMode.Dynamic) {
+      if (this.circleMode === ColourMode.Dynamic) {
         const flows: Flows = states.flows;
 
         segmentGroups.push(
@@ -123,7 +123,7 @@ export class HomeNode extends Node<HomeConfig> {
       }
 
       this._setHomeNodeCssVariables(states, this.style);
-    } else if (this._circleMode == ColourMode.Dynamic) {
+    } else if (this.circleMode == ColourMode.Dynamic) {
       segmentGroups.push({
         inactiveCss: this.useHassStyles ? CssClass.Grid_Import : CssClass.Inactive,
         segments: [{ state: 0, cssClass: CssClass.None }]
@@ -133,15 +133,15 @@ export class HomeNode extends Node<HomeConfig> {
     const inactiveCss: string = !states || this.getElectricState(states) === 0 ? this.inactiveFlowsCss : CssClass.None;
     const electricCss: string = CssClass.Home + " " + CssClass.Electric;
     const gasCss: string = CssClass.Home + " " + CssClass.Gas;
-    const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
+    const borderCss: CssClass = this.circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
     return html`
       <div class="circle ${borderCss} ${inactiveCss}">
-        ${this._circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
+        ${this.circleMode === ColourMode.Dynamic ? this.renderSegmentedCircle(segmentGroups, circleSize, 0, this.showSegmentGaps) : nothing}
         ${this.renderSecondaryState(target, states)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
-        ${this.renderEnergyStateSpan(target, electricCss, this.electricUnits, undefined, electricIcon, electricTotal, false, overrideElectricPrefix)}
-        ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasTotal, false, overrideGasPrefix)}
+        ${this.renderEnergyStateSpan(target, electricCss, this.electricUnits, undefined, electricIcon, electricTotal, overrideElectricPrefix)}
+        ${this.renderEnergyStateSpan(target, gasCss, this._getVolumeUnits(), undefined, gasIcon, gasTotal, overrideGasPrefix)}
       </div>
     `;
   };

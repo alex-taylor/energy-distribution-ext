@@ -3,6 +3,7 @@ import { ColourMode, EnergyUnits, VolumeUnits, InactiveFlowsMode, PrefixThreshol
 import { localize } from '@/localize/localize';
 import { BASIC_COLOUR_MODES, BASIC_COLOUR_MODES_DUAL, BASIC_COLOUR_MODES_SINGLE, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
+import { MAX_DECIMALS } from "@/const";
 
 //================================================================================================================================================================================//
 
@@ -362,7 +363,7 @@ export const secondaryInfoSchema = memoizeOne((secondaryEntities: string[]): obj
 //================================================================================================================================================================================//
 
 const displayPrecisionSelector = memoizeOne((): object => {
-  return { number: { mode: SelectorModes.Box, min: 0, max: 3, unit_of_measurement: "dp" } };
+  return { number: { mode: SelectorModes.Box, min: 0, max: MAX_DECIMALS, unit_of_measurement: "dp" } };
 });
 
 //================================================================================================================================================================================//
