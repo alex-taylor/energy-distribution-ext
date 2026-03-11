@@ -73,10 +73,9 @@
     "typescript-eslint": "^8.55.0"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c -p terser",
+    "debug": "rollup -c",
     "lint": "eslint src/**",
-    "start": "rollup -wc",
-    "watch": "rollup -c --watch",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "precommit": "pnpm typecheck && pnpm test"
