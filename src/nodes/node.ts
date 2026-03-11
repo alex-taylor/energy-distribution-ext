@@ -196,10 +196,10 @@ export abstract class Node<T> {
     const prefixes: SIUnitPrefixes[] = Object.values(SIUnitPrefixes);
     const divisor: number = 1000 ** prefixes.indexOf(overridePrefix);
     stateAsDecimal = stateAsDecimal.dividedBy(divisor);
-    const decimals: number = getDisplayPrecisionForEnergyState(stateAsDecimal);
+    const decimals: number = getDisplayPrecisionForEnergyState(stateAsDecimal.abs());
     stateAsDecimal = stateAsDecimal.toDecimalPlaces(decimals);
 
-    if (this.mode === DisplayMode.Energy && stateAsDecimal.isNegative() && !stateAsDecimal.isZero()) {
+    if (stateAsDecimal.isNegative() && !stateAsDecimal.isZero()) {
       return localize("common.unknown");
     }
 
