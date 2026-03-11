@@ -5,30 +5,35 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=flat-square)](https://github.com/hacs/integration)
 ![commit_activity](https://img.shields.io/github/commit-activity/y/alex-taylor/energy-distribution-ext?color=brightgreen&label=Commits&style=flat-square)
 
-An upgraded and configurable Energy Distribution Card, with a raft of new features and improvements.  It supports both Energy and Power flows, additional Devices and live sensor-data display.
+### An upgraded and configurable Energy Distribution Card, with a raft of new features and improvements. It supports both Energy and Power flows, additional Devices and live sensor-data display.
+
+![Image2.png](docs/images/Image2.png)
 
 ---
 
-[What's new](#features)
+## Contents
 
-[Installation](#installation)
+### [What's new](#features)
 
-[Getting started](#getting-started)
+### [Installation](#installation)
 
-[Customising the card](#customisation)
+### [Getting started](#getting-started)
 
-[Example configurations](#example-configurations)
+### [User guide](docs/user-guide.md)
+
+### [Reference manual](docs/config.md)
 
 ---
 
 ### Features
+
 - Optional automatic loading of the config from the [Energy Dashboard](https://www.home-assistant.io/docs/energy/) for hassle-free out-of-the-box setup
 - Configure entities independently of the Energy Dashboard
 - Add any number of entities for each circle
 - Display either Energy flows or Power flows
-- Add Devices - entities which either consume energy within the home, supply energy to it or both - so you can see where in your home energy is being used
+- Add Devices - entities which either consume energy/power within the home, supply energy/power to it or both - so you can see where in your home energy/power is being used
 - Show secondary data from other entities
-- Click on values to display the entity's details
+- Click on the state-values to display the entity's details
 - Connect to an Energy Date Picker card and refresh as the selected date-range changes, or select a fixed date-range
 - Show the latest values from the entities, rather than just the current statistics from the database
 - Use hourly statistics to calculate the flows more accurately
@@ -38,6 +43,7 @@ An upgraded and configurable Energy Distribution Card, with a raft of new featur
 - Show power-outages on the grid
 
 ### Customisation
+
 - Rename the circles
 - Change the icons
 - Change the colours
@@ -51,7 +57,8 @@ An upgraded and configurable Energy Distribution Card, with a raft of new featur
 - Choose where or if to show the units for values
 
 ### Graphical improvements
-- Circles can show where the energy they produce was sent, and where the energy they received came from
+
+- Circles can show where the energy/power they produce was sent, and where the energy/power they received came from
 - The flow-line dots stay the same size as the card is resized
 - Circles resize to fit their content
 - Optional gaps between segments in circles to improve clarity
@@ -98,27 +105,22 @@ If you use the graphical editor, add the resource:
 4. Select [Resources](http://home-assistant.local/config/lovelace/resources)
 5. Click the (+ Add Resource) button
 6. Enter URL `/local/energy-distribution-ext.js` and select type `JavaScript Module`
- 
+
 </details>
 
 ---
 
 ## Getting started
 
-A newly-created Energy Distribution Extended card will have a similar appearance and behaviour to the official HASS card.  If that is all you need then no additional configuration is needed!  But it offers [many more options](#customisation) for customisation...
+### A newly-created Energy Distribution Extended card will have a similar appearance and behaviour to the official HASS card:
+![Image1.png](docs/images/Image1.png)
 
----
+### If that is all you need then no additional configuration is needed!  But it offers many more options for customisation...
+![Image3.png](docs/images/Image3.png)
 
-## Customisation
+> Clicking on 'Load default config' will reset the card to its out-of-the-box settings. Clicking on 'Load showroom config' will enable most of the new functionality.
+> > Both of these buttons will replace any existing configuration.
 
-The card offers a *lot* of configuration options!  You may find it simpler to use the UI, but if you need to edit the YAML directly it's [all documented here](docs/config.md).
+### The best way to figure out what you want the card to do for you is to have a play around with the settings, but it's also worth having a quick look at the [User Guide](docs/user-guide.md) for hints and tips on how to get the most out of it!
 
-The only configuration required is `type: custom:energy-distribution-ext`: this will set the card up to mimic the official Energy Distribution Card without any further tweaking needed.
-
-Some options are mode-specific: they will only work in either `energy` or `power` mode.  It is always safe to leave these options in your config; they will be ignored if not used.
-
----
-
-## Example Configurations
-
-> Don't forget to change the entity ids
+### Everything can be configured using the UI, but if you feel more at home in YAML, see the [Reference Manual](docs/config.md) for full details.
