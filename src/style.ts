@@ -111,7 +111,7 @@ export const styles: CSSResult = css`
   
   .device-bus {
     stroke: var(--primary-text-color);
-    stroke-dasharray: 5;
+    fill: var(--card-background-color);
   }
   
   .background {

@@ -571,8 +571,6 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
     return html`
       <svg class="lines" xmlns="http://www.w3.org/2000/svg">
-        ${this._showDeviceBus ? svg`<path class="${CssClass.Device_Bus}" d="${this._deviceBusPath}"></path>` : nothing}
-        
         ${repeat(lines, (_, index) => index, (_, index) => {
           const line: FlowLine = lines[index];
           let cssLine: string = line.cssLine;
@@ -620,6 +618,14 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
               : nothing}
           `;
         })
+        : nothing}
+
+      ${this._showDeviceBus
+        ? svg`
+          <svg class="lines" xmlns="http://www.w3.org/2000/svg">
+            <path class="${CssClass.Device_Bus}" d="${this._deviceBusPath}"></path>
+          </svg>
+        `
         : nothing}
     `;
   }
