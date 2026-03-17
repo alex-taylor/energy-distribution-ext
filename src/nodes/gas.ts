@@ -37,7 +37,7 @@ export class GasNode extends Node<GasConfig> {
 
   //================================================================================================================================================================================//
 
-  public readonly render = (target: LitElement, circleSize: number, states?: States, _?, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
+  public readonly render = (target: LitElement, _circleSize: number, states?: States, _overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes): TemplateResult => {
     let units: string;
     let primaryState: number | undefined | null;
 

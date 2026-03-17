@@ -12,6 +12,7 @@ const dateFormatterMonthDay = memoizeOne(language => new Intl.DateTimeFormat(lan
 const dateFormatterYear = memoizeOne(language => new Intl.DateTimeFormat(language, { year: "numeric" }));
 const dateFormatterMonth = memoizeOne(language => new Intl.DateTimeFormat(language, { month: "long" }));
 const dateFormatterDay = memoizeOne(language => new Intl.DateTimeFormat(language, { day: "numeric" }));
+const dateFormatterDayOfWeek = memoizeOne(language => new Intl.DateTimeFormat(language, { weekday: "long" }));
 
 //================================================================================================================================================================================//
 
@@ -39,7 +40,7 @@ export const renderDateRange = memoizeOne((language: string, start: Date, end: D
     formatEnd = dateFormatterYearMonth(language);
   } else if (sameMonth) {
     if (sameDay) {
-      return dateFormatterFull(language).format(start);
+      return `${dateFormatterDayOfWeek(language).format(start)}, ${dateFormatterFull(language).format(start)}`;
     }
 
     formatStart = dateFormatterDay(language);

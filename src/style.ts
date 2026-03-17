@@ -110,7 +110,7 @@ export const styles: CSSResult = css`
   }
   
   .device-bus {
-    stroke: var(--primary-text-color);
+    stroke: var(--secondary-text-color);
     fill: var(--card-background-color);
   }
   
