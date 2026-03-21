@@ -209,7 +209,8 @@ export enum CssClass {
   Grid_Battery_Anim = "grid-battery-anim",
   Grid_To_Home_Anim = "grid-to-home-anim",
   Top_Row = "top-row",
-  Bottom_Row = "bottom-row"
+  Bottom_Row = "bottom-row",
+  No_Click = "no-click"
 }
 
 export enum SIUnitPrefixes {

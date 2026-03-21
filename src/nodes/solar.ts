@@ -89,7 +89,7 @@ export class SolarNode extends Node<SolarConfig> {
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
         ${this.renderEnergyStateSpan(target, CssClass.Solar, this.electricUnits, this.firstImportEntity, undefined, primaryState, overridePrefix)}
         ${this._showRatio && consumptionRatio !== undefined 
-          ? html`<span class="value ${CssClass.Solar}">(${consumptionRatio}x)</span>`
+          ? html`<span class="value ${CssClass.Solar} ${CssClass.No_Click}">(${consumptionRatio}x)</span>`
           : nothing}
       </div>
     `;

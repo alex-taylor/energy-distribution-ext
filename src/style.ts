@@ -128,7 +128,7 @@ export const styles: CSSResult = css`
   }
 
   span.secondary-info,
-  .value:not(.home) {
+  .value:not(.no-click) {
     cursor: var(--clickable-cursor);
   }
 

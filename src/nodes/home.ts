@@ -131,8 +131,8 @@ export class HomeNode extends Node<HomeConfig> {
     }
 
     const inactiveCss: string = !states || (!this.getElectricState(states) && !this.getGasState((states))) ? this.inactiveFlowsCss : CssClass.None;
-    const electricCss: string = CssClass.Home + " " + CssClass.Electric;
-    const gasCss: string = CssClass.Home + " " + CssClass.Gas;
+    const electricCss: string = CssClass.Home + " " + CssClass.No_Click + " " + CssClass.Electric;
+    const gasCss: string = CssClass.Home + " " + CssClass.No_Click + " " + CssClass.Gas;
     const borderCss: CssClass = this.circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
     return html`
