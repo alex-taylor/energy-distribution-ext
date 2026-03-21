@@ -38,6 +38,7 @@
 - Show the latest values from the entities, rather than just the current statistics from the database
 - Use hourly statistics to calculate the flows more accurately
 - Show energy in watt-hours, joules or calories
+- Show the ratio of energy/power generated from solar to energy/power consumed by the home 
 - Show gas as volume instead of energy
 - Show gas usage in the Home circle
 - Show power-outages on the grid

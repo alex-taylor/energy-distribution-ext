@@ -1,5 +1,5 @@
 import { any, assign, boolean, integer, number, object, optional, string, array } from 'superstruct';
-import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from '.';
+import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions, SolarOptions } from '.';
 
 //================================================================================================================================================================================//
 
@@ -128,8 +128,13 @@ const lowCarbonConfigStruct = object({
   [GlobalOptions.Options]: optional(lowCarbonOptionsConfig)
 });
 
+const solarOptionsConfig = object({
+  [SolarOptions.Show_Consumption_Ratio]: optional(boolean())
+});
+
 const solarConfigStruct = object({
-  ...nodeConfig
+  ...nodeConfig,
+  [GlobalOptions.Options]: optional(solarOptionsConfig)
 });
 
 const deviceConfigStruct = object({

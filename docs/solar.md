@@ -7,6 +7,7 @@
 | `overrides`       | [Overrides](overrides.md)          |         | Overrides settings section                               |
 | `colours`         | [Colours](#colours)                |         | Colours settings section                                 |
 | `secondary_info`  | [SecondaryInfo](secondary-info.md) |         | Secondary-info settings section                          |
+| `options`         | [Options](#options)                |         | Solar settings section                                   |
 
 ### Colours
 
@@ -22,3 +23,9 @@
 | `value_import_colour` | `number[]`                          |           | An RGB triplet of the `custom` colour to use                                                                                                                      |
 | `secondary_mode`      | `none \| flow \| custom`            | `none`    | If `flow` the secondary value will take the colour of the flow                                                                                                    |
 | `secondary_colour`    | `number[]`                          |           | An RGB triplet of the `custom` colour to use                                                                                                                      |
+
+### Options
+
+| Name         | Type      | Default | Description                                                                                                      |
+|--------------|-----------|---------|------------------------------------------------------------------------------------------------------------------|
+| `show_ratio` | `boolean` | `false` | If `true` the ratio of energy/power generated from solar to the total energy/power consumed by the home is shown |

@@ -1,4 +1,4 @@
-import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions } from "@/config";
+import { AppearanceOptions, ColourOptions, DeviceOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions, GridOptions, HomeOptions, LowCarbonOptions, OverridesOptions, PowerOutageOptions, SecondaryInfoOptions, SolarOptions } from "@/config";
 import { AnimationMode, ColourMode, DateRange, DateRangeDisplayMode, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
 import { HELPTEXT_SUFFIX } from "@/const";
 
@@ -318,6 +318,10 @@ export default {
     [SecondaryInfoOptions.Icon]: "Icon",
     [SecondaryInfoOptions.Unit_Position]: "Show units",
     [SecondaryInfoOptions.Unit_Position + HELPTEXT_SUFFIX]: "Not used if the entity is energy"
+  },
+
+  "SolarOptions": {
+    [SolarOptions.Show_Consumption_Ratio]: "Show consumption ratio"
   },
 
   "UnitPosition": {

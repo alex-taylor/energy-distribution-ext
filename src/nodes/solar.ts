@@ -1,7 +1,7 @@
 import { localize } from "@/localize/localize";
-import { ColourOptions, EditorPages, EnergyDistributionExtConfig, SolarConfig } from "@/config";
+import { ColourOptions, EditorPages, EnergyDistributionExtConfig, GlobalOptions, SolarConfig, SolarOptions } from "@/config";
 import { Node } from "./node";
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistant, round } from "custom-card-helpers";
 import { ColourMode, CssClass, ELECTRIC_ENTITY_CLASSES, EnergyDirection, SIUnitPrefixes } from "@/enums";
 import { EnergySource } from "@/hass";
 import { Colours } from "./colours";
@@ -18,6 +18,7 @@ export class SolarNode extends Node<SolarConfig> {
   protected readonly defaultIcon: string = "mdi:solar-power";
 
   private readonly _circleMode: ColourMode;
+  private readonly _showRatio: boolean;
 
   //================================================================================================================================================================================//
 
@@ -34,6 +35,7 @@ export class SolarNode extends Node<SolarConfig> {
     );
 
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
+    this._showRatio = getConfigValue(this.nodeConfigs, [GlobalOptions.Options, SolarOptions.Show_Consumption_Ratio]);
     this.colours = new Colours(this.coloursConfigs, EnergyDirection.Producer_Only, "var(--energy-solar-color)");
     this.setCssVariables(style);
     this.style.setProperty("--flow-solar-color", this.colours.importFlow);
@@ -76,6 +78,7 @@ export class SolarNode extends Node<SolarConfig> {
     }
 
     const primaryState: number | undefined | null = !states ? null : states.solarImport;
+    const consumptionRatio: number | undefined = !states || !states.solarImport || !states.homeElectric ? undefined : round(states.solarImport / states.homeElectric, 1);
     const inactiveCss: CssClass = !primaryState ? this.inactiveFlowsCss : CssClass.None;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
@@ -85,6 +88,9 @@ export class SolarNode extends Node<SolarConfig> {
         ${this.renderSecondarySpan(target, this.secondary, states?.solarSecondary, CssClass.Solar)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
         ${this.renderEnergyStateSpan(target, CssClass.Solar, this.electricUnits, this.firstImportEntity, undefined, primaryState, overridePrefix)}
+        ${this._showRatio && consumptionRatio !== undefined 
+          ? html`<span class="value ${CssClass.Solar}">(${consumptionRatio}x)</span>`
+          : nothing}
       </div>
     `;
   }

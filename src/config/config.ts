@@ -1,6 +1,6 @@
 import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode, AnimationMode, DisplayMode } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
-import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyDistributionExtConfig, GasConfig, GridConfig, GridOptions, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, OverridesConfig, OverridesOptions, PowerOutageOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig } from ".";
+import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyDistributionExtConfig, GasConfig, GridConfig, GridOptions, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, OverridesConfig, OverridesOptions, PowerOutageOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig, SolarOptions } from ".";
 import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions } from "@/config";
 import { localize } from "@/localize/localize";
 import { getEnergyDataCollection } from "@/energy";
@@ -126,6 +126,9 @@ export function getShowroomConfig(hass: HomeAssistant | undefined): EnergyDistri
       ...getDefaultSolarConfig(),
       [NodeOptions.Colours]: {
         [ColourOptions.Circle]: ColourMode.Dynamic
+      },
+      [GlobalOptions.Options]: {
+        [SolarOptions.Show_Consumption_Ratio]: true
       }
     }
   };
@@ -339,7 +342,10 @@ export function getDefaultSolarConfig(): SolarConfig {
       [ColourOptions.Secondary]: ColourMode.Do_Not_Colour,
       [ColourOptions.Secondary_Colour]: []
     },
-    [NodeOptions.Secondary_Info]: getDefaultSecondaryInfoConfig()
+    [NodeOptions.Secondary_Info]: getDefaultSecondaryInfoConfig(),
+    [GlobalOptions.Options]: {
+      [SolarOptions.Show_Consumption_Ratio]: false
+    }
   };
 }
 

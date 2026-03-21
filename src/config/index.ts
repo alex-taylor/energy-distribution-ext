@@ -137,6 +137,10 @@ namespace ConfigKeys {
     Icon: "icon",
     Unit_Position: "unit_position"
   } as const satisfies Record<string, string>;
+
+  export const SolarOptions = {
+    Show_Consumption_Ratio: "show_ratio"
+  }as const satisfies Record<string, string>;
 }
 
 export const AppearanceOptions = ConfigKeys.AppearanceOptions;
@@ -169,6 +173,8 @@ export const PowerOutageOptions = ConfigKeys.PowerOutageOptions;
 export type PowerOutageOptions = typeof PowerOutageOptions[keyof typeof PowerOutageOptions];
 export const SecondaryInfoOptions = ConfigKeys.SecondaryInfoOptions;
 export type SecondaryInfoOptions = typeof SecondaryInfoOptions[keyof typeof SecondaryInfoOptions];
+export const SolarOptions = ConfigKeys.SolarOptions;
+export type SolarOptions = typeof SolarOptions[keyof typeof SolarOptions];
 
 (() => {
   Object.keys(ConfigKeys).forEach(name => {
@@ -240,6 +246,10 @@ export interface FlowsConfig {
 
 export interface LowCarbonOptionsConfig {
   [LowCarbonOptions.Low_Carbon_Mode]?: LowCarbonDisplayMode;
+}
+
+export interface SolarOptionsConfig {
+  [SolarOptions.Show_Consumption_Ratio]?: boolean;
 }
 
 export interface HomeOptionsConfig {
@@ -324,6 +334,7 @@ export interface LowCarbonConfig extends NodeConfig {
 }
 
 export interface SolarConfig extends NodeConfig {
+  [GlobalOptions.Options]?: SolarOptionsConfig;
 }
 
 //================================================================================================================================================================================//
