@@ -329,7 +329,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
           ? html`
             <div class="overlay">
               <hr>
-              <span class="overlay-message">${localize(entityStates.isDataPresent === DataStatus.Requested ? "common.loading" : "common.timed_out")}</span>
+              <span class="overlay-message">${localize(entityStates.isDataPresent === DataStatus.Requested ? "common.fetching" : "common.timed_out")}</span>
               <hr>
             </div>
           `
@@ -1104,7 +1104,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     const textLineHeight: number = fontSize + ICON_PADDING;
     const numTextLines: number = 1 + this._hasSecondPrimaryState() + this._hasSecondaryState();
 
-    const width: number = (numChars * fontSize * 52 / 100) + fontSize + ICON_PADDING;
+    const width: number = (numChars * fontSize * 65 / 100) + fontSize + ICON_PADDING;
     const height: number = Math.ceil(numTextLines * textLineHeight + fontSize * 2 + ICON_PADDING * 2);
 
     const maxCircleSize: number = Math.max(CIRCLE_SIZE_MIN, Math.floor((cardWidth - (NUM_DEFAULT_COLUMNS - 1) * this._getColSpacing(CIRCLE_SIZE_MIN).min) / NUM_DEFAULT_COLUMNS));

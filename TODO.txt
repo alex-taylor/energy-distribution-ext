@@ -1,9 +1,24 @@
 TODO
 ----
 
-
 Under consideration
 -------------------
+
+  - add 'efficiency' to the battery charge and discharge, and also introduce an 'inverter efficiency' field
+    - power/energy is scaled by these as appropriate:
+      - solar->grid and solar->house are scaled down by the inverter field
+      - grid->battery is scaled down by the charge field and by the inverter field
+      - battery->grid and battery->home are scaled *up* by the discharge field and then down by the inverter field
+      - solar->battery is scaled down only by the charge field
+      - grid->home is not scaled
+    - display options for these include:
+      - just scale the solar and battery values
+        - this requires that the flow values be scaled, and the final totals then become the sums of the flows rather than of the state-changes
+      - add an 'Inverter' node in the middle of the cross, and display the losses in there; they would then also be subtracted from the Home
+        - this could also optionally display a user-supplied image rather than the circle
+    - not clear yet whether this is actually a valid thing to do!
+      - it's based on the assumption that the figures available from the inverter do not already take losses into account: probably correct for solar, but for the battery...who knows
+      - need the Shelly on the fusebox to get a clearer picture of the actual house consumption first
 
   - have an optional dashboard link per node, accessed by clicking on its icon
     - or a popup, see below

@@ -11,7 +11,7 @@ export default {
     "idle": "Idle",
     "initialising": "Initializing...",
     "invalid_configuration": "Invalid configuration",
-    "loading": "Loading data...",
+    "fetching": "Fetching data...",
     "low_carbon": "Low-carbon",
     "new_device": "New Device",
     "no_date_picker": "This display mode requires a Date Selector to be present in this View",
