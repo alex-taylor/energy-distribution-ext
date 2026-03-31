@@ -256,7 +256,11 @@ export abstract class Node<T> {
   //================================================================================================================================================================================//
 
   private _renderSecondaryState(config: SecondaryInfoConfig[], entityId: string, state: number): string {
-    if (state === null || isNaN(state)) {
+    if (state === null) {
+      return localize("common.unavailable");
+    }
+
+    if (isNaN(state)) {
       return localize("common.unknown");
     }
 
@@ -357,7 +361,7 @@ export abstract class Node<T> {
                     offset = groupIdx * (groupLength + interGroupLength) + startingOffset + interGroupLength;
                   }
 
-                  if (segment.state === 0) {
+                  if (segment.state <= 0) {
                     return ``;
                   }
 

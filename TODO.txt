@@ -1,3 +1,4 @@
+
 TODO
 ----
 
@@ -21,6 +22,7 @@ Under consideration
       - need the Shelly on the fusebox to get a clearer picture of the actual house consumption first
 
   - have an optional dashboard link per node, accessed by clicking on its icon
+    - usecase here might be to have a per-Device dashboard
     - or a popup, see below
     - perhaps have the dashboard in 'Energy' mode and the 'switch' popup in 'Power' mode
 
@@ -69,10 +71,3 @@ Under consideration
         - for HASS the 'producer' might be [Solar,Battery,Grid] and 'consumer' [Battery,Grid,House]
         - whereas for a more realistic approach the 'consumer' would be [House,Battery,Grid]
         - we can give the user some degree of control here if/as required, but the basic algo should cope with any setup
-
-
-Before release
---------------
-
-  - README and CHANGELOG updates
-  - unit-testing

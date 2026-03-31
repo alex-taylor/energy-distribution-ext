@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistant, round } from "custom-card-helpers";
 import { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
 import { EnergyCollection, EnergyData, EnergyPreferences, EnergySource, Statistics, StatisticValue } from "@/hass";
 import { AppearanceOptions, DeviceConfig, EditorPages, EnergyDistributionExtConfig, EnergyUnitsConfig, EnergyUnitsOptions, FlowsOptions, GlobalOptions, NodeConfig } from "@/config";
@@ -18,7 +18,7 @@ import { DEFAULT_CONFIG, getConfigObjects, getConfigValue } from "@/config/confi
 import { calculateDateRange, calculateNextDateRange, calculatePreviousDateRange } from "@/dates";
 import { Node } from "@/nodes/node";
 import { GridNode } from "@/nodes/grid";
-import { POWER_UNITS } from "@/const";
+import { MAX_DECIMALS, POWER_UNITS } from "@/const";
 
 //================================================================================================================================================================================//
 
@@ -1134,6 +1134,13 @@ export class EntityStates {
         gasVolumeValues.push(deviceVolumeState.import, deviceVolumeState.export);
       }
     });
+
+    states.homeElectric = round(states.homeElectric, MAX_DECIMALS);
+    states.homeGas = round(states.homeGas, MAX_DECIMALS);
+    states.homeGasVolume = round(states.homeGasVolume, MAX_DECIMALS);
+    states.untrackedElectric = round(states.untrackedElectric, MAX_DECIMALS);
+    states.untrackedGas = round(states.untrackedGas, MAX_DECIMALS);
+    states.untrackedGasVolume = round(states.untrackedGasVolume, MAX_DECIMALS);
 
     electricValues.push(states.homeElectric);
     gasValues.push(states.homeGas);
