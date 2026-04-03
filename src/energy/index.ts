@@ -6,7 +6,15 @@ import { Decimal } from "decimal.js";
 //================================================================================================================================================================================//
 
 export function getEnergyDataCollection(hass: HomeAssistant | undefined): EnergyCollection | undefined {
-  return hass ? hass.connection["_energy"] : undefined; 
+  if (!hass) {
+    return undefined;
+  }
+
+  if (hass.panelUrl) {
+    return hass.connection["_energy_" + hass.panelUrl];
+  }
+
+  return hass.connection["_energy"];
 }
 
 //================================================================================================================================================================================//
