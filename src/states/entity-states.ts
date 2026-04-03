@@ -984,7 +984,7 @@ export class EntityStates {
         // no previous stat exists, so fake one up
         previousStat = {
           change: 0,
-          state: Date.parse(stateObj.last_changed) <= periodEnd.getTime() ? Number(stateObj.state) : 0,
+          state: stateObj && Date.parse(stateObj.last_changed) <= periodEnd.getTime() ? Number(stateObj.state) : 0,
           sum: 0,
           start: -1,
           end: -1,
