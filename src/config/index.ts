@@ -352,6 +352,10 @@ function isSupportedStateClass(hass: HomeAssistant, mode: DisplayMode, entityId:
 //================================================================================================================================================================================//
 
 export function isValidPrimaryEntity(hass: HomeAssistant, mode: DisplayMode, entityId: string = "", deviceClasses: string[]): boolean {
+  if (!entityId) {
+    return false;
+  }
+
   const deviceClass: string = hass.states[entityId]?.attributes?.device_class || DeviceClasses.None;
 
   if (deviceClass === DeviceClasses.None && deviceClasses.includes(deviceClass)) {
