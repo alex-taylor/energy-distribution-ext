@@ -19,3 +19,8 @@ Added null-check in an attempt to diagnose an issue.
 ## [1.0.3] - 2026-04-04
 
 BUGFIX: Filter out empty strings when setting up entities.
+
+
+## [1.0.4] - 2026-04-05
+
+BUGFIX: Power values were assumed to be in Watts with no prefix (ie, kW etc were not recognised).

@@ -1081,7 +1081,8 @@ export class EntityStates {
     const supportedUnits: string[] = [
       EnergyUnits.Calories,
       EnergyUnits.Joules,
-      EnergyUnits.WattHours
+      EnergyUnits.WattHours,
+      POWER_UNITS
     ];
 
     for (let u: number = 0; u < supportedUnits.length; u++) {
