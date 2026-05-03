@@ -123,6 +123,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _layoutGrid: NodeRenderFn[][] = [];
 
   private _configs!: EnergyDistributionExtConfig[];
+  private _energyUnitsConfig!: EnergyUnitsConfig[];
   private _mode!: DisplayMode;
   private _entityStates!: EntityStates;
   private _dateRange!: DateRange;
@@ -226,10 +227,10 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         break;
     }
 
-    const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(this._configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
-    this._electricUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
-    this._gasUnitPrefixes = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
-    this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
+    this._energyUnitsConfig = getConfigObjects(this._configs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
+    this._electricUnitPrefixes = getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Electric_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
+    this._gasUnitPrefixes = getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Gas_Unit_Prefixes, value => checkEnumValue(value, UnitPrefixes));
+    this._prefixThreshold = new Decimal(getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
 
     this.style.setProperty("--clickable-cursor", getConfigValue(appearanceConfig, AppearanceOptions.Clickable_Entities) ? "pointer" : "default");
     this.style.setProperty("--inactive-flow-color", this._useHassStyles && this._inactiveFlowsCss !== CssClass.Inactive ? "var(--primary-text-color)" : "var(--disabled-text-color)");
@@ -245,8 +246,8 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
     } else {
       this._dateRange = getConfigValue(this._configs, GlobalOptions.Date_Range, value => checkEnumValue(value, DateRange));
       this._dateRangeDisplayMode = getConfigValue(this._configs, GlobalOptions.Date_Range_Display, value => checkEnumValue(value, DateRangeDisplayMode));
-      this._electricUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
-      this._gasUnits = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
+      this._electricUnits = getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
+      this._gasUnits = getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
     }
   }
 
@@ -343,8 +344,8 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
   private _render = memoizeOne((width: number, states?: States): TemplateResult => {
     this._calculateLayout(width);
 
-    const electricUnitPrefix: SIUnitPrefixes | undefined = states && this._electricUnitPrefixes === UnitPrefixes.Unified ? calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue), this._prefixThreshold) : undefined;
-    const gasUnitPrefix: SIUnitPrefixes | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? calculateEnergyUnitPrefix(new Decimal(states.largestGasValue), this._prefixThreshold) : undefined;
+    const electricUnitPrefix: SIUnitPrefixes | undefined = states && this._electricUnitPrefixes === UnitPrefixes.Unified ? calculateEnergyUnitPrefix(new Decimal(states.largestElectricValue), this._prefixThreshold, this._energyUnitsConfig) : undefined;
+    const gasUnitPrefix: SIUnitPrefixes | undefined = states && this._gasUnitPrefixes === UnitPrefixes.Unified ? calculateEnergyUnitPrefix(new Decimal(states.largestGasValue), this._prefixThreshold, this._energyUnitsConfig) : undefined;
     const animationDurations: AnimationDurations | undefined = states ? this._calculateAnimationDurations(states) : undefined;
 
     return html`

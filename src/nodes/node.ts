@@ -9,9 +9,9 @@ import Decimal from "decimal.js";
 import { Colours } from "./colours";
 import { BiDiState, States } from ".";
 import { Segment, SegmentGroup } from "@/ui-helpers";
-import { CIRCLE_STROKE_WIDTH_SEGMENTS, MAX_DECIMALS } from "@/const";
+import { CIRCLE_STROKE_WIDTH_SEGMENTS } from "@/const";
 import { repeat } from "lit/directives/repeat.js";
-import { calculateEnergyUnitPrefix } from "@/energy";
+import { calculateEnergyUnitPrefix, getDisplayPrecisionForEnergyState } from "@/energy";
 import { EnergySource } from "@/hass";
 
 //================================================================================================================================================================================//
@@ -62,13 +62,11 @@ export abstract class Node<T> {
   protected abstract readonly defaultName: string;
   protected abstract readonly defaultIcon: string;
 
+  private readonly _energyUnitsConfig: EnergyUnitsConfig[];
   private readonly _showZeroStates: boolean;
   private readonly _clickableEntities: boolean;
   private readonly _energyUnitPosition: UnitPosition;
   private readonly _prefixThreshold: Decimal;
-  private readonly _displayPrecisionUnder10: number;
-  private readonly _displayPrecisionUnder100: number;
-  private readonly _displayPrecision: number;
   private readonly _inactiveFlowsMode: InactiveFlowsMode;
   private readonly _scale: Scale;
 
@@ -143,14 +141,11 @@ export abstract class Node<T> {
     this._inactiveFlowsMode = getConfigValue(flowsConfigs, FlowsOptions.Inactive_Flows, value => checkEnumValue(value, InactiveFlowsMode));
     this._scale = getConfigValue(flowsConfigs, FlowsOptions.Scale, value => checkEnumValue(value, Scale));
 
-    const energyUnitsConfig: EnergyUnitsConfig[] = getConfigObjects(this.cardConfigs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
-    this.electricUnits = this.mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
-    this.gasUnits = this.mode === DisplayMode.Power ? "W" : getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
-    this._energyUnitPosition = getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Unit_Position, value => checkEnumValue(value, UnitPosition));
-    this._prefixThreshold = new Decimal(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
-    this._displayPrecisionUnder10 = Math.max(Math.min(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Under_10), MAX_DECIMALS), 0);
-    this._displayPrecisionUnder100 = Math.max(Math.min(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Under_100), MAX_DECIMALS), 0);
-    this._displayPrecision = Math.max(Math.min(getConfigValue(energyUnitsConfig, EnergyUnitsOptions.Display_Precision_Default), MAX_DECIMALS), 0);
+    this._energyUnitsConfig = getConfigObjects(this.cardConfigs, [EditorPages.Appearance, AppearanceOptions.Energy_Units]);
+    this.electricUnits = this.mode === DisplayMode.Power ? "W" : getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Electric_Units, value => checkEnumValue(value, EnergyUnits));
+    this.gasUnits = this.mode === DisplayMode.Power ? "W" : getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Gas_Units, value => checkEnumValue(value, VolumeUnits));
+    this._energyUnitPosition = getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Unit_Position, value => checkEnumValue(value, UnitPosition));
+    this._prefixThreshold = new Decimal(getConfigValue(this._energyUnitsConfig, EnergyUnitsOptions.Prefix_Threshold));
   }
 
   //================================================================================================================================================================================//
@@ -185,18 +180,17 @@ export abstract class Node<T> {
       return localize("common.unknown");
     }
 
-    const getDisplayPrecisionForEnergyState = (state: Decimal): number => state.lessThan(10) ? this._displayPrecisionUnder10 : state.lessThan(100) ? this._displayPrecisionUnder100 : this._displayPrecision;
 
     let stateAsDecimal: Decimal = new Decimal(state);
 
     if (!overridePrefix) {
-      overridePrefix = calculateEnergyUnitPrefix(stateAsDecimal, this._prefixThreshold);
+      overridePrefix = calculateEnergyUnitPrefix(stateAsDecimal, this._prefixThreshold, this._energyUnitsConfig);
     }
 
     const prefixes: SIUnitPrefixes[] = Object.values(SIUnitPrefixes);
     const divisor: number = 1000 ** prefixes.indexOf(overridePrefix);
     stateAsDecimal = stateAsDecimal.dividedBy(divisor);
-    const decimals: number = getDisplayPrecisionForEnergyState(stateAsDecimal.abs());
+    const decimals: number = getDisplayPrecisionForEnergyState(stateAsDecimal.abs(), this._energyUnitsConfig);
     stateAsDecimal = stateAsDecimal.toDecimalPlaces(decimals);
 
     if (stateAsDecimal.isNegative() && !stateAsDecimal.isZero()) {

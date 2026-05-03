@@ -24,3 +24,9 @@ BUGFIX: Filter out empty strings when setting up entities.
 ## [1.0.4] - 2026-04-05
 
 BUGFIX: Power values were assumed to be in Watts with no prefix (ie, kW etc were not recognised).
+
+
+## [1.0.5] - 2026-05-03
+
+BUGFIX: Rounding error when calculating energy-value prefixes resulted in a display of "1000kWh" rather than "1MWh"
+
