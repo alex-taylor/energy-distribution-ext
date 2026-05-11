@@ -30,3 +30,7 @@ BUGFIX: Power values were assumed to be in Watts with no prefix (ie, kW etc were
 
 BUGFIX: Rounding error when calculating energy-value prefixes resulted in a display of "1000kWh" rather than "1MWh"
 
+## [1.0.6] - 2026-05-11
+
+Round the 'solar ratio' value to the nearest 0.05 rather than 0.1 to improve accuracy of the display
+

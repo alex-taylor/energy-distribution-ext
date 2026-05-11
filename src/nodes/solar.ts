@@ -78,7 +78,7 @@ export class SolarNode extends Node<SolarConfig> {
     }
 
     const primaryState: number | undefined | null = !states ? null : states.solarImport;
-    const consumptionRatio: number | undefined = !states || !states.solarImport || !states.homeElectric ? undefined : round(states.solarImport / states.homeElectric, 1);
+    const consumptionRatio: number | undefined = !states || !states.solarImport || !states.homeElectric ? undefined : round(20 * states.solarImport / states.homeElectric, 0) / 20;
     const inactiveCss: CssClass = !primaryState ? this.inactiveFlowsCss : CssClass.None;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
