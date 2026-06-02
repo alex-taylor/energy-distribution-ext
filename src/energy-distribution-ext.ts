@@ -598,9 +598,13 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
           const previousDuration: number = this._previousAnimationDurations[id];
 
           if (flowSvgElement && previousDuration && previousDuration !== duration) {
-            flowSvgElement.pauseAnimations();
-            flowSvgElement.setCurrentTime(flowSvgElement.getCurrentTime() * (duration / previousDuration));
-            flowSvgElement.unpauseAnimations();
+            const newDuration: number = flowSvgElement.getCurrentTime() * (duration / previousDuration);
+            
+            if (isFinite(newDuration)) {
+              flowSvgElement.pauseAnimations();
+              flowSvgElement.setCurrentTime(newDuration);
+              flowSvgElement.unpauseAnimations();
+            }
           }
 
           this._previousAnimationDurations[id] = duration;
