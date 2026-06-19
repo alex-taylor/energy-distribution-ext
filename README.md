@@ -2,7 +2,7 @@
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/alex-taylor/energy-distribution-ext?style=flat-square)
 ![GitHub all releases](https://img.shields.io/github/downloads/alex-taylor/energy-distribution-ext/total?style=flat-square)
-<!--[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=flat-square)](https://github.com/hacs/integration)-->
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=flat-square)](https://github.com/hacs/integration)
 ![commit_activity](https://img.shields.io/github/commit-activity/y/alex-taylor/energy-distribution-ext?color=brightgreen&label=Commits&style=flat-square)
 
 ### An upgraded and configurable Energy Distribution Card, with a raft of new features and improvements. It supports both Energy and Power flows, additional Devices and live sensor-data display.
@@ -68,8 +68,6 @@
 
 ## Installation
 ### HACS (recommended)
-Coming soon - for the moment, please use the manual installation instructions below.
-<!--
 This card is available in [HACS](https://hacs.xyz/) (Home Assistant Community Store).
 
 _HACS is a third party community store and is not included in Home Assistant out of the box. To install it, please follow their instructions [here](https://www.hacs.xyz/docs/use/)._
@@ -79,7 +77,7 @@ To install:
 - Go to [HACS](http://home-assistant.local:8123/hacs/dashboard) in your Home Assistant
 - Search for `Energy Distribution Extended`
 - Install via the UI
--->
+
 <details>
 
 <summary>Manual Install</summary>

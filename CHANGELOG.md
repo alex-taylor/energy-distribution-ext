@@ -34,3 +34,7 @@ BUGFIX: Rounding error when calculating energy-value prefixes resulted in a disp
 
 Round the 'solar ratio' value to the nearest 0.05 rather than 0.1 to improve accuracy of the display
 
+## [1.0.7] - 2026-06-19
+
+Fixed intermittent divide-by-zero bug in the animation code
+

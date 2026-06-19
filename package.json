@@ -1,6 +1,6 @@
 {
   "name": "energy-distribution-ext",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "friendlyName": "Energy Distribution Extended",
   "description": "A custom card for displaying energy and power flow in Home Assistant. Inspired by the official Energy Distribution Card and Energy Flow Card Plus.",
   "keywords": [
