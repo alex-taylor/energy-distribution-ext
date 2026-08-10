@@ -38,3 +38,6 @@ Round the 'solar ratio' value to the nearest 0.05 rather than 0.1 to improve acc
 
 Fixed intermittent divide-by-zero bug in the animation code
 
+## [] - 
+
+Fixed broken display when live low-carbon values were unavailable

@@ -433,7 +433,10 @@ export class EntityStates {
     states.gasImportVolume += this._getStateDelta(Direction.Normal, primaryStatistics, this.gas.importEntities, volumeUnits);
 
     const highCarbonDelta: number = this.lowCarbon.isPresent ? gridImportDelta * Number(this.hass.states[this.lowCarbon.firstImportEntity!].state) / 100 : 0;
-    states.highCarbon += highCarbonDelta;
+
+    if (!isNaN(highCarbonDelta)) {
+      states.highCarbon += highCarbonDelta;
+    }
 
     states.batterySecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.battery.secondary.entity);
     states.gasSecondary += this._getStateDelta(Direction.Secondary, secondaryStatistics, this.gas.secondary.entity);
