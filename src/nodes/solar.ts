@@ -19,6 +19,7 @@ export class SolarNode extends Node<SolarConfig> {
 
   private readonly _circleMode: ColourMode;
   private readonly _showRatio: boolean;
+  private readonly _showPercentage: boolean;
 
   //================================================================================================================================================================================//
 
@@ -36,6 +37,7 @@ export class SolarNode extends Node<SolarConfig> {
 
     this._circleMode = getConfigValue(this.coloursConfigs, ColourOptions.Circle);
     this._showRatio = getConfigValue(this.nodeConfigs, [GlobalOptions.Options, SolarOptions.Show_Consumption_Ratio]);
+    this._showPercentage = getConfigValue(this.nodeConfigs, [GlobalOptions.Options, SolarOptions.Show_Consumption_Percentage]);
     this.colours = new Colours(this.coloursConfigs, EnergyDirection.Producer_Only, "var(--energy-solar-color)");
     this.setCssVariables(style);
     this.style.setProperty("--flow-solar-color", this.colours.importFlow);
@@ -78,7 +80,7 @@ export class SolarNode extends Node<SolarConfig> {
     }
 
     const primaryState: number | undefined | null = !states ? null : states.solarImport;
-    const consumptionRatio: number | undefined = !states || !states.solarImport || !states.homeElectric ? undefined : round(20 * states.solarImport / states.homeElectric, 0) / 20;
+    const consumptionRatio: number | undefined = (!this._showRatio && !this._showPercentage) || !states || !states.solarImport || !states.homeElectric ? undefined : round(20 * states.solarImport / states.homeElectric, 0) / 20;
     const inactiveCss: CssClass = !primaryState ? this.inactiveFlowsCss : CssClass.None;
     const borderCss: CssClass = this._circleMode === ColourMode.Dynamic ? CssClass.Hidden_Circle : CssClass.None;
 
@@ -88,11 +90,29 @@ export class SolarNode extends Node<SolarConfig> {
         ${this.renderSecondarySpan(target, this.secondary, states?.solarSecondary, CssClass.Solar)}
         <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
         ${this.renderEnergyStateSpan(target, CssClass.Solar, this.electricUnits, this.firstImportEntity, undefined, primaryState, overridePrefix)}
-        ${this._showRatio && consumptionRatio !== undefined 
-          ? html`<span class="value ${CssClass.Solar} ${CssClass.No_Click}">(${consumptionRatio}x)</span>`
-          : nothing}
+        ${this._formatConsumption(consumptionRatio)}
       </div>
     `;
+  }
+
+  //================================================================================================================================================================================//
+
+  private _formatConsumption = (consumptionRatio: number | undefined): TemplateResult => {
+    const consumptionPrecentage: number | undefined = consumptionRatio ? consumptionRatio * 100 : undefined;
+
+    if (this._showRatio && this._showPercentage && consumptionRatio !== undefined && consumptionPrecentage !== undefined) {
+      return html`<span class="value ${CssClass.Solar} ${CssClass.No_Click}">(${consumptionRatio}x / ${consumptionPrecentage}%)</span>`;
+    }
+
+    if (this._showRatio && consumptionRatio !== undefined) {
+      return html`<span class="value ${CssClass.Solar} ${CssClass.No_Click}">(${consumptionRatio}x)</span>`;
+    }
+
+    if (this._showPercentage && consumptionPrecentage !== undefined) {
+      return html`<span class="value ${CssClass.Solar} ${CssClass.No_Click}">(${consumptionPrecentage}%)</span>`;
+    }
+
+    return html``;
   }
 
   //================================================================================================================================================================================//

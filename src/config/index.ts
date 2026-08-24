@@ -1,5 +1,5 @@
 import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
-import { ColourMode, LowCarbonDisplayMode, InactiveFlowsMode, UnitPosition, UnitPrefixes, EnergyDirection, EnergyType, GasSourcesMode, Scale, EnergyUnits, VolumeUnits, DateRange, DateRangeDisplayMode, DeviceClasses, AnimationMode, DisplayMode, StateClasses } from '@/enums';
+import { AnimationMode, ColourMode, DateRange, DateRangeDisplayMode, DeviceClasses, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, StateClasses, UnitPosition, UnitPrefixes, VolumeUnits } from '@/enums';
 
 //================================================================================================================================================================================//
 
@@ -140,8 +140,9 @@ namespace ConfigKeys {
   } as const satisfies Record<string, string>;
 
   export const SolarOptions = {
-    Show_Consumption_Ratio: "show_ratio"
-  }as const satisfies Record<string, string>;
+    Show_Consumption_Ratio: "show_ratio",
+    Show_Consumption_Percentage: "show_percentage"
+  } as const satisfies Record<string, string>;
 }
 
 export const AppearanceOptions = ConfigKeys.AppearanceOptions;
@@ -251,6 +252,7 @@ export interface LowCarbonOptionsConfig {
 
 export interface SolarOptionsConfig {
   [SolarOptions.Show_Consumption_Ratio]?: boolean;
+  [SolarOptions.Show_Consumption_Percentage]?: boolean;
 }
 
 export interface HomeOptionsConfig {

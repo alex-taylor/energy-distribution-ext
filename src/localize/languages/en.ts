@@ -323,7 +323,8 @@ export default {
   },
 
   "SolarOptions": {
-    [SolarOptions.Show_Consumption_Ratio]: "Show consumption ratio"
+    [SolarOptions.Show_Consumption_Ratio]: "Show consumption ratio",
+    [SolarOptions.Show_Consumption_Percentage]: "Show consumption percentage"
   },
 
   "UnitPosition": {

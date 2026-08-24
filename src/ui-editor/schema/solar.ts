@@ -15,7 +15,8 @@ export const solarSchema = memoizeOne((config: EnergyDistributionExtConfig, mode
         name: GlobalOptions.Options,
         type: SchemaTypes.Expandable,
         schema: [
-          { key: SolarOptions, name: SolarOptions.Show_Consumption_Ratio, required: true, selector: { boolean: {} } }
+          { key: SolarOptions, name: SolarOptions.Show_Consumption_Ratio, required: true, selector: { boolean: {} } },
+          { key: SolarOptions, name: SolarOptions.Show_Consumption_Percentage, required: true, selector: { boolean: {} } }
         ]
       }
     );

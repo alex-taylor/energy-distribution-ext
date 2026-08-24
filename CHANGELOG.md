@@ -45,3 +45,4 @@ Fixed blank space being rendered over the device flow-line below the 'Home' circ
 Read secondary entity-ids from the 'states' list rather than the 'entities' list
 Fallback to zero for display precision for secondary entities which do not have an entry in the 'entities' list
 Added option to override the 'Untracked consumption' label
+Added option to display solar consumption as a percentage

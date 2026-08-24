@@ -128,7 +128,8 @@ export function getShowroomConfig(hass: HomeAssistant | undefined): EnergyDistri
         [ColourOptions.Circle]: ColourMode.Dynamic
       },
       [GlobalOptions.Options]: {
-        [SolarOptions.Show_Consumption_Ratio]: true
+        [SolarOptions.Show_Consumption_Ratio]: true,
+        [SolarOptions.Show_Consumption_Percentage]: false
       }
     }
   };
