@@ -122,7 +122,8 @@ namespace ConfigKeys {
 
   export const OverridesOptions = {
     Icon: "icon",
-    Name: "name"
+    Name: "name",
+    UntrackedConsumption: "untracked_consumption"
   } as const satisfies Record<string, string>;
 
   export const PowerOutageOptions = {
@@ -257,6 +258,12 @@ export interface HomeOptionsConfig {
   [HomeOptions.Gas_Sources_Threshold]?: number;
 }
 
+export interface HomeOverridesConfig {
+  [OverridesOptions.Name]?: string;
+  [OverridesOptions.Icon]?: string;
+  [OverridesOptions.UntrackedConsumption]?: string;
+}
+
 export interface NodeConfig {
   [NodeOptions.Export_Entities]?: EntityConfig;
   [NodeOptions.Import_Entities]?: EntityConfig;
@@ -325,7 +332,10 @@ export interface GridConfig extends NodeConfig {
   [GridOptions.Power_Outage]?: PowerOutageConfig;
 }
 
-export interface HomeConfig extends NodeConfig {
+export interface HomeConfig {
+  [NodeOptions.Overrides]?: HomeOverridesConfig;
+  [NodeOptions.Secondary_Info]?: SecondaryInfoConfig;
+  [NodeOptions.Colours]?: ColoursConfig;
   [GlobalOptions.Options]?: HomeOptionsConfig;
 }
 

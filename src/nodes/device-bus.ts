@@ -1,11 +1,12 @@
 import { HomeAssistant, round } from "custom-card-helpers";
-import { EnergyDistributionExtConfig } from "@/config";
+import { EnergyDistributionExtConfig, NodeOptions, OverridesOptions } from "@/config";
 import { HomeNode } from "@/nodes/home";
 import { ColourMode, CssClass } from "@/enums";
 import { States } from "@/nodes/index";
 import { html, LitElement, TemplateResult } from "lit";
 import { localize } from "@/localize/localize";
 import { MAX_DECIMALS } from "@/const";
+import { getConfigValue } from "@/config/config";
 
 //================================================================================================================================================================================//
 
@@ -15,9 +16,12 @@ export class DeviceBus extends HomeNode {
   protected readonly defaultName: string = "";
   protected readonly defaultIcon: string = "";
   protected readonly circleMode: ColourMode = ColourMode.Do_Not_Colour;
+  private readonly _defaultUntrackedConsumption: string;
 
   public constructor(hass: HomeAssistant, cardConfig: EnergyDistributionExtConfig, style: CSSStyleDeclaration) {
     super(hass, cardConfig, style);
+
+    this._defaultUntrackedConsumption = getConfigValue(this.nodeConfigs, [NodeOptions.Overrides, OverridesOptions.UntrackedConsumption]) || localize("common.untracked");
   }
 
   //================================================================================================================================================================================//
@@ -41,7 +45,7 @@ export class DeviceBus extends HomeNode {
   //================================================================================================================================================================================//
 
   protected renderSecondaryState(_target: LitElement, _states?: States): TemplateResult {
-    return html`<span class="untracked">${localize("common.untracked")}</span>`;
+    return html`<span class="untracked">${this._defaultUntrackedConsumption}</span>`;
   }
 
   //================================================================================================================================================================================//

@@ -1,6 +1,6 @@
 import { colourSchema, dropdownSelector, getDropdownValues, nodeConfigSchema, SchemaTypes, SelectorModes } from '.';
 import { ColourMode, DisplayMode, GasSourcesMode } from '@/enums';
-import { ColourOptions, NodeOptions, HomeConfig, GlobalOptions, HomeOptions, EnergyDistributionExtConfig, EditorPages } from '@/config';
+import { ColourOptions, NodeOptions, HomeConfig, GlobalOptions, HomeOptions, EnergyDistributionExtConfig, EditorPages, OverridesOptions } from '@/config';
 import { DEFAULT_HOME_CONFIG, getConfigValue } from '@/config/config';
 import memoizeOne from 'memoize-one';
 
@@ -13,7 +13,7 @@ const COLOUR_MODES: ColourMode[] = [ColourMode.Do_Not_Colour, ColourMode.Automat
 export const homeSchema = memoizeOne((config: EnergyDistributionExtConfig, mode: DisplayMode, secondaryEntities: string[]): any[] => {
   const homeConfig: HomeConfig = getConfigValue([config, DEFAULT_HOME_CONFIG], EditorPages.Home);
 
-  return nodeConfigSchema([], secondaryEntities)
+  const schema: any[] = nodeConfigSchema([], secondaryEntities)
     .concat(
       {
         key: NodeOptions,
@@ -61,6 +61,12 @@ export const homeSchema = memoizeOne((config: EnergyDistributionExtConfig, mode:
         ]
       }
     );
+
+  schema[0].schema[0].schema.push(
+    { key: OverridesOptions, name: OverridesOptions.UntrackedConsumption, selector: { text: {} } }
+  );
+
+  return schema;
 });
 
 //================================================================================================================================================================================//

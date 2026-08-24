@@ -43,4 +43,5 @@ Fixed intermittent divide-by-zero bug in the animation code
 Fixed broken display when live low-carbon values were unavailable
 Fixed blank space being rendered over the device flow-line below the 'Home' circle
 Read secondary entity-ids from the 'states' list rather than the 'entities' list
-Fallback to zero for display precision for secondary entities which do not have an enrty in the 'entities' list
+Fallback to zero for display precision for secondary entities which do not have an entry in the 'entities' list
+Added option to override the 'Untracked consumption' label

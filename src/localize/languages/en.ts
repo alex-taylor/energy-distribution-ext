@@ -296,7 +296,9 @@ export default {
     [OverridesOptions.Icon]: "Icon",
     [OverridesOptions.Icon + HELPTEXT_SUFFIX]: "Overrides the built-in icon",
     [OverridesOptions.Name]: "Name",
-    [OverridesOptions.Name + HELPTEXT_SUFFIX]: "Overrides the built-in name"
+    [OverridesOptions.Name + HELPTEXT_SUFFIX]: "Overrides the built-in name",
+    [OverridesOptions.UntrackedConsumption]: "Untracked consumption",
+    [OverridesOptions.UntrackedConsumption + HELPTEXT_SUFFIX]: "Overrides the built-in label"
   },
 
   "PowerOutageOptions": {

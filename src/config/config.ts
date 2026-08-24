@@ -1,7 +1,7 @@
-import { ColourMode, LowCarbonDisplayMode, UnitPosition, GasSourcesMode, EnergyType, EnergyDirection, EnergyUnits, UnitPrefixes, VolumeUnits, InactiveFlowsMode, Scale, DateRange, DateRangeDisplayMode, AnimationMode, DisplayMode } from "@/enums";
+import { AnimationMode, ColourMode, DateRange, DateRangeDisplayMode, DisplayMode, EnergyDirection, EnergyType, EnergyUnits, GasSourcesMode, InactiveFlowsMode, LowCarbonDisplayMode, Scale, UnitPosition, UnitPrefixes, VolumeUnits } from "@/enums";
 import { HomeAssistant } from 'custom-card-helpers';
-import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyDistributionExtConfig, GasConfig, GridConfig, GridOptions, HomeConfig, HomeOptions, LowCarbonConfig, LowCarbonOptions, OverridesConfig, OverridesOptions, PowerOutageOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig, SolarOptions } from ".";
-import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, NodeOptions, EntitiesOptions, FlowsOptions, GlobalOptions } from "@/config";
+import { AppearanceConfig, BatteryConfig, DeviceConfig, DeviceOptions, EnergyDistributionExtConfig, GasConfig, GridConfig, GridOptions, HomeConfig, HomeOptions, HomeOverridesConfig, LowCarbonConfig, LowCarbonOptions, OverridesConfig, OverridesOptions, PowerOutageOptions, SecondaryInfoConfig, SecondaryInfoOptions, SolarConfig, SolarOptions } from ".";
+import { AppearanceOptions, ColourOptions, EditorPages, EnergyUnitsOptions, EntitiesOptions, FlowsOptions, GlobalOptions, NodeOptions } from "@/config";
 import { localize } from "@/localize/localize";
 import { getEnergyDataCollection } from "@/energy";
 import { HassEntity } from "home-assistant-js-websocket";
@@ -380,7 +380,7 @@ export function getDefaultGasConfig(): GasConfig {
 export function getDefaultHomeConfig(): HomeConfig {
   return {
     ...getDefaultEntitiesConfig(),
-    [NodeOptions.Overrides]: getDefaultOverridesConfig(),
+    [NodeOptions.Overrides]: getDefaultHomeOverridesConfig(),
     [NodeOptions.Colours]: {
       [ColourOptions.Flow_Import]: ColourMode.Default,
       [ColourOptions.Flow_Import_Colour]: [],
@@ -486,6 +486,16 @@ function getDefaultOverridesConfig(): OverridesConfig {
   return {
     [OverridesOptions.Name]: undefined,
     [OverridesOptions.Icon]: ""
+  };
+}
+
+//================================================================================================================================================================================//
+
+function getDefaultHomeOverridesConfig(): HomeOverridesConfig {
+  return {
+    [OverridesOptions.Name]: undefined,
+    [OverridesOptions.Icon]: "",
+    [OverridesOptions.UntrackedConsumption]: undefined
   };
 }
 
