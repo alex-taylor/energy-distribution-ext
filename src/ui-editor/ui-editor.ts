@@ -25,9 +25,10 @@ import { LowCarbonNode } from '@/nodes/low-carbon';
 import { HomeNode } from '@/nodes/home';
 import { DeviceNode } from '@/nodes/device';
 import { DisplayMode, ELECTRIC_ENTITY_CLASSES, GAS_ENTITY_CLASSES } from '@/enums';
-import { EnergyPreferences, EnergySource, EntityRegistryEntry } from '@/hass';
+import { EnergyPreferences, EnergySource } from '@/hass';
 import { Node } from '@/nodes/node';
 import { name } from '../../package.json';
+import { HassEntity } from "home-assistant-js-websocket";
 
 //================================================================================================================================================================================//
 
@@ -160,7 +161,7 @@ export class EnergyDistributionExtEditor extends LitElement implements LovelaceC
     const mode: DisplayMode = getConfigValue(this._config, GlobalOptions.Mode);
 
     if (!this._secondaryEntities || mode !== this._mode) {
-      this._secondaryEntities = Object.values(this.hass["entities"]).map(entity => (entity as EntityRegistryEntry).entity_id).filter(entityId => isValidSecondaryEntity(this.hass, mode, entityId));
+      this._secondaryEntities = Object.values(this.hass.states).map(entity => (entity as HassEntity).entity_id).filter(entityId => isValidSecondaryEntity(this.hass, mode, entityId));
     }
 
     this._mode = mode;

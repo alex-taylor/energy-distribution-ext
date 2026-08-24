@@ -265,7 +265,7 @@ export abstract class Node<T> {
     }
 
     const units: string | undefined = this.hass.states[entityId].attributes.unit_of_measurement;
-    const decimals: number = getConfigValue(config, SecondaryInfoOptions.Display_Precision) ?? this.hass["entities"][entityId].display_precision;
+    const decimals: number = getConfigValue(config, SecondaryInfoOptions.Display_Precision) ?? this.hass["entities"][entityId]?.display_precision ?? 0;
     const isCurrencyEntity: boolean = deviceClass === DeviceClasses.Monetary;
     let formattedValue: string;
 
