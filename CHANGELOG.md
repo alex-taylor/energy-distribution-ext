@@ -38,7 +38,7 @@ Round the 'solar ratio' value to the nearest 0.05 rather than 0.1 to improve acc
 
 Fixed intermittent divide-by-zero bug in the animation code
 
-## [] - 
+## [1.1.0] - 2026-08-24 
 
 Fixed broken display when live low-carbon values were unavailable
 Fixed blank space being rendered over the device flow-line below the 'Home' circle

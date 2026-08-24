@@ -26,6 +26,7 @@
 
 ### Options
 
-| Name         | Type      | Default | Description                                                                                                      |
-|--------------|-----------|---------|------------------------------------------------------------------------------------------------------------------|
-| `show_ratio` | `boolean` | `false` | If `true` the ratio of energy/power generated from solar to the total energy/power consumed by the home is shown |
+| Name              | Type      | Default | Description                                                                                                                      |
+|-------------------|-----------|---------|----------------------------------------------------------------------------------------------------------------------------------|
+| `show_ratio`      | `boolean` | `false` | If `true` the ratio of energy/power generated from solar to the total energy/power consumed by the home is shown as a ratio      |
+| `show_percentage` | `boolean` | `false` | If `true` the ratio of energy/power generated from solar to the total energy/power consumed by the home is shown as a percentage |
