@@ -377,14 +377,14 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
 
   //================================================================================================================================================================================//
 
-  private _getNodeRenderFn(rowClass: CssClass, nodeLabel: string, nodeContentRenderFn: NodeContentRenderFn): NodeRenderFn {
+  private _getNodeRenderFn(rowClass: CssClass, nodeLabel: string | TemplateResult, nodeContentRenderFn: NodeContentRenderFn): NodeRenderFn {
     return (nodeClass: CssClass, states?: States, overrideElectricPrefix?: SIUnitPrefixes, overrideGasPrefix?: SIUnitPrefixes) => html`
       <div class="node ${nodeClass} ${rowClass}">
-        ${nodeClass === CssClass.Top_Row ? html`<span class="label">${nodeLabel || html`&nbsp;`}</span>` : nothing}
+        ${nodeClass === CssClass.Top_Row ? html`<span class="label">${nodeLabel}</span>` : nothing}
         <div class="circle background">
           ${nodeContentRenderFn!(this, this._circleSize, states, overrideElectricPrefix, overrideGasPrefix)}
         </div>
-        ${nodeClass !== CssClass.Top_Row ? html`<span class="label">${nodeLabel || html`&nbsp;`}</span>` : nothing}
+        ${nodeClass !== CssClass.Top_Row ? html`<span class="label">${nodeLabel}</span>` : nothing}
       </div>
     `;
   }
@@ -984,7 +984,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
       const device: DeviceNode = entityStates.devices[deviceIndex];
       device.exportIcon = exportIcon;
       device.importIcon = importIcon;
-      return this._getNodeRenderFn(device.cssClass, device.name, (target, circleSize, states, overrideElectricPrefix, overrideGasPrefix) => device.render(target, circleSize, states, overrideElectricPrefix, overrideGasPrefix))
+      return this._getNodeRenderFn(device.cssClass, device.name || html`&nbsp;`, (target, circleSize, states, overrideElectricPrefix, overrideGasPrefix) => device.render(target, circleSize, states, overrideElectricPrefix, overrideGasPrefix))
     }
 
     switch (devicesLayout) {
@@ -1008,7 +1008,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         }
 
         if (this._showDeviceBus) {
-          layoutGrid[1][3] = this._getNodeRenderFn(this._deviceBus.cssClass, this._deviceBus.name, this._deviceBus.render);
+          layoutGrid[1][3] = this._getNodeRenderFn(this._deviceBus.cssClass, html`&nbsp;`, this._deviceBus.render);
         }
         break;
 
@@ -1022,7 +1022,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
         }
 
         if (this._showDeviceBus) {
-          layoutGrid[3][1] = this._getNodeRenderFn(this._deviceBus.cssClass, this._deviceBus.name, this._deviceBus.render);
+          layoutGrid[3][1] = this._getNodeRenderFn(this._deviceBus.cssClass, html`&nbsp;`, this._deviceBus.render);
         }
         break;
     }

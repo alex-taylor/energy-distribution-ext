@@ -41,3 +41,4 @@ Fixed intermittent divide-by-zero bug in the animation code
 ## [] - 
 
 Fixed broken display when live low-carbon values were unavailable
+Fixed blank space being rendered over the device flow-line below the 'Home' circle
