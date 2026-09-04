@@ -46,3 +46,7 @@ Read secondary entity-ids from the 'states' list rather than the 'entities' list
 Fallback to zero for display precision for secondary entities which do not have an entry in the 'entities' list
 Added option to override the 'Untracked consumption' label
 Added option to display solar consumption as a percentage
+
+## [1.1.1] - 2026-09-04
+
+Fixed missing config-validation for the 'untracked consumption' override option

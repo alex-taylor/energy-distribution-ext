@@ -74,6 +74,12 @@ const overridesConfigStruct = object({
   [OverridesOptions.Icon]: optional(string())
 });
 
+const homeOverridesConfigStruct = object({
+  [OverridesOptions.Name]: optional(string()),
+  [OverridesOptions.Icon]: optional(string()),
+  [OverridesOptions.UntrackedConsumption]: optional(string())
+});
+
 const secondaryInfoConfigStruct = object({
   [SecondaryInfoOptions.Entity_Id]: optional(string()),
   [SecondaryInfoOptions.Unit_Position]: optional(string()),
@@ -116,6 +122,7 @@ const homeOptionsConfigStruct = object({
 
 const homeConfigStruct = object({
   ...nodeConfig,
+  [NodeOptions.Overrides]: optional(homeOverridesConfigStruct),
   [GlobalOptions.Options]: optional(homeOptionsConfigStruct)
 });
 
