@@ -1254,7 +1254,7 @@ export default class EnergyDistributionExt extends SubscribeMixin(LitElement) {
                 <ha-icon-button @click=${() => this._entityStates.gotoPreviousDate()}>
                   <ha-icon class="date-range-icon" .icon=${"mdi:chevron-left"}></ha-icon>
                 </ha-icon-button>
-                <ha-button appearance="filled" size="small" variant="brand" @click=${() => this._entityStates.isNowDateAvailable && this._entityStates.gotoNow()}>
+                <ha-button appearance="filled" size="s" variant="brand" @click=${() => this._entityStates.isNowDateAvailable && this._entityStates.gotoNow()}>
                   Now
                 </ha-button>
                 <ha-icon-button @click=${() => this._entityStates.isNextDateAvailable && this._entityStates.gotoNextDate()}>
