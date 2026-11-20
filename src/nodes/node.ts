@@ -260,9 +260,26 @@ export abstract class Node<T> {
 
     const deviceClass: string | undefined = this.hass.states[entityId].attributes.device_class;
 
-    if (deviceClass === DeviceClasses.Energy || deviceClass === DeviceClasses.Power) {
+
+    if (deviceClass === DeviceClasses.Energy) {
       return this.renderEnergyState(state, this.electricUnits);
     }
+ 
+    if (deviceClass === DeviceClasses.Power) {
+      const sourceUnit = this.hass.states[entityId].attributes.unit_of_measurement;
+      const powerInKw = sourceUnit === "kW" ? state : state / 1000;
+      const formattedValue = formatNumber(
+        new Decimal(powerInKw).toFixed(2),
+        this.hass.locale
+      );
+
+      return this._formatState(
+        formattedValue,
+        "kW",
+        getConfigValue(config, SecondaryInfoOptions.Unit_Position)
+      );
+    }
+
 
     const units: string | undefined = this.hass.states[entityId].attributes.unit_of_measurement;
     const decimals: number = getConfigValue(config, SecondaryInfoOptions.Display_Precision) ?? this.hass["entities"][entityId]?.display_precision ?? 0;
