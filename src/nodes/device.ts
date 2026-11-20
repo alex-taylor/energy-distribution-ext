@@ -2,7 +2,7 @@ import { DeviceConfig, DeviceOptions, ColourOptions, EditorPages, EnergyDistribu
 import { HomeAssistant } from "custom-card-helpers";
 import { Node } from "./node";
 import { DEFAULT_DEVICE_CONFIG, getConfigValue } from "@/config/config";
-import { CssClass, DisplayMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection, EnergyType, GAS_ENTITY_CLASSES, SIUnitPrefixes, VolumeUnits } from "@/enums";
+import { CssClass, DeviceClasses, DisplayMode, ELECTRIC_ENTITY_CLASSES, EnergyDirection, EnergyType, GAS_ENTITY_CLASSES, SIUnitPrefixes, VolumeUnits } from "@/enums";
 import { States } from ".";
 import { Colours } from "./colours";
 import { html, LitElement, nothing, TemplateResult } from "lit";
@@ -103,6 +103,25 @@ export class DeviceNode extends Node<DeviceConfig> {
       exportValue = null;
     }
 
+    const secondaryEntityId = this.secondary.entity;
+    const secondaryEntity = secondaryEntityId
+      ? this.hass.states[secondaryEntityId]
+      : undefined;
+
+    const isPowerSensor =
+      secondaryEntity?.attributes.device_class === DeviceClasses.Power;
+
+    const power = secondaryEntity
+      ? Number(secondaryEntity.state)
+      : NaN;
+
+    const isPowerZero =
+      isPowerSensor &&
+      secondaryEntity?.state !== "unknown" &&
+      secondaryEntity?.state !== "unavailable" &&
+      Number.isFinite(power) &&
+      power === 0;
+    
     const inactiveCss: CssClass = !states || (!importValue && !exportValue) ? this.inactiveFlowsCss : CssClass.None;
     const importCss: string = "import-" + this.cssClass;
     const exportCss: string = "export-" + this.cssClass;
@@ -154,7 +173,12 @@ export class DeviceNode extends Node<DeviceConfig> {
 
       <div class="circle ${inactiveCss}">
         ${this.renderSecondarySpan(target, this.secondary, states?.devicesSecondary[index], this.cssClass)}
-        <ha-icon class="entity-icon" .icon=${this.icon}></ha-icon>
+        <ha-icon
+          class="entity-icon"
+          .icon=${this.icon}
+          style=${isPowerZero ? "color: #808080 !important;" : ""}
+        ></ha-icon>
+
         ${this.direction !== EnergyDirection.Producer_Only ? this.renderEnergyStateSpan(target, exportCss, units, this.firstExportEntity, (this.mode !== DisplayMode.Power || exportValue !== 0) && this.direction === EnergyDirection.Both ? this.exportIcon : undefined, exportValue, prefix) : nothing}
         ${this.direction !== EnergyDirection.Consumer_Only ? this.renderEnergyStateSpan(target, importCss, units, this.firstImportEntity, (this.mode !== DisplayMode.Power || importValue !== 0) && this.direction === EnergyDirection.Both ? this.importIcon : undefined, importValue, prefix) : nothing}
       </div>
