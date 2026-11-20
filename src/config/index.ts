@@ -383,8 +383,26 @@ export function isValidPrimaryEntity(hass: HomeAssistant, mode: DisplayMode, ent
 
 //================================================================================================================================================================================//
 
-export function isValidSecondaryEntity(hass: HomeAssistant, mode: DisplayMode, entityId: string = ""): boolean {
-  return isSupportedStateClass(hass, mode, entityId);
+export function isValidSecondaryEntity(
+  hass: HomeAssistant,
+  mode: DisplayMode,
+  entityId: string = ""
+): boolean {
+  const entity = hass.states[entityId];
+
+  if (!entity) {
+    return false;
+  }
+
+  if (isSupportedStateClass(hass, mode, entityId)) {
+    return true;
+  }
+
+  return (
+    mode === DisplayMode.Energy &&
+    entity.attributes.device_class === DeviceClasses.Power &&
+    entity.attributes.state_class === StateClasses.Measurement
+  );
 }
 
 //================================================================================================================================================================================//
