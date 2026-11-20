@@ -226,6 +226,31 @@ export class EntityStates {
     const states: States = structuredClone(this._states);
     this._addStateDeltas(states);
 
+    // Use live HA states for instantaneous secondary power sensors.
+    // Keep historical statistics for energy sensors.
+    this.devices.forEach((device, index) => {
+      const entityId = device.secondary.entity;
+
+      if (!entityId) {
+        return;
+      }
+
+      const entity = this.hass.states[entityId];
+
+      if (entity?.attributes.device_class !== DeviceClasses.Power) {
+        return;
+      }
+
+      const power = Number(entity.state);
+
+      states.devicesSecondary[index] =
+        entity.state === "unknown" ||
+        entity.state === "unavailable" ||
+        !Number.isFinite(power)
+          ? NaN
+          : power;
+    });
+
     states.lowCarbon = this.lowCarbon.isPresent ? states.grid.import - states.highCarbon : 0;
     states.lowCarbonPercentage = (states.lowCarbon / states.grid.import) * 100;
 
@@ -963,9 +988,18 @@ export class EntityStates {
       this._primaryEntityIds.push(...state.importEntities);
       this._primaryEntityIds.push(...state.exportEntities);
 
+
       if (state.secondary.isPresent) {
-        this._secondaryEntityIds.push(state.secondary.entity!);
+        const entityId = state.secondary.entity!;
+        const entity = this.hass.states[entityId];
+
+        // Instantaneous power is read directly from HA,
+        // so it does not need historical statistics.
+        if (entity?.attributes.device_class !== DeviceClasses.Power) {
+          this._secondaryEntityIds.push(entityId);
+        }
       }
+
     });
   }
 
